@@ -21,12 +21,10 @@ class DeliverobotTSPClient(Node):
 
     def callback_response(self, future):
         response = future.result()
-        if response.success:
-            data = json.loads(response.message)
-            self.get_logger().info(f"TSP Route: {data['route']}")
-            self.get_logger().info(f"Total Distance: {data['total_distance']}")
-        else:
-            self.get_logger().error("Route calculation failed.")
+        data = json.loads(response.message)
+        self.get_logger().info(f"TSP {data['targets_order']}")
+        self.get_logger().info(f"Full Path (including intermediate nodes): {data['route']}")
+        self.get_logger().info(f"Total Distance: {data['total_distance']}")
 
 def main(args=None):
     rclpy.init(args=args)

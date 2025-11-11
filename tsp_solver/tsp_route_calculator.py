@@ -22,20 +22,22 @@ class TSPRouteService(Node):
         response.success = True
         response.message = json.dumps({
             'route': optimized,
+            'targets_order': [n for n in optimized if n in self.targets],  
             'total_distance': solver.total_distance(optimized)
         })
-        self.get_logger().info(f"Calculated route for request {request}: {optimized}")
+        self.get_logger().info(f"Full path: {optimized}")
+        self.get_logger().info(f"Targets order: {[n for n in optimized if n in self.targets]}")
         return response
 
 def main():
     rclpy.init()
     graph = {
         'PostOffice': {'H1': 2, 'H2': 3},
-        'H1': {'PostOffice': 2, 'H2': 1, 'H3': 4},
+        'H1': {'PostOffice': 2, 'H2': 1},
         'H2': {'PostOffice': 3, 'H1': 1, 'H3': 2},
         'H3': {'H1': 4, 'H2': 2},
     }
-    targets = ['H1', 'H3']  # Hhouses to visit
+    targets = ['H1', 'H3']  # houses to visit -> WILL BE SOMEHOW PASSED TO HERE
     node = TSPRouteService(graph, targets)
     rclpy.spin(node)
     rclpy.shutdown()
