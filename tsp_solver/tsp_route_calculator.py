@@ -13,7 +13,7 @@ class TSPRouteService(Node):
         self.graph = graph
         self.targets = targets
 
-    def calculate_callback(self, request, response):
+    def calculate_callback(self, _, response):
         solver = GraphTSP(self.graph)
         start = 'PostOffice'
         route = solver.nearest_neighbour_tsp(start, self.targets)
@@ -34,10 +34,33 @@ def main():
     graph = {
         'PostOffice': {'H1': 2, 'H2': 3},
         'H1': {'PostOffice': 2, 'H2': 1},
-        'H2': {'PostOffice': 3, 'H1': 1, 'H3': 2},
-        'H3': {'H1': 4, 'H2': 2},
+        'H2': {'H1': 4, 'H3': 2},
+        'H3': {'H1': 3, 'H2': 1}, 
+        # even though H2 is less from H3 the whole path would be longer therefore took H1
     }
-    targets = ['H1', 'H3']  # houses to visit -> WILL BE SOMEHOW PASSED TO HERE
+    graph = {
+        'PostOffice': {'H1': 2, 'H2': 3},
+        'H1': {'PostOffice': 10, 'H2': 1},
+        'H2': {'PostOffice':1,'H1': 4, 'H3': 2},
+        'H3': {'H1': 1, 'H2': 3},
+        # ['PostOffice', 'H1', 'H2', 'H3', 'H1', 'H2', 'PostOffice']
+
+    }
+    graph = {
+        'PostOffice': {'H1': 3, 'H2': 4, 'H3': 8},
+        'H1': {'PostOffice': 3, 'H2': 2, 'H4': 4},
+        'H2': {'PostOffice': 4, 'H1': 2, 'H3': 3, 'H5': 5},
+        'H3': {'PostOffice': 8, 'H2': 3, 'H6': 2},
+        'H4': {'H1': 4, 'H5': 3, 'H7': 6},
+        'H5': {'H2': 5, 'H4': 3, 'H6': 4, 'H8': 5},
+        'H6': {'H3': 2, 'H5': 4, 'H9': 3},
+        'H7': {'H4': 6, 'H8': 2, 'H10': 4},
+        'H8': {'H5': 5, 'H7': 2, 'H9': 3},
+        'H9': {'H6': 3, 'H8': 3, 'H10': 2},
+        'H10': {'H7': 4, 'H9': 2, 'PostOffice': 7}
+    }
+
+    targets = ['H2', 'H5', 'H8', 'H10']  # houses to visit -> WILL BE SOMEHOW PASSED TO HERE
     node = TSPRouteService(graph, targets)
     rclpy.spin(node)
     rclpy.shutdown()
