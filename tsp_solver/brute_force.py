@@ -35,7 +35,6 @@ class BruteForceTSP:
         return []
 
     def path_and_distance(self, start, end):
-        """Runs Dijkstra from start and returns (path, distance)."""
         dist, prev = self.dijkstra(start)
         if dist[end] == float('inf'):
             return [], float('inf')
@@ -45,7 +44,7 @@ class BruteForceTSP:
     def total_distance(self, route):
         total = 0
         for i in range(len(route) - 1):
-            path, dist = self.path_and_distance(route[i], route[i + 1])
+            _, dist = self.path_and_distance(route[i], route[i + 1])
             total += dist
         return total
 
