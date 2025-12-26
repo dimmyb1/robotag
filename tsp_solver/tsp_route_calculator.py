@@ -131,7 +131,7 @@ def main():
         'CHARGER_2': {
             'PO': RIGHT + 6 + RIGHT + 8 + LEFT,
             'HOUSE_1': RIGHT + 6 + RIGHT + 13 + RIGHT + 1 + LEFT,
-            'HOUSE_2': LEFT + 5 + LEFT + 12 + RIGHT,
+            'HOUSE_2': LEFT + 5 + LEFT + 11,
             'HOUSE_3': LEFT + 5 + RIGHT + 11 + LEFT + 5 + RIGHT + 1 + RIGHT,
             'HOUSE_4': LEFT + 6 + RIGHT + 11 + RIGHT + 3,
             'HOUSE_5': LEFT + 5 + LEFT + 8 + LEFT + 2 + RIGHT,
