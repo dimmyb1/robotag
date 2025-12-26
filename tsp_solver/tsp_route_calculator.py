@@ -41,24 +41,24 @@ class TSPRouteServer(Node):
 
 def main():
     rclpy.init()
-    graph = {
-        'PostOffice': {'H1': 2, 'H2': 3},
-        'H1': {'PostOffice': 2, 'H2': 1},
-        'H2': {'H1': 4, 'H3': 2},
-        'H3': {'H1': 3, 'H2': 1}, 
-        # even though H2 is less from H3 the whole path would be longer therefore took H1
-    }
-    graph = {
-        'PostOffice': {'H1': 2, 'H2': 3},
-        'H1': {'PostOffice': 10, 'H2': 1},
-        'H2': {'PostOffice':1,'H1': 4, 'H3': 2},
-        'H3': {'H1': 1, 'H2': 3},
-        # ['PostOffice', 'H1', 'H2', 'H3', 'H1', 'H2', 'PostOffice']
+    # graph = {
+    #     'PostOffice': {'H1': 2, 'H2': 3},
+    #     'H1': {'PostOffice': 2, 'H2': 1},
+    #     'H2': {'H1': 4, 'H3': 2},
+    #     'H3': {'H1': 3, 'H2': 1}, 
+    #     # even though H2 is less from H3 the whole path would be longer therefore took H1
+    # }
+    # graph = {
+    #     'PostOffice': {'H1': 2, 'H2': 3},
+    #     'H1': {'PostOffice': 10, 'H2': 1},
+    #     'H2': {'PostOffice':1,'H1': 4, 'H3': 2},
+    #     'H3': {'H1': 1, 'H2': 3},
+    #     # ['PostOffice', 'H1', 'H2', 'H3', 'H1', 'H2', 'PostOffice']
 
-    }
+    # }
     graph = {
         'PostOffice': {'H1': 4, 'H2': 6, 'H3': 8, 'H4': 5},
-        'H1': {'PostOffice': 4, 'H2': 2, 'H5': 7, 'H6': 3},
+        'H1': {'PostOffice': 4, ''H2': 2, 'H5': 7, 'H6': 3},
         'H2': {'PostOffice': 6, 'H1': 2, 'H3': 4, 'H5': 5, 'H7': 6},
         'H3': {'PostOffice': 8, 'H2': 4, 'H4': 3, 'H6': 6, 'H8': 5},
         'H4': {'PostOffice': 5, 'H3': 3, 'H7': 4, 'H8': 6},
