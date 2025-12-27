@@ -137,7 +137,7 @@ def main():
             'HOUSE_5': LEFT + 5 + LEFT + 8 + LEFT + 2 + RIGHT,
             'HOUSE_6': LEFT + 5 + LEFT + 6 + RIGHT,
             'HOUSE_7': RIGHT + 6 + LEFT,
-            'HOUSE_8': RIGHT + 6 + RIGHT + 4 + RIGHT + 3 + LEFT,
+            'HOUSE_8': RIGHT + 6 + RIGHT + 3 + RIGHT + 3 + LEFT,
             'HOUSE_9': LEFT + 3 + RIGHT,
             'HOUSE_10': RIGHT + 6 + LEFT + 3 + RIGHT + 8 + LEFT + 1 + RIGHT,
             'CHARGER_0': RIGHT + 6 + RIGHT + 7 + LEFT,
