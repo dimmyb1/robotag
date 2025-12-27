@@ -97,13 +97,13 @@ def main():
         },
 
         'CHARGER_0': {
-            'PO': RIGHT + 1 + LEFT,
+            'PO': LEFT + 1 + RIGHT,
             'HOUSE_1': RIGHT + 6 + RIGHT + 1 + LEFT,
             'HOUSE_2': RIGHT + 4 + RIGHT + 11 + LEFT,
             'HOUSE_3': RIGHT + 4 + RIGHT + 6 + LEFT + 1 + RIGHT,
             'HOUSE_4': RIGHT + 4 + RIGHT + 3 + RIGHT,
             'HOUSE_5': RIGHT + 1 + RIGHT + 9 + LEFT,
-            'HOUSE_6': LEFT + 2 + LEFT + 11 + LEFT + 1 + RIGHT,
+            'HOUSE_6': RIGHT + 1 + RIGHT + 11 + RIGHT + 2 + LEFT,
             'HOUSE_7': LEFT + 7,
             'HOUSE_8': LEFT + 4 + LEFT + 3 + LEFT,
             'HOUSE_9': LEFT + 7 + LEFT + 9 + RIGHT,
