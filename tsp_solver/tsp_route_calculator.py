@@ -220,7 +220,7 @@ def main():
             'HOUSE_9':  RIGHT + 2 + RIGHT + 8 + RIGHT + 2 + LEFT,
             'HOUSE_10': LEFT + 3 + LEFT + 2 + LEFT + 2 + RIGHT + 2 + LEFT,
             'PO':        LEFT + 9,
-            'CHARGER_0': LEFT + 9 + RIGHT + 1 + LEFT,
+            'CHARGER_0': LEFT + 9 + LEFT + 1 + RIGHT,
             'CHARGER_1': LEFT + 2 + RIGHT + 3 + RIGHT + 1 + LEFT,      
             'CHARGER_2': RIGHT + 2 + RIGHT + 8 + RIGHT + 5 + LEFT
         },
