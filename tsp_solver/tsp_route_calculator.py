@@ -291,9 +291,9 @@ def main():
 
         'HOUSE_10': {
             'HOUSE_1':  RIGHT + 1 + RIGHT + 8 + RIGHT + 10 + RIGHT + 1 + LEFT,
-            'HOUSE_2':  LEFT + 2 + LEFT + 2 + RIGHT+ 2 + LEFT + 6 + RIGHT + 5 + RIGHT + 1 + LEFT,
+            'HOUSE_2':  LEFT + 2 + LEFT + 2 + RIGHT+ 2 + RIGHT + 5 + LEFT + 3,
             'HOUSE_3':  LEFT + 2 + LEFT + 2 + RIGHT + 2 + RIGHT + 1 + LEFT + 3 + LEFT + 1 + RIGHT + 1 + RIGHT,
-            'HOUSE_4':  LEFT + 2 + LEFT + 2 + RIGHT + 2 + RIGHT + 1 + LEFT + 3 + LEFT + 4 + LEFT,
+            'HOUSE_4':  LEFT + 2 + LEFT + 2 + RIGHT + 2 + RIGHT + 1 + LEFT + 3 + RIGHT + 4 + LEFT,
             'HOUSE_5':  LEFT + 2 + LEFT + 2 + RIGHT + 2 + RIGHT + 3 + LEFT,
             'HOUSE_6': LEFT + 2 + LEFT + 2 + RIGHT + 2 + RIGHT + 5 + RIGHT + 2 + LEFT,
             'HOUSE_7':  RIGHT + 1 + RIGHT + 8 + LEFT + 3,
