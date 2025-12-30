@@ -11,7 +11,7 @@ import cv2
 class CameraFollower(Node):
     def __init__(self):
         super().__init__('camera_house_follower')
-        self.TARGET_HOUSE = "H2_yellow"
+        self.TARGET_HOUSE = "HOUSE_2"
         # Camera subscription
         self.image_sub = self.create_subscription(
             Image,
@@ -27,17 +27,29 @@ class CameraFollower(Node):
 
         # HSV colour ranges derived from SDF diffuse colours
         self.house_colours = {
-            "H1_brown":   ((5, 100, 50),   (15, 255, 200)),
-            "H2_yellow":  ((20, 120, 120), (35, 255, 255)),
-            "H3_orange":  ((10, 120, 120), (20, 255, 255)),
-            "H4_pink":    ((150, 80, 120), (170, 255, 255)),
-            "H5_red":     ((0, 120, 120),  (8, 255, 255)),
-            "H6_cyan":    ((80, 120, 120), (100, 255, 255)),
-            "H7_magenta": ((140, 120, 120),(160, 255, 255)),
-            "H8_purple":  ((120, 120, 120),(140, 255, 255)),
-            "H9_blue":    ((100, 120, 120),(120, 255, 255)),
-            "H10_lblue":  ((90, 50, 180),  (110, 180, 255)),
-            "PO_white":   ((0, 0, 200),    (179, 40, 255)),
+            # brown
+            "HOUSE_1":   ((5, 100, 50),   (15, 255, 200)), 
+            # yellow
+            "HOUSE_2":  ((20, 120, 120), (35, 255, 255)),
+            # orange
+            "HOUSE_3":  ((10, 120, 120), (20, 255, 255)),
+            # pink
+            "HOUSE_4":    ((150, 80, 120), (170, 255, 255)),
+            # red
+            "HOUSE_5":     ((0, 120, 120),  (8, 255, 255)),
+            # cyan
+            "HOUSE_6":    ((80, 120, 120), (100, 255, 255)),
+            # magenta
+            "HOUSE_7": ((140, 120, 120),(160, 255, 255)),
+            # purple
+            "HOUSE_8":  ((120, 120, 120),(140, 255, 255)),
+            # blue
+            "HOUSE_9":    ((100, 120, 120),(120, 255, 255)),
+            # light blue
+            "HOUSE_10":  ((90, 50, 180),  (110, 180, 255)),
+            # white
+            "PO":   ((0, 0, 200),    (179, 40, 255)),
+            # green
             "C_green":    ((45, 120, 120), (75, 255, 255)),
         }
 
@@ -48,6 +60,7 @@ class CameraFollower(Node):
 
         self.get_logger().info("Camera House Follower Started")
         self.get_logger().info(f"Target house: {self.TARGET_HOUSE}")
+
     def image_callback(self, msg):
         """Process camera image and follow dark objects"""
         # Convert image message to numpy array
