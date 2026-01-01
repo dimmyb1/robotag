@@ -8,7 +8,7 @@ import numpy as np
 import cv2
 
 class CameraFollower(Node):
-    def __init__(self, target_house="PO"):
+    def __init__(self, target_house="HOUSE_5"):
         super().__init__('camera_house_follower')
         self.TARGET_HOUSE = target_house
 
@@ -49,8 +49,12 @@ class CameraFollower(Node):
         for name, rgb in colors.items():
             rgb_np = np.uint8([[list(rgb)]])
             hsv = cv2.cvtColor(rgb_np, cv2.COLOR_RGB2HSV)[0][0]
-            # Exact HSV detection - same min and max
-            self.house_colours[name] = (tuple(hsv), tuple(hsv))
+
+            h, s, v = hsv
+            lower = (max(h - 10, 0), max(s - 50, 50), max(v - 50, 50))
+            upper = (min(h + 10, 179), min(s + 50, 255), min(v + 50, 255))
+
+            self.house_colours[name] = (lower, upper)
 
         # prevent errors
         if self.TARGET_HOUSE not in self.house_colours:
@@ -70,7 +74,7 @@ class CameraFollower(Node):
         img = np.array(msg.data, dtype=np.uint8).reshape(height, width, 3)
 
         # Convert RGB to HSV - Hue Saturation Value
-        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # Colour mask for selected house
         mask = cv2.inRange(
@@ -98,6 +102,9 @@ class CameraFollower(Node):
         right_pixels = np.sum(right > 0)
         # is the house visible
         total_pixels = np.sum(mask > 0)
+        print(total_pixels)
+        self.get_logger().info(str(img[height//2, width//2]))
+
 
         cmd = Twist()
 
@@ -124,7 +131,7 @@ class CameraFollower(Node):
                     self.get_logger().info("Aligning RIGHT")
         else:
             cmd.angular.z = 0.3
-            self.get_logger().info("Searching for target house...")
+            self.get_logger().info(f"Searching for target house {self.TARGET_HOUSE}")
 
         self.cmd_pub.publish(cmd)
 
