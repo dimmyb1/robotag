@@ -8,7 +8,8 @@ import numpy as np
 import cv2
 
 class CameraFollower(Node):
-    def __init__(self, target_house="HOUSE_5"):
+    # call it with the house its finding
+    def __init__(self, target_house="HOUSE_2"):
         super().__init__('camera_house_follower')
         # set a target house
         self.TARGET_HOUSE = target_house
@@ -53,10 +54,11 @@ class CameraFollower(Node):
 
             # widen HSV range to tolerate lighting
             h, s, v = hsv
-            print("Value of h in hsv", h, s, v, "in name", name)
+            # print("Value of h in hsv", h, s, v, "in name", name)
             # widen HSV range to tolerate lighting and distinguish similar hues
-            lower = (max(h - 5, 0), max(s - 50, 50), max(v - 50, 50))
-            upper = (min(h + 5, 179), min(s + 50, 255), min(v + 50, 255))
+            lower = (max(h - 5, 0), 100, 80)
+            upper = (min(h + 5, 179), 255, 255)
+
 
 
             self.house_colours[name] = (lower, upper)
@@ -112,11 +114,9 @@ class CameraFollower(Node):
         # is the house visible
         total_pixels = np.sum(mask > 0)
         # print(total_pixels)
-        print(hsv)
+        # print(hsv)
         
-        # ------------------------
         # CHECK FOR OTHER OBJECTS
-        # ------------------------
         other_objects = []
         for name, (lower, upper) in self.house_colours.items():
             if name == self.TARGET_HOUSE:
@@ -129,9 +129,7 @@ class CameraFollower(Node):
 
         cmd = Twist()
 
-        # ------------------------
         # CONTROL LOGIC
-        # ------------------------
         if total_pixels > 500:
             if center_ratio > self.stop_ratio:
                 cmd.linear.x = 0.0
@@ -145,9 +143,11 @@ class CameraFollower(Node):
                 )
             else:
                 if left_pixels > right_pixels:
+                    cmd.angular.x = 0.05
                     cmd.angular.z = 0.4
                     self.get_logger().info("Aligning LEFT")
                 else:
+                    cmd.linear.x = 0.05
                     cmd.angular.z = -0.4
                     self.get_logger().info("Aligning RIGHT")
         else:
