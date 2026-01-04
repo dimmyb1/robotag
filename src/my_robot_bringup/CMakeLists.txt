@@ -9,8 +9,13 @@ endif()
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY launch config worlds
+  DIRECTORY launch config worlds scripts
   DESTINATION share/${PROJECT_NAME}/
+)
+
+install(PROGRAMS
+  scripts/camera_follower.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
