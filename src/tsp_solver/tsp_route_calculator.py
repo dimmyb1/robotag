@@ -378,6 +378,38 @@ def main():
             'CHARGER_0': [False, True, False, True, False, False, True, True],
             'CHARGER_1': [False, False, False, True, False, True]
         },
+
+        'HOUSE_1': {
+            'HOUSE_2':  [True, True, False, False, True, False],
+            'HOUSE_3':  [True, False],
+            'HOUSE_4':  [False, False, True],
+            'HOUSE_5':  [True, True, False, True, False, False],
+            'HOUSE_6':  [True, True, False, False, True, True, False, False],
+            'HOUSE_7':  [False, True, False, True, False, True, True],
+            'HOUSE_8':  [False, True, False, True, False, False, False],
+            'HOUSE_9':  [False, True, False, True, False, True, False, False, True],
+            'HOUSE_10': [False, True, False, True, False, False, True, True, True],
+            'PO':       [False, True, True],
+            'CHARGER_0': [False, True, False, True, True],
+            'CHARGER_1': [True, True, False, False, False],
+            'CHARGER_2': [False, True, False, True, False, True, False, True]
+        },
+
+        'HOUSE_2': {
+            'HOUSE_1':  [False, False, True, True, False, True],
+            'HOUSE_3':  [False, False, True, True, True],
+            'HOUSE_4':  [False, False, True, False, False],
+            'HOUSE_5':  [True, True, True],
+            'HOUSE_6':  [True, False, False],
+            'HOUSE_7':  [True, False, True, True, True, False],
+            'HOUSE_8':  [False, False, False, True, False, True, True, True],
+            'HOUSE_9':  [True, False, True, False],
+            'HOUSE_10': [False, False, False, True, False, False, False],
+            'PO':       [False, False, True, False, True, False, True],
+            'CHARGER_0': [False, False, True, False, True, False, False, True, True],
+            'CHARGER_1': [False, True],
+            'CHARGER_2': [True, False, True, True, False]
+        },
     }
 
     targets = ['HOUSE_6', 'HOUSE_4', 'HOUSE_10']
