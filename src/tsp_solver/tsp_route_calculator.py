@@ -317,6 +317,7 @@ def main():
 
      #start facing the building
      #turnRight = ?
+     # true if you turn right false if you turn left
     directions = {
         'PO': {'HOUSE_1': [True, False, False], 
                'HOUSE_2': [True, True, False, True, False, True, False], 
