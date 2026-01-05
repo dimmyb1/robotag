@@ -204,14 +204,14 @@
     <joint name="rear_left_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="rear_left_wheel_link"/>
-        <origin xyz="${(-(base_length + 0.01) / 2.0) + 0.2} 0.32 -0.1" rpy="0 0 0"/>
+        <origin xyz="${(-(base_length + 0.01) / 2.0) + 0.2} 0.32 -0.2" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
     <joint name="rear_right_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="rear_right_wheel_link"/>
-        <origin xyz="${(-(base_length + 0.01) / 2.0) + 0.2} -0.32 -0.1" rpy="0 0 0"/>
+        <origin xyz="${(-(base_length + 0.01) / 2.0) + 0.2} -0.32 -0.2" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
@@ -222,7 +222,7 @@
     <joint name="front_right_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="front_right_wheel_link"/>
-        <origin xyz="${((base_length + 0.01) / 2.0) - 0.2} -0.32 -0.1" rpy="0 0 0"/>
+        <origin xyz="${((base_length + 0.01) / 2.0) - 0.2} -0.32 -0.2" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
@@ -248,7 +248,7 @@
     <joint name="front_left_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="front_left_wheel_link"/>
-        <origin xyz="${((base_length + 0.01) / 2.0) - 0.2} 0.32 -0.1" rpy="0 0 0"/>
+        <origin xyz="${((base_length + 0.01) / 2.0) - 0.2} 0.32 -0.2" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
