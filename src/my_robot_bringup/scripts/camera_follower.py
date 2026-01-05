@@ -15,9 +15,9 @@ class CameraFollower(Node):
         self.TARGET_HOUSE = target_house
 
         # Camera subscription
-        self.image_sub = self.create_subscription(
+        self.house_colour_sub = self.create_subscription(
             Image,
-            '/camera/image_raw',
+            '/front_camera/image_raw',
             self.image_callback,
             10
         )
