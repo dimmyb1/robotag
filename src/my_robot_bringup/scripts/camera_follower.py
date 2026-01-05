@@ -21,9 +21,10 @@ class CameraFollower(Node):
         super().__init__('camera_house_follower')
         # set a target house
         self.TARGET_HOUSE = target_house
+        # start with follow mode
         self.mode = Mode.FOLLOW_LINE
 
-        # Front - house detection
+        # Front - house colour detection
         self.front_sub = self.create_subscription(
             Image,
             '/front_camera/image_raw',
@@ -61,12 +62,18 @@ class CameraFollower(Node):
 
         self.line_found = False
         self.line_error = 0.0
+        # track last line seen
+        self.last_line_seen = False  
+        # track last error 
+        self.last_line_error = 0.0     
 
         self.left_line = False
         self.right_line = False
 
         self.house_visible = False
         self.house_reached = False
+        # Count the number of times the house was seen
+        # This is done to switch to house detection mode
         self.house_seen_frames = 0
 
         # Stop distance proxy image-based - when house fills 25% of center
@@ -104,8 +111,6 @@ class CameraFollower(Node):
             lower = (max(h - 5, 0), 100, 80)
             upper = (min(h + 5, 179), 255, 255)
 
-
-
             self.house_colours[name] = (lower, upper)
 
         # prevent errors
@@ -135,6 +140,8 @@ class CameraFollower(Node):
             cx = int(M["m10"] / M["m00"])
             self.line_found = True
             self.line_error = cx - (w // 2)
+            self.last_line_seen = True        
+            self.last_line_error = self.line_error  
         else:
             self.line_found = False
 
@@ -174,7 +181,17 @@ class CameraFollower(Node):
                 cmd.linear.x = 0.22
                 cmd.angular.z = -self.line_error * 0.003
             else:
-                cmd.angular.z = 0.3
+                # line lost - try to recover
+                cmd.linear.x = 0.1  # move forward slowly to help catch line
+                # use side cameras if available
+                if self.left_line and not self.right_line:
+                    cmd.angular.z = 0.8  # turn left faster
+                elif self.right_line and not self.left_line:
+                    cmd.angular.z = -0.8  # turn right faster
+                elif self.last_line_seen:
+                    cmd.angular.z = -np.sign(self.last_line_error) * 0.8  # faster turn
+                else:
+                    cmd.angular.z = 1.0  # spin in place faster
 
             # Intersection hook 
             if self.left_line and self.right_line:
