@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <!-- Updated properties to match your robot model -->
-    <xacro:property name="base_length" value="1.0"/>
+    <xacro:property name="base_length" value="0.8"/>
     <xacro:property name="base_width"  value="0.6"/>
     <xacro:property name="base_height" value="0.3"/>
     <xacro:property name="wheel_radius" value="0.15"/>
@@ -47,13 +47,13 @@
     <joint name="front_box_joint" type="fixed">
         <parent link="base_link"/>
         <child link="front_box_link"/>
-        <origin xyz="0.23 0 0.29" rpy="0 0 0"/>
+        <origin xyz="0.18 0 0.20" rpy="0 0 0"/>
     </joint>
     <link name="front_box_link">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <box size="0.4 0.4 0.3"/>
+                <box size="0.3 0.3 0.25"/>
             </geometry>
             <material name="accent_orange">
                 <color rgba="0.95 0.47 0.14 1.0"/>
@@ -73,7 +73,7 @@
     <joint name="basket_back_joint" type="fixed">
         <parent link="base_link"/>
         <child link="basket_back_link"/>
-        <origin xyz="-0.45 0 0.2" rpy="0 0 0"/>
+        <origin xyz="-0.35 0 0.2" rpy="0 0 0"/>
     </joint>
     <link name="basket_back_link">
         <visual>
@@ -90,7 +90,7 @@
     <joint name="basket_left_joint" type="fixed">
         <parent link="base_link"/>
         <child link="basket_left_link"/>
-        <origin xyz="-0.3 0.2 0.2" rpy="0 0 0"/>
+        <origin xyz="-0.2 0.2 0.2" rpy="0 0 0"/>
     </joint>
     <link name="basket_left_link">
         <visual>
@@ -107,7 +107,7 @@
     <joint name="basket_right_joint" type="fixed">
         <parent link="base_link"/>
         <child link="basket_right_link"/>
-        <origin xyz="-0.3 -0.2 0.2" rpy="0 0 0"/>
+        <origin xyz="-0.2 -0.2 0.2" rpy="0 0 0"/>
     </joint>
     <link name="basket_right_link">
         <visual>
@@ -124,7 +124,7 @@
     <joint name="basket_front_joint" type="fixed">
         <parent link="base_link"/>
         <child link="basket_front_link"/>
-        <origin xyz="-0.15 0 0.2" rpy="0 0 0"/>
+        <origin xyz="-0.05 0 0.2" rpy="0 0 0"/>
     </joint>
     <link name="basket_front_link">
         <visual>
@@ -142,13 +142,13 @@
     <joint name="light1_joint" type="fixed">
         <parent link="base_link"/>
         <child link="light1_link"/>
-        <origin xyz="0.5 -0.15 0" rpy="0 -1.5708 0"/>
+        <origin xyz="${(base_length + 0.01) / 2.0} -0.15 0" rpy="0 -1.5708 0"/>
     </joint>
     <link name="light1_link">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <cylinder length="0.1" radius="0.05"/>
+                <cylinder length="0.01" radius="0.05"/>
             </geometry>
             <material name="headlight_warm">
                 <color rgba="1.00 0.96 0.84 1.0"/>
@@ -159,13 +159,13 @@
     <joint name="light2_joint" type="fixed">
         <parent link="base_link"/>
         <child link="light2_link"/>
-        <origin xyz="0.5 0.15 0" rpy="0 -1.5708 0"/>
+        <origin xyz="${(base_length + 0.01) / 2.0} 0.15 0" rpy="0 -1.5708 0"/>
     </joint>
     <link name="light2_link">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <cylinder length="0.1" radius="0.05"/>
+                <cylinder length="0.01" radius="0.05"/>
             </geometry>
             <material name="headlight_warm">
                 <color rgba="1.00 0.96 0.84 1.0"/>
@@ -204,14 +204,14 @@
     <joint name="rear_left_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="rear_left_wheel_link"/>
-        <origin xyz="-0.3 0.32 -0.1" rpy="0 0 0"/>
+        <origin xyz="${(-(base_length + 0.01) / 2.0) + 0.2} 0.32 -0.1" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
     <joint name="rear_right_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="rear_right_wheel_link"/>
-        <origin xyz="-0.3 -0.32 -0.1" rpy="0 0 0"/>
+        <origin xyz="${(-(base_length + 0.01) / 2.0) + 0.2} -0.32 -0.1" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
@@ -222,7 +222,7 @@
     <joint name="front_right_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="front_right_wheel_link"/>
-        <origin xyz="0.3 -0.32 -0.1" rpy="0 0 0"/>
+        <origin xyz="${((base_length + 0.01) / 2.0) - 0.2} -0.32 -0.1" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
@@ -248,7 +248,7 @@
     <joint name="front_left_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="front_left_wheel_link"/>
-        <origin xyz="0.3 0.32 -0.1" rpy="0 0 0"/>
+        <origin xyz="${((base_length + 0.01) / 2.0) - 0.2} 0.32 -0.1" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
