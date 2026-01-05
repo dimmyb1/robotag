@@ -57,7 +57,7 @@
                 <camera_info_topic>br_camera/camera_info</camera_info_topic>
             </camera>
             <always_on>1</always_on>
-            <update_rate>20</update_rate>
+            <update_rate>3</update_rate>
             <visualize>true</visualize>
             <topic>br_camera/image_raw</topic> 
 
