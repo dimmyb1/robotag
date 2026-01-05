@@ -192,8 +192,10 @@ class CameraFollower(Node):
         cmd = Twist()
 
         if self.mode == Mode.FOLLOW_LINE:
+            # print("Follow mode")
             # if line found move forward and steer to center 
             if self.line_found:
+                # print("Line found")
                 cmd.linear.x = 0.22
                 cmd.angular.z = -self.line_error * 0.003
             else:
@@ -203,7 +205,7 @@ class CameraFollower(Node):
                     cmd.linear.x = 0.0
                     cmd.angular.z = 2.0
                 else:
-                    print("Line found while searching for it")
+                    print("Line lost")
                     # line lost after being seen
                     cmd.linear.x = 0.1
                     if self.left_line and not self.right_line:
