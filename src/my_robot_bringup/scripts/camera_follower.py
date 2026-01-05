@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
+# Imports
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
+# control robot velocity through this
 from geometry_msgs.msg import Twist
 import numpy as np
 import cv2
 from enum import Enum
 
-
+# robots states
 class Mode(Enum):
     FOLLOW_LINE = 1
     VERIFY_HOUSE = 2
@@ -56,17 +58,23 @@ class CameraFollower(Node):
             10
         )
 
+        # Publishes velocity commands to the robot
+        # linear.x - forward/backward
+        # angular.z - left/right
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
 
+        # Loop every 0.05 seconds
         self.create_timer(0.05, self.control_loop)
 
         self.line_found = False
+        # offset from center
         self.line_error = 0.0
+        # Used when line is lost
         # track last line seen
         self.last_line_seen = False  
         # track last error 
         self.last_line_error = 0.0     
-
+        # detects lines on the left or right camera
         self.left_line = False
         self.right_line = False
 
@@ -122,7 +130,9 @@ class CameraFollower(Node):
         self.get_logger().info("Camera House Follower Started")
         self.get_logger().info(f"Target house: {self.TARGET_HOUSE}")
 
+    # Helper function used throughout this class
     def detect_black(self, hsv):
+        # returns a mask of black pixels in the imag
         lower_black = np.array([0, 0, 0])
         upper_black = np.array([180, 255, 60])
         return cv2.inRange(hsv, lower_black, upper_black)
@@ -135,8 +145,10 @@ class CameraFollower(Node):
         roi = hsv[int(h * 0.6):h, :]
         mask = self.detect_black(roi)
 
+        # calulates center of black line in ROI Refion of Interest
         M = cv2.moments(mask)
         if M["m00"] > 800:
+            # computer error from center to steer
             cx = int(M["m10"] / M["m00"])
             self.line_found = True
             self.line_error = cx - (w // 2)
@@ -144,7 +156,9 @@ class CameraFollower(Node):
             self.last_line_error = self.line_error  
         else:
             self.line_found = False
-
+    
+    # check if enough pixels is found in any side camera
+    # help to detect which side to move
     def bl_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
@@ -170,6 +184,7 @@ class CameraFollower(Node):
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
 
         center = mask[:, w//2 - 80:w//2 + 80]
+        # Is the house detectable
         self.house_visible = np.sum(mask > 0) > 1200
         self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio
 
@@ -177,27 +192,33 @@ class CameraFollower(Node):
         cmd = Twist()
 
         if self.mode == Mode.FOLLOW_LINE:
+            # if line found move forward and steer to center 
             if self.line_found:
                 cmd.linear.x = 0.22
                 cmd.angular.z = -self.line_error * 0.003
             else:
-                # line lost - try to recover
-                cmd.linear.x = 0.1  # move forward slowly to help catch line
-                # use side cameras if available
-                if self.left_line and not self.right_line:
-                    cmd.angular.z = 0.8  # turn left faster
-                elif self.right_line and not self.left_line:
-                    cmd.angular.z = -0.8  # turn right faster
-                elif self.last_line_seen:
-                    cmd.angular.z = -np.sign(self.last_line_error) * 0.8  # faster turn
+                if not self.last_line_seen:
+                    print("Searching for line")
+                    # initial search: spin in place aggressively
+                    cmd.linear.x = 0.0
+                    cmd.angular.z = 2.0
                 else:
-                    cmd.angular.z = 1.0  # spin in place faster
-
-            # Intersection hook 
-            if self.left_line and self.right_line:
-                pass  # TO ADD INTERSECTION LOGIC
-
+                    print("Line found while searching for it")
+                    # line lost after being seen
+                    cmd.linear.x = 0.1
+                    if self.left_line and not self.right_line:
+                        cmd.angular.z = 0.8
+                    elif self.right_line and not self.left_line:
+                        cmd.angular.z = -0.8
+                    else:
+                        cmd.angular.z = -np.sign(self.last_line_error) * 0.8
+                        # Intersection hook 
+                        if self.left_line and self.right_line:
+                            pass  
+            
+            # Avoid false positives 
             if self.house_visible:
+                # only switch to verify mode if seen for 8 consecutive frames
                 self.house_seen_frames += 1
                 if self.house_seen_frames > 8:
                     self.mode = Mode.VERIFY_HOUSE
