@@ -300,6 +300,7 @@ class CameraFollower(Node):
                         #yes - just walk forward
                         cmd.linear.x = 0.22
                         cmd.angular.z = -self.line_error * 0.003
+                        self.turn_index+=1
                     else:
                         # no - must turn
                         self.start_turn(self.turn_plan[self.turn_index])
