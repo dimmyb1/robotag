@@ -17,7 +17,6 @@ class Mode(Enum):
     VERIFY_HOUSE = 2
     STOP = 3
 
-
 class CameraFollower(Node):
     # call it with the house its finding
     def __init__(self, target_house="HOUSE_2", start="PO"):
@@ -29,9 +28,9 @@ class CameraFollower(Node):
 
         # Direction plan
         self.turn_plan = directions[start][self.TARGET_HOUSE]
+        print(f"Turning plan", self.turn_plan)
         self.turn_index = 0
         self.doing_turn = False
-        self.turn_start_time = None
         self.current_turn_right = True
         self.search_house = False
         self.first_turn_done = False
@@ -200,25 +199,46 @@ class CameraFollower(Node):
 
     def start_turn(self, turn_right):
         self.doing_turn = True
-        self.turn_start_time = self.get_clock().now()
+        self.turn_start_time = self.get_clock().now() 
         self.current_turn_right = turn_right
+        self.get_logger().info(f"START TURN: {'RIGHT' if turn_right else 'LEFT'}")
 
     def control_loop(self):
         cmd = Twist()
+
+        self.get_logger().debug(
+            f"Loop | first_turn_done={self.first_turn_done} "
+            f"doing_turn={self.doing_turn} turn_index={self.turn_index}"
+        )
         # Force first turn immediately at start
         if not self.first_turn_done:
             self.start_turn(self.turn_plan[0])
             self.first_turn_done = True
 
+            # apply turn command
+            cmd.linear = 0.0
+            cmd.angular.z = -2.0 if self.current_turn_right else 2.0
+            self.cmd_pub.publish(cmd)
+
+            self.get_logger().info("FORCED FIRST TURN COMMAND SENT")
+            return
+
         if self.mode == Mode.FOLLOW_LINE:
             if self.doing_turn:
-                cmd.angular.z = -1.5 if self.current_turn_right else 1.5
-                if (self.get_clock().now() - self.turn_start_time).nanoseconds > 6e8:
+                # Keep turning until the forward line (bottom-middle) is detected
+                cmd.angular.z = -2.0 if self.current_turn_right else 2.0
+                cmd.linear.x = 0.0  # don't move forward while turning
+
+                # Check if forward line detected
+                if self.line_found:
                     self.doing_turn = False
                     self.turn_index += 1
                     if self.turn_index >= len(self.turn_plan):
                         self.search_house = True
+                    self.get_logger().info(f"TURN COMPLETE, line found, index={self.turn_index}")
+
                 self.cmd_pub.publish(cmd)
+                self.get_logger().debug(f"Turning... line_error={self.line_error}")
                 return
 
             if self.left_line and self.right_line and not self.search_house:
@@ -227,13 +247,13 @@ class CameraFollower(Node):
                     self.cmd_pub.publish(cmd)
                     return
 
-
             if self.line_found:
-                # print("Line found")
+                print("Line found")
                 cmd.linear.x = 0.22
                 cmd.angular.z = -self.line_error * 0.003
             else:
-                cmd.linear.x = 0.1
+                # do not move forward while turning to prevent hitting a wall
+                cmd.linear.x = 0.0
                 cmd.angular.z = -np.sign(self.last_line_error) * 0.8
 
             if self.left_line and self.right_line and not self.search_house:

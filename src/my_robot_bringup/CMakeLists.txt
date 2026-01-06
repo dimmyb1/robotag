@@ -18,4 +18,9 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  scripts/config.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
