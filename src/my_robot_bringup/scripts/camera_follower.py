@@ -166,7 +166,7 @@ class CameraFollower(Node):
         # Check for black in this camera
         mask = self.detect_black(roi)
 
-        # calulates center of black line in ROI Refion of Interest
+        # calculates center of black line in ROI Region of Interest
         M = cv2.moments(mask)
         if M["m00"] > 800:
             # computer error from center to steer
@@ -221,7 +221,6 @@ class CameraFollower(Node):
         self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
 
     def normalize_angle(self, angle):
-        """Normalize angle to [-pi, pi]"""
         while angle > math.pi:
             angle -= 2.0 * math.pi
         while angle < -math.pi:
@@ -237,14 +236,17 @@ class CameraFollower(Node):
         # Calculate target: 90 degrees right is -pi/2, left is +pi/2
         delta = -math.pi/2 if turn_right else math.pi/2
         self.target_yaw = self.normalize_angle(self.start_yaw + delta)
-        
+
         self.get_logger().info(f"Start yaw: {self.start_yaw:.2f}, Target yaw: {self.target_yaw:.2f}")
+
+        return self.target_yaw
 
     def control_loop(self):
         cmd = Twist()
 
         if self.turn_index == 0:
-            self.start_turn(self.turn_plan[0])
+            angle = self.start_turn(self.turn_plan[0])
+            cmd.angular.z = angle
             self.cmd_pub.publish(cmd)
             return
 
@@ -261,7 +263,7 @@ class CameraFollower(Node):
                 cmd.angular.z = kp_rot * error
                 
                 # Clamp rotation speed
-                max_rot_speed = 2.0
+                max_rot_speed = 0.8
                 cmd.angular.z = max(min(cmd.angular.z, max_rot_speed), -max_rot_speed)
                 
                 # Check if turn is complete (within ~3 degrees)
