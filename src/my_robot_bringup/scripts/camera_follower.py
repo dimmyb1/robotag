@@ -295,8 +295,8 @@ class CameraFollower(Node):
             if intersection_detected and not self.all_turns_complete:
                 if self.turn_index < len(self.turn_plan):
                     #can we just go straight?
-                    if((self.left_line and self.line_found and self.turn_plan[self.turn_index]==True) or 
-                       (self.right_line and self.line_found and self.turn_plan[self.turn_index]==False)):
+                    if((self.left_line and self.line_found and self.right_line==False and self.turn_plan[self.turn_index]==True) or 
+                       (self.right_line and self.line_found and self.left_line==False and self.turn_plan[self.turn_index]==False)):
                         #yes - just walk forward
                         cmd.linear.x = 0.22
                         cmd.angular.z = -self.line_error * 0.003
