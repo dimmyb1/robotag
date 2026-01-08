@@ -296,7 +296,7 @@ class CameraFollower(Node):
                     if((self.left_line and self.line_found and self.right_line==False and self.turn_plan[self.turn_index]==True) or 
                        (self.right_line and self.line_found and self.left_line==False and self.turn_plan[self.turn_index]==False)):
                         #yes - just walk forward
-                        cmd.linear.x = -0.22
+                        cmd.linear.x = 0.22
                         cmd.angular.z = -self.line_error * 0.003
                         self.turn_index+=1
                     else:
@@ -309,7 +309,7 @@ class CameraFollower(Node):
 
             # Normal line following
             if self.line_found:
-                cmd.linear.x = -0.22
+                cmd.linear.x = 0.22
                 cmd.angular.z = -self.line_error * 0.003
             else:
                 # Lost line - turn based on last known position
@@ -328,7 +328,7 @@ class CameraFollower(Node):
         elif self.mode == Mode.VERIFY_HOUSE:
             # Continue following line toward house
             if self.line_found:
-                cmd.linear.x = -0.05
+                cmd.linear.x = 0.05
                 cmd.angular.z = -self.line_error * 0.003
 
             # Stop when house is close enough
