@@ -35,6 +35,7 @@ class CameraFollower(Node):
         self.turn_index = 0
         self.doing_turn = False
         self.all_turns_complete = False
+        self.mustIncrementIndex = False
 
         # Odometry
         self.current_yaw = 0.0
@@ -297,7 +298,7 @@ class CameraFollower(Node):
                         #yes - just walk forward
                         cmd.linear.x = 0.22
                         cmd.angular.z = -self.line_error * 0.003
-                        mustIncrementIndex = True
+                        self.mustIncrementIndex = True
                         
                     else:
                         # no - must turn
@@ -312,9 +313,9 @@ class CameraFollower(Node):
                 cmd.linear.x = 0.22
                 cmd.angular.z = -self.line_error * 0.003
 
-                if(mustIncrementIndex==True):
+                if(self.mustIncrementIndex==True):
                     self.turn_index+=1
-                    mustIncrementIndex=False
+                    self.mustIncrementIndex=False
             else:
                 # Lost line - turn based on last known position
                 cmd.linear.x = 0.0
