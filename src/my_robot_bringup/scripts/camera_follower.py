@@ -220,9 +220,9 @@ class CameraFollower(Node):
         self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
 
     def normalize_angle(self, angle):
-        while angle > math.pi:
+        while angle > (2.0 * math.pi):
             angle -= 2.0 * math.pi
-        while angle < -math.pi:
+        while angle < (2.0 * -math.pi):
             angle += 2.0 * math.pi
         return angle
 
@@ -297,7 +297,8 @@ class CameraFollower(Node):
                         #yes - just walk forward
                         cmd.linear.x = 0.22
                         cmd.angular.z = -self.line_error * 0.003
-                        self.turn_index+=1
+                        mustIncrementIndex = True
+                        
                     else:
                         # no - must turn
                         self.start_turn(self.turn_plan[self.turn_index])
@@ -310,6 +311,10 @@ class CameraFollower(Node):
             if self.line_found:
                 cmd.linear.x = 0.22
                 cmd.angular.z = -self.line_error * 0.003
+
+                if(mustIncrementIndex==True):
+                    self.turn_index+=1
+                    mustIncrementIndex=False
             else:
                 # Lost line - turn based on last known position
                 cmd.linear.x = 0.0
