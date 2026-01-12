@@ -305,6 +305,11 @@ class CameraFollower(Node):
                         self.start_turn(self.turn_plan[self.turn_index])
                         cmd.linear.x = 0.0
                         cmd.angular.z = 0.0
+
+                        #walk forwards to clear the intersection
+                        cmd.linear.x = 0.22
+                        cmd.angular.z = -self.line_error * 0.003
+                        
                         self.cmd_pub.publish(cmd)
                     return
 
