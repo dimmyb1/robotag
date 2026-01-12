@@ -245,6 +245,10 @@ class CameraFollower(Node):
     def control_loop(self):
         cmd = Twist()
         if self.turn_index == 0 and not self.doing_turn:
+            while((self.line_found and self.left_line==False) and (self.line_found and self.right_line==False)):
+                #reverse until you have 1 or both options for turning.
+                cmd.linear.x = -0.22
+                cmd.angular.z = 0.0
             half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0] == "right")
             self.start_turn(self.turn_plan[0], half_turn=half_turn)
             self.cmd_pub.publish(Twist()) 
