@@ -242,7 +242,6 @@ class CameraFollower(Node):
         self.doing_turn = True
         self.get_logger().info(f"actual start_yaw {self.start_yaw}, current_yaw {self.current_yaw}")
         self.start_yaw = self.normalize_angle(self.current_yaw)
-        self.get_logger().info(f"new start_yaw {self.start_yaw}")
 
         # Calculate target: 90 degrees right is -pi/2, left is +pi/2
         delta = (-math.pi/2 if turn_right else math.pi/2)
@@ -251,6 +250,7 @@ class CameraFollower(Node):
 
         self.target_yaw = self.normalize_angle(self.start_yaw + delta)
         self.get_logger().info(f"Start yaw: {self.start_yaw:.2f}, Target yaw: {self.target_yaw:.2f}")
+        self.get_logger().info(f"TURN RIGHT={turn_right} YAW: {self.current_yaw:.2f} → {self.target_yaw:.2f}")
         return self.target_yaw
 
 
@@ -267,7 +267,7 @@ class CameraFollower(Node):
             cmd.linear.x = -0.1
             self.cmd_pub.publish(cmd)
             half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0] == "right")
-            self.start_turn(self.turn_plan[0], half_turn=half_turn)
+            self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
             cmd.linear.x = 0.0
             cmd.angular.z = 0.0
             
