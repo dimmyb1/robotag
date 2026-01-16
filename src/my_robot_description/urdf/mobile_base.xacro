@@ -219,7 +219,7 @@
     <!-- Front Wheels (Fixed)        -->
     <!-- ============================ -->
     
-    <joint name="front_right_wheel_joint" type="continuous">
+    <joint name="front_right_wheel_joint" type="fixed">
         <parent link="base_link"/>
         <child link="front_right_wheel_link"/>
         <origin xyz="${((base_length + 0.01) / 2.0) - 0.15} -${(base_width/2.0) - 0.03} -0.2" rpy="0 0 0"/>
@@ -245,7 +245,7 @@
                                 o_xyz="0 0 0" o_rpy="${pi/2.0} 0 0"/>
     </link>
 
-    <joint name="front_left_wheel_joint" type="continuous">
+    <joint name="front_left_wheel_joint" type="fixed">
         <parent link="base_link"/>
         <child link="front_left_wheel_link"/>
         <origin xyz="${((base_length + 0.01) / 2.0) - 0.15} ${(base_width/2.0) - 0.03} -0.2" rpy="0 0 0"/>
