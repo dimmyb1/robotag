@@ -41,6 +41,7 @@ class CameraFollower(Node):
         self.current_yaw = 0.0
         self.start_yaw = 0.0
         self.target_yaw = 0.0
+        self.odom_ready = False
 
         self.line_found = False
         # offset from center
@@ -220,6 +221,7 @@ class CameraFollower(Node):
         cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
         self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
         self.get_logger().info(f"Yaw: {self.current_yaw:.3f}")
+        self.odom_ready = True
 
     def normalize_angle(self, angle):
         while angle > (1.0 * math.pi):
@@ -254,21 +256,20 @@ class CameraFollower(Node):
 
     def control_loop(self):
         cmd = Twist()
-        
-        # Initial setup - get robot moving forward before first turn
+        if not self.odom_ready:
+            self.get_logger().info("Waiting for odometry...")
+            self.cmd_pub.publish(Twist())
+            return
+
+        # Initial setup 
         if self.turn_index == 0 and not self.doing_turn:
-            if not self.line_found:
-                # Move forward slowly to find the line
-                cmd.linear.x = 0.1
-                cmd.angular.z = 0.0
-                self.get_logger().info("DEBUG: searching for initial line")
-            else:
-                # Line found, start first turn
-                self.get_logger().info("DEBUG: found line, starting first turn")
-                half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0] == "right")
-                self.start_turn(self.turn_plan[0], half_turn=half_turn)
-                cmd.linear.x = 0.0
-                cmd.angular.z = 0.0
+            self.get_logger().info("DEBUG: initial setup before first turn")
+            cmd.linear.x = -0.1
+            self.cmd_pub.publish(cmd)
+            half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0] == "right")
+            self.start_turn(self.turn_plan[0], half_turn=half_turn)
+            cmd.linear.x = 0.0
+            cmd.angular.z = 0.0
             
             self.cmd_pub.publish(cmd)
             return
