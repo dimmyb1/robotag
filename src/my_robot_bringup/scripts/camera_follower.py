@@ -219,6 +219,7 @@ class CameraFollower(Node):
         siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
         self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
+        self.get_logger().info(f"Yaw: {self.current_yaw:.3f}")
 
     def normalize_angle(self, angle):
         while angle > (1.0 * math.pi):
@@ -227,15 +228,12 @@ class CameraFollower(Node):
             angle += 2.0 * math.pi
         return angle
     
-    """
     #normalize_angle may need to change to this to work properly
     def angle_error(self, target, current):
-    return math.atan2(
-        math.sin(target - current),
-        math.cos(target - current)
-    )
-
-    """
+        return math.atan2(
+            math.sin(target - current),
+            math.cos(target - current)
+        )
 
     def start_turn(self, turn_right, half_turn=False):
         self.get_logger().info(f"STARTING TURN {self.turn_index + 1}/{len(self.turn_plan)}: {'RIGHT' if turn_right else 'LEFT'} {'180°' if half_turn else '90°'}")
@@ -278,7 +276,7 @@ class CameraFollower(Node):
                 cmd.linear.x = 0.0
                 
                 # Calculate shortest angular distance to target
-                error = self.normalize_angle(self.target_yaw - self.normalize_angle(self.current_yaw))
+                error = self.angle_error(self.target_yaw, self.current_yaw)
                 
                 # Proportional control for turning
                 kp_rot = 2.5
@@ -324,7 +322,7 @@ class CameraFollower(Node):
                        (self.right_line and self.line_found and self.left_line==False and self.turn_plan[self.turn_index]==False)):
                         #yes - just walk forward
                         cmd.linear.x = 0.22
-                        cmd.angular.z = -self.line_error * 0.003
+                        cmd.angular.z = max(min(cmd.angular.z, 0.8), -0.8)
                         self.mustIncrementIndex = True
                         
                     else:
@@ -345,7 +343,7 @@ class CameraFollower(Node):
             if self.line_found and not self.doing_turn:
                 self.get_logger().info("DEBUG: following line")
                 cmd.linear.x = 0.22
-                cmd.angular.z = -self.line_error * 0.003
+                cmd.angular.z = max(min(cmd.angular.z, 0.8), -0.8)
 
                 if(self.mustIncrementIndex==True):
                     self.turn_index+=1
@@ -369,7 +367,7 @@ class CameraFollower(Node):
             # Continue following line toward house
             if self.line_found:
                 cmd.linear.x = 0.05
-                cmd.angular.z = -self.line_error * 0.003
+                cmd.angular.z = max(min(cmd.angular.z, 0.8), -0.8)
 
             # Stop when house is close enough
             if self.house_reached:
@@ -379,7 +377,7 @@ class CameraFollower(Node):
         elif self.mode == Mode.STOP:
             cmd.linear.x = 0.0
             cmd.angular.z = 0.0
-
+        self.get_logger().info(f"CMD: v={cmd.linear.x:.2f}, w={cmd.angular.z:.2f}")
         self.cmd_pub.publish(cmd)
 
 def main():
