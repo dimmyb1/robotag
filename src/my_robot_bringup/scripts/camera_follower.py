@@ -232,10 +232,7 @@ class CameraFollower(Node):
         self.odom_ready = True
 
     def normalize_angle(self, angle):
-        while angle > (1.0 * math.pi):
-            angle -= 2.0 * math.pi
-        while angle < 0.0:
-            angle += 2.0 * math.pi
+        math.atan2(math.sin(angle), math.cos(angle))
         return angle
     
     #normalize_angle may need to change to this to work properly
@@ -352,7 +349,9 @@ class CameraFollower(Node):
                         
                         if can_go_straight:
                             self.cmd.linear.x = 0.22
-                            self.cmd.angular.z = max(min(self.cmd.angular.z, 0.8), -0.8)
+                            kp = 0.0025
+                            angular = -kp * self.line_error
+                            self.cmd.angular.z = max(min(angular, 0.6), -0.6)
                             self.mustIncrementIndex = True
                             
                         else:
@@ -366,7 +365,9 @@ class CameraFollower(Node):
             if self.line_found and not self.doing_turn:
                 self.get_logger().info("DEBUG: following line")
                 self.cmd.linear.x = 0.22
-                self.cmd.angular.z = max(min(self.cmd.angular.z, 0.8), -0.8)
+                kp = 0.0025
+                angular = -kp * self.line_error
+                self.cmd.angular.z = max(min(angular, 0.6), -0.6)
 
                 if(self.mustIncrementIndex==True):
                     self.turn_index+=1
@@ -410,7 +411,9 @@ class CameraFollower(Node):
             # Continue following line toward house
             if self.line_found:
                 self.cmd.linear.x = 0.05
-                self.cmd.angular.z = max(min(self.cmd.angular.z, 0.8), -0.8)
+                kp = 0.0025
+                angular = -kp * self.line_error
+                self.cmd.angular.z = max(min(angular, 0.6), -0.6)
 
             # Stop when house is close enough
             if self.house_reached:
