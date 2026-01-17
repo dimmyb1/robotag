@@ -109,7 +109,7 @@ class CameraFollower(Node):
         # Loop every 0.05 seconds
         self.cmd = Twist()
         self.control_timer = self.create_timer(0.05, self.control_loop)
-        self.publish_timer = self.create_timer(0.05, self.publish_current_cmd)
+        #self.publish_timer = self.create_timer(0.05, self.publish_current_cmd)
         # Exact RGB colors from Gazebo diffuse values
         colors = {
             "HOUSE_1": (97, 63, 0),
@@ -152,8 +152,8 @@ class CameraFollower(Node):
         # self.get_logger().info("Camera House Follower Started")
         self.get_logger().info(f"Target house: {self.TARGET_HOUSE}")
 
-    def publish_current_cmd(self):
-        self.publisher.publish(self.cmd)
+    #def publish_current_cmd(self):
+    #    self.publisher.publish(self.cmd)
         
     def publish_velocity(self, linear, angular):
         self.cmd.linear.x = linear
@@ -228,7 +228,7 @@ class CameraFollower(Node):
         siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
         self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
-        self.get_logger().info(f"Yaw: {self.current_yaw:.3f}")
+        #self.get_logger().info(f"Yaw: {self.current_yaw:.3f}")
         self.odom_ready = True
 
     def normalize_angle(self, angle):
@@ -303,7 +303,7 @@ class CameraFollower(Node):
         if self.mode == Mode.FOLLOW_LINE:
             # Handle active turn
             if self.doing_turn:
-                self.cmd.linear.x = 0.1 #I (DEMETRIA) CHANGED THIS TO SEE IF IT WILL HELP IT MOVE
+                self.cmd.linear.x = 0.0
                 
                 # Calculate shortest angular distance to target
                 error = self.angle_error(self.target_yaw, self.current_yaw)
@@ -357,8 +357,8 @@ class CameraFollower(Node):
                             
                         else:
                             self.start_turn(self.turn_plan[self.turn_index])
-                            self.cmd.linear.x = 0.0  # !!!!   why are we setting this to 0?
-                            self.cmd.angular.z = 0.0 # !!!!
+                            self.cmd.linear.x = 0.0  
+                            self.cmd.angular.z = 0.0
                         
                         self.publisher.publish(self.cmd)
 
