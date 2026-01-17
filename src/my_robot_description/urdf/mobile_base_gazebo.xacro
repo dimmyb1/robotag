@@ -3,24 +3,24 @@
 
     <!-- Friction for wheels -->
     <gazebo reference="rear_left_wheel_link">
-        <mu1 value="1.0" />
-        <mu2 value="0.2" />
+        <mu1 value="7" />
+        <mu2 value="7" />
     </gazebo>
 
     <gazebo reference="rear_right_wheel_link">
-        <mu1 value="1.0" />
-        <mu2 value="0.2" />
+        <mu1 value="7" />
+        <mu2 value="7" />
     </gazebo>
 
     <!--slippery front wheels-->
     <gazebo reference="front_left_wheel_link">
-        <mu1 value="0.1" />
-        <mu2 value="0.1" />
+        <mu1 value="0.000" />
+        <mu2 value="0.000" />
     </gazebo>
 
     <gazebo reference="front_right_wheel_link">
-        <mu1 value="0.1" />
-        <mu2 value="0.1" />
+        <mu1 value="0.000" />
+        <mu2 value="0.000" />
     </gazebo>
 
     <!-- Differential Drive Plugin -->
@@ -30,8 +30,12 @@
             name="gz::sim::systems::DiffDrive">
             <left_joint>rear_left_wheel_joint</left_joint>
             <right_joint>rear_right_wheel_joint</right_joint>
-            <wheel_separation>0.4</wheel_separation>
+            <wheel_separation>0.61</wheel_separation>
             <wheel_radius>0.15</wheel_radius>
+
+            <max_wheel_torque>100</max_wheel_torque>
+            <max_wheel_acceleration>2.0</max_wheel_acceleration>
+
             <frame_id>odom</frame_id>
             <child_frame_id>base_footprint</child_frame_id>
         </plugin>
