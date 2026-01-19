@@ -35,6 +35,7 @@ class CameraFollower(Node):
         self.doing_turn = False
         self.all_turns_complete = False
         self.mustIncrementIndex = False
+        self.needToClearIntersection = False
 
         # Odometry
         self.current_yaw = 0.0
@@ -166,6 +167,7 @@ class CameraFollower(Node):
         # --- RESET STATE ---
         self.turn_index = 0
         self.doing_turn = False
+        self.needToClearIntersection = False
         self.all_turns_complete = False
         self.mustIncrementIndex = False
         self.mode = Mode.FOLLOW_LINE
@@ -368,7 +370,7 @@ class CameraFollower(Node):
                 
                 self.publisher.publish(self.cmd)
             
-            #WE SHOULD STOP SOMEWHERE HERE
+            
             else:
                 # Detect intersection and start next turn
                 intersection_detected = (
@@ -377,8 +379,12 @@ class CameraFollower(Node):
                     (self.left_line and self.right_line and self.line_found)
                 )
 
-                if intersection_detected and not self.all_turns_complete and not self.doing_turn:
+                if intersection_detected==False and self.needToClearIntersection==True:
+                    self.needToClearIntersection = False
+
+                if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
                     self.get_logger().info("DEBUG: INTERSECTION DETECTED")
+                    self.needToClearIntersection = True
                     if self.turn_index < len(self.turn_plan):
                         # Check if we can go straight
                         can_go_straight = (
