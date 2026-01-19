@@ -12,6 +12,8 @@ import cv2
 from enum import Enum
 from config import directions
 import math
+from std_msgs.msg import String
+import json
 import time
 
 # robots states
@@ -22,24 +24,13 @@ class Mode(Enum):
 
 class CameraFollower(Node):
     # call it with the house its finding
-    # def __init__(self, target_house="HOUSE_2", start="PO"):
-    #     super().__init__('camera_house_follower')
-    #     # set a target house
-    #     self.TARGET_HOUSE = target_house
-    #     # The start position
-    #     self.start = start
     def __init__(self):
         super().__init__('camera_house_follower')
-        self.declare_parameter('target_house', 'PO')
-        self.declare_parameter('start', 'PO')
-
-        self.TARGET_HOUSE = self.get_parameter('target_house').value
-        self.start = self.get_parameter('start').value
+        self.TARGET_HOUSE = None
+        self.start = None
         self.mode = Mode.FOLLOW_LINE
+        self.navigation_active = False
 
-        # Direction plan
-        self.turn_plan = directions[self.start][self.TARGET_HOUSE]
-        self.get_logger().info(f"Turning plan: {self.turn_plan}")
         self.turn_index = 0
         self.doing_turn = False
         self.all_turns_complete = False
@@ -113,6 +104,13 @@ class CameraFollower(Node):
         # angular.z - left/right
         self.publisher = self.create_publisher(Twist, '/cmd_vel', 1)
 
+        self.subscription = self.create_subscription(
+            String,
+            'navigate_to_house',
+            self.nav_callback,
+            10
+        )
+
         # Loop every 0.05 seconds
         self.cmd = Twist()
         self.control_timer = self.create_timer(0.05, self.control_loop)
@@ -149,19 +147,49 @@ class CameraFollower(Node):
             upper = (min(h + 5, 179), 255, 255)
 
             self.house_colours[name] = (lower, upper)
+        
+        # Send a sin to deliver robot client to see if the robot has arrived to one house 
+        # this is done so it can send another house
+        self.done_pub = self.create_publisher(String, 'navigation_done', 10)
 
-        # prevent errors
+    def nav_callback(self, msg):
+        data = json.loads(msg.data)
+
+        self.start = data['start']
+        self.TARGET_HOUSE = data['target']
+
+        self.get_logger().info(
+            f"Received navigation command: {self.start} → {self.TARGET_HOUSE}"
+        )
+
+        # --- RESET STATE ---
+        self.turn_index = 0
+        self.doing_turn = False
+        self.all_turns_complete = False
+        self.mustIncrementIndex = False
+        self.mode = Mode.FOLLOW_LINE
+        self.house_seen_frames = 0
+        self.house_visible = False
+        self.house_reached = False
+
+        # --- COMPUTE TURN PLAN ---
+        self.turn_plan = directions[self.start][self.TARGET_HOUSE]
+
+        # --- SET HOUSE COLOR ---
         if self.TARGET_HOUSE not in self.house_colours:
-            raise RuntimeError("Unknown house selected")
+            self.get_logger().error(f"Unknown house: {self.TARGET_HOUSE}")
+            return
 
         self.lower, self.upper = self.house_colours[self.TARGET_HOUSE]
 
-        # self.get_logger().info("Camera House Follower Started")
-        self.get_logger().info(f"Target house: {self.TARGET_HOUSE}")
+        self.navigation_active = True
 
-    #def publish_current_cmd(self):
-    #    self.publisher.publish(self.cmd)
-        
+    def publish_done(self):
+        msg = String()
+        msg.data = json.dumps({'reached': self.TARGET_HOUSE})
+        self.done_pub.publish(msg)
+        self.get_logger().info(f"Reached {self.TARGET_HOUSE}")
+ 
     def publish_velocity(self, linear, angular):
         self.cmd.linear.x = linear
         self.cmd.angular.z = angular
@@ -292,6 +320,10 @@ class CameraFollower(Node):
 
 
     def control_loop(self):
+        if not self.navigation_active:
+            self.publisher.publish(Twist())
+            return
+
         if not self.odom_ready:
             self.get_logger().info("Waiting for odometry...")
             self.publisher.publish(Twist())
@@ -429,28 +461,34 @@ class CameraFollower(Node):
         elif self.mode == Mode.STOP:
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.0
+            self.publisher.publish(self.cmd)
+
+            self.navigation_active = False
+            self.get_logger().info("Navigation complete. Waiting for next command.")
+            self.publish_done()
+
         #self.get_logger().info(f"CMD: v={self.cmd.linear.x:.2f}, w={self.cmd.angular.z:.2f}")
         self.publisher.publish(self.cmd)
 
-# def main():
-#     rclpy.init()
-#     node = CameraFollower()
-#     node.get_logger().info("Waiting for simulation to initialize...")
-#     time.sleep(5.0) 
+def main():
+    rclpy.init()
+    node = CameraFollower()
+    node.get_logger().info("Waiting for simulation to initialize...")
+    time.sleep(5.0) 
 
-#     node.get_logger().info("Starting control loop...")
-#     try:
-#         rclpy.spin(node)
-#     except KeyboardInterrupt:
-#         pass
+    node.get_logger().info("Starting control loop...")
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
 
-#     # Stop the robot
-#     stop_cmd = Twist()
-#     node.publisher.publish(stop_cmd)
-#     node.get_logger().info('Shutting down - Robot stopped')
+    # Stop the robot
+    stop_cmd = Twist()
+    node.publisher.publish(stop_cmd)
+    node.get_logger().info('Shutting down - Robot stopped')
 
-#     node.destroy_node()
-#     rclpy.shutdown()
+    node.destroy_node()
+    rclpy.shutdown()
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()

@@ -40,4 +40,6 @@
     <node pkg="my_robot_bringup" exec="tsp_route_calculator.py" output="screen"/>
 
     <node pkg="my_robot_bringup" exec="deliver_robot_tsp_client.py" output="screen"/>
+
+    <node pkg="my_robot_bringup" exec="camera_follower.py" output="screen"/>
 </launch>

@@ -6,7 +6,6 @@ from tsp_solver_node import GraphTSP
 from std_msgs.msg import String
 # from brute_force import BruteForceTSP
 import json
-import time 
 from config import GRAPH
 
 class TSPRouteServer(Node):
