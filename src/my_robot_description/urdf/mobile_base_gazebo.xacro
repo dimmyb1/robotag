@@ -13,6 +13,7 @@
     </gazebo>
 
     <!--slippery front wheels-->
+    <!--
     <gazebo reference="front_left_wheel_link">
         <mu1 value="0.000" />
         <mu2 value="0.000" />
@@ -21,6 +22,14 @@
     <gazebo reference="front_right_wheel_link">
         <mu1 value="0.000" />
         <mu2 value="0.000" />
+    </gazebo>
+    -->
+    
+    <gazebo reference="front_caster_link">
+        <mu1 value="0.0"/><mu2 value="0.0"/>
+    </gazebo>
+    <gazebo reference="rear_caster_link">
+        <mu1 value="0.0"/><mu2 value="0.0"/>
     </gazebo>
 
     <!-- Differential Drive Plugin -->
