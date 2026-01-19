@@ -24,11 +24,6 @@ install(PROGRAMS
 )
 
 install(PROGRAMS
-  scripts/deliver_robot_tsp_client.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
   scripts/tsp_route_calculator.py
   DESTINATION lib/${PROJECT_NAME}
 )

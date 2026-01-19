@@ -3,28 +3,46 @@ import rclpy
 from rclpy.node import Node
 from example_interfaces.srv import Trigger
 from tsp_solver_node import GraphTSP
+from std_msgs.msg import String
 # from brute_force import BruteForceTSP
 import json
 import time 
 from config import GRAPH
 
 class TSPRouteServer(Node):
-    def __init__(self, targets, graph=GRAPH):
+    # def __init__(self, targets, graph=GRAPH):
+    def __init__(self, graph=GRAPH):
         super().__init__('tsp_route_calculator')
         self.srv = self.create_service(Trigger, 'calculate_tsp_route', self.calculate_callback)
+        self.subscription = self.create_subscription(
+                    String,
+                    'tsp_targets',
+                    self.target_callback,
+                    10
+                )       
         self.get_logger().info("TSP Route Calculator ready.")
+        # Publisher for optimized route
+        self.route_pub = self.create_publisher(String, 'tsp_route', 10)
         self.graph = graph
-        self.targets = targets
+        self.targets = []
+    
+    def target_callback(self, msg):
+        # Receive targets as JSON string
+        self.targets = json.loads(msg.data)
+        self.get_logger().info(f"Received new targets: {self.targets}")
 
     def calculate_callback(self, _, response):
+        if not self.targets:
+            self.get_logger().warn("No targets received yet!")
+            return None
         start_time = time.time()
 
         solver = GraphTSP(self.graph)
-        # start = 'PostOffice'
         start = 'PO'
         route = solver.nearest_neighbour_tsp(start, self.targets)
         optimized = solver.two_opt(route)
-        self.get_logger().info("Using NN")
+        # self.get_logger().info("Using NN")
+
         # solver = BruteForceTSP(self.graph)
         # optimized = solver.brute_force_tsp(start, self.targets)
         # self.get_logger().info("Using BF")

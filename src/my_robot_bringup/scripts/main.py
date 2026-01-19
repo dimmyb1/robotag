@@ -1,71 +1,71 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from example_interfaces.srv import Trigger
+from std_msgs.msg import String
 import random
 import json
 import subprocess
 import time
-from tsp_route_calculator import TSPRouteServer
 
 HOUSES = [f'HOUSE_{i}' for i in range(1, 11)]
 
 class MissionController(Node):
     def __init__(self):
         super().__init__('mission_controller')
-        self.client = self.create_client(Trigger, 'calculate_tsp_route')
+        self.publisher = self.create_publisher(String, 'tsp_targets', 10)
+        self.subscription = self.create_subscription(
+            String,
+            'tsp_route',
+            self.route_callback,
+            10
+        )
+        self.optimized_targets = None
 
     def generate_targets(self):
         return random.sample(HOUSES, 3)
 
-    def call_tsp(self, targets):
-        while not self.client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Waiting for TSP service...')
+    def publish_targets(self, targets):
+        msg = String()
+        msg.data = json.dumps(targets)
+        self.publisher.publish(msg)
+        self.get_logger().info(f"Published targets: {targets}")
 
-        request = TSPRouteServer.Request()
-        request.targets = targets
-        future = self.client.call_async(request)
-
-        future = self.client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
-
-        response = future.result()
-        data = json.loads(response.message)
-        return data['targets_order']
+    def route_callback(self, msg):
+        self.optimized_targets = json.loads(msg.data)
+        self.get_logger().info(f"Received optimized route: {self.optimized_targets}")
 
     def go_to_house(self, start, target):
         self.get_logger().info(f"Navigating from {start} → {target}")
-
         subprocess.run([
-            'ros2', 'run', 'my_robot_bringup', 'camera_follower',
+            'ros2', 'run', 'my_robot_bringup/scripts', 'camera_follower',
             '--ros-args',
             '-p', f'target_house:={target}',
             '-p', f'start:={start}'
         ])
 
-    def run(self):
+    def run_mission(self):
         targets = self.generate_targets()
-        self.get_logger().info(f"Generated targets: {targets}")
+        self.publish_targets(targets)
 
-        ordered_targets = self.call_tsp(targets)
-        self.get_logger().info(f"Optimal order: {ordered_targets}")
+        # Wait until the server publishes the optimized route
+        while self.optimized_targets is None:
+            rclpy.spin_once(self, timeout_sec=0.1)
 
         current = 'PO'
-        for house in ordered_targets:
+        for house in self.optimized_targets:
             self.go_to_house(current, house)
             current = house
             time.sleep(2)
 
-        # Return to PO
         self.go_to_house(current, 'PO')
         self.get_logger().info("Mission complete")
 
 def main():
     rclpy.init()
     node = MissionController()
-    node.run()
+    node.run_mission()
     node.destroy_node()
     rclpy.shutdown()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
