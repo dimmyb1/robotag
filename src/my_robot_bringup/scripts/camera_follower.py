@@ -104,6 +104,7 @@ class CameraFollower(Node):
         # angular.z - left/right
         self.publisher = self.create_publisher(Twist, '/cmd_vel', 1)
 
+        # subscribe to which house they need to navigate to
         self.subscription = self.create_subscription(
             String,
             'navigate_to_house',
@@ -148,7 +149,7 @@ class CameraFollower(Node):
 
             self.house_colours[name] = (lower, upper)
         
-        # Send a sin to deliver robot client to see if the robot has arrived to one house 
+        # Send a sign to deliver robot client to see if the robot has arrived to one house 
         # this is done so it can send another house
         self.done_pub = self.create_publisher(String, 'navigation_done', 10)
 

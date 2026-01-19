@@ -20,9 +20,9 @@ class DeliverobotTSPClient(Node):
         self.targets = random.sample(HOUSES, 3)
         self.get_logger().info(f"Generated targets: {self.targets}")
 
-        # Publish targets for getting the optimised path then
+        # Publish targets for getting the optimised path 
         self.publisher = self.create_publisher(String, 'tsp_targets', 10)
-        # Publish the house to go to to camera follower
+        # Publish the house to go to - to camera follower
         self.nav_publisher = self.create_publisher(String, 'navigate_to_house', 10)
 
         self.targets_sent = False
@@ -49,7 +49,7 @@ class DeliverobotTSPClient(Node):
         msg = String()
         msg.data = json.dumps(self.targets)
         self.publisher.publish(msg)
-        self.get_logger().info(f"Published targets to topic: {self.targets}")
+        # self.get_logger().info(f"Published targets to topic: {self.targets}")
         self.targets_sent = True
     
     def start_mission(self):
@@ -85,7 +85,7 @@ class DeliverobotTSPClient(Node):
         msg = String()
         msg.data = json.dumps({'start': start, 'target': target})
         self.nav_publisher.publish(msg)
-        self.get_logger().info(f"Published navigation command: {start} → {target}")
+        # self.get_logger().info(f"Published navigation command: {start} → {target}")
 
     def send_next_target(self):
         if self.route_index >= len(self.optimized_route):

@@ -12,7 +12,10 @@ class TSPRouteServer(Node):
     # def __init__(self, targets, graph=GRAPH):
     def __init__(self, graph=GRAPH):
         super().__init__('tsp_route_calculator')
+        # create a service to calculate the tsp - so that it is easily accessible 
+        # This is done for a two-way communication ask for the targets and send them back 
         self.srv = self.create_service(Trigger, 'calculate_tsp_route', self.calculate_callback)
+        # Subscribe to the tsp targets to know which where generated from the deliver robot client 
         self.subscription = self.create_subscription(
             String,
             'tsp_targets',
