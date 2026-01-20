@@ -336,8 +336,8 @@ class CameraFollower(Node):
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
-            if not self.doing_turn:
-                self.cmd.linear.x = 0.1
+            #if not self.doing_turn:
+            #    self.cmd.linear.x = 0.1
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
@@ -356,6 +356,7 @@ class CameraFollower(Node):
                     self.get_logger().info("DEBUG: STOPPED turning")
                     self.doing_turn = False
                     self.last_line_error = 0.0
+                    self.turn_index+=1
                     self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
                     self.needToClearIntersection = True
                     
