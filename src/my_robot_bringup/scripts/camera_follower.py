@@ -360,6 +360,7 @@ class CameraFollower(Node):
                     self.doing_turn = False
                     self.turn_index += 1
                     self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
+                    self.needToClearIntersection=True
                     
                     # Check if all turns are done
                     if self.turn_index >= len(self.turn_plan):
@@ -407,7 +408,7 @@ class CameraFollower(Node):
                         self.publisher.publish(self.cmd)
 
             # Normal line following
-            if self.line_found and not self.doing_turn:
+            if self.line_found and self.doing_turn==False:
                 self.get_logger().info("DEBUG: following line")
                 self.cmd.linear.x = 0.22
                 kp = 0.0025
@@ -417,7 +418,7 @@ class CameraFollower(Node):
                 if(self.mustIncrementIndex==True):
                     self.turn_index+=1
                     self.mustIncrementIndex=False
-            elif not self.doing_turn:
+            elif self.doing_turn==False:
                 self.get_logger().info("DEBUG: lost line – camera-based recovery")
 
                 self.cmd.linear.x = 0.05  # creep forward slowly

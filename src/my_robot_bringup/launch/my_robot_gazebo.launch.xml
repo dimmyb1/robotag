@@ -28,7 +28,7 @@
                 value="true" />
     </node>
 
-    <node pkg="ros_gz_sim" exec="create" args="-topic /robot_description -name my_robot -x -6.5 -y 2.5 -z 0.35 -Y 3.14159" />
+    <node pkg="ros_gz_sim" exec="create" args="-topic /robot_description -name my_robot -x -6.5 -y 2.5 -z 0.875 -Y 3.14159" />
 
     <node pkg="ros_gz_bridge" exec="parameter_bridge">
         <param name="config_file" value="$(var gazebo_config_path)" />
