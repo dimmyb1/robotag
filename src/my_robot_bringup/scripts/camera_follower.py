@@ -219,7 +219,8 @@ class CameraFollower(Node):
             # computer error from center to steer
             cx = int(M["m10"] / M["m00"])
             self.line_found = True
-            self.line_error = cx - (w // 2)
+            # Now normalized to [-1, 1] range
+            self.line_error = float(cx - (w / 2)) / (w / 2)
             self.last_line_error = self.line_error
         else:
             self.line_found = False
