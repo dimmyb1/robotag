@@ -286,7 +286,7 @@ class CameraFollower(Node):
         #angular = max(min(angular, 0.7), -0.7)
 
         # Add a deadzone: if the error is less than 5%, don't steer hard
-        if abs(self.line_error) < 0.05:
+        if abs(self.line_error) < 0.1:
             angular = 0.0
         else:
             angular = -(self.line_error * self.kp + derivative * self.kd)
