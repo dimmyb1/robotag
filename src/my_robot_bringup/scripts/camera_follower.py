@@ -280,38 +280,6 @@ class CameraFollower(Node):
             math.cos(target - current)
         )
 
-    def turn_to_angle(self, target_yaw):
-        self.get_logger().info(f"Turning to angle {target_yaw:.2f}")
-
-        angular_speed = 0.3
-        rate = self.create_rate(10)
-
-        while rclpy.ok():
-            error = self.angle_error(target_yaw, self.current_yaw)
-
-            # Inside the turn completion block
-            if abs(error) < 0.05:
-                self.get_logger().info("Turn complete - Resetting PID")
-                self.doing_turn = False
-                self.turn_index += 1
-                self.needToClearIntersection = True
-                
-                self.line_error = 0.0
-                self.last_line_error = 0.0 
-
-            self.cmd.linear.x = 0.0
-            self.cmd.angular.z = angular_speed * np.sign(error)
-
-            self.publisher.publish(self.cmd)
-
-            rclpy.spin_once(self, timeout_sec=0.01)
-            rate.sleep()
-
-        self.cmd.angular.z = 0.0
-        self.publisher.publish(self.cmd)
-
-        self.get_logger().info("Initial turn complete")
-
     def calculate_line_following_command(self, base_speed):
         derivative = self.line_error - self.last_line_error
         angular = -(self.kp * self.line_error + self.kd * derivative)
