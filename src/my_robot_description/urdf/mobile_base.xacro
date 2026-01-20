@@ -220,7 +220,7 @@
     <!-- Caster Wheels                -->
     <!-- ============================ -->
 
-    <joint name="front_caster_joint" type="fixed">
+    <joint name="front_caster_joint" type="continuous">
         <parent link="base_link"/>
         <child link="front_caster_link"/>
         <origin xyz="0.3 0 -0.175" rpy="0 0 0"/>
@@ -239,7 +239,7 @@
         <xacro:sphere_inertia m="0.5" r="${wheel_radius/1.5}" o_xyz="0 0 0" o_rpy="0 0 0"/>
     </link>
 
-    <joint name="rear_caster_joint" type="fixed">
+    <joint name="rear_caster_joint" type="continuous">
         <parent link="base_link"/>
         <child link="rear_caster_link"/>
         <origin xyz="-0.3 0 -0.175" rpy="0 0 0"/>
