@@ -336,6 +336,8 @@ class CameraFollower(Node):
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
+            if not self.doing_turn:
+                self.cmd.linear.x = 0.1
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
@@ -354,7 +356,6 @@ class CameraFollower(Node):
                     self.get_logger().info("DEBUG: STOPPED turning")
                     self.doing_turn = False
                     self.last_line_error = 0.0
-                    self.turn_index += 1
                     self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
                     self.needToClearIntersection = True
                     
@@ -367,7 +368,6 @@ class CameraFollower(Node):
                 
                 self.publisher.publish(self.cmd)
             
-            
             else:
                 # Detect intersection and start next turn
                 intersection_detected = (
@@ -376,8 +376,9 @@ class CameraFollower(Node):
                     (self.left_line and self.right_line and self.line_found)
                 )
 
-                if intersection_detected==False and self.needToClearIntersection==True:
-                    self.needToClearIntersection = False
+                if intersection_detected and not self.all_turns_complete:
+                    if self.doing_turn:
+                        self.needToClearIntersection = False
 
                 if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
                     self.get_logger().info("DEBUG: INTERSECTION DETECTED")
