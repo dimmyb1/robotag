@@ -316,11 +316,12 @@ class CameraFollower(Node):
 
     def control_loop(self):
         if not self.navigation_active:
+            self.get_logger().info("Waiting for Navigation...")
             self.publisher.publish(Twist())
             return
 
         if not self.odom_ready:
-            self.get_logger().info("Waiting for odometry...")
+            self.get_logger().info("Waiting for Odometry...")
             self.publisher.publish(Twist())
             return
 
@@ -338,15 +339,13 @@ class CameraFollower(Node):
                 # Calculate shortest angular distance to target
                 error = self.angle_error(self.target_yaw, self.current_yaw)
                 
-                # Proportional control for turning
-                kp_rot = 1.2
-                self.cmd.angular.z = kp_rot * error
+                self.cmd.angular.z = self.kp * error
                 
                 # Clamp rotation speed
                 max_rot_speed = 0.5
                 self.cmd.angular.z = max(min(self.cmd.angular.z, max_rot_speed), -max_rot_speed)
                 
-                # Check if turn is complete (within ~3 degrees)
+                # Check if turn is complete
                 if abs(error) < 0.02:
                     self.get_logger().info("DEBUG: STOPPED turning")
                     self.doing_turn = False
