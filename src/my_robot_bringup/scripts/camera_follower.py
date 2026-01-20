@@ -409,7 +409,7 @@ class CameraFollower(Node):
 
             # Normal line following
             if self.line_found and self.doing_turn==False:
-                self.get_logger().info("DEBUG: following line")
+                self.get_logger().info(f"DEBUG: following line turn {self.turn_index}")
                 self.cmd.linear.x = 0.22
                 kp = 0.0025
                 angular = -kp * self.line_error
