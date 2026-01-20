@@ -3,13 +3,13 @@
 
     <!-- Friction for wheels -->
     <gazebo reference="rear_left_wheel_link">
-        <mu1 value="7" />
-        <mu2 value="7" />
+        <mu1 value="1" />
+        <mu2 value="1" />
     </gazebo>
 
     <gazebo reference="rear_right_wheel_link">
-        <mu1 value="7" />
-        <mu2 value="7" />
+        <mu1 value="1" />
+        <mu2 value="1" />
     </gazebo>
 
     <!--slippery front wheels-->

@@ -43,8 +43,8 @@ class CameraFollower(Node):
         self.target_yaw = 0.0
         self.odom_ready = False
 
-        self.kp = 0.8
-        self.kd = 0.5   
+        self.kp = 0.5 #was 0.8
+        self.kd = 0.2 #was 0.5   
 
         self.line_found = False
         # offset from center
