@@ -282,10 +282,10 @@ class CameraFollower(Node):
         if not self.cardinals_initialized:
             self.start_yaw = self.current_yaw
             self.cardinals = {
-                'NORTH': self.angle_error(self.start_yaw, 0),
-                'WEST':  self.angle_error(self.start_yaw, -5*math.pi/9),
-                'SOUTH': self.angle_error(self.start_yaw, -5*math.pi/9),
-                'EAST':  self.angle_error(self.start_yaw, 5*math.pi/9)
+                'NORTH': self.start_yaw,
+                'WEST':  self.angle_error(self.start_yaw, math.pi/2),   # +90 degrees
+                'SOUTH': self.angle_error(self.start_yaw, math.pi),    # +180 degrees
+                'EAST':  self.angle_error(self.start_yaw, -math.pi/2)  # -90 degrees
             }
             self.current_cardinal_target = self.cardinals['NORTH']
             self.cardinals_initialized = True
@@ -309,24 +309,22 @@ class CameraFollower(Node):
         else:
             angular = -(self.line_error * self.kp + derivative * self.kd)
         
-        # Limit maximum steering to prevent "weird turns"
-        angular = max(min(angular, 0.02), -0.02)
-        self.last_line_error = self.line_error  # Update AFTER calculation
+        # IMPORTANT: Increase your clamps. 0.02 is too small to overcome friction.
+        # 0.4 to 0.6 is a safer range for actual movement.
+        angular = max(min(angular, 0.5), -0.5)
+        
+        self.last_line_error = self.line_error
         return float(base_speed), float(angular)
-
+    
     def calculate_heading_lock_command(self, base_speed):
-        # 1. Start with your fixed cardinal target (0, 90, 180, 270)
         target = self.current_cardinal_target
         
-        # 2. If we see a line, "nudge" the target angle to move back toward center
-        # This prevents the sideways drifting.
         if self.line_found:
-            # Adjust the target angle
-            # If line_error is positive (line is to the right), we steer right to find it
-            line_correction = self.line_error * 0.05 
-            target = target - line_correction
+            # If line is to the right (error > 0), we want the target heading 
+            # to shift right (subtract from current target)
+            line_correction = self.line_error * 0.1 # Try 0.1 for a gentler nudge
+            target = target - line_correction 
 
-        # 3. Calculate Error: (Nudged Target) - (Current Yaw)
         yaw_error = self.angle_error(target, self.current_yaw)
         
         # 4. Apply P-Controller
