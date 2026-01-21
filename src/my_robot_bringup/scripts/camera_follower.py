@@ -342,14 +342,16 @@ class CameraFollower(Node):
         self.get_logger().info(f"actual start_yaw {self.start_yaw}, current_yaw {self.current_yaw}")
 
         if half_turn:
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target,  -math.pi/2)
+            # 180 degree turn
+            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, math.pi)
         elif turn_right:
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, math.pi/2)
+            # RIGHT = Subtract 90 degrees (Clockwise)
+            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, -math.pi/2)
         else:
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target,  -math.pi/2)
+            # LEFT = Add 90 degrees (Counter-Clockwise)
+            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, math.pi/2)
             
         self.target_yaw = self.current_cardinal_target
-        self.get_logger().info(f"Target yaw updated to: {self.target_yaw:.2f}")
 
     def control_loop(self):
         if not self.navigation_active:
@@ -369,7 +371,7 @@ class CameraFollower(Node):
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
-            self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x}")
+            self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x} left or right {self.turn_plan[self.turn_index]}")
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
