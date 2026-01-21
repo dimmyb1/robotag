@@ -28,7 +28,7 @@
             name="gz::sim::systems::DiffDrive">
             <left_joint>rear_left_wheel_joint</left_joint>
             <right_joint>rear_right_wheel_joint</right_joint>
-            <wheel_separation>0.6</wheel_separation>
+            <wheel_separation>0.56</wheel_separation>
             <wheel_radius>0.15</wheel_radius>
 
             <max_wheel_torque>100</max_wheel_torque>

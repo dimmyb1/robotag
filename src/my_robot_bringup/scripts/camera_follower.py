@@ -303,18 +303,11 @@ class CameraFollower(Node):
 
     def calculate_line_following_command(self, base_speed):
         derivative = self.line_error - self.last_line_error
-        #angular = -(self.kp * self.line_error + self.kd * derivative)
-        #angular = max(min(angular, 0.7), -0.7)
-
-        # Add a deadzone: if the error is less than 5%, don't steer hard
-        if abs(self.line_error) < 0.02:
-            angular = 0.0
-        else:
-            angular = -(self.line_error * self.kp + derivative * self.kd)
+        angular = -(self.line_error * self.kp + derivative * self.kd)
         
         # IMPORTANT: Increase your clamps. 0.02 is too small to overcome friction.
         # 0.4 to 0.6 is a safer range for actual movement.
-        angular = max(min(angular, 0.5), -0.5)
+        angular = max(min(angular, 0.4), -0.4)
         
         self.last_line_error = self.line_error
         return float(base_speed), float(angular)
@@ -372,7 +365,7 @@ class CameraFollower(Node):
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
-            self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x} left or right {self.turn_plan[self.turn_index]}")
+            #self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x} left or right {self.turn_plan[self.turn_index]}")
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
