@@ -220,20 +220,25 @@ class CameraFollower(Node):
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
         roi = hsv[int(h * 0.6):h, :]
-        # Check for black in this camera
         mask = self.detect_black(roi)
-
-        # calculates center of black line in ROI Region of Interest
         M = cv2.moments(mask)
+
         if M["m00"] > 800:
-            # computer error from center to steer
             cx = int(M["m10"] / M["m00"])
             self.line_found = True
-            # Now normalized to [-1, 1] range
-            self.line_error = float(cx - (w / 2)) / (w / 2)
-            self.last_line_error = self.line_error
+            # Standard error: Positive = Line is Left, Negative = Line is Right
+            self.line_error = float((w / 2) - cx) / (w / 2)
         else:
+            # If the middle camera loses the line, look at the side cameras
             self.line_found = False
+            if self.left_line:
+                self.line_error = 1.0  # Force maximum Left correction
+            elif self.right_line:
+                self.line_error = -1.0 # Force maximum Right correction
+            else:
+                self.line_error = 0.0
+                
+        self.last_line_error = self.line_error
     
     # check if enough pixels is found in any side camera
     # help to detect which side to move
@@ -319,37 +324,42 @@ class CameraFollower(Node):
     def calculate_heading_lock_command(self, base_speed):
         target = self.current_cardinal_target
         
-        if self.line_found:
-            # If line is to the right (error > 0), we want the target heading 
-            # to shift right (subtract from current target)
-            line_correction = self.line_error * 0.1 # Try 0.1 for a gentler nudge
-            target = target - line_correction 
-
-        yaw_error = self.angle_error(target, self.current_yaw)
+        # We use the cameras to "nudge" our target heading
+        # If line_error is 1.0 (Line on far Left), we shift target yaw by ~30 degrees
+        nudge_factor = 0.2  
+        camera_nudge = self.line_error * nudge_factor
         
-        # 4. Apply P-Controller
-        heading_kp = 1.5 
+        # Adjust target based on what cameras see
+        adjusted_target = target + camera_nudge
+        
+        # Calculate angular error between robot and the camera-adjusted target
+        yaw_error = self.angle_error(adjusted_target, self.current_yaw)
+        
+        # P-gain for steering
+        heading_kp = 2.0 
         angular = heading_kp * yaw_error
         
-        # Clamp it so it doesn't jitter
-        angular = max(min(angular, 0.05), -0.05)
+        # Clamp to ensure smooth movement but enough power for friction
+        angular = max(min(angular, 0.6), -0.6)
         
         return float(base_speed), float(angular)
 
     def start_turn(self, turn_right, half_turn=False):
-        self.get_logger().info(f"STARTING TURN {self.turn_index + 1}/{len(self.turn_plan)}: {'RIGHT' if turn_right else 'LEFT'} {'180°' if half_turn else '90°'}")
+        # Log what we INTEND to do
+        direction_str = 'RIGHT' if turn_right else 'LEFT'
+        self.get_logger().info(f"STARTING TURN: {direction_str}")
+        
         self.doing_turn = True
-        self.get_logger().info(f"actual start_yaw {self.start_yaw}, current_yaw {self.current_yaw}")
 
         if half_turn:
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target,  -math.pi/2)
+            self.current_cardinal_target += math.pi
         elif turn_right:
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, math.pi/2)
+            self.current_cardinal_target -= math.pi/2
         else:
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target,  -math.pi/2)
+            self.current_cardinal_target += math.pi/2
             
+        self.current_cardinal_target = math.atan2(math.sin(self.current_cardinal_target), math.cos(self.current_cardinal_target))
         self.target_yaw = self.current_cardinal_target
-        self.get_logger().info(f"Target yaw updated to: {self.target_yaw:.2f}")
 
     def control_loop(self):
         if not self.navigation_active:
@@ -369,7 +379,7 @@ class CameraFollower(Node):
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
-            self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x}")
+            self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x} right {self.turn_plan[self.turn_index]}")
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
@@ -406,34 +416,38 @@ class CameraFollower(Node):
                 self.cmd.linear.x = 1.0
                 # No turning
                 self.cmd.angular.z = 0.0
-                # Detect intersection and start next turn
-                intersection_detected = (
-                    (self.left_line and self.line_found) or
-                    (self.right_line and self.line_found) or
-                    (self.left_line and self.right_line and self.line_found)
-                )
 
-                if intersection_detected==False and self.needToClearIntersection==True:
-                    self.needToClearIntersection = False
-                    self.get_logger().info("Cleared intersection")
+            # 1. Detect intersection
+            intersection_detected = (
+                (self.left_line and self.line_found) or 
+                (self.right_line and self.line_found)
+            )
 
-                if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
-                    self.get_logger().info("DEBUG: INTERSECTION DETECTED")
-                    self.needToClearIntersection = True
-                    if self.turn_index < len(self.turn_plan):
-                        # Start the next turn based on direction plan
-                        self.start_turn(self.turn_plan[self.turn_index]=="right")
-                        self.cmd.linear.x = 0.0  
-                        self.turn_index+=1
-                        self.cmd.angular.z = 0.0
-                        
-                        self.publisher.publish(self.cmd)
+            # 2. Handle Clearing/Detecting Intersections
+            if intersection_detected == False and self.needToClearIntersection == True:
+                self.needToClearIntersection = False
+                self.get_logger().info("Cleared intersection")
 
-                # Use Heading Lock to drive straight instead of sniffing pixels
-                # passeding cmd.angular.x value
+            if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
+                self.get_logger().info("DEBUG: INTERSECTION DETECTED")
+                self.needToClearIntersection = True
+                if self.turn_index < len(self.turn_plan):
+                    self.start_turn(self.turn_plan[self.turn_index] == "right")
+                    # Exit early this frame so Heading Lock doesn't overwrite the turn
+                    self.cmd.linear.x = 0.0
+                    self.cmd.angular.z = 0.0
+                    self.publisher.publish(self.cmd)
+                    return 
+
+            # 3. ONLY use Heading Lock if we aren't busy turning or clearing
+            if not self.doing_turn and not self.needToClearIntersection:
                 linear, angular = self.calculate_heading_lock_command(0.5)
                 self.cmd.linear.x = linear
                 self.cmd.angular.z = angular
+            else:
+                # While clearing intersection, just drive straight at a fixed speed
+                self.cmd.linear.x = 0.5
+                self.cmd.angular.z = 0.0
 
             # House detection
             if self.all_turns_complete and self.house_visible:
