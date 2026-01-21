@@ -270,6 +270,9 @@ class CameraFollower(Node):
         # Is the house detectable
         self.house_visible = np.sum(mask > 0) > 1200
         self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio
+    
+    def normalize_angle(self, angle):
+        return math.atan2(math.sin(angle), math.cos(angle))
 
     def odom_callback(self, msg):
         # get yaw from quaternion
@@ -277,17 +280,17 @@ class CameraFollower(Node):
         siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
         self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
-        
-        # Initialize cardinals based on the orientation at startup
+    
         if not self.cardinals_initialized:
-            self.start_yaw = self.current_yaw
+            self.start_yaw = self.current_yaw 
+            # Facing SOUTH (~3.14), adding pi/2 (Left) should result in EAST (~ -1.57)
             self.cardinals = {
-                'NORTH': self.start_yaw,
-                'WEST':  self.angle_error(self.start_yaw, math.pi/2),   # +90 degrees
-                'SOUTH': self.angle_error(self.start_yaw, math.pi),    # +180 degrees
-                'EAST':  self.angle_error(self.start_yaw, -math.pi/2)  # -90 degrees
+                'SOUTH': self.start_yaw,
+                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2), # Right
+                'NORTH': self.normalize_angle(self.start_yaw + math.pi),    # Behind
+                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2)  # Left
             }
-            self.current_cardinal_target = self.cardinals['NORTH']
+            self.current_cardinal_target = self.cardinals['SOUTH']
             self.cardinals_initialized = True
 
         self.odom_ready = True
@@ -307,7 +310,7 @@ class CameraFollower(Node):
         if abs(self.line_error) < 0.02:
             angular = 0.0
         else:
-            angular = (self.line_error * self.kp + derivative * self.kd)
+            angular = -(self.line_error * self.kp + derivative * self.kd)
         
         # IMPORTANT: Increase your clamps. 0.02 is too small to overcome friction.
         # 0.4 to 0.6 is a safer range for actual movement.
@@ -337,20 +340,18 @@ class CameraFollower(Node):
         return float(base_speed), float(angular)
 
     def start_turn(self, turn_right, half_turn=False):
-        self.get_logger().info(f"STARTING TURN {self.turn_index + 1}/{len(self.turn_plan)}: {'RIGHT' if turn_right else 'LEFT'} {'180°' if half_turn else '90°'}")
         self.doing_turn = True
-        self.get_logger().info(f"actual start_yaw {self.start_yaw}, current_yaw {self.current_yaw}")
-
+        
         if half_turn:
-            # 180 degree turn
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, math.pi)
+            # Turn around
+            self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target + math.pi)
         elif turn_right:
-            # RIGHT = Subtract 90 degrees (Clockwise)
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, -math.pi/2)
+            # RIGHT = Subtract 90 degrees (Clockwise in ROS)
+            self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target - math.pi/2)
         else:
-            # LEFT = Add 90 degrees (Counter-Clockwise)
-            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, math.pi/2)
-            
+            # LEFT = Add 90 degrees (Counter-Clockwise in ROS)
+            self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target + math.pi/2)
+                
         self.target_yaw = self.current_cardinal_target
 
     def control_loop(self):
@@ -390,7 +391,6 @@ class CameraFollower(Node):
                     self.get_logger().info("DEBUG: STOPPED turning")
                     self.doing_turn = False
                     self.last_line_error = 0.0
-                    self.turn_index+=1
                     self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
                     self.needToClearIntersection = True
                     # IMPO - Set to 0 to try and avoid circular moving
@@ -430,12 +430,12 @@ class CameraFollower(Node):
                         self.cmd.angular.z = 0.0
                         
                         self.publisher.publish(self.cmd)
-
-                # Use Heading Lock to drive straight instead of sniffing pixels
-                # passeding cmd.angular.x value
-                linear, angular = self.calculate_heading_lock_command(0.5)
-                self.cmd.linear.x = linear
-                self.cmd.angular.z = angular
+                elif not self.doing_turn:
+                    # Use Heading Lock to drive straight instead of sniffing pixels
+                    # passing cmd.angular.x value
+                    linear, angular = self.calculate_heading_lock_command(0.5)
+                    self.cmd.linear.x = linear
+                    self.cmd.angular.z = angular
 
             # House detection
             if self.all_turns_complete and self.house_visible:
