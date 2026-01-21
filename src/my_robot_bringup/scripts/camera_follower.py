@@ -42,8 +42,9 @@ class CameraFollower(Node):
         self.start_yaw = 0.0
         self.target_yaw = 0.0
         self.odom_ready = False
+        self.cardinals_initialized = False # New flag to set cardinals once
 
-        self.turn_kp = 0.6
+        self.turn_kp = 1.2
         self.kp = 0.6 #was 0.8
         self.kd = 0.5   
 
@@ -108,8 +109,11 @@ class CameraFollower(Node):
         # linear.x - forward/backward
         # angular.z - left/right
         self.publisher = self.create_publisher(Twist, '/cmd_vel', 1)
-        
 
+        # Cardinal placeholders (Now properly set in odom_callback)
+        self.cardinals = {}
+        self.current_cardinal_target = 0.0
+        
         qos = QoSProfile(depth=1)
         qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
         # subscribe to which house they need to navigate to
@@ -184,6 +188,10 @@ class CameraFollower(Node):
         self.house_visible = False
         self.house_reached = False
 
+        # Reset heading lock to start reference
+        if self.cardinals_initialized:
+            self.current_cardinal_target = self.cardinals['NORTH']
+
         # --- COMPUTE TURN PLAN ---
         self.turn_plan = directions[self.start][self.TARGET_HOUSE]
 
@@ -204,7 +212,7 @@ class CameraFollower(Node):
 
     # Helper function used throughout this class
     def detect_black(self, hsv):
-        # returns a mask of black pixels in the imag
+        # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
         upper_black = np.array([180, 255, 60])
         return cv2.inRange(hsv, lower_black, upper_black)
@@ -272,13 +280,21 @@ class CameraFollower(Node):
         siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
         self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
-        #self.get_logger().info(f"Yaw: {self.current_yaw:.3f}")
-        self.odom_ready = True
+        
+        # Initialize cardinals based on the orientation at startup
+        if not self.cardinals_initialized:
+            self.start_yaw = self.current_yaw
+            self.cardinals = {
+                'NORTH': self.angle_error(self.start_yaw, 0),
+                'WEST':  self.angle_error(self.start_yaw, -math.pi/2),
+                'SOUTH': self.angle_error(self.start_yaw, -math.pi),
+                'EAST':  self.angle_error(self.start_yaw, math.pi/2)
+            }
+            self.current_cardinal_target = self.cardinals['NORTH']
+            self.cardinals_initialized = True
 
-    def normalize_angle(self, angle):
-        return math.atan2(math.sin(angle), math.cos(angle))
+        self.odom_ready = True
     
-    #normalize_angle may need to change to this to work properly
     def angle_error(self, target, current):
         return math.atan2(
             math.sin(target - current),
@@ -291,7 +307,7 @@ class CameraFollower(Node):
         #angular = max(min(angular, 0.7), -0.7)
 
         # Add a deadzone: if the error is less than 5%, don't steer hard
-        if abs(self.line_error) < 0.05:
+        if abs(self.line_error) < 0.02:
             angular = 0.0
         else:
             angular = -(self.line_error * self.kp + derivative * self.kd)
@@ -301,23 +317,45 @@ class CameraFollower(Node):
         self.last_line_error = self.line_error  # Update AFTER calculation
         return base_speed, angular
 
+    def calculate_heading_lock_command(self, base_speed):
+        # 1. Start with your fixed cardinal target (0, 90, 180, 270)
+        target = self.current_cardinal_target
+        
+        # 2. If we see a line, "nudge" the target angle to move back toward center
+        # This prevents the sideways drifting.
+        if self.line_found:
+            # Adjust the target angle by up to ~15 degrees based on line error
+            # If line_error is positive (line is to the right), we steer right to find it
+            line_correction = self.line_error * 0.25 
+            target = self.angle_error(target, line_correction)
+
+        # 3. Calculate Error: (Nudged Target) - (Current Yaw)
+        yaw_error = self.angle_error(target, self.current_yaw)
+        
+        # 4. Apply P-Controller
+        heading_kp = 1.5 
+        angular = heading_kp * yaw_error
+        
+        # Clamp it so it doesn't jitter
+        angular = max(min(angular, 0.6), -0.6)
+        
+        return base_speed, angular
 
     def start_turn(self, turn_right, half_turn=False):
+        direction = "RIGHT" if turn_right else "LEFT"
         self.get_logger().info(f"STARTING TURN {self.turn_index + 1}/{len(self.turn_plan)}: {'RIGHT' if turn_right else 'LEFT'} {'180°' if half_turn else '90°'}")
         self.doing_turn = True
         self.get_logger().info(f"actual start_yaw {self.start_yaw}, current_yaw {self.current_yaw}")
-        self.start_yaw = self.normalize_angle(self.current_yaw)
 
-        # Calculate target: 90 degrees right is -pi/2, left is +pi/2
-        delta = (-math.pi/2 if turn_right else math.pi/2)
         if half_turn:
-            delta *= 2  # make 180°
-
-        self.target_yaw = self.normalize_angle(self.start_yaw + delta)
-        self.get_logger().info(f"Start yaw: {self.start_yaw:.2f}, Target yaw: {self.target_yaw:.2f}")
-        self.get_logger().info(f"TURN RIGHT={turn_right} YAW: {self.current_yaw:.2f} → {self.target_yaw:.2f}")
-        #return self.target_yaw
-
+            self.current_cardinal_target = self.angle_error(self.current_cardinal_target,  -math.pi)
+        elif turn_right:
+            self.current_cardinal_target = self.angle_error(self.current_cardinal_target, math.pi/2)
+        else:
+            self.current_cardinal_target = self.angle_error(self.current_cardinal_target,  -math.pi/2)
+            
+        self.target_yaw = self.current_cardinal_target
+        self.get_logger().info(f"Target yaw updated to: {self.target_yaw:.2f}")
 
     def control_loop(self):
         if not self.navigation_active:
@@ -337,8 +375,6 @@ class CameraFollower(Node):
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
-            #if not self.doing_turn:
-            #    self.cmd.linear.x = 0.1
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
@@ -371,6 +407,10 @@ class CameraFollower(Node):
                 self.publisher.publish(self.cmd)
             
             else:
+                # Normal Driving: Use the Cardinal Lock to stay straight
+                linear, angular = self.calculate_heading_lock_command(0.22)
+                self.cmd.linear.x = linear
+                self.cmd.angular.z = angular
                 # Detect intersection and start next turn
                 intersection_detected = (
                     (self.left_line and self.line_found) or
@@ -381,69 +421,27 @@ class CameraFollower(Node):
                 if intersection_detected==False and self.needToClearIntersection==True:
                     self.needToClearIntersection = False
 
-                if intersection_detected and not self.all_turns_complete:
-                    if self.doing_turn:
-                        self.needToClearIntersection = False
-
                 if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
                     self.get_logger().info("DEBUG: INTERSECTION DETECTED")
                     self.needToClearIntersection = True
                     if self.turn_index < len(self.turn_plan):
-                        # Check if we can go straight
-                        can_go_straight = (
-                            (self.left_line and self.line_found and not self.right_line and self.turn_plan[self.turn_index]) or 
-                            (self.right_line and self.line_found and not self.left_line and not self.turn_plan[self.turn_index])
-                        )
-                        
-                        if can_go_straight:
-                            linear, angular = self.calculate_line_following_command(0.22)
-                            self.cmd.linear.x = linear
-                            self.cmd.angular.z = angular
-                            self.mustIncrementIndex = True
-                            
-                        else:
-                            self.start_turn(self.turn_plan[self.turn_index])
-                            self.cmd.linear.x = 0.0  
-                            self.cmd.angular.z = 0.0
+                        # Start the next turn based on direction plan
+                        self.start_turn(self.turn_plan[self.turn_index])
+                        self.cmd.linear.x = 0.0  
+                        self.cmd.angular.z = 0.0
                         
                         self.publisher.publish(self.cmd)
 
-            # Normal line following
-            if self.line_found and self.doing_turn==False:
-                self.get_logger().info(f"DEBUG: following line turn {self.turn_index}")
-                linear, angular = self.calculate_line_following_command(0.22)
+            # Normal driving using Cardinal Heading Lock
+            if self.doing_turn==False:
+                # Use Heading Lock to drive straight instead of sniffing pixels
+                linear, angular = self.calculate_heading_lock_command(0.22)
                 self.cmd.linear.x = linear
                 self.cmd.angular.z = angular
 
                 if(self.mustIncrementIndex==True):
                     self.turn_index+=1
                     self.mustIncrementIndex=False
-
-            elif self.doing_turn==False:
-                self.get_logger().info("DEBUG: lost line – camera-based recovery")
-
-                self.cmd.linear.x = 0.05  # creep forward slowly
-
-                if self.left_line and not self.right_line:
-                    self.get_logger().info("DEBUG: line seen on LEFT camera")
-                    # Line on left → turn left
-                    self.cmd.angular.z = 0.4
-
-                elif self.right_line and not self.left_line:
-                    self.get_logger().info("DEBUG: line seen on RIGHT camera")
-                    # Line on right → turn right
-                    self.cmd.angular.z = -0.4
-
-                elif self.left_line and self.right_line:
-                    self.get_logger().info("DEBUG: line seen on BOTH side cameras")
-                    # Intersection / uncertain → go straight slowly
-                    self.cmd.angular.z = 0.0
-
-                else:
-                    self.get_logger().info("DEBUG: line NOT seen on ANY camera")
-                    # No camera sees line → fallback to last known direction
-                    self.cmd.linear.x = 0.0
-                    self.cmd.angular.z = -np.sign(self.last_line_error) * 0.3
 
             # House detection
             if self.all_turns_complete and self.house_visible:
