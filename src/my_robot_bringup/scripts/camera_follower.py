@@ -307,7 +307,7 @@ class CameraFollower(Node):
         if abs(self.line_error) < 0.02:
             angular = 0.0
         else:
-            angular = -(self.line_error * self.kp + derivative * self.kd)
+            angular = (self.line_error * self.kp + derivative * self.kd)
         
         # IMPORTANT: Increase your clamps. 0.02 is too small to overcome friction.
         # 0.4 to 0.6 is a safer range for actual movement.
@@ -430,7 +430,8 @@ class CameraFollower(Node):
                         self.publisher.publish(self.cmd)
 
                 # Use Heading Lock to drive straight instead of sniffing pixels
-                linear, angular = self.calculate_heading_lock_command(0.05)
+                # passeding cmd.angular.x value
+                linear, angular = self.calculate_heading_lock_command(0.5)
                 self.cmd.linear.x = linear
                 self.cmd.angular.z = angular
 
