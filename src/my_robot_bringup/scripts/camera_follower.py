@@ -376,14 +376,15 @@ class CameraFollower(Node):
                 self.cmd.angular.z = self.kp * error
                 
                 # Clamp rotation speed
-                max_rot_speed = 0.1
+                max_rot_speed = 0.2 #was 0.1 but i wanna spinny spin spin spinnn (xbajt minn kollox guys)
                 self.cmd.angular.z = max(min(self.cmd.angular.z, max_rot_speed), -max_rot_speed)
                 
                 # Check if turn is complete
-                if abs(error) < 0.01:
+                if abs(error) < 0.1: #was 0.01 but might as well be off by more if we're already 0.2 wrong anyway
                     self.get_logger().info("DEBUG: STOPPED turning")
                     self.doing_turn = False
                     self.last_line_error = 0.0
+                    self.turn_index+=1
                     self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
                     self.needToClearIntersection = True
                     # IMPO - Set to 0 to try and avoid circular moving
@@ -397,10 +398,7 @@ class CameraFollower(Node):
                 self.publisher.publish(self.cmd)
             # Normal moving forward
             else:
-                # move a bit
-                self.cmd.linear.x = 1.0
-                # No turning
-                self.cmd.angular.z = 0.0
+                
                 # Detect intersection and start next turn
                 intersection_detected = (
                     (self.left_line and self.line_found) or
@@ -418,17 +416,14 @@ class CameraFollower(Node):
                     if self.turn_index < len(self.turn_plan):
                         # Start the next turn based on direction plan
                         self.start_turn(self.turn_plan[self.turn_index]=="right")
-                        self.cmd.linear.x = 0.0  
-                        self.turn_index+=1
-                        self.cmd.angular.z = 0.0
-                        
                         self.publisher.publish(self.cmd)
+
                 elif not self.doing_turn:
-                    # Use Heading Lock to drive straight instead of sniffing pixels
+                    # Use Heading Lock to drive straight instead of sniffing pixels - SNIFFING PIXELS?? dan minn fejn qalahha
                     # passing cmd.angular.x value
                     linear, angular = self.calculate_heading_lock_command(0.5)
                     self.cmd.linear.x = linear
-                    self.cmd.angular.z = angular
+                    self.cmd.angular.z = angular 
 
             # House detection
             if self.all_turns_complete and self.house_visible:
