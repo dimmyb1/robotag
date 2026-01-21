@@ -31,7 +31,7 @@ class CameraFollower(Node):
         self.mode = Mode.FOLLOW_LINE
         self.navigation_active = False
 
-        self.turn_index = 0.0
+        self.turn_index = 0
         self.doing_turn = False
         self.all_turns_complete = False
         self.needToClearIntersection = False
@@ -372,7 +372,7 @@ class CameraFollower(Node):
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
-            self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x} left or right {self.turn_plan[self.turn_index]}")
+            self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x} left or right {self.turn_plan[self.turn_index]} Turn number {self.turn_index}")
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
@@ -383,7 +383,7 @@ class CameraFollower(Node):
                 self.cmd.angular.z = self.kp * error
                 
                 # Clamp rotation speed
-                max_rot_speed = 0.1
+                max_rot_speed = 2.0
                 self.cmd.angular.z = max(min(self.cmd.angular.z, max_rot_speed), -max_rot_speed)
                 
                 # Check if turn is complete
