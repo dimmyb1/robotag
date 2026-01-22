@@ -187,6 +187,7 @@ class CameraFollower(Node):
 
         # Reset heading lock to start reference
         if self.cardinals_initialized:
+            self.get_logger().info(f"RESETTING CARDINALS TO NORTH")
             self.current_cardinal_target = self.cardinals['NORTH']
 
         # --- COMPUTE TURN PLAN ---
@@ -282,13 +283,14 @@ class CameraFollower(Node):
         self.current_yaw = math.atan2(siny_cosp, cosy_cosp)
     
         if not self.cardinals_initialized:
+            self.get_logger().info("Initialised cardinals")
             self.start_yaw = self.current_yaw 
             # Facing SOUTH (~3.14), adding pi/2 (Left) should result in EAST (~ -1.57)
             self.cardinals = {
                 'SOUTH': self.start_yaw,
-                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2), # Right
+                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2) -0.2, # Right -0.2 because im cooking chat
                 'NORTH': self.normalize_angle(self.start_yaw + math.pi),    # Behind
-                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2)  # Left
+                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2) +0.2 # Left listess bhal right imma bilkontra hux
             }
             self.current_cardinal_target = self.cardinals['SOUTH']
             self.cardinals_initialized = True
@@ -301,6 +303,7 @@ class CameraFollower(Node):
             math.cos(target - current)
         )
 
+    #this is onlybeing used when verifying house.
     def calculate_line_following_command(self, base_speed):
         derivative = self.line_error - self.last_line_error
         angular = -(self.line_error * self.kp + derivative * self.kd)
@@ -315,11 +318,11 @@ class CameraFollower(Node):
     def calculate_heading_lock_command(self, base_speed):
         target = self.current_cardinal_target
         
-        if self.line_found:
+        #if self.line_found:
             # If line is to the right (error > 0), we want the target heading 
             # to shift right (subtract from current target)
-            line_correction = self.line_error * 0.1 # Try 0.1 for a gentler nudge
-            target = target - line_correction 
+        #    line_correction = self.line_error * 0.1 # Try 0.1 for a gentler nudge
+        #    target = target - line_correction 
 
         yaw_error = self.angle_error(target, self.current_yaw)
         
@@ -337,13 +340,39 @@ class CameraFollower(Node):
         
         if half_turn:
             # Turn around
-            self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target + math.pi)
+            #self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target + math.pi)
+
+            if(self.current_cardinal_target == self.cardinals["NORTH"]):
+                self.current_cardinal_target = self.cardinals["SOUTH"]
+            elif(self.current_cardinal_target == self.cardinals["SOUTH"]):
+                self.current_cardinal_target = self.cardinals["NORTH"]
+            elif(self.current_cardinal_target == self.cardinals["WEST"]):
+                self.current_cardinal_target = self.cardinals["EAST"]
+            elif(self.current_cardinal_target == self.cardinals["EAST"]):
+                self.current_cardinal_target = self.cardinals["WEST"]
+
         elif turn_right:
             # RIGHT = Subtract 90 degrees (Clockwise in ROS)
-            self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target - math.pi/2)
+            #self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target - math.pi/2)
+            if(self.current_cardinal_target == self.cardinals["NORTH"]):
+                self.current_cardinal_target = self.cardinals["EAST"]
+            elif(self.current_cardinal_target == self.cardinals["SOUTH"]):
+                self.current_cardinal_target = self.cardinals["WEST"]
+            elif(self.current_cardinal_target == self.cardinals["WEST"]):
+                self.current_cardinal_target = self.cardinals["NORTH"]
+            elif(self.current_cardinal_target == self.cardinals["EAST"]):
+                self.current_cardinal_target = self.cardinals["SOUTH"]
         else:
             # LEFT = Add 90 degrees (Counter-Clockwise in ROS)
-            self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target + math.pi/2)
+            #self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target + math.pi/2)
+            if(self.current_cardinal_target == self.cardinals["NORTH"]):
+                self.current_cardinal_target = self.cardinals["WEST"]
+            elif(self.current_cardinal_target == self.cardinals["SOUTH"]):
+                self.current_cardinal_target = self.cardinals["EAST"]
+            elif(self.current_cardinal_target == self.cardinals["WEST"]):
+                self.current_cardinal_target = self.cardinals["SOUTH"]
+            elif(self.current_cardinal_target == self.cardinals["EAST"]):
+                self.current_cardinal_target = self.cardinals["NORTH"]
                 
         self.target_yaw = self.current_cardinal_target
 
@@ -389,6 +418,9 @@ class CameraFollower(Node):
                     self.needToClearIntersection = True
                     # IMPO - Set to 0 to try and avoid circular moving
                     self.cmd.angular.z = 0.0
+                    self.cmd.linear.x = 0.0
+
+                    #WE NEED SETTLING TIME.
                     
                     # Check if all turns are done
                     if self.turn_index >= len(self.turn_plan):
@@ -410,6 +442,7 @@ class CameraFollower(Node):
                     self.needToClearIntersection = False
                     self.get_logger().info("Cleared intersection")
 
+                #this section isn't right, nehhejtuli l logic kollu rip- note to self redo the go straight where necessary logic 
                 if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
                     self.get_logger().info("DEBUG: INTERSECTION DETECTED")
                     self.needToClearIntersection = True
@@ -423,7 +456,9 @@ class CameraFollower(Node):
                     # passing cmd.angular.x value
                     linear, angular = self.calculate_heading_lock_command(0.5)
                     self.cmd.linear.x = linear
-                    self.cmd.angular.z = angular 
+                    #
+                    # self.cmd.angular.z = angular 
+                    #if you ignore it, the problem will go away
 
             # House detection
             if self.all_turns_complete and self.house_visible:
