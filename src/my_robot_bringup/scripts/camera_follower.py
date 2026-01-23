@@ -315,26 +315,24 @@ class CameraFollower(Node):
 
         target_cx = None
 
-        # 4. "Winner Takes All" Logic
-        target_cx = None
-        
+        # 4. "Winner Takes All" Logic with better mapping
         if segment_density['MIDDLE']:
             M = cv2.moments(segments['MIDDLE'])
             if M["m00"] > 0:
+                # Actual center of the line within the middle segment
                 target_cx = (M["m10"] / M["m00"]) + m_start
-            self.get_logger().info("middle found and following")
         
         elif segment_density['LEFT']:
-            M = cv2.moments(segments['LEFT'])
-            if M["m00"] > 0:
-                target_cx = (M["m10"] / M["m00"]) # No offset
-            self.get_logger().info("NO MIDDLE FOUND. FOUND LEFT")
+            # Line is far left. We want to tell the PID to turn HARD right.
+            # Instead of the moment center, give it a target near the left edge 
+            # to maximize the error and force a correction.
+            target_cx = 0.0 
+            self.get_logger().info("RECOVERY: Forcing Right Turn")
         
         elif segment_density['RIGHT']:
-            M = cv2.moments(segments['RIGHT'])
-            if M["m00"] > 0:
-                target_cx = (M["m10"] / M["m00"]) + m_end
-            self.get_logger().info("NO MIDDLE FOUND. FOUND RIGHT")
+            # Line is far right. Tell PID to turn HARD left.
+            target_cx = float(w)
+            self.get_logger().info("RECOVERY: Forcing Left Turn")
 
         # 5. Single Unified Error Update
         if target_cx is not None:
