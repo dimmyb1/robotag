@@ -312,9 +312,9 @@ class CameraFollower(Node):
             # Facing SOUTH (~3.14), adding pi/2 (Left) should result in EAST (~ -1.57)
             self.cardinals = {
                 'SOUTH': self.start_yaw,
-                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2), # Right -0.2 to maybe correct 0.2 rad diff
+                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2 + 0.2) , # Right -0.2 to maybe correct 0.2 rad diff
                 'NORTH': self.normalize_angle(self.start_yaw + math.pi),    # Behind
-                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2)# Left
+                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2 +0.2)  # Left
             }
             self.current_cardinal_target = self.cardinals['SOUTH']
             self.cardinals_initialized = True
