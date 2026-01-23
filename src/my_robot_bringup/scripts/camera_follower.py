@@ -63,6 +63,8 @@ class CameraFollower(Node):
         # fine tuned based on experiement with house 2
         self.stop_ratio = 0.95
 
+        self.wait_until = self.get_clock().now()
+
         # Subscriptions
         self.front_sub = self.create_subscription(
             Image,
@@ -386,7 +388,14 @@ class CameraFollower(Node):
             self.get_logger().info("Waiting for Odometry...")
             self.publisher.publish(Twist())
             return
-
+        
+        if self.get_clock().now() < self.wait_until:
+            # Keep the robot still while waiting
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = 0.0
+            self.publisher.publish(self.cmd)
+            return # Skip the rest of the logic
+        
         # Initial setup 
         if self.turn_index == 0 and not self.doing_turn:
             self.get_logger().info("DEBUG: initial setup before first turn")
@@ -428,7 +437,9 @@ class CameraFollower(Node):
                     self.cmd.angular.z = 0.0
                     self.cmd.linear.x = 0.0
 
-                    
+                    # Set the 'wait_until' time to Now + 500 milliseconds
+                    self.wait_until = self.get_clock().now() + rclpy.duration.Duration(seconds=0.5)
+                    self.get_logger().info("Pausing for 500ms to let physics settle...")
                     
                     # Check if all turns are done
                     if self.turn_index >= len(self.turn_plan):
