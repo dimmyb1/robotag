@@ -339,7 +339,14 @@ class CameraFollower(Node):
             
             # Calculate normalized error once
             new_error = float(target_cx - (w / 2)) / (w / 2)
-            self.line_error = new_error 
+
+            min_force = 0.3
+
+            if new_error >0:
+                self.line_error = max(new_error, min_force)
+            else:
+                self.line_error = max(new_error, -min_force)
+
             self.line_found = True
         else:
             self.line_found = False
