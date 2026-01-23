@@ -47,6 +47,9 @@ class CameraFollower(Node):
         self.ki = 0.01
         self.kd = 0.5   
 
+        self.stable_yaw = 0.0
+        self.gyro_kp = 0.5
+
         self.line_found = False
         # offset from center
         self.line_error = 0.0
@@ -390,63 +393,44 @@ class CameraFollower(Node):
             math.cos(target - current)
         )
 
-    """
-    #this is onlybeing used when verifying house.
-    def calculate_line_following_command(self, base_speed):
-        derivative = self.line_error - self.last_line_error
-        angular = -(self.line_error * self.kp + derivative * self.kd)
-        
-        # IMPORTANT: Increase your clamps. 0.02 is too small to overcome friction.
-        # 0.4 to 0.6 is a safer range for actual movement.
-        angular = max(min(angular, 0.03), -0.03)
-        
-        self.last_line_error = self.line_error
-        return float(base_speed), float(angular)
-    """
-    """
-    def calculate_line_following_command(self, base_speed):
-        kp = 0.7
-        kd = 0.4
-
-        proportional = self.line_error
-        derivative = self.line_error - self.last_line_error
-
-        angular = - (proportional * kp + derivative * kd)
-
-        angular = max(min(angular, 0.8), -0.8)
-        self.last_line_error = self.line_error
-        return base_speed, angular
-    """
     
     def calculate_line_following_command(self, base_speed):
-        # 1. Update the Integral (Sum of errors)
+        # --- 1. EXISTING CAMERA PID LOGIC ---
         self.sum_line_error += self.line_error
         
-        # 2. Anti-Windup: Limit the memory so it doesn't go crazy
-        # This prevents the "I" term from overpowering everything else
-        max_integral = 5.0
+        # Anti-Windup (keeps the 'I' term from going wild)
+        max_integral = 2.0 # Slightly tighter than your 5.0 to prevent drifting
         self.sum_line_error = max(min(self.sum_line_error, max_integral), -max_integral)
         
-        # 3. Calculate terms
         P = self.line_error * self.kp
         I = self.sum_line_error * self.ki
         D = (self.line_error - self.last_line_error) * self.kd
         
-        # 4. Combine (Negative sign for direction correction)
-        angular = -(P + I + D)
+        # This is the "Desired" turn rate from the camera
+        camera_steering = -(P + I + D)
+
+        # --- 2. ODOMETRY/GYRO STABILIZATION ---
+        # We use your existing cardinal targets as a "straight line" reference.
+        # This identifies if the robot is rotating away from its intended cardinal direction.
+        yaw_error = self.angle_error(self.current_cardinal_target, self.current_yaw)
+        gyro_correction = yaw_error * self.gyro_kp
+
+        # --- 3. THE FUSION ---
+        # We combine them. The camera steers, but the gyro ensures we stay 
+        # aligned with the general direction of the track.
+        angular = camera_steering + gyro_correction
         
-        # 5. Reset memory if we cross zero (Optional but helpful)
-        # If we crossed the center line, we don't need to 'remember' the old bias anymore
+        # --- 4. SAFETY & UPDATES ---
         if (self.line_error > 0 and self.last_line_error < 0) or \
         (self.line_error < 0 and self.last_line_error > 0):
-            self.sum_line_error = 0.0
+            self.sum_line_error = 0.0 #
 
         self.last_line_error = self.line_error
+    
+        # Cap the output at 0.6 as per your safety limit
+        final_angular = max(min(angular, 0.6), -0.6)
         
-        # Cap the output
-        angular = max(min(angular, 0.6), -0.6)
-        
-        return base_speed, angular
+        return base_speed, final_angular
     
     def calculate_heading_lock_command(self, base_speed):
         target = self.current_cardinal_target
