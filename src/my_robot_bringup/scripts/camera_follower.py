@@ -63,7 +63,7 @@ class CameraFollower(Node):
         # fine tuned based on experiement with house 2
         self.stop_ratio = 0.95
 
-        self.wait_until = self.get_clock().now()
+        #self.wait_until = self.get_clock().now()
 
         # Subscriptions
         self.front_sub = self.create_subscription(
@@ -221,7 +221,7 @@ class CameraFollower(Node):
         upper_black = np.array([180, 255, 60])
         return cv2.inRange(hsv, lower_black, upper_black)
 
-    """
+    
     def bm_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
@@ -238,8 +238,8 @@ class CameraFollower(Node):
             cx = int(M["m10"] / M["m00"])
             self.line_found = True
             # Now normalized to [-1, 1] range
-            self.line_error = float(cx - (w / 2)) / (w / 2)
-            self.last_line_error = self.line_error
+            #self.line_error = float(cx - (w / 2)) / (w / 2)
+            #self.last_line_error = self.line_error
         else:
             self.line_found = False
     
@@ -261,7 +261,7 @@ class CameraFollower(Node):
 
         mask = self.detect_black(hsv)
         self.right_line = np.sum(mask > 0) > 500
-    """
+    
     def front_callback(self, msg):
         # Only process front camera after all turns are complete
         #if not self.all_turns_complete:
@@ -342,15 +342,15 @@ class CameraFollower(Node):
     """
 
     def calculate_line_following_command(self, base_speed):
-        kp = 0.5
-        kd = 0.3
+        kp = 0.7
+        kd = 0.4
 
         proportional = self.line_error
         derivative = self.line_error - self.last_line_error
 
         angular = - (proportional * kp + derivative * kd)
 
-        angular = max(min(angular, 0.7), -0.7)
+        angular = max(min(angular, 0.8), -0.8)
         self.last_line_error = self.line_error
         return base_speed, angular
     
@@ -426,12 +426,16 @@ class CameraFollower(Node):
             self.publisher.publish(Twist())
             return
         
+        """
+        
         if self.get_clock().now() < self.wait_until:
             # Keep the robot still while waiting
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
             return # Skip the rest of the logic
+
+        """
         
         # Initial setup 
         if self.turn_index == 0 and not self.doing_turn:
@@ -451,12 +455,7 @@ class CameraFollower(Node):
                 self.cmd.angular.z = self.kp * error
                 
                 
-                #for last 17 degrees -> 0.29 ~= 0.3; decrease rotation speed.
-                if(error <= 0.3):
-                    max_rot_speed = min (1.0, abs(error)/0.3)
-                else:
-                    # Clamp rotation speed
-                    max_rot_speed = 0.3 #was 0.1 -> 0.5 -> 0.3 
+                max_rot_speed = 0.3 #was 0.1 -> 0.5 -> 0.3 
 
                 self.cmd.angular.z = max(min(self.cmd.angular.z, max_rot_speed), -max_rot_speed)
                 
@@ -464,19 +463,20 @@ class CameraFollower(Node):
 
                 # Check if turn is complete
                 if abs(error) < 0.01:
-                    self.get_logger().info("DEBUG: STOPPED turning")
-                    self.doing_turn = False
-                    self.last_line_error = 0.0
-                    self.turn_index+=1
-                    self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
-                    self.needToClearIntersection = True
                     # IMPO - Set to 0 to try and avoid circular moving
                     self.cmd.angular.z = 0.0
                     self.cmd.linear.x = 0.0
+                    self.get_logger().info("DEBUG: STOPPED turning")
+                    self.doing_turn = False
+                    #self.last_line_error = 0.0
+                    self.turn_index+=1
+                    self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
+                    self.needToClearIntersection = True
+                    
 
                     # Set the 'wait_until' time to Now + 500 milliseconds
-                    self.wait_until = self.get_clock().now() + rclpy.duration.Duration(seconds=0.5)
-                    self.get_logger().info("Pausing for 500ms to let physics settle...")
+                    #self.wait_until = self.get_clock().now() + rclpy.duration.Duration(seconds=0.5)
+                    #self.get_logger().info("Pausing for 500ms to let physics settle...")
                     
                     # Check if all turns are done
                     if self.turn_index >= len(self.turn_plan):
@@ -486,16 +486,7 @@ class CameraFollower(Node):
                 self.publisher.publish(self.cmd)
             # Normal moving forward
             else:
-                if self.line_found:
-                    linear, angular = self.calculate_line_following_command(0.1)
-                    self.cmd.linear.x = linear
-                    self.cmd.angular.z = angular
-                else:
-                    self.cmd.linear.x = 0.05
-                    self.cmd.angular.z = 0.0
-                    self.get_logger().info("Lost line...")
 
-                """
                 # Detect intersection and start next turn
                 intersection_detected = (
                     (self.left_line and self.line_found) or
@@ -506,6 +497,7 @@ class CameraFollower(Node):
                 if intersection_detected==False and self.needToClearIntersection==True:
                     self.needToClearIntersection = False
                     self.get_logger().info("Cleared intersection")
+                
 
                 #this section isn't right, nehhejtuli l logic kollu rip- note to self redo the go straight where necessary logic 
                 if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
@@ -516,17 +508,16 @@ class CameraFollower(Node):
                         self.start_turn(self.turn_plan[self.turn_index]=="right")
                         self.publisher.publish(self.cmd)
 
-                el
+                elif not self.doing_turn:
+                    if self.line_found:
+                        linear, angular = self.calculate_line_following_command(0.1)
+                        self.cmd.linear.x = linear
+                        self.cmd.angular.z = angular
+                    else:
+                        self.cmd.linear.x = 0.05
+                        self.cmd.angular.z = 0.0
+                        self.get_logger().info("Lost line...")
                 
-                if not self.doing_turn:
-                    # Use Heading Lock to drive straight instead of sniffing pixels
-                    # passing cmd.angular.x value
-                    linear, angular = self.calculate_heading_lock_command(0.5)
-                    self.cmd.linear.x = linear
-                    #
-                    self.cmd.angular.z = angular 
-                    #if you ignore it, the problem will go away
-                """
 
             # House detection
             if self.all_turns_complete and self.house_visible:
