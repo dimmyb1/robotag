@@ -291,9 +291,8 @@ class CameraFollower(Node):
         _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
         # 2. Define Custom Segment Boundaries (User Specified)
-        # Note: We clamp m_end to 'w' just in case the image is smaller than 704
-        m_start = 576
-        m_end = min(704, w) 
+        m_start = int( (w/2) - (((1/6) * w) / 2) )
+        m_end = int( (w/2) + (((1/6) * w) / 2) )
 
         segments = {
             'LEFT':   thresh[0 : m_start],
@@ -578,8 +577,8 @@ class CameraFollower(Node):
                         self.cmd.linear.x = linear
                         self.cmd.angular.z = angular
                     else:
-                        self.cmd.linear.x = 0.05
-                        self.cmd.angular.z = 0.0
+                        self.cmd.linear.x = 0
+                        self.cmd.angular.z = 0.2
                         self.get_logger().info("Lost line...")
                 
 
