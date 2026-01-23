@@ -425,34 +425,20 @@ class CameraFollower(Node):
 
     def control_loop(self):
         if not self.navigation_active:
-            self.get_logger().info("Waiting for Navigation...")
             self.publisher.publish(Twist())
             return
 
         if not self.odom_ready:
-            self.get_logger().info("Waiting for Odometry...")
             self.publisher.publish(Twist())
             return
         
-        """
-        
-        if self.get_clock().now() < self.wait_until:
-            # Keep the robot still while waiting
-            self.cmd.linear.x = 0.0
-            self.cmd.angular.z = 0.0
-            self.publisher.publish(self.cmd)
-            return # Skip the rest of the logic
-
-        """
-        
         # Initial setup 
         if self.turn_index == 0 and not self.doing_turn:
-            self.get_logger().info("DEBUG: initial setup before first turn")
+            self.get_logger().info("Starting navigation - initiating first turn")
             half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0] == "right")
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
-            #self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x} left or right {self.turn_plan[self.turn_index]}")
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
@@ -461,103 +447,105 @@ class CameraFollower(Node):
                 error = self.angle_error(self.target_yaw, self.current_yaw)
                 
                 ANGULAR = self.kp * error
-                #max_rot_speed = 0.3 #was 0.1 -> 0.5 -> 0.3 
-                #ANGULAR = max(min(ANGULAR, max_rot_speed), -max_rot_speed)
                 
-                #dont let it  be too small otherwise it's not gonna manage to have enough power to turn
-                #self.get_logger().info(f"ANGULAR: {ANGULAR}")
+                # Minimum rotation speed to overcome friction
                 if ANGULAR > 0:
-                    self.cmd.angular.z = max(ANGULAR, 0.1)
+                    self.cmd.angular.z = max(ANGULAR, 0.15)
                 else:
-                    self.cmd.angular.z = min(ANGULAR, -0.1)
-
+                    self.cmd.angular.z = min(ANGULAR, -0.15)
 
                 # Check if turn is complete
-                if abs(error) < 0.01:
-                    # IMPO - Set to 0 to try and avoid circular moving
+                if abs(error) < 0.05:
                     self.cmd.angular.z = 0.0
                     self.cmd.linear.x = 0.0
-                    self.get_logger().info("DEBUG: STOPPED turning")
                     self.doing_turn = False
-
-                    self.turn_index+=1
-                    self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
+                    self.turn_index += 1
+                    self.get_logger().info(f"Turn {self.turn_index}/{len(self.turn_plan)} complete")
                     self.needToClearIntersection = True
-                    
                     
                     # Check if all turns are done
                     if self.turn_index >= len(self.turn_plan):
                         self.all_turns_complete = True
-                        self.get_logger().info("ALL TURNS COMPLETE - Now searching for house")
-                                    
+                        self.get_logger().info("All turns complete - searching for house")
+                                
                 self.publisher.publish(self.cmd)
-            # Normal moving forward
+                
+            # Normal line following mode
             else:
-
-                # Detect intersection and start next turn
+                # CRITICAL: Intersection detection using BOTTOM cameras only
+                # T-junction: middle line exists AND (left OR right line appears)
                 intersection_detected = (
-                    (self.left_line and self.line_found) or
-                    (self.right_line and self.line_found) or
-                    (self.left_line and self.right_line and self.line_found)
+                    self.line_found and 
+                    (self.left_line or self.right_line)
                 )
 
-                if intersection_detected==False and self.needToClearIntersection==True:
+                # Clear intersection flag when we've passed it
+                if not intersection_detected and self.needToClearIntersection:
                     self.needToClearIntersection = False
-                    self.get_logger().info("Cleared intersection")
-                
+                    self.get_logger().info("Intersection cleared")
 
-                #this section isn't right, nehhejtuli l logic kollu rip- note to self redo the go straight where necessary logic 
-                elif intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
-                    self.get_logger().info("DEBUG: INTERSECTION DETECTED")
+                # Detect intersection and execute turn
+                if intersection_detected and not self.all_turns_complete and not self.needToClearIntersection:
+                    side = "LEFT" if self.left_line else ("RIGHT" if self.right_line else "BOTH")
+                    self.get_logger().info(f"INTERSECTION DETECTED - Side line: {side}")
+                    
                     self.needToClearIntersection = True
+                    
                     if self.turn_index < len(self.turn_plan):
-                        # Start the next turn based on direction plan
-                        self.start_turn(self.turn_plan[self.turn_index]=="right")
-                        self.publisher.publish(self.cmd)
-
-                elif not self.doing_turn:
-                    if self.line_found:
-                        linear, angular = self.calculate_line_following_command(0.1)
-                        self.cmd.linear.x = linear
-                        self.cmd.angular.z = angular
-                        self.already_failed = False
-                    else:
-                        self.sum_line_error = 0.0
+                        # Stop completely before turning
                         self.cmd.linear.x = 0.0
-                        # Spin in the direction of the last known error to find it again!
-                        # If error was positive (Line on Right), spin Right (Negative Z)
-                        if(self.already_failed):
-                            if self.last_line_error > 0:
-                                self.cmd.angular.z = -0.6 # Turn Right
-                            else:
-                                self.cmd.angular.z = 0.6  # Turn Left
-                        else:
-                            if self.last_line_error > 0:
-                                self.cmd.angular.z = -0.3 # Turn Right
-                            else:
-                                self.cmd.angular.z = 0.3  # Turn Left
+                        self.cmd.angular.z = 0.0
+                        self.publisher.publish(self.cmd)
+                        
+                        # Initiate turn
+                        turn_direction = "RIGHT" if self.turn_plan[self.turn_index] == "right" else "LEFT"
+                        self.get_logger().info(f"Executing turn {self.turn_index + 1}: {turn_direction}")
+                        self.start_turn(self.turn_plan[self.turn_index] == "right")
+                        return
 
-                            self.already_failed = True
-                        self.get_logger().info("Lost line... Recovering")
-                
+                # Normal line following
+                if self.line_found:
+                    linear, angular = self.calculate_line_following_command(0.15)
+                    self.cmd.linear.x = linear
+                    self.cmd.angular.z = angular
+                    self.already_failed = False
+                    
+                else:
+                    # Lost line - recovery mode
+                    self.sum_line_error = 0.0
+                    self.cmd.linear.x = 0.0
+                    
+                    # Spin in direction of last known error
+                    if self.already_failed:
+                        spin_speed = 0.7
+                    else:
+                        spin_speed = 0.4
+                        self.already_failed = True
+                    
+                    if self.last_line_error > 0:
+                        self.cmd.angular.z = -spin_speed  # Turn right
+                    else:
+                        self.cmd.angular.z = spin_speed   # Turn left
+                        
+                    self.get_logger().info("Line lost - recovering...")
 
             # House detection
             if self.all_turns_complete and self.house_visible:
                 self.house_seen_frames += 1
-                if self.house_seen_frames > 2:
+                if self.house_seen_frames > 3:
                     self.mode = Mode.VERIFY_HOUSE
-                    self.get_logger().info("House detected - Switching to VERIFY_HOUSE mode")
+                    self.get_logger().info("House confirmed - switching to approach mode")
             else:
                 self.house_seen_frames = 0
 
         elif self.mode == Mode.VERIFY_HOUSE:
-            # Continue following line toward house
-            linear, angular = self.calculate_line_following_command(0.08)
+            # Approach house slowly
             if self.line_found:
+                linear, angular = self.calculate_line_following_command(0.08)
                 self.cmd.linear.x = linear
                 self.cmd.angular.z = angular
 
-            # Stop when house is close enough
+            # Stop when close enough
             if self.house_reached:
                 self.mode = Mode.STOP
                 self.get_logger().info("House reached - STOPPING")
@@ -568,10 +556,9 @@ class CameraFollower(Node):
             self.publisher.publish(self.cmd)
 
             self.navigation_active = False
-            self.get_logger().info("Navigation complete. Waiting for next command.")
+            self.get_logger().info("Navigation complete")
             self.publish_done()
 
-        #self.get_logger().info(f"CMD: v={self.cmd.linear.x:.2f}, w={self.cmd.angular.z:.2f}")
         self.publisher.publish(self.cmd)
 
 def main():
