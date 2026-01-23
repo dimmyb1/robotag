@@ -59,7 +59,7 @@ class CameraFollower(Node):
         self.f_line_found = False
         self.heading_ref = None
         self.heading_kp = 0.6    # start 0.4–0.8
-
+        self.last_good_error =0.0
 
         self.house_visible = False
         self.house_reached = False
@@ -337,6 +337,16 @@ class CameraFollower(Node):
             if abs(new_error) < 0.08:
                 self.heading_ref = self.current_yaw
             
+            if(abs(new_error) > 0.15):
+                self.f_line_found = False
+                return
+            
+            if abs(new_error - self.last_good_error) > 0.2:
+                self.f_line_found = False
+                return
+
+            self.last_good_error = new_error
+
             # Apply minimum force threshold
             min_force = 0.1
             if new_error > 0:
