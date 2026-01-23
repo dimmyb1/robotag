@@ -402,7 +402,7 @@ class CameraFollower(Node):
         self.last_line_error = self.line_error
         return float(base_speed), float(angular)
     """
-
+    """
     def calculate_line_following_command(self, base_speed):
         kp = 0.7
         kd = 0.4
@@ -414,6 +414,37 @@ class CameraFollower(Node):
 
         angular = max(min(angular, 0.8), -0.8)
         self.last_line_error = self.line_error
+        return base_speed, angular
+    """
+    
+    def calculate_line_following_command(self, base_speed):
+        # 1. Update the Integral (Sum of errors)
+        self.sum_line_error += self.line_error
+        
+        # 2. Anti-Windup: Limit the memory so it doesn't go crazy
+        # This prevents the "I" term from overpowering everything else
+        max_integral = 5.0
+        self.sum_line_error = max(min(self.sum_line_error, max_integral), -max_integral)
+        
+        # 3. Calculate terms
+        P = self.line_error * self.kp
+        I = self.sum_line_error * self.ki
+        D = (self.line_error - self.last_line_error) * self.kd
+        
+        # 4. Combine (Negative sign for direction correction)
+        angular = -(P + I + D)
+        
+        # 5. Reset memory if we cross zero (Optional but helpful)
+        # If we crossed the center line, we don't need to 'remember' the old bias anymore
+        if (self.line_error > 0 and self.last_line_error < 0) or \
+        (self.line_error < 0 and self.last_line_error > 0):
+            self.sum_line_error = 0.0
+
+        self.last_line_error = self.line_error
+        
+        # Cap the output
+        angular = max(min(angular, 0.6), -0.6)
+        
         return base_speed, angular
     
     def calculate_heading_lock_command(self, base_speed):
