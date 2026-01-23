@@ -54,11 +54,9 @@ class CameraFollower(Node):
         self.sum_line_error = 0.0
         self.left_line = False
         self.right_line = False
+        self.left_line_front = False
+        self.right_line_front = False
         self.already_failed = False
-
-        self.f_line_found = False
-        self.f_left_line = False
-        self.f_right_line = False
 
         self.house_visible = False
         self.house_reached = False
@@ -80,33 +78,7 @@ class CameraFollower(Node):
             1
         )
 
-        """
-
-        # Bottom-middle - main line following
-        self.bm_sub = self.create_subscription(
-            Image,
-            '/bm_camera/image_raw',
-            self.bm_callback,
-            10
-        )
-
-        # Bottom-left - intersection / left line
-        self.bl_sub = self.create_subscription(
-            Image,
-            '/bl_camera/image_raw',
-            self.bl_callback,
-            10
-        )
-
-        # Bottom-right - intersection / right line
-        self.br_sub = self.create_subscription(
-            Image,
-            '/br_camera/image_raw',
-            self.br_callback,
-            10
-        )
-
-        """
+        
 
         # Odometry subscriber
         self.odom_sub = self.create_subscription(
@@ -221,53 +193,6 @@ class CameraFollower(Node):
         self.done_pub.publish(msg)
         self.get_logger().info(f"Reached {self.TARGET_HOUSE}")
 
-    # Helper function used throughout this class
-    def detect_black(self, hsv):
-        # returns a mask of black pixels in the image
-        lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 60])
-        return cv2.inRange(hsv, lower_black, upper_black)
-
-    
-    def bm_callback(self, msg):
-        h, w = msg.height, msg.width
-        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-
-        roi = hsv[int(h * 0.6):h, :]
-        # Check for black in this camera
-        mask = self.detect_black(roi)
-
-        # calculates center of black line in ROI Region of Interest
-        M = cv2.moments(mask)
-        if M["m00"] > 800:
-            # computer error from center to steer
-            cx = int(M["m10"] / M["m00"])
-            self.line_found = True
-            # Now normalized to [-1, 1] range
-            #self.line_error = float(cx - (w / 2)) / (w / 2)
-            #self.last_line_error = self.line_error
-        else:
-            self.line_found = False
-    
-    # check if enough pixels is found in any side camera
-    # help to detect which side to move
-    def bl_callback(self, msg):
-        h, w = msg.height, msg.width
-        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-
-        # Same as right
-        mask = self.detect_black(hsv)
-        self.left_line = np.sum(mask > 0) > 500
-
-    def br_callback(self, msg):
-        h, w = msg.height, msg.width
-        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-
-        mask = self.detect_black(hsv)
-        self.right_line = np.sum(mask > 0) > 500
     
     def front_callback(self, msg):
         h, w = msg.height, msg.width
@@ -299,8 +224,8 @@ class CameraFollower(Node):
         }
 
         # Update intersection detection flags FIRST
-        self.f_left_line = segment_density['LEFT']
-        self.f_right_line = segment_density['RIGHT']
+        self.left_line_front = segment_density['LEFT']
+        self.right_line_front = segment_density['RIGHT']
 
         target_cx = None
 
@@ -310,7 +235,7 @@ class CameraFollower(Node):
             M = cv2.moments(segments['MIDDLE'])
             if M["m00"] > 0:
                 target_cx = (M["m10"] / M["m00"]) + m_start
-            self.f_line_found = True
+            self.line_found = True
         
         # Only check sides if MIDDLE is NOT found
         elif segment_density['LEFT'] and segment_density['RIGHT']:
@@ -323,21 +248,21 @@ class CameraFollower(Node):
                 cx_right = (M_right["m10"] / M_right["m00"]) + m_end
                 # Average the two to stay centered
                 target_cx = (cx_left + cx_right) / 2.0
-            self.f_line_found = True
+            self.line_found = True
             
         elif segment_density['LEFT']:
             M = cv2.moments(segments['LEFT'])
             if M["m00"] > 0:
                 target_cx = M["m10"] / M["m00"]
-            self.f_line_found = True
+            self.line_found = True
         
         elif segment_density['RIGHT']:
             M = cv2.moments(segments['RIGHT'])
             if M["m00"] > 0:
                 target_cx = (M["m10"] / M["m00"]) + m_end
-            self.f_line_found = True
+            self.line_found = True
         else:
-            self.f_line_found = False
+            self.line_found = False
 
         # 5. Calculate error
         if target_cx is not None:
@@ -350,9 +275,9 @@ class CameraFollower(Node):
             else:
                 self.line_error = min(new_error, -min_force)
             
-            self.f_line_found = True
+            self.line_found = True
         else:
-            self.f_line_found = False
+            self.line_found = False
 
         # House detection logic (unchanged)
         if self.all_turns_complete:   
@@ -397,6 +322,7 @@ class CameraFollower(Node):
         )
 
     
+    
     def calculate_line_following_command(self, base_speed):
         # 1. Update the Integral (Sum of errors)
         self.sum_line_error += self.line_error
@@ -406,7 +332,7 @@ class CameraFollower(Node):
         max_integral = 5.0
         self.sum_line_error = max(min(self.sum_line_error, max_integral), -max_integral)
         
-        if(self.f_left_line or self.f_right_line):
+        if(self.left_line_front or self.right_line_front):
             kp = self.kp *0.7
             kd = self.kd *0.7
         else:
@@ -435,6 +361,7 @@ class CameraFollower(Node):
         
         
         return base_speed, angular
+    
     
 
     def start_turn(self, turn_right, half_turn=False):
@@ -489,16 +416,7 @@ class CameraFollower(Node):
             self.publisher.publish(Twist())
             return
         
-        """
         
-        if self.get_clock().now() < self.wait_until:
-            # Keep the robot still while waiting
-            self.cmd.linear.x = 0.0
-            self.cmd.angular.z = 0.0
-            self.publisher.publish(self.cmd)
-            return # Skip the rest of the logic
-
-        """
         
         # Initial setup 
         if self.turn_index == 0 and not self.doing_turn:
@@ -515,12 +433,8 @@ class CameraFollower(Node):
                 # Calculate shortest angular distance to target
                 error = self.angle_error(self.target_yaw, self.current_yaw)
                 
-                ANGULAR = self.kp * error
-                #max_rot_speed = 0.3 #was 0.1 -> 0.5 -> 0.3 
-                #ANGULAR = max(min(ANGULAR, max_rot_speed), -max_rot_speed)
-                
                 #dont let it  be too small otherwise it's not gonna manage to have enough power to turn
-                #self.get_logger().info(f"ANGULAR: {ANGULAR}")
+                ANGULAR = self.kp * error
                 if ANGULAR > 0:
                     self.cmd.angular.z = max(ANGULAR, 0.1)
                 else:
@@ -534,7 +448,7 @@ class CameraFollower(Node):
                     self.cmd.linear.x = 0.0
                     self.get_logger().info("DEBUG: STOPPED turning")
                     self.doing_turn = False
-
+                    #self.last_line_error = 0.0
                     self.turn_index+=1
                     self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
                     self.needToClearIntersection = True
@@ -562,7 +476,7 @@ class CameraFollower(Node):
                 
 
                 #this section isn't right, nehhejtuli l logic kollu rip- note to self redo the go straight where necessary logic 
-                elif intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
+                if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
                     self.get_logger().info("DEBUG: INTERSECTION DETECTED")
                     self.needToClearIntersection = True
                     if self.turn_index < len(self.turn_plan):
