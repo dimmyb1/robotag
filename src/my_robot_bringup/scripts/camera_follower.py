@@ -274,6 +274,20 @@ class CameraFollower(Node):
         row_data = gray[scan_row, :]
         _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
+        # NEW: Filter out horizontal/perpendicular lines by checking vertical continuity
+        # Sample a few rows above the scan line to verify the line continues vertically
+        verification_rows = [
+            int(h * 0.8),  # 10% above scan line
+            int(h * 0.7),  # 20% above scan line
+        ]
+        
+        # Threshold these rows too
+        verification_masks = []
+        for vrow in verification_rows:
+            vrow_data = gray[vrow, :]
+            _, vthresh = cv2.threshold(vrow_data, 50, 255, cv2.THRESH_BINARY_INV)
+            verification_masks.append(vthresh)
+
         # 2. Define Custom Segment Boundaries
         m_start = int((w/2) - ((1/10) * w) / 2)
         m_end = int((w/2) + ((1/10) * w) / 2)
@@ -284,19 +298,51 @@ class CameraFollower(Node):
             'RIGHT':  thresh[m_end : w]
         }
 
-        # 3. Check which segments have a line
+        # NEW: Create verification segments for each row
+        verification_segments = []
+        for vmask in verification_masks:
+            verification_segments.append({
+                'LEFT':   vmask[0 : m_start],
+                'MIDDLE': vmask[m_start : m_end],
+                'RIGHT':  vmask[m_end : w]
+            })
+
+        # 3. Check which segments have a line WITH vertical continuity
         sides = m_start * 1/4
         middle = (m_end - m_start) * 3/4
+        
+        def has_vertical_continuity(segment_name):
+            """Check if a line segment continues vertically (not just horizontal)"""
+            # Check if line exists in scan row
+            if segment_name == 'MIDDLE':
+                threshold = middle
+            else:
+                threshold = sides
+                
+            scan_has_line = np.sum(segments[segment_name] == 255) > threshold
+            
+            if not scan_has_line:
+                return False
+            
+            # Check if line exists in at least one verification row
+            # (reduces threshold for verification to be more lenient)
+            verification_threshold = threshold * 0.5
+            
+            for vseg in verification_segments:
+                if np.sum(vseg[segment_name] == 255) > verification_threshold:
+                    return True
+            
+            return False
+    
         segment_density = {
-            'LEFT':   np.sum(segments['LEFT'] == 255) > sides,
-            'MIDDLE': np.sum(segments['MIDDLE'] == 255) > middle,
-            'RIGHT':  np.sum(segments['RIGHT'] == 255) > sides
+            'LEFT':   has_vertical_continuity('LEFT'),
+            'MIDDLE': has_vertical_continuity('MIDDLE'),
+            'RIGHT':  has_vertical_continuity('RIGHT')
         }
 
         target_cx = None
 
         # 4. Prioritize MIDDLE strongly when it exists
-        # Only look at sides if middle is completely gone
         if segment_density['MIDDLE']:
             M = cv2.moments(segments['MIDDLE'])
             if M["m00"] > 0:
@@ -305,14 +351,13 @@ class CameraFollower(Node):
         
         # Only check sides if MIDDLE is NOT found
         elif segment_density['LEFT'] and segment_density['RIGHT']:
-            # Both sides visible - likely at intersection, use weighted average
+            # Both sides visible - use weighted average
             M_left = cv2.moments(segments['LEFT'])
             M_right = cv2.moments(segments['RIGHT'])
             
             if M_left["m00"] > 0 and M_right["m00"] > 0:
                 cx_left = M_left["m10"] / M_left["m00"]
                 cx_right = (M_right["m10"] / M_right["m00"]) + m_end
-                # Average the two to stay centered
                 target_cx = (cx_left + cx_right) / 2.0
             self.f_line_found = True
             
@@ -347,7 +392,7 @@ class CameraFollower(Node):
         else:
             self.f_line_found = False
 
-        # House detection logic
+        # House detection logic (unchanged)
         if self.all_turns_complete:   
             hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
             mask = cv2.inRange(hsv, np.array(self.lower), np.array(self.upper))
