@@ -285,41 +285,45 @@ class CameraFollower(Node):
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         
-        # 1. Scan the very bottom to avoid distant intersections
+        # 1. Scan at the very bottom (90% down) to avoid distant intersections
         scan_row = int(h * 0.9)
         row_data = gray[scan_row, :]
         _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
-        # 2. Define the three segments (Left, Middle, Right)
-        # Adjust these ranges if your robot is very wide
+        # 2. Define Custom Segment Boundaries
+        # Middle is ~0.2m wide in a 0.5m field of view (approx pixels 230 to 410)
+        m_start, m_end = int(w * 0.36), int(w * 0.64)
+
         segments = {
-            'LEFT':   thresh[0 : int(w*0.33)],
-            'MIDDLE': thresh[int(w*0.33) : int(w*0.66)],
-            'RIGHT':  thresh[int(w*0.66) : w]
+            'LEFT':   thresh[0 : m_start],
+            'MIDDLE': thresh[m_start : m_end],
+            'RIGHT':  thresh[m_end : w]
         }
 
-        # 3. Check density and calculate local moments
-        active_segments = []
+        active_centers = []
+        
+        # 3. Calculate Precision Centers for each segment
         for name, data in segments.items():
-            if np.sum(data == 255) > 20:  # Threshold for "I see a line here"
+            if np.sum(data == 255) > 15: # Density check
                 M = cv2.moments(data)
                 if M["m00"] > 0:
-                    # Calculate local center and offset it back to global image coordinates
                     local_cx = M["m10"] / M["m00"]
+                    # Re-map local segment pixel to global image pixel
                     if name == 'LEFT':   global_cx = local_cx
-                    if name == 'MIDDLE': global_cx = local_cx + (w * 0.33)
-                    if name == 'RIGHT':  global_cx = local_cx + (w * 0.66)
-                    active_segments.append(global_cx)
+                    if name == 'MIDDLE': global_cx = local_cx + m_start
+                    if name == 'RIGHT':  global_cx = local_cx + m_end
+                    active_centers.append(global_cx)
 
-        # 4. Logical Decision
-        # If all segments see black, it's an intersection! Ignore it.
-        if len(active_segments) >= 3:
-            self.get_logger().info("INTERSECTION - Holding steady")
+        # 4. Intersection Logic
+        # If the line is seen in both Left and Right simultaneously, it's a crossbar.
+        if any(c < m_start for c in active_centers) and any(c > m_end for c in active_centers):
+            self.get_logger().info("INTERSECTION DETECTED - Ignoring horizontal line")
             return 
 
-        if len(active_segments) > 0:
-            # The best of both worlds: Average the centers of only the valid segments
-            target_cx = sum(active_segments) / len(active_segments)
+        # 5. Final Error Calculation
+        if active_centers:
+            # Average the detected centers for a smooth target
+            target_cx = sum(active_centers) / len(active_centers)
             self.line_error = float(target_cx - (w / 2)) / (w / 2)
             self.line_found = True
         else:
