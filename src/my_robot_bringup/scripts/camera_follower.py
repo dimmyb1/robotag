@@ -274,19 +274,17 @@ class CameraFollower(Node):
         row_data = gray[scan_row, :]
         _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
-        # NEW: Filter out horizontal/perpendicular lines by checking vertical continuity
-        # Sample a few rows above the scan line to verify the line continues vertically
-        verification_rows = [
-            int(h * 0.8),  # 10% above scan line
-            int(h * 0.7),  # 20% above scan line
-        ]
+        # NEW: Detect and reject horizontal/perpendicular lines
+        # A horizontal line will have black pixels spanning most of the width
+        total_black_pixels = np.sum(thresh == 255)
+        horizontal_line_detected = total_black_pixels > (w * 0.6)  # If >60% of width is black
         
-        # Threshold these rows too
-        verification_masks = []
-        for vrow in verification_rows:
-            vrow_data = gray[vrow, :]
-            _, vthresh = cv2.threshold(vrow_data, 50, 255, cv2.THRESH_BINARY_INV)
-            verification_masks.append(vthresh)
+        if horizontal_line_detected:
+            # This is likely a perpendicular T-junction line, ignore it completely
+            # Instead, look higher up in the image where only the forward line exists
+            scan_row = int(h * 0.7)  # Look much higher
+            row_data = gray[scan_row, :]
+            _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
         # 2. Define Custom Segment Boundaries
         m_start = int((w/2) - ((1/10) * w) / 2)
@@ -298,46 +296,13 @@ class CameraFollower(Node):
             'RIGHT':  thresh[m_end : w]
         }
 
-        # NEW: Create verification segments for each row
-        verification_segments = []
-        for vmask in verification_masks:
-            verification_segments.append({
-                'LEFT':   vmask[0 : m_start],
-                'MIDDLE': vmask[m_start : m_end],
-                'RIGHT':  vmask[m_end : w]
-            })
-
-        # 3. Check which segments have a line WITH vertical continuity
+        # 3. Check which segments have a line
         sides = m_start * 1/4
         middle = (m_end - m_start) * 3/4
-        
-        def has_vertical_continuity(segment_name):
-            """Check if a line segment continues vertically (not just horizontal)"""
-            # Check if line exists in scan row
-            if segment_name == 'MIDDLE':
-                threshold = middle
-            else:
-                threshold = sides
-                
-            scan_has_line = np.sum(segments[segment_name] == 255) > threshold
-            
-            if not scan_has_line:
-                return False
-            
-            # Check if line exists in at least one verification row
-            # (reduces threshold for verification to be more lenient)
-            verification_threshold = threshold * 0.5
-            
-            for vseg in verification_segments:
-                if np.sum(vseg[segment_name] == 255) > verification_threshold:
-                    return True
-            
-            return False
-    
         segment_density = {
-            'LEFT':   has_vertical_continuity('LEFT'),
-            'MIDDLE': has_vertical_continuity('MIDDLE'),
-            'RIGHT':  has_vertical_continuity('RIGHT')
+            'LEFT':   np.sum(segments['LEFT'] == 255) > sides,
+            'MIDDLE': np.sum(segments['MIDDLE'] == 255) > middle,
+            'RIGHT':  np.sum(segments['RIGHT'] == 255) > sides
         }
 
         target_cx = None
