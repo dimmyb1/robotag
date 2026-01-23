@@ -44,12 +44,14 @@ class CameraFollower(Node):
         self.cardinals_initialized = False # New flag to set cardinals once
 
         self.kp = 0.8
+        self.ki = 0.0005
         self.kd = 0.5   
 
         self.line_found = False
         # offset from center
         self.line_error = 0.0
         self.last_line_error = 0.0
+        self.sum_line_error = 0.0
         self.left_line = False
         self.right_line = False
 
@@ -291,8 +293,8 @@ class CameraFollower(Node):
         _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
         # 2. Define Custom Segment Boundaries (User Specified)
-        m_start = int( (w/2) - (((1/6) * w) / 2) )
-        m_end = int( (w/2) + (((1/6) * w) / 2) )
+        m_start = int( (w/2) - (((1/5) * w) / 2) )
+        m_end = int( (w/2) + (((1/5) * w) / 2) )
 
         segments = {
             'LEFT':   thresh[0 : m_start],
@@ -303,9 +305,9 @@ class CameraFollower(Node):
         # 3. Check which segments have a line
         # We need a decent chunk of black pixels to count it as "seen"
         segment_density = {
-            'LEFT':   np.sum(segments['LEFT'] == 255) > 10,
-            'MIDDLE': np.sum(segments['MIDDLE'] == 255) > 10,
-            'RIGHT':  np.sum(segments['RIGHT'] == 255) > 10
+            'LEFT':   np.sum(segments['LEFT'] == 255) > (1/5 * w / 4),
+            'MIDDLE': np.sum(segments['MIDDLE'] == 255) > (1/5 * w / 4),
+            'RIGHT':  np.sum(segments['RIGHT'] == 255) > (1/5 * w / 4)
         }
 
         target_cx = None
@@ -372,9 +374,9 @@ class CameraFollower(Node):
             # Facing SOUTH (~3.14), adding pi/2 (Left) should result in EAST (~ -1.57)
             self.cardinals = {
                 'SOUTH': self.start_yaw,
-                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2 + 0.2) , # Right -0.2 to maybe correct 0.2 rad diff
+                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2 ) , # Right -0.2 to maybe correct 0.2 rad diff
                 'NORTH': self.normalize_angle(self.start_yaw + math.pi),    # Behind
-                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2 +0.2)  # Left
+                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2 )  # Left
             }
             self.current_cardinal_target = self.cardinals['SOUTH']
             self.cardinals_initialized = True
