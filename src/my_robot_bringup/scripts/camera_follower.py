@@ -54,6 +54,8 @@ class CameraFollower(Node):
         self.sum_line_error = 0.0
         self.left_line = False
         self.right_line = False
+        self.left_line_front = False
+        self.right_line_front = False
         self.already_failed = False
 
         self.house_visible = False
@@ -295,8 +297,8 @@ class CameraFollower(Node):
         }
 
         # Update intersection detection flags FIRST
-        self.left_line = segment_density['LEFT']
-        self.right_line = segment_density['RIGHT']
+        self.left_line_front = segment_density['LEFT']
+        self.right_line_front = segment_density['RIGHT']
 
         target_cx = None
 
@@ -429,7 +431,7 @@ class CameraFollower(Node):
         max_integral = 5.0
         self.sum_line_error = max(min(self.sum_line_error, max_integral), -max_integral)
         
-        if(self.left_line or self.right_line):
+        if(self.left_line_front or self.right_line_front):
             kp = self.kp *0.7
             kd = self.kd *0.7
         else:
