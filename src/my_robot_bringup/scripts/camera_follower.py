@@ -429,10 +429,17 @@ class CameraFollower(Node):
         max_integral = 5.0
         self.sum_line_error = max(min(self.sum_line_error, max_integral), -max_integral)
         
+        if(self.left_line or self.right_line):
+            kp = self.kp *0.7
+            kd = self.kd *0.7
+        else:
+            kp = self.kp
+            kd = self.kd
+
         # 3. Calculate terms
-        P = self.line_error * self.kp
+        P = self.line_error * kp
         I = self.sum_line_error * self.ki
-        D = (self.line_error - self.last_line_error) * self.kd
+        D = (self.line_error - self.last_line_error) * kd
         
         # 4. Combine (Negative sign for direction correction)
         angular = -(P + I + D)
@@ -447,6 +454,8 @@ class CameraFollower(Node):
         
         # Cap the output
         angular = max(min(angular, 0.6), -0.6)
+
+        
         
         return base_speed, angular
     
