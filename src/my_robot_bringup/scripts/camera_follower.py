@@ -44,7 +44,7 @@ class CameraFollower(Node):
         self.cardinals_initialized = False # New flag to set cardinals once
 
         self.kp = 0.8
-        self.ki = 0.0005
+        self.ki = 0.01
         self.kd = 0.5   
 
         self.line_found = False
@@ -293,8 +293,8 @@ class CameraFollower(Node):
         _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
         # 2. Define Custom Segment Boundaries (User Specified)
-        m_start = int( (w/2) - (((2/9) * w) / 2) )
-        m_end = int( (w/2) + (((2/9) * w) / 2) )
+        m_start = int( (w/2) - (((1/6) * w) / 2) )
+        m_end = int( (w/2) + (((1/6) * w) / 2) )
 
         segments = {
             'LEFT':   thresh[0 : m_start],
@@ -304,7 +304,7 @@ class CameraFollower(Node):
 
         # 3. Check which segments have a line
         # We need a decent chunk of black pixels to count it as "seen"
-        chunk = 20
+        chunk = 10
         segment_density = {
             'LEFT':   np.sum(segments['LEFT'] == 255) > chunk,
             'MIDDLE': np.sum(segments['MIDDLE'] == 255) > chunk,
@@ -340,7 +340,7 @@ class CameraFollower(Node):
             if segment_density['MIDDLE']:
                 self.line_error = new_error * 1.5
             else:
-                self.line_error = new_error
+                self.line_error = new_error * 1.5
                 
             self.line_found = True
         else:
