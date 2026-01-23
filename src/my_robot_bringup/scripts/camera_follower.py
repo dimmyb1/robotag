@@ -263,13 +263,10 @@ class CameraFollower(Node):
         self.right_line = np.sum(mask > 0) > 500
     
     def front_callback(self, msg):
-        # Only process front camera after all turns are complete
-        #if not self.all_turns_complete:
-        #    return
+        """
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        gray = cv2. cvtColor(img, cv2.COLOR_RGB2GRAY)
-        
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         look_ahead_row = int(h*0.4)
 
         _, thresh = cv2.threshold(gray[look_ahead_row,:], 50, 255, cv2.THRESH_BINARY_INV)
@@ -281,6 +278,36 @@ class CameraFollower(Node):
             self.line_found = True
         else:
             self.line_found = False
+        """
+        #=======================================
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        
+        # 1. Look at the very bottom to avoid seeing distant intersections
+        scan_row = int(h * 0.9) 
+        
+        # 2. Define 3 "Sensors" (thresholding specific pixels)
+        # We check if pixel value is < 50 (Black line)
+        left_sen   = True if gray[scan_row, int(w * 0.3)] < 50 else False
+        center_sen = True if gray[scan_row, int(w * 0.5)] < 50 else False
+        right_sen  = True if gray[scan_row, int(w * 0.7)] < 50 else False
+
+        # 3. Intersection Protection
+        # If all three are 1, we are hitting a cross-line. IGNORE IT.
+        if left_sen and center_sen and right_sen:
+            self.get_logger().info("INTERSECTION DETECTED - Ignoring")
+            return # Don't update error, keep driving straight
+
+        # 4. Simple Error Assignment (Just like your old hardware)
+        if center_sen:
+            self.line_error = 0.0
+        elif left_sen:
+            self.line_error = -0.8 # Line is on the left
+        elif right_sen:
+            self.line_error = 0.8  # Line is on the right
+        
+        self.line_found = True if (left_sen or center_sen or right_sen) else False
 
         #as it was before for house detection
         if self.all_turns_complete:   
