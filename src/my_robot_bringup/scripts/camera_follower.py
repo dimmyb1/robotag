@@ -285,14 +285,15 @@ class CameraFollower(Node):
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         
-        # 1. Scan at the very bottom (90% down) to avoid distant intersections
+        # 1. Scan the bottom area
         scan_row = int(h * 0.9)
         row_data = gray[scan_row, :]
         _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
-        # 2. Define Custom Segment Boundaries
-        # Middle is ~0.2m wide in a 0.5m field of view (approx pixels 230 to 410)
-        m_start, m_end = int(w * 0.36), int(w * 0.64)
+        # 2. Define Custom Segment Boundaries (User Specified)
+        # Note: We clamp m_end to 'w' just in case the image is smaller than 704
+        m_start = 576
+        m_end = min(704, w) 
 
         segments = {
             'LEFT':   thresh[0 : m_start],
@@ -300,34 +301,48 @@ class CameraFollower(Node):
             'RIGHT':  thresh[m_end : w]
         }
 
-        active_centers = []
+        # 3. Check which segments have a line
+        # We need a decent chunk of black pixels to count it as "seen"
+        segment_density = {
+            'LEFT':   np.sum(segments['LEFT'] == 255) > 10,
+            'MIDDLE': np.sum(segments['MIDDLE'] == 255) > 10,
+            'RIGHT':  np.sum(segments['RIGHT'] == 255) > 10
+        }
+
+        target_cx = None
+
+        # 4. "Winner Takes All" Logic for Forks
         
-        # 3. Calculate Precision Centers for each segment
-        for name, data in segments.items():
-            if np.sum(data == 255) > 15: # Density check
-                M = cv2.moments(data)
-                if M["m00"] > 0:
-                    local_cx = M["m10"] / M["m00"]
-                    # Re-map local segment pixel to global image pixel
-                    if name == 'LEFT':   global_cx = local_cx
-                    if name == 'MIDDLE': global_cx = local_cx + m_start
-                    if name == 'RIGHT':  global_cx = local_cx + m_end
-                    active_centers.append(global_cx)
+        # PRIORITY 1: If the line is in the MIDDLE, follow it. 
+        # This effectively ignores the branching line on the Left or Right.
+        if segment_density['MIDDLE']:
+            M = cv2.moments(segments['MIDDLE'])
+            if M["m00"] > 0:
+                local_cx = M["m10"] / M["m00"]
+                target_cx = local_cx + m_start
 
-        # 4. Intersection Logic
-        # If the line is seen in both Left and Right simultaneously, it's a crossbar.
-        if any(c < m_start for c in active_centers) and any(c > m_end for c in active_centers):
-            self.get_logger().info("INTERSECTION DETECTED - Ignoring horizontal line")
-            return 
+        # PRIORITY 2: If Middle is empty, check sides (Recovery Mode)
+        # Only check these if we DON'T see the middle, so we don't get distracted by forks.
+        elif segment_density['LEFT']:
+            M = cv2.moments(segments['LEFT'])
+            if M["m00"] > 0:
+                local_cx = M["m10"] / M["m00"]
+                target_cx = local_cx # Offset is 0
+        
+        elif segment_density['RIGHT']:
+            M = cv2.moments(segments['RIGHT'])
+            if M["m00"] > 0:
+                local_cx = M["m10"] / M["m00"]
+                target_cx = local_cx + m_end
 
-        # 5. Final Error Calculation
-        if active_centers:
-            # Average the detected centers for a smooth target
-            target_cx = sum(active_centers) / len(active_centers)
+        # 5. Update Error
+        if target_cx is not None:
             self.line_error = float(target_cx - (w / 2)) / (w / 2)
             self.line_found = True
         else:
             self.line_found = False
+
+
         #as it was before for house detection
         if self.all_turns_complete:   
             h, w = msg.height, msg.width
