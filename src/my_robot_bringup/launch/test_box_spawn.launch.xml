@@ -1,0 +1,19 @@
+<launch>
+
+    <let name="gazebo_config_path"
+        value="$(find-pkg-share my_robot_bringup)/config/gazebo_bridge.yaml" />
+
+    <!-- Start Gazebo with the world -->
+    <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+        <arg name="gz_args" value="$(find-pkg-share my_robot_bringup)/worlds/hello_world.sdf -r"/>
+    </include>
+
+    <!-- Bridge for clock (needed for ROS time sync) -->
+    <node pkg="ros_gz_bridge" exec="parameter_bridge">
+        <param name="config_file" value="$(var gazebo_config_path)" />
+    </node>
+
+    <!-- Spawn random box -->
+    <node pkg="my_robot_bringup" exec="random_box_spawner.py" output="screen"/>
+
+</launch>
