@@ -82,6 +82,3 @@ src/
 ## Usage
 
 The robot is designed for autonomous delivery tasks, navigating between houses using its vision system for detection and line following. The TSP client optimizes delivery routes for maximum efficiency.
-
-Wiki pages you might want to explore:
-- [Robot Hardware Description (liv0ri/fabemia2)](/wiki/liv0ri/fabemia2#6)
