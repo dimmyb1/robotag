@@ -44,8 +44,8 @@ class CameraFollower(Node):
         self.cardinals_initialized = False # New flag to set cardinals once
 
         self.kp = 0.4
-        self.ki = 0.01
-        self.kd = 0.3   
+        self.ki = 0.001
+        self.kd = 0.3
 
         self.line_found = False
         # offset from center
@@ -445,7 +445,10 @@ class CameraFollower(Node):
 
     def start_turn(self, turn_right, half_turn=False):
         self.doing_turn = True
-        
+        # I think we need a check here for whether or not self.current_cardinal_target is actually correct
+        # since the map has some corners, at which the robot would need to turn, but these turns 
+        # aren't in dir dir, and not intersections
+
         if half_turn:
             # Turn around
             #self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target + math.pi)
