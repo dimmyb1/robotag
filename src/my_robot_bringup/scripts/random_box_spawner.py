@@ -4,7 +4,7 @@ import rclpy
 from rclpy.node import Node
 import subprocess
 from std_msgs.msg import String
-from config import HOUSE_POSITIONS
+from config import BOX_POSITIONS
 from rclpy.qos import QoSProfile, DurabilityPolicy
 
 class RandomBoxSpawner(Node):
@@ -53,13 +53,13 @@ class RandomBoxSpawner(Node):
       self.spawned_house = house
     
     def spawn_box_for_house(self, house):
-      house_positions = HOUSE_POSITIONS
+      box_positions = BOX_POSITIONS
 
-      if house not in house_positions:
+      if house not in box_positions:
           self.get_logger().error(f"Unknown house {house}")
           return
 
-      x, y, z = house_positions[house]
+      x, y, z = box_positions[house]
       self.spawn_box_at(x, y, z)
 
     def spawn_box_at(self, x, y, z):        

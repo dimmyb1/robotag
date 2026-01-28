@@ -454,7 +454,7 @@ GRAPH = {
 }
 
 # FABIO TO CHANGE THIS
-HOUSE_POSITIONS = {
+BOX_POSITIONS = {
         "HOUSE_1": (-1.5, 6.45, 0.5),
         "HOUSE_2": (-2.5, 1.5, 0.5),
         "HOUSE_3": (-3.5, -6.5, 0.5),
