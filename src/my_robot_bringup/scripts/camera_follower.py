@@ -351,15 +351,19 @@ class CameraFollower(Node):
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         
         # NEW: Check for magenta ahead - if we see it, target the magenta instead of black lines
-        magenta_ratio = self.detect_magenta_ratio(img)
+        # Only look at the BOTTOM portion of the frame (lower 40%) to detect when closer
+        roi_start = int(h * 0.6)  # Start from 60% down the image
+        img_roi = img[roi_start:h, :]
+        
+        magenta_ratio = self.detect_magenta_ratio(img_roi)
         
         # If we see magenta ahead (approaching intersection), target it
         if magenta_ratio > 0.05:  # Seeing some magenta ahead (5% threshold)
             self.approaching_intersection = True
-            # Find the center of the magenta to target it
+            # Find the center of the magenta to target it (in the ROI)
             lower_magenta = np.array([200, 0, 200])
             upper_magenta = np.array([255, 50, 255])
-            magenta_mask = cv2.inRange(img, lower_magenta, upper_magenta)
+            magenta_mask = cv2.inRange(img_roi, lower_magenta, upper_magenta)
             
             M = cv2.moments(magenta_mask)
             if M["m00"] > 0:
@@ -720,7 +724,7 @@ class CameraFollower(Node):
                 if self.f_line_found:
                     # Slow down when approaching intersection
                     if self.approaching_intersection:
-                        linear, angular = self.calculate_line_following_command(0.08)  # Slower approach
+                        linear, angular = self.calculate_line_following_command(0.10)  # Slower approach
                         self.get_logger().debug("Approaching intersection - moving slowly")
                     else:
                         linear, angular = self.calculate_line_following_command(0.15)  # Normal speed
