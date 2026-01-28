@@ -561,6 +561,7 @@ class CameraFollower(Node):
     def control_loop(self):
         # Handle obstacle stopping
         if self.obstacle_detected and self.obstacle_stop_start is not None:
+            self.get_logger().info("Robot stopped due to obstacle")
             elapsed = (self.get_clock().now() - self.obstacle_stop_start).nanoseconds / 1e9
             if elapsed < self.obstacle_stop_duration:
                 # Stop robot
@@ -570,9 +571,7 @@ class CameraFollower(Node):
                 return
             else:
                 # Obstacle cleared - resume
-                self.obstacle_detected = False
                 self.obstacle_cleared = True
-                self.obstacle_stop_start = None
                 self.get_logger().info("Obstacle cleared - resuming navigation")
 
         if not self.navigation_active:
