@@ -134,7 +134,6 @@ class CameraFollower(Node):
             qos
         )
 
-
         # Loop every 0.05 seconds
         self.cmd = Twist()
         self.control_timer = self.create_timer(0.05, self.control_loop)
@@ -187,13 +186,14 @@ class CameraFollower(Node):
     def spawn_box_once(self, house):
         if self.box_spawned:
             return
+        
+        if self.start == "PO":
+            msg = String()
+            msg.data = house
+            self.box_pub.publish(msg)
 
-        msg = String()
-        msg.data = house
-        self.box_pub.publish(msg)
-
-        self.get_logger().info(f"Requested box spawn for {house}")
-        self.box_spawned = True
+            self.get_logger().info(f"Requested box spawn for {house}")
+            self.box_spawned = True
 
     def nav_callback(self, msg):
         data = json.loads(msg.data)
