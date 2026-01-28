@@ -15,6 +15,7 @@ import math
 from std_msgs.msg import String
 import json
 from rclpy.qos import QoSProfile, DurabilityPolicy
+from example_interfaces.srv import Trigger
 
 # robots states
 class Mode(Enum):
@@ -175,11 +176,31 @@ class CameraFollower(Node):
         # this is done so it can send another house
         self.done_pub = self.create_publisher(String, 'navigation_done', 10)
 
+        self.box_pub = self.create_publisher(
+            String,
+            'spawn_box_for_house',
+            10
+        )
+
+        self.box_spawned = False
+
+    def spawn_box_once(self, house):
+        if self.box_spawned:
+            return
+
+        msg = String()
+        msg.data = house
+        self.box_pub.publish(msg)
+
+        self.get_logger().info(f"Requested box spawn for {house}")
+        self.box_spawned = True
+
     def nav_callback(self, msg):
         data = json.loads(msg.data)
 
         self.start = data['start']
         self.TARGET_HOUSE = data['target']
+        self.spawn_box_once(self.TARGET_HOUSE)
 
         self.get_logger().info(
             f"Received navigation command: {self.start} → {self.TARGET_HOUSE}"

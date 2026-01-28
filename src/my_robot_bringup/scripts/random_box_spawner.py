@@ -6,6 +6,8 @@ from rosgraph_msgs.msg import Clock
 import random
 import subprocess
 import time
+from std_msgs.msg import String
+from config import HOUSE_POSITIONS
 
 class RandomBoxSpawner(Node):
     def __init__(self):
@@ -21,50 +23,81 @@ class RandomBoxSpawner(Node):
         
         # Wait for Gazebo to be ready
         self.get_logger().info('Waiting for Gazebo to fully initialize...')
-        self.wait_for_gazebo()
+        # self.wait_for_gazebo()
         
-        # Spawn the box
-        self.spawn_random_box()
-    
-    def wait_for_gazebo(self):
-        """Wait until Gazebo clock is publishing"""
-        self.clock_received = False
-        
-        def clock_callback(msg):
-            self.clock_received = True
-        
-        # Subscribe to clock topic
-        clock_sub = self.create_subscription(
-            Clock,
-            '/clock',
-            clock_callback,
+        self.spawned = False
+        self.spawned_house = None
+
+        self.sub = self.create_subscription(
+            String,
+            'spawn_box_for_house',
+            self.spawn_box_callback,
             10
         )
-        
-        # Wait for clock messages
-        max_wait = 30.0
-        start_time = time.time()
-        
-        while not self.clock_received and (time.time() - start_time) < max_wait:
-            rclpy.spin_once(self, timeout_sec=0.5)
-            if not self.clock_received:
-                elapsed = int(time.time() - start_time)
-                self.get_logger().info(f'Waiting for Gazebo clock... ({elapsed}s)')
-        
-        if self.clock_received:
-            self.get_logger().info('Gazebo clock detected! Waiting for GUI to fully load...')
-            time.sleep(20.0)  # Extended wait for GUI to fully load
-            self.get_logger().info('Ready to spawn!')
-        else:
-            self.get_logger().warn('Timeout waiting for Gazebo, attempting to spawn anyway...')
-        
-        # Clean up subscription
-        self.destroy_subscription(clock_sub)
     
-    def spawn_random_box(self):
-        # Choose random position
-        x, y, z = random.choice(self.positions)
+    # def wait_for_gazebo(self):
+    #     """Wait until Gazebo clock is publishing"""
+    #     self.clock_received = False
         
+    #     def clock_callback(msg):
+    #         self.clock_received = True
+        
+    #     # Subscribe to clock topic
+    #     clock_sub = self.create_subscription(
+    #         Clock,
+    #         '/clock',
+    #         clock_callback,
+    #         10
+    #     )
+        
+    #     # Wait for clock messages
+    #     max_wait = 30.0
+    #     start_time = time.time()
+        
+    #     while not self.clock_received and (time.time() - start_time) < max_wait:
+    #         rclpy.spin_once(self, timeout_sec=0.5)
+    #         if not self.clock_received:
+    #             elapsed = int(time.time() - start_time)
+    #             self.get_logger().info(f'Waiting for Gazebo clock... ({elapsed}s)')
+        
+    #     if self.clock_received:
+    #         self.get_logger().info('Gazebo clock detected! Waiting for GUI to fully load...')
+    #         time.sleep(20.0)  # Extended wait for GUI to fully load
+    #         self.get_logger().info('Ready to spawn!')
+    #     else:
+    #         self.get_logger().warn('Timeout waiting for Gazebo, attempting to spawn anyway...')
+        
+    #     # Clean up subscription
+    #     self.destroy_subscription(clock_sub)
+
+    def spawn_box_callback(self, msg):
+      house = msg.data
+
+      if self.spawned:
+          self.get_logger().info(
+              f"Box already spawned for {self.spawned_house}, "
+              f"ignoring request for {house}"
+          )
+          return
+
+      self.get_logger().info(f"Spawning box for {house}")
+
+      self.spawn_box_for_house(house)
+
+      self.spawned = True
+      self.spawned_house = house
+    
+    def spawn_box_for_house(self, house):
+      house_positions = HOUSE_POSITIONS
+
+      if house not in house_positions:
+          self.get_logger().error(f"Unknown house {house}")
+          return
+
+      x, y, z = house_positions[house]
+      self.spawn_box_at(x, y, z)
+
+    def spawn_box_at(self, x, y, z):        
         self.get_logger().info(f'Spawning grey box at position: ({x}, {y}, {z})')
         
         # Create SDF string
@@ -133,7 +166,7 @@ class RandomBoxSpawner(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = RandomBoxSpawner()
+    RandomBoxSpawner()
     rclpy.shutdown()
 
 if __name__ == '__main__':
