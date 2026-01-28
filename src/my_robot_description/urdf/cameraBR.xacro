@@ -24,7 +24,7 @@
     <joint name="base_camera_jointBR" type="fixed">
         <parent link="base_link" />
         <child link="camera_linkBR" />
-        <origin xyz="0 -0.2 ${base_height / 2.0 - 0.31}" rpy="0 ${pi/2} 0" />
+        <origin xyz="0.3 -0.25 0.1" rpy="0 0.4 ${-pi/2}" />
     </joint>
 
     <link name="camera_link_opticalBR" />
