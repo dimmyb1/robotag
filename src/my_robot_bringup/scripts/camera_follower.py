@@ -292,12 +292,12 @@ class CameraFollower(Node):
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
-        # NEW: Check for magenta (intersection detection) using bottom-middle camera
+        # NEW: Check if robot CENTER is over magenta (intersection confirmation)
         magenta_ratio = self.detect_magenta_ratio(img)
         self.front_magenta_ratio = magenta_ratio
         
-        # If we detect significant magenta in bottom-middle camera, we're ON an intersection
-        if magenta_ratio > 0.20:  # More than 20% of image is magenta (robot is ON the tile)
+        # Robot is ON intersection when bottom-middle sees significant magenta
+        if magenta_ratio > 0.20:  # More than 20% of image is magenta (robot center is ON the tile)
             self.at_intersection = True
             # Check if there's a BLACK line ahead (front path exists)
             mask_black = self.detect_black(hsv)
@@ -350,30 +350,20 @@ class CameraFollower(Node):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         
-        # NEW: Check for magenta ahead - if we see it, target the magenta instead of black lines
-        # Only look at the BOTTOM portion of the frame (lower 40%) to detect when closer
-        roi_start = int(h * 0.6)  # Start from 60% down the image
+        # NEW: Check for magenta in BOTTOM portion of front camera (approaching intersection)
+        # Only look at bottom 30% of the frame
+        roi_start = int(h * 0.7)  # Start from 70% down
         img_roi = img[roi_start:h, :]
+        magenta_ratio_roi = self.detect_magenta_ratio(img_roi)
         
-        magenta_ratio = self.detect_magenta_ratio(img_roi)
-        
-        # If we see magenta ahead (approaching intersection), target it
-        if magenta_ratio > 0.05:  # Seeing some magenta ahead (5% threshold)
+        # If we see magenta in bottom of front camera (approaching intersection)
+        if magenta_ratio_roi > 0.10:  # 10% threshold in the ROI
             self.approaching_intersection = True
-            # Find the center of the magenta to target it (in the ROI)
-            lower_magenta = np.array([200, 0, 200])
-            upper_magenta = np.array([255, 50, 255])
-            magenta_mask = cv2.inRange(img_roi, lower_magenta, upper_magenta)
-            
-            M = cv2.moments(magenta_mask)
-            if M["m00"] > 0:
-                magenta_cx = M["m10"] / M["m00"]
-                # Calculate error to center on magenta
-                new_error = float(magenta_cx - (w / 2)) / (w / 2)
-                self.line_error = new_error
-                self.f_line_found = True
-                self.get_logger().debug(f"Targeting magenta, ratio: {magenta_ratio:.2f}")
-                return  # Skip normal line following
+            self.get_logger().debug(f"Front camera sees magenta: {magenta_ratio_roi:.2f} - approaching intersection")
+            # Don't try to follow lines, just move forward slowly
+            self.line_error = 0.0  # Go straight
+            self.f_line_found = True
+            return
         else:
             self.approaching_intersection = False
         
