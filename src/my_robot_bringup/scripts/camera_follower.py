@@ -179,7 +179,7 @@ class CameraFollower(Node):
         self.box_pub = self.create_publisher(
             String,
             'spawn_box_for_house',
-            10
+            qos
         )
 
         self.box_spawned = False

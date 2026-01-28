@@ -2,12 +2,10 @@
 
 import rclpy
 from rclpy.node import Node
-from rosgraph_msgs.msg import Clock
-import random
 import subprocess
-import time
 from std_msgs.msg import String
 from config import HOUSE_POSITIONS
+from rclpy.qos import QoSProfile, DurabilityPolicy
 
 class RandomBoxSpawner(Node):
     def __init__(self):
@@ -24,16 +22,19 @@ class RandomBoxSpawner(Node):
         # Wait for Gazebo to be ready
         self.get_logger().info('Waiting for Gazebo to fully initialize...')
         # self.wait_for_gazebo()
-        
+
         self.spawned = False
         self.spawned_house = None
 
+        qos = QoSProfile(depth=1)
+        qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
         self.sub = self.create_subscription(
             String,
             'spawn_box_for_house',
             self.spawn_box_callback,
-            10
+            qos
         )
+        
     
     # def wait_for_gazebo(self):
     #     """Wait until Gazebo clock is publishing"""
@@ -166,8 +167,11 @@ class RandomBoxSpawner(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    RandomBoxSpawner()
+    node = RandomBoxSpawner()
+    rclpy.spin(node)
+    node.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
