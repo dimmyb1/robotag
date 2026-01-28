@@ -44,9 +44,9 @@ class CameraFollower(Node):
         self.odom_ready = False
         self.cardinals_initialized = False # New flag to set cardinals once
 
-        self.kp = 0.2
+        self.kp = 0.6
         self.ki = 0.0
-        self.kd = 0.1
+        self.kd = 0.0
 
         self.line_found = False
         # offset from center
@@ -364,6 +364,8 @@ class CameraFollower(Node):
             new_error = float(target_cx - (w / 2)) / (w / 2)
             if abs(new_error) < 0.08:
                 self.heading_ref = self.current_yaw
+            else:
+                self.heading_ref = None
             
             # Apply minimum force threshold
             #min_force = 0.1
