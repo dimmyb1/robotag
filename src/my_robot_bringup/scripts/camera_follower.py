@@ -284,26 +284,6 @@ class CameraFollower(Node):
         ratio = magenta_pixels / total_pixels if total_pixels > 0 else 0.0
         
         return ratio
-    
-    def detect_white_line(self, img):
-        """
-        Check if there's a white line visible in the image.
-        Returns True if white line is detected, False otherwise.
-        """
-        # Define white color range in RGB
-        lower_white = np.array([200, 200, 200])
-        upper_white = np.array([255, 255, 255])
-        
-        # Create mask
-        white_mask = cv2.inRange(img, lower_white, upper_white)
-        
-        # Calculate white ratio
-        white_pixels = np.sum(white_mask > 0)
-        total_pixels = white_mask.size
-        white_ratio = white_pixels / total_pixels if total_pixels > 0 else 0.0
-        
-        # Threshold: if more than 2% of the image is white, consider it a path
-        return white_ratio > 0.02
 
     
     def bm_callback(self, msg):
@@ -311,8 +291,23 @@ class CameraFollower(Node):
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
+        # NEW: Check for magenta (intersection detection) using bottom-middle camera
+        magenta_ratio = self.detect_magenta_ratio(img)
+        self.front_magenta_ratio = magenta_ratio
+        
+        # If we detect significant magenta in bottom-middle camera, we're ON an intersection
+        if magenta_ratio > 0.20:  # More than 20% of image is magenta (robot is ON the tile)
+            self.at_intersection = True
+            # Check if there's a BLACK line ahead (front path exists)
+            mask_black = self.detect_black(hsv)
+            black_pixels = np.sum(mask_black > 0)
+            self.front_line = black_pixels > 500  # Same threshold as side cameras
+        else:
+            self.at_intersection = False
+            self.front_line = False
+
+        # ORIGINAL: Check for black in this camera for normal line following
         roi = hsv[int(h * 0.6):h, :]
-        # Check for black in this camera
         mask = self.detect_black(roi)
 
         # calculates center of black line in ROI Region of Interest
@@ -327,45 +322,32 @@ class CameraFollower(Node):
     def bl_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+
+        # Check for BLACK line detection (both at intersection and normal)
+        mask = self.detect_black(hsv)
+        black_pixels = np.sum(mask > 0)
         
-        # NEW: Check for white line (path) when at intersection
-        if self.at_intersection:
-            self.left_line = self.detect_white_line(img)
-        else:
-            # ORIGINAL: Use black line detection for normal operation
-            hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-            mask = self.detect_black(hsv)
-            self.left_line = np.sum(mask > 0) > 500
+        # At intersection: need to see black line to confirm path exists
+        # Normal operation: original threshold
+        self.left_line = black_pixels > 500
 
     def br_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+
+        # Check for BLACK line detection (both at intersection and normal)
+        mask = self.detect_black(hsv)
+        black_pixels = np.sum(mask > 0)
         
-        # NEW: Check for white line (path) when at intersection
-        if self.at_intersection:
-            self.right_line = self.detect_white_line(img)
-        else:
-            # ORIGINAL: Use black line detection for normal operation
-            hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-            mask = self.detect_black(hsv)
-            self.right_line = np.sum(mask > 0) > 500
+        # At intersection: need to see black line to confirm path exists
+        # Normal operation: original threshold
+        self.right_line = black_pixels > 500
     
     def front_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        
-        # NEW: Check for magenta (intersection detection)
-        magenta_ratio = self.detect_magenta_ratio(img)
-        self.front_magenta_ratio = magenta_ratio
-        
-        # If we detect significant magenta, we're at an intersection
-        if magenta_ratio > 0.15:  # More than 15% of image is magenta
-            self.at_intersection = True
-            # Check if there's a front path (white beyond magenta)
-            self.front_line = self.detect_white_line(img)
-        else:
-            self.at_intersection = False
-            self.front_line = False
         
         # ORIGINAL: Line following logic (unchanged)
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
