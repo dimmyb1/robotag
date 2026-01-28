@@ -43,15 +43,22 @@ class CameraFollower(Node):
         self.odom_ready = False
         self.cardinals_initialized = False # New flag to set cardinals once
 
-        self.kp = 0.8
-        self.kd = 0.5   
+        self.kp = 0.4
+        self.ki = 0.001
+        self.kd = 0.3
 
         self.line_found = False
         # offset from center
         self.line_error = 0.0
         self.last_line_error = 0.0
+        self.sum_line_error = 0.0
         self.left_line = False
         self.right_line = False
+        self.already_failed = False
+
+        self.f_line_found = False
+        self.heading_ref = None
+        self.heading_kp = 0.6    # start 0.4–0.8
 
         self.house_visible = False
         self.house_reached = False
@@ -63,15 +70,16 @@ class CameraFollower(Node):
         # fine tuned based on experiement with house 2
         self.stop_ratio = 0.95
 
-        self.wait_until = self.get_clock().now()
+        #self.wait_until = self.get_clock().now()
 
         # Subscriptions
         self.front_sub = self.create_subscription(
             Image,
             '/front_camera/image_raw',
             self.front_callback,
-            10
+            1
         )
+
 
         # Bottom-middle - main line following
         self.bm_sub = self.create_subscription(
@@ -96,6 +104,7 @@ class CameraFollower(Node):
             self.br_callback,
             10
         )
+
 
         # Odometry subscriber
         self.odom_sub = self.create_subscription(
@@ -217,6 +226,7 @@ class CameraFollower(Node):
         upper_black = np.array([180, 255, 60])
         return cv2.inRange(hsv, lower_black, upper_black)
 
+    
     def bm_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
@@ -229,12 +239,7 @@ class CameraFollower(Node):
         # calculates center of black line in ROI Region of Interest
         M = cv2.moments(mask)
         if M["m00"] > 800:
-            # computer error from center to steer
-            cx = int(M["m10"] / M["m00"])
             self.line_found = True
-            # Now normalized to [-1, 1] range
-            self.line_error = float(cx - (w / 2)) / (w / 2)
-            self.last_line_error = self.line_error
         else:
             self.line_found = False
     
@@ -256,24 +261,113 @@ class CameraFollower(Node):
 
         mask = self.detect_black(hsv)
         self.right_line = np.sum(mask > 0) > 500
-
+    
     def front_callback(self, msg):
-        # Only process front camera after all turns are complete
-        if not self.all_turns_complete:
-            return
-            
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        
+        # 1. Scan the bottom area
+        scan_row = int(h * 0.9)
+        row_data = gray[scan_row, :]
+        _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
-        mask = cv2.inRange(hsv, np.array(self.lower), np.array(self.upper))
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+        # NEW: Detect and reject horizontal/perpendicular lines
+        # A horizontal line will have black pixels spanning most of the width
+        total_black_pixels = np.sum(thresh == 255)
+        horizontal_line_detected = total_black_pixels > (w * 0.6)  # If >60% of width is black
+        
+        if horizontal_line_detected:
+            # This is likely a perpendicular T-junction line, ignore it completely
+            # Instead, look higher up in the image where only the forward line exists
+            scan_row = int(h * 0.7)  # Look much higher
+            row_data = gray[scan_row, :]
+            _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
-        center = mask[:, w//2 - 80:w//2 + 80]
-        # Is the house detectable
-        self.house_visible = np.sum(mask > 0) > 1200
-        self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio
-    
+        # 2. Define Custom Segment Boundaries
+        m_start = int((w/2) - ((1/10) * w) / 2)
+        m_end = int((w/2) + ((1/10) * w) / 2)
+
+        segments = {
+            'LEFT':   thresh[0 : m_start],
+            'MIDDLE': thresh[m_start : m_end],
+            'RIGHT':  thresh[m_end : w]
+        }
+
+        # 3. Check which segments have a line
+        sides = m_start * 1/4
+        middle = (m_end - m_start) * 3/4
+        segment_density = {
+            'LEFT':   np.sum(segments['LEFT'] == 255) > sides,
+            'MIDDLE': np.sum(segments['MIDDLE'] == 255) > middle,
+            'RIGHT':  np.sum(segments['RIGHT'] == 255) > sides
+        }
+
+        target_cx = None
+
+        # 4. Prioritize MIDDLE strongly when it exists
+        if segment_density['MIDDLE']:
+            M = cv2.moments(segments['MIDDLE'])
+            if M["m00"] > 0:
+                target_cx = (M["m10"] / M["m00"]) + m_start
+            self.f_line_found = True
+        
+        # Only check sides if MIDDLE is NOT found
+        elif segment_density['LEFT'] and segment_density['RIGHT']:
+            # Both sides visible - use weighted average
+            M_left = cv2.moments(segments['LEFT'])
+            M_right = cv2.moments(segments['RIGHT'])
+            
+            if M_left["m00"] > 0 and M_right["m00"] > 0:
+                cx_left = M_left["m10"] / M_left["m00"]
+                cx_right = (M_right["m10"] / M_right["m00"]) + m_end
+                target_cx = (cx_left + cx_right) / 2.0
+            self.f_line_found = True
+            
+        elif segment_density['LEFT']:
+            M = cv2.moments(segments['LEFT'])
+            if M["m00"] > 0:
+                target_cx = M["m10"] / M["m00"]
+            self.f_line_found = True
+        
+        elif segment_density['RIGHT']:
+            M = cv2.moments(segments['RIGHT'])
+            if M["m00"] > 0:
+                target_cx = (M["m10"] / M["m00"]) + m_end
+            self.f_line_found = True
+        else:
+            self.f_line_found = False
+
+        # 5. Calculate error
+        if target_cx is not None:
+            new_error = float(target_cx - (w / 2)) / (w / 2)
+            if abs(new_error) < 0.08:
+                self.heading_ref = self.current_yaw
+            
+            # Apply minimum force threshold
+            #min_force = 0.1
+            #if new_error > 0:
+            #    self.line_error = max(new_error, min_force)
+            #else:
+            #    self.line_error = min(new_error, -min_force)
+            self.line_error = new_error
+            self.f_line_found = True
+        else:
+            self.f_line_found = False
+
+        # House detection logic (unchanged)
+        if self.all_turns_complete:   
+            hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+            mask = cv2.inRange(hsv, np.array(self.lower), np.array(self.upper))
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+
+            center = mask[:, w//2 - 80:w//2 + 80]
+            self.house_visible = np.sum(mask > 0) > 1200
+            self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio
+
+
+
+
     def normalize_angle(self, angle):
         return math.atan2(math.sin(angle), math.cos(angle))
 
@@ -290,9 +384,9 @@ class CameraFollower(Node):
             # Facing SOUTH (~3.14), adding pi/2 (Left) should result in EAST (~ -1.57)
             self.cardinals = {
                 'SOUTH': self.normalize_angle(self.start_yaw),
-                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2), # Right -0.2 to maybe correct 0.2 rad diff
+                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2 ) , # Right -0.2 to maybe correct 0.2 rad diff
                 'NORTH': self.normalize_angle(self.start_yaw + math.pi),    # Behind
-                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2)# Left
+                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2 )  # Left
             }
             self.current_cardinal_target = self.cardinals['SOUTH']
             self.cardinals_initialized = True
@@ -308,41 +402,49 @@ class CameraFollower(Node):
             math.cos(target - current)
         )
 
-    #this is onlybeing used when verifying house.
-    def calculate_line_following_command(self, base_speed):
-        derivative = self.line_error - self.last_line_error
-        angular = -(self.line_error * self.kp + derivative * self.kd)
-        
-        # IMPORTANT: Increase your clamps. 0.02 is too small to overcome friction.
-        # 0.4 to 0.6 is a safer range for actual movement.
-        angular = max(min(angular, 0.03), -0.03)
-        
-        self.last_line_error = self.line_error
-        return float(base_speed), float(angular)
     
-    def calculate_heading_lock_command(self, base_speed):
-        target = self.current_cardinal_target
-        
-        #if self.line_found:
-            # If line is to the right (error > 0), we want the target heading 
-            # to shift right (subtract from current target)
-        #    line_correction = self.line_error * 0.1 # Try 0.1 for a gentler nudge
-        #    target = target - line_correction 
+    def calculate_line_following_command(self, base_speed):
 
-        yaw_error = self.angle_error(target, self.current_yaw)
+        # Update the Integral
+        self.sum_line_error += self.line_error
         
-        # 4. Apply P-Controller
-        heading_kp = 0.8
-        angular = heading_kp * yaw_error
+        # Anti-Windup
+        max_integral = 3.0
+        self.sum_line_error = max(min(self.sum_line_error, max_integral), -max_integral)
         
-        # Clamp it so it doesn't jitter
-        angular = max(min(angular, 0.03), -0.03)
+        # Calculate terms
+        P = self.line_error * self.kp
+        I = self.sum_line_error * self.ki
+        D = (self.line_error - self.last_line_error) * self.kd
         
-        return float(base_speed), float(angular)
+        # Combine
+        angular = -(P + I + D)
+
+        # Heading hold correction
+        if self.heading_ref is not None:
+            heading_error = self.angle_error(self.heading_ref, self.current_yaw)
+            angular += self.heading_kp * heading_error
+
+        
+        # Reset integral on zero crossing
+        if (self.line_error > 0 and self.last_line_error < 0) or \
+        (self.line_error < 0 and self.last_line_error > 0):
+            self.sum_line_error = 0.0
+
+        self.last_line_error = self.line_error
+        
+        # Cap the output
+        angular = max(min(angular, 0.35), -0.35)
+        
+        return base_speed, angular
+    
 
     def start_turn(self, turn_right, half_turn=False):
         self.doing_turn = True
-        
+        # I think we need a check here for whether or not self.current_cardinal_target is actually correct
+        # since the map has some corners, at which the robot would need to turn, but these turns 
+        # aren't in dir dir, and not intersections
+
         if half_turn:
             # Turn around
             #self.current_cardinal_target = self.normalize_angle(self.current_cardinal_target + math.pi)
@@ -383,122 +485,140 @@ class CameraFollower(Node):
 
     def control_loop(self):
         if not self.navigation_active:
-            self.get_logger().info("Waiting for Navigation...")
             self.publisher.publish(Twist())
             return
 
         if not self.odom_ready:
-            self.get_logger().info("Waiting for Odometry...")
             self.publisher.publish(Twist())
             return
         
-        if self.get_clock().now() < self.wait_until:
-            # Keep the robot still while waiting
-            self.cmd.linear.x = 0.0
-            self.cmd.angular.z = 0.0
-            self.publisher.publish(self.cmd)
-            return # Skip the rest of the logic
-        
         # Initial setup 
         if self.turn_index == 0 and not self.doing_turn:
-            self.get_logger().info("DEBUG: initial setup before first turn")
+            self.get_logger().info("Starting navigation - initiating first turn")
             half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0] == "right")
             self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
-            #self.get_logger().info(f"Doing turn {self.doing_turn} -> ANGULAR {self.cmd.angular.z} LINEAR {self.cmd.linear.x} left or right {self.turn_plan[self.turn_index]}")
             # Handle active turn
             if self.doing_turn:
                 self.cmd.linear.x = 0.0
                 
                 # Calculate shortest angular distance to target
                 error = self.angle_error(self.target_yaw, self.current_yaw)
+
+                if(abs(error) >= 1.396263): #80 degrees, the robot must have turned at some point
+                    closestCardinal = self.current_cardinal_target
+                    for c in ["NORTH", "SOUTH", "EAST", "WEST"]:
+                        if self.angle_error(self.cardinals[c], self.current_yaw) < error :
+                            closestCardinal = self.cardinals[c]
+
+                    self.current_cardinal_target = closestCardinal
+                    self.target_yaw = closestCardinal
                 
-                self.cmd.angular.z = self.kp * error
+                ANGULAR = self.kp * error
                 
-                
-                #for last 17 degrees -> 0.29 ~= 0.3; decrease rotation speed.
-                if(error <= 0.3):
-                    max_rot_speed = min (1.0, abs(error)/0.3)
+                # Minimum rotation speed to overcome friction
+                if ANGULAR > 0:
+                    self.cmd.angular.z = max(ANGULAR, 0.15)
                 else:
-                    # Clamp rotation speed
-                    max_rot_speed = 0.3 #was 0.1 -> 0.5 -> 0.3 
-
-                self.cmd.angular.z = max(min(self.cmd.angular.z, max_rot_speed), -max_rot_speed)
-                
-
+                    self.cmd.angular.z = min(ANGULAR, -0.15)
 
                 # Check if turn is complete
-                if abs(error) < 0.01:
-                    self.get_logger().info("DEBUG: STOPPED turning")
-                    self.doing_turn = False
-                    self.last_line_error = 0.0
-                    self.turn_index+=1
-                    self.get_logger().info(f"TURN {self.turn_index}/{len(self.turn_plan)} COMPLETE")
-                    self.needToClearIntersection = True
-                    # IMPO - Set to 0 to try and avoid circular moving
+                if abs(error) < 0.05:
                     self.cmd.angular.z = 0.0
                     self.cmd.linear.x = 0.0
-
-                    # Set the 'wait_until' time to Now + 500 milliseconds
-                    self.wait_until = self.get_clock().now() + rclpy.duration.Duration(seconds=0.5)
-                    self.get_logger().info("Pausing for 500ms to let physics settle...")
+                    self.doing_turn = False
+                    self.turn_index += 1
+                    self.get_logger().info(f"Turn {self.turn_index}/{len(self.turn_plan)} complete")
+                    self.needToClearIntersection = True
                     
                     # Check if all turns are done
                     if self.turn_index >= len(self.turn_plan):
                         self.all_turns_complete = True
-                        self.get_logger().info("ALL TURNS COMPLETE - Now searching for house")
-                                    
+                        self.get_logger().info("All turns complete - searching for house")
+                                
                 self.publisher.publish(self.cmd)
-            # Normal moving forward
-            else:
                 
-                # Detect intersection and start next turn
+            # Normal line following mode
+            else:
+                # CRITICAL: Intersection detection using BOTTOM cameras only
+                # T-junction: middle line exists AND (left OR right line appears)
                 intersection_detected = (
-                    (self.left_line and self.line_found) or
-                    (self.right_line and self.line_found) or
-                    (self.left_line and self.right_line and self.line_found)
+                    self.line_found and 
+                    (self.left_line or self.right_line)
                 )
 
-                if intersection_detected==False and self.needToClearIntersection==True:
-                    self.needToClearIntersection = False
-                    self.get_logger().info("Cleared intersection")
-
-                #this section isn't right, nehhejtuli l logic kollu rip- note to self redo the go straight where necessary logic 
-                if intersection_detected and not self.all_turns_complete and not self.doing_turn and not self.needToClearIntersection:
-                    self.get_logger().info("DEBUG: INTERSECTION DETECTED")
+                # Detect intersection and execute turn
+                if intersection_detected and not self.all_turns_complete and not self.needToClearIntersection:
+                    
                     self.needToClearIntersection = True
-                    if self.turn_index < len(self.turn_plan):
-                        # Start the next turn based on direction plan
-                        self.start_turn(self.turn_plan[self.turn_index]=="right")
-                        self.publisher.publish(self.cmd)
 
-                elif not self.doing_turn:
-                    # Use Heading Lock to drive straight instead of sniffing pixels
-                    # passing cmd.angular.x value
-                    linear, angular = self.calculate_heading_lock_command(0.5)
+                    # Stop completely before turning
+                    self.cmd.linear.x = 0.0
+                    self.cmd.angular.z = 0.0
+                    self.publisher.publish(self.cmd)
+                    
+                    # Initiate turn
+                    turn_direction = "RIGHT" if self.turn_plan[self.turn_index] == "right" else "LEFT"
+                    self.get_logger().info(f"Executing turn {self.turn_index + 1}: {turn_direction}")
+
+                    #Go straight at intersection Logic
+                    #this should also work if you are coming up to a T wher eyou can go left or right
+                    if(self.turn_plan[self.turn_index] and self.right_line) or (not self.turn_plan[self.turn_index] and self.left_line):
+                        self.start_turn(self.turn_plan[self.turn_index])
+                        return
+                    
+                    #otherwise go onto line following vvv
+                    
+
+                # Normal line following
+                if self.f_line_found:
+                    linear, angular = self.calculate_line_following_command(0.15)
                     self.cmd.linear.x = linear
-                    #
-                    self.cmd.angular.z = angular 
-                    #if you ignore it, the problem will go away
+                    self.cmd.angular.z = angular
+                    self.already_failed = False
+
+                    # Clear intersection flag when we've passed it
+                    if not intersection_detected and self.needToClearIntersection:
+                        self.needToClearIntersection = False
+                        self.get_logger().info("Intersection cleared")
+                    
+                else:
+                    # Lost line - recovery mode
+                    self.sum_line_error = 0.0
+                    self.cmd.linear.x = 0.0
+                    
+                    # Spin in direction of last known error
+                    if self.already_failed:
+                        spin_speed = 0.7
+                    else:
+                        spin_speed = 0.4
+                        self.already_failed = True
+                    
+                    if self.last_line_error > 0:
+                        self.cmd.angular.z = -spin_speed  # Turn right
+                    else:
+                        self.cmd.angular.z = spin_speed   # Turn left
+                        
+                    self.get_logger().debug("Line lost - recovering...")
 
             # House detection
             if self.all_turns_complete and self.house_visible:
                 self.house_seen_frames += 1
-                if self.house_seen_frames > 2:
+                if self.house_seen_frames > 3:
                     self.mode = Mode.VERIFY_HOUSE
-                    self.get_logger().info("House detected - Switching to VERIFY_HOUSE mode")
+                    self.get_logger().info("House confirmed - switching to approach mode")
             else:
                 self.house_seen_frames = 0
 
         elif self.mode == Mode.VERIFY_HOUSE:
-            # Continue following line toward house
-            linear, angular = self.calculate_line_following_command(0.08)
-            if self.line_found:
+            # Approach house slowly
+            if self.f_line_found:
+                linear, angular = self.calculate_line_following_command(0.08)
                 self.cmd.linear.x = linear
                 self.cmd.angular.z = angular
 
-            # Stop when house is close enough
+            # Stop when close enough
             if self.house_reached:
                 self.mode = Mode.STOP
                 self.get_logger().info("House reached - STOPPING")
@@ -509,10 +629,9 @@ class CameraFollower(Node):
             self.publisher.publish(self.cmd)
 
             self.navigation_active = False
-            self.get_logger().info("Navigation complete. Waiting for next command.")
+            self.get_logger().info("Navigation complete")
             self.publish_done()
 
-        #self.get_logger().info(f"CMD: v={self.cmd.linear.x:.2f}, w={self.cmd.angular.z:.2f}")
         self.publisher.publish(self.cmd)
 
 def main():
