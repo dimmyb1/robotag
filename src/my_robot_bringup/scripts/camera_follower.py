@@ -347,16 +347,30 @@ class CameraFollower(Node):
         
         # If we see magenta in bottom of front camera (approaching intersection)
         if magenta_ratio_roi > 0.90:  # 90% threshold in the ROI - we don't want it locking too early, because it may be misaligned.
+        
             self.approaching_intersection = True
-            self.get_logger().debug(f"Front camera sees magenta: {magenta_ratio_roi:.2f} - approaching intersection")
-            # Don't try to follow lines, just move forward slowly
-            self.line_error = 0.0  # Go straight
+            self.get_logger().info(f"Approaching intersection")
+            
+            # Keep moving straight
+            self.line_error = 0.0 
             self.f_line_found = True
 
-            #check if there's a black line further up ahead in the middle section of the screen
-            mask_black = self.detect_black(hsv)
-            black_pixels = np.sum(mask_black > 0)
-            self.front_line = black_pixels > 100 #same threshold as side cameras
+            # 2. Check for black line in TOP MIDDLE (to see if path continues forward)
+            # Define ROI: Top 30% of height, middle 20% of width
+            top_limit = int(h * 0.30)
+            left_limit = int(w * 0.40)
+            right_limit = int(w * 0.60)
+            
+            # Crop the HSV image to this top-middle box
+            hsv_top_middle = hsv[0:top_limit, left_limit:right_limit]
+            
+            # Detect black in this specific ROI
+            mask_black_ahead = self.detect_black(hsv_top_middle)
+            black_pixels_ahead = np.sum(mask_black_ahead > 0)
+            
+            # If enough black pixels are found ahead, mark front_line as valid
+            self.front_line = black_pixels_ahead > 100 
+            
             return
         else:
             self.approaching_intersection = False
