@@ -44,7 +44,7 @@ class CameraFollower(Node):
         self.cardinals_initialized = False # New flag to set cardinals once
 
         self.kp = 0.4
-        self.ki = 0.01
+        self.ki = 0.001
         self.kd = 0.0471
 
         # offset from center
@@ -725,12 +725,12 @@ class CameraFollower(Node):
                     self.publisher.publish(self.cmd)
 
                 else:
-                    if self.at_intersection and self.needToClearIntersection and not self.f_line_found:
-                        self.cmd.linear.x = 0.1
-                        self.cmd.angular.z = 0.0
-                        self.publisher.publish(self.cmd)
-                        self.get_logger().info("Going straight at intersection - slowly.")
-                        return
+                    # if self.at_intersection and self.needToClearIntersection and not self.f_line_found:
+                    #     self.cmd.linear.x = 0.1
+                    #     self.cmd.angular.z = 0.0
+                    #     self.publisher.publish(self.cmd)
+                    #     self.get_logger().info("Going straight at intersection - slowly.")
+                    #     return
                 
                     # Lost line - recovery mode
                     self.sum_line_error = 0.0
