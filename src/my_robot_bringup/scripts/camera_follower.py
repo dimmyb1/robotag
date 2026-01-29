@@ -337,7 +337,7 @@ class CameraFollower(Node):
         
         # NEW: Check for magenta in BOTTOM portion of front camera (approaching intersection)
         # Only look at bottom 30% of the frame
-        roi_start = int(h * 0.7)  # Start from 70% down
+        roi_start = int(h * 0.9)  # Start from 90% down
         img_roi = img[roi_start:h, :]
         magenta_ratio_roi = self.detect_magenta_ratio(img_roi)
         
