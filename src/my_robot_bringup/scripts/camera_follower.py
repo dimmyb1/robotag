@@ -402,7 +402,7 @@ class CameraFollower(Node):
             # self.get_logger().info(f"Obstacle pixels detected: {np.sum(mask > 0)}")
 
             center = mask[:, w//2 - 80:w//2 + 80]
-            self.get_logger().info(f"Obstacle center ratio: {np.sum(center > 0) / center.size:.3f}")
+            # self.get_logger().info(f"Obstacle center ratio: {np.sum(center > 0) / center.size:.3f}")
             self.obstacle_detected = (np.sum(center > 0) / center.size) > self.obstacle_stop_ratio
             if self.obstacle_detected and self.obstacle_stop_start is None:
                 self.get_logger().info("Obstacle detected - stopping for 20s")
