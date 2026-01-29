@@ -689,11 +689,13 @@ class CameraFollower(Node):
                     else:
                         self.cmd.angular.z = spin_speed   # Turn left
                         
-                    self.get_logger().debug("Line lost - recovering...")
+                    self.get_logger().info("Line lost - recovering...")
 
             # House detection
+            self.get_logger().info(f"House visible: {self.house_visible} turns complete: {self.all_turns_complete}")
             if self.all_turns_complete and self.house_visible:
                 self.house_seen_frames += 1
+                self.get_logger().info(f"House seen frames: {self.house_seen_frames}")
                 if self.house_seen_frames > 3:
                     self.mode = Mode.VERIFY_HOUSE
                     self.get_logger().info("House confirmed - switching to approach mode")
