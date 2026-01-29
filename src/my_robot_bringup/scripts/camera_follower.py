@@ -273,8 +273,8 @@ class CameraFollower(Node):
         Returns the ratio of magenta pixels to total pixels.
         """
         # Define magenta color range in RGB
-        lower_magenta = np.array([200, 0, 200])
-        upper_magenta = np.array([255, 50, 255])
+        lower_magenta = np.array([150, 0, 150])
+        upper_magenta = np.array([255, 85, 255])
         
         # Create mask for magenta
         mask = cv2.inRange(img, lower_magenta, upper_magenta)
