@@ -54,7 +54,6 @@ class CameraFollower(Node):
         self.left_line = False
         self.right_line = False
         self.front_line = False  # NEW: front path detection
-        self.already_failed = False
         
         # NEW: Intersection detection
         self.at_intersection = False
@@ -274,7 +273,7 @@ class CameraFollower(Node):
         """
         # Define magenta color range in RGB
         lower_magenta = np.array([100, 0, 100])
-        upper_magenta = np.array([255, 0, 255])
+        upper_magenta = np.array([255, 50, 255])
         
         # Create mask for magenta
         mask = cv2.inRange(img, lower_magenta, upper_magenta)
@@ -724,7 +723,6 @@ class CameraFollower(Node):
                     self.cmd.linear.x = linear
                     self.cmd.angular.z = angular
                     self.publisher.publish(self.cmd)
-                    self.already_failed = False
 
                 else:
                     if self.at_intersection and self.needToClearIntersection and not self.f_line_found:
@@ -739,11 +737,9 @@ class CameraFollower(Node):
                     self.cmd.linear.x = 0.0
                     
                     # Spin in direction of last known error
-                    if self.already_failed:
-                        spin_speed = 0.7
-                    else:
-                        spin_speed = 0.4
-                        self.already_failed = True
+
+                    spin_speed = 0.3
+
                     
                     if self.last_line_error > 0:
                         self.cmd.angular.z = -spin_speed  # Turn right
