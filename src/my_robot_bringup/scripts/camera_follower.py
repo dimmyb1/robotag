@@ -105,14 +105,6 @@ class CameraFollower(Node):
             10
         )
 
-        # Colour camera
-        self.colour_sub = self.create_subscription(
-            Image,
-            'colour_camera/image_raw',
-            self.colour_callback,
-            10
-        )
-
         # Odometry subscriber
         self.odom_sub = self.create_subscription(
             Odometry,
@@ -245,6 +237,14 @@ class CameraFollower(Node):
 
         self.lower, self.upper = self.house_colours[self.TARGET_HOUSE]
         self.colour_low, self.colour_up = self.house_colours["obstacle"]
+
+        # Colour camera
+        self.colour_sub = self.create_subscription(
+            Image,
+            '/colour_camera/image_raw',
+            self.colour_callback,
+            1
+        )
 
         self.navigation_active = True
 
@@ -393,25 +393,23 @@ class CameraFollower(Node):
             self.f_line_found = False
 
     def colour_callback(self, msg):
+        self.get_logger().info("Colour callback triggered")
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-        # House detection logic 
-        if self.all_turns_complete:   
-            mask = cv2.inRange(hsv, np.array(self.lower), np.array(self.upper))
-            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
-
-            center = mask[:, w//2 - 80:w//2 + 80]
-            self.house_visible = np.sum(mask > 0) > 1200
-            self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio
+        self.get_logger().info(f"hsv {hsv}")
+        self.get_logger().info(f"house colour low {self.colour_low}, up {self.colour_up}")
         # Only check for obstacle if not yet cleared
-        elif not self.obstacle_cleared:
+        if not self.obstacle_cleared:
             mask = cv2.inRange(hsv, np.array(self.colour_low), np.array(self.colour_up))
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+            self.get_logger().info(f"obstacle mask {mask}")
+            self.get_logger().info(f"Obstacle pixels detected: {np.sum(mask > 0)}")
 
             center = mask[:, w//2 - 80:w//2 + 80]
+            self.get_logger().info(f"Obstacle center ratio: {np.sum(center > 0) / center.size:.3f}")
             self.obstacle_detected = (np.sum(center > 0) / center.size) > self.stop_ratio
-            if self.obstacle_detected:
+            if self.obstacle_detected and self.obstacle_stop_start is None:
                 self.get_logger().info("Obstacle detected - stopping for 30s")
                 self.obstacle_stop_start = self.get_clock().now()
 
@@ -419,12 +417,21 @@ class CameraFollower(Node):
                 self.get_logger().info("Box will disappear in 20s")
                 self.create_timer(self.box_disappear_duration, self.remove_box)
 
+        # House detection logic 
+        if self.all_turns_complete:   
+            mask = cv2.inRange(hsv, np.array(self.lower), np.array(self.upper))
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+
+            center = mask[:, w//2 - 80:w//2 + 80]
+            self.house_visible = np.sum(mask > 0) > 1200
+            self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio        
+
     def remove_box(self):
-        if not self.spawned:
+        if not self.box_spawned:
             self.get_logger().warn("No box to remove")
             return
 
-        box_name = "random_grey_box"
+        box_name = "random_purple_box"
         try:
             cmd = [
                 'gz', 'service',

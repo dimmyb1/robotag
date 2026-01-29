@@ -51,12 +51,12 @@ class BoxSpawner(Node):
       self.spawn_box_at(x, y, z)
 
     def spawn_box_at(self, x, y, z):        
-        self.get_logger().info(f'Spawning grey box at position: ({x}, {y}, {z})')
+        self.get_logger().info(f'Spawning purple box at position: ({x}, {y}, {z})')
         
         # Create SDF string
         sdf_string = f'''<?xml version="1.0" ?>
 <sdf version="1.6">
-  <model name="random_grey_box">
+  <model name="random_purple_box">
     <pose>{x} {y} {z} 0 0 0</pose>
     <static>false</static>
     <link name="box_link">
@@ -111,7 +111,7 @@ class BoxSpawner(Node):
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
             
             if result.returncode == 0:
-                self.get_logger().info('Grey box spawned successfully!')
+                self.get_logger().info('purple box spawned successfully!')
             else:
                 self.get_logger().error(f'Failed to spawn box: {result.stderr}')
         except Exception as e:
