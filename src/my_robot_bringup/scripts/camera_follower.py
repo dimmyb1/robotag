@@ -150,9 +150,6 @@ class CameraFollower(Node):
             "HOUSE_9": (0, 44, 255),
             "HOUSE_10": (146, 220, 255),
             "PO": (255, 255, 255),
-            "C0": (0, 255, 45),
-            "C1": (0, 255, 45),
-            "C2": (0, 255, 45),
         }
 
         # Convert exact RGB to HSV using OpenCV
@@ -236,8 +233,8 @@ class CameraFollower(Node):
             return
 
         self.lower, self.upper = self.house_colours[self.TARGET_HOUSE]
-        self.colour_low = (120, 30, 30)
-        self.colour_up  = (170, 255, 255)
+        self.colour_low = (40, 60, 40)
+        self.colour_up  = (65, 255, 255)
 
         # Colour camera
         self.colour_sub = self.create_subscription(
@@ -410,7 +407,7 @@ class CameraFollower(Node):
             self.get_logger().info(f"Obstacle center ratio: {np.sum(center > 0) / center.size:.3f}")
             self.obstacle_detected = (np.sum(center > 0) / center.size) > self.obstacle_stop_ratio
             if self.obstacle_detected and self.obstacle_stop_start is None:
-                self.get_logger().info("Obstacle detected - stopping for 30s")
+                self.get_logger().info("Obstacle detected - stopping for 20s")
                 self.obstacle_stop_start = self.get_clock().now()
 
         # House detection logic 

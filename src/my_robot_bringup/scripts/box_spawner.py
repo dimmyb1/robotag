@@ -86,7 +86,7 @@ class BoxSpawner(Node):
         </geometry>
         <material>
           <ambient>0.5 0.0 0.5 1</ambient>
-          <diffuse>0.5 0.0 0.5 1</diffuse>
+          <diffuse>0.157, 0.459, 0.016 1</diffuse>
           <specular>0.3 0.3 0.3 1</specular>
         </material>
       </visual>
