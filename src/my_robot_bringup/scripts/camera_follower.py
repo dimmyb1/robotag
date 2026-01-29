@@ -395,12 +395,11 @@ class CameraFollower(Node):
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
         # self.get_logger().info(f"hsv {hsv}")
-        # self.get_logger().info(f"house colour low {self.colour_low}, up {self.colour_up}")
         # Only check for obstacle if not yet cleared
         if not self.obstacle_cleared and self.start == "PO":
             mask = cv2.inRange(hsv, np.array(self.colour_low), np.array(self.colour_up))
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
-            self.get_logger().info(f"Obstacle pixels detected: {np.sum(mask > 0)}")
+            # self.get_logger().info(f"Obstacle pixels detected: {np.sum(mask > 0)}")
 
             center = mask[:, w//2 - 80:w//2 + 80]
             self.get_logger().info(f"Obstacle center ratio: {np.sum(center > 0) / center.size:.3f}")
@@ -479,7 +478,6 @@ class CameraFollower(Node):
 
     
     def calculate_line_following_command(self, base_speed):
-
         # Update the Integral
         self.sum_line_error += self.line_error
         
@@ -561,7 +559,6 @@ class CameraFollower(Node):
     def control_loop(self):
         # Handle obstacle stopping
         if self.obstacle_detected and self.obstacle_stop_start is not None:
-            self.get_logger().info("Robot stopped due to obstacle")
             elapsed = (self.get_clock().now() - self.obstacle_stop_start).nanoseconds / 1e9
             if elapsed >= self.box_disappear_duration and not self.obstacle_cleared:
                 self.remove_box()
