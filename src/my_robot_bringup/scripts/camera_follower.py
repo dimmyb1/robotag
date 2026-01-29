@@ -263,7 +263,7 @@ class CameraFollower(Node):
     def detect_black(self, hsv):
         # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 60])
+        upper_black = np.array([26, 26, 26])
         return cv2.inRange(hsv, lower_black, upper_black)
     
     def detect_magenta_ratio(self, img):
