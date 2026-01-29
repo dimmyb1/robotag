@@ -626,8 +626,8 @@ class CameraFollower(Node):
         # Initial setup 
         if self.turn_index == 0 and not self.doing_turn:
             self.get_logger().info("Starting navigation - initiating first turn")
-            half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0] == "right")
-            self.start_turn(self.turn_plan[0] == "right", half_turn=half_turn)
+            half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0])
+            self.start_turn(self.turn_plan[0], half_turn=half_turn)
 
         if self.mode == Mode.FOLLOW_LINE:
             # Handle active turn
