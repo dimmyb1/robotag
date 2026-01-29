@@ -183,7 +183,6 @@ class CameraFollower(Node):
         self.obstacle_stop_start = None
         self.obstacle_stop_duration = 20.0 
         self.box_disappear_duration = 10.0 
-        self.box_removed = False
 
     def spawn_box_once(self, house):
         if self.box_spawned:
@@ -398,7 +397,7 @@ class CameraFollower(Node):
         # self.get_logger().info(f"hsv {hsv}")
         # self.get_logger().info(f"house colour low {self.colour_low}, up {self.colour_up}")
         # Only check for obstacle if not yet cleared
-        if not self.obstacle_cleared:
+        if not self.obstacle_cleared and self.start == "PO":
             mask = cv2.inRange(hsv, np.array(self.colour_low), np.array(self.colour_up))
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
             self.get_logger().info(f"Obstacle pixels detected: {np.sum(mask > 0)}")
@@ -438,7 +437,7 @@ class CameraFollower(Node):
             
             if result.returncode == 0:
                 self.get_logger().info(f'Box {box_name} removed successfully!')
-                self.box_removed = True
+                self.obstacle_cleared = True
             else:
                 self.get_logger().error(f'Failed to remove box: {result.stderr}')
         except Exception as e:
@@ -564,19 +563,15 @@ class CameraFollower(Node):
         if self.obstacle_detected and self.obstacle_stop_start is not None:
             self.get_logger().info("Robot stopped due to obstacle")
             elapsed = (self.get_clock().now() - self.obstacle_stop_start).nanoseconds / 1e9
-            if elapsed >= self.box_disappear_duration and not self.box_removed:
+            if elapsed >= self.box_disappear_duration and not self.obstacle_cleared:
                 self.remove_box()
-                self.box_removed = True
+                self.get_logger().info("Obstacle cleared - resuming navigation")
             if elapsed < self.obstacle_stop_duration:
                 # Stop robot
                 self.cmd.linear.x = 0.0
                 self.cmd.angular.z = 0.0
                 self.publisher.publish(self.cmd)
                 return
-            else:
-                # Obstacle cleared - resume
-                self.obstacle_cleared = True
-                self.get_logger().info("Obstacle cleared - resuming navigation")
 
         if not self.navigation_active:
             self.publisher.publish(Twist())
