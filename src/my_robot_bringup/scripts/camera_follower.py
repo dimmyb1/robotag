@@ -681,11 +681,10 @@ class CameraFollower(Node):
                 if self.approaching_intersection and not self.at_intersection:
                     self.cmd.linear.x = 0.1
                     self.cmd.angular.z = 0.0
+                    self.publisher.publish(self.cmd)
                     self.get_logger().info("Approaching intersection - moving slowly")
                     return
                 
-                
-
                 #need to do turn?
                 # NEW: Intersection detection using MAGENTA from middle camera
                 # Detect intersection and execute turn
@@ -724,12 +723,14 @@ class CameraFollower(Node):
                     
                     self.cmd.linear.x = linear
                     self.cmd.angular.z = angular
+                    self.publisher.publish(self.cmd)
                     self.already_failed = False
 
                 else:
                     if self.at_intersection and self.needToClearIntersection and not self.f_line_found:
                         self.cmd.linear.x = 0.1
                         self.cmd.angular.z = 0.0
+                        self.publisher.publish(self.cmd)
                         self.get_logger().info("Going straight at intersection - slowly.")
                         return
                 
@@ -750,6 +751,7 @@ class CameraFollower(Node):
                         self.cmd.angular.z = spin_speed   # Turn left
                         
                     self.get_logger().info("Line lost - recovering...")
+                    
 
             # House detection
             if self.all_turns_complete and self.house_visible:
