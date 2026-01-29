@@ -47,7 +47,6 @@ class CameraFollower(Node):
         self.ki = 0.0
         self.kd = 0.0
 
-        self.line_found = False
         # offset from center
         self.line_error = 0.0
         self.last_line_error = 0.0
@@ -79,6 +78,8 @@ class CameraFollower(Node):
         #self.wait_until = self.get_clock().now()
 
         # Subscriptions
+
+        #front camera for line-following
         self.front_sub = self.create_subscription(
             Image,
             '/front_camera/image_raw',
@@ -86,8 +87,7 @@ class CameraFollower(Node):
             1
         )
 
-
-        # Bottom-middle - main line following
+        # Bottom-middle - bottom intersection arrival detection
         self.bm_sub = self.create_subscription(
             Image,
             '/bm_camera/image_raw',
@@ -95,7 +95,7 @@ class CameraFollower(Node):
             10
         )
 
-        # Bottom-left - intersection / left line
+        # left - intersection / left line
         self.bl_sub = self.create_subscription(
             Image,
             '/bl_camera/image_raw',
@@ -103,7 +103,7 @@ class CameraFollower(Node):
             10
         )
 
-        # Bottom-right - intersection / right line
+        # right - intersection / right line
         self.br_sub = self.create_subscription(
             Image,
             '/br_camera/image_raw',
@@ -111,7 +111,7 @@ class CameraFollower(Node):
             10
         )
 
-        # Colour camera
+        # Colour camera, top camera for house detection
         self.colour_sub = self.create_subscription(
             Image,
             'colour_camera/image_raw',
@@ -297,26 +297,11 @@ class CameraFollower(Node):
         self.front_magenta_ratio = magenta_ratio
         
         # Robot is ON intersection when bottom-middle sees significant magenta
-        if magenta_ratio > 0.20:  # More than 20% of image is magenta (robot center is ON the tile)
+        if magenta_ratio > 0.90:  # More than 90% of image is magenta (robot center is ON the tile)
             self.at_intersection = True
-            # Check if there's a BLACK line ahead (front path exists)
-            mask_black = self.detect_black(hsv)
-            black_pixels = np.sum(mask_black > 0)
-            self.front_line = black_pixels > 500  # Same threshold as side cameras
         else:
             self.at_intersection = False
-            self.front_line = False
 
-        # ORIGINAL: Check for black in this camera for normal line following
-        roi = hsv[int(h * 0.6):h, :]
-        mask = self.detect_black(roi)
-
-        # calculates center of black line in ROI Region of Interest
-        M = cv2.moments(mask)
-        if M["m00"] > 800:
-            self.line_found = True
-        else:
-            self.line_found = False
     
     # check if enough pixels is found in any side camera
     # help to detect which side to move
@@ -331,7 +316,7 @@ class CameraFollower(Node):
         
         # At intersection: need to see black line to confirm path exists
         # Normal operation: original threshold
-        self.left_line = black_pixels > 500
+        self.left_line = black_pixels > 100
 
     def br_callback(self, msg):
         h, w = msg.height, msg.width
@@ -344,7 +329,7 @@ class CameraFollower(Node):
         
         # At intersection: need to see black line to confirm path exists
         # Normal operation: original threshold
-        self.right_line = black_pixels > 500
+        self.right_line = black_pixels > 100
     
     def front_callback(self, msg):
         h, w = msg.height, msg.width
@@ -378,7 +363,7 @@ class CameraFollower(Node):
         # NEW: Detect and reject horizontal/perpendicular lines
         # A horizontal line will have black pixels spanning most of the width
         total_black_pixels = np.sum(thresh == 255)
-        horizontal_line_detected = total_black_pixels > (w * 0.6)  # If >60% of width is black
+        horizontal_line_detected = total_black_pixels > (w * 0.3)  # If >30% of width is black
         
         if horizontal_line_detected:
             # This is likely a perpendicular T-junction line, ignore it completely
