@@ -352,9 +352,15 @@ class CameraFollower(Node):
             # Don't try to follow lines, just move forward slowly
             self.line_error = 0.0  # Go straight
             self.f_line_found = True
+
+            #check if there's a black line further up ahead in the middle section of the screen
+            mask_black = self.detect_black(hsv)
+            black_pixels = np.sum(mask_black > 0)
+            self.front_line = black_pixels > 100 #same threshold as side cameras
             return
         else:
             self.approaching_intersection = False
+
         
         # ORIGINAL: Line following logic (unchanged)
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
