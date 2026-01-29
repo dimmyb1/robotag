@@ -414,8 +414,10 @@ class CameraFollower(Node):
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
 
             center = mask[:, w//2 - 80:w//2 + 80]
+            self.get_logger().info(f"House center ratio: {np.sum(center > 0) / center.size:.3f}")
             self.house_visible = np.sum(mask > 0) > 1200
-            self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio        
+            self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio     
+            self.get_logger().info(f"House visible: {self.house_visible}, House reached ratio: {np.sum(center > 0) / center.size:.3f}")   
 
     def remove_box(self):
         if not self.box_spawned:
