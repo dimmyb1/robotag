@@ -667,7 +667,9 @@ class CameraFollower(Node):
                     self.doing_turn = False
                     self.turn_index += 1
                     self.get_logger().info(f"Turn {self.turn_index}/{len(self.turn_plan)} complete")
-                    self.needToClearIntersection = True
+
+                    if self.at_intersection:
+                        self.needToClearIntersection = True
                     
                     # Check if all turns are done
                     if self.turn_index >= len(self.turn_plan):
@@ -680,8 +682,8 @@ class CameraFollower(Node):
             else:
                 # NEW: Intersection detection using MAGENTA from front camera
                 # Detect intersection and execute turn
-                if self.at_intersection and not self.all_turns_complete and not self.needToClearIntersection and not self.front_line:
-                    
+                if self.at_intersection and not self.all_turns_complete and not self.needToClearIntersection:
+                    #also had and not self.front_line,  removing it for now
                     self.get_logger().info(f"Intersection detected! Magenta ratio: {self.front_magenta_ratio:.2f}")
                     self.get_logger().info(f"Path availability - Left: {self.left_line}, Right: {self.right_line}, Front: {self.front_line}")
                     
