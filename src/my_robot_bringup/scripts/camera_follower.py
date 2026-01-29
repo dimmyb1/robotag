@@ -351,9 +351,6 @@ class CameraFollower(Node):
             self.approaching_intersection = True
             self.get_logger().info(f"Approaching intersection")
             
-            # Keep moving straight
-            #self.line_error = 0.0
-            #self.last_line_error = 0.0
             self.f_line_found = False
 
             # 2. Check for black line in TOP MIDDLE (to see if path continues forward)
