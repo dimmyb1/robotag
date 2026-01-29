@@ -70,6 +70,7 @@ class CameraFollower(Node):
         # Stop distance proxy image-based - when house fills 25% of center
         # fine tuned based on experiement with house 2
         self.stop_ratio = 0.95
+        self.obstacle_stop_ratio = 0.70
 
         #self.wait_until = self.get_clock().now()
 
@@ -152,7 +153,6 @@ class CameraFollower(Node):
             "C0": (0, 255, 45),
             "C1": (0, 255, 45),
             "C2": (0, 255, 45),
-            "obstacle": (128, 0, 128)
         }
 
         # Convert exact RGB to HSV using OpenCV
@@ -184,8 +184,9 @@ class CameraFollower(Node):
         self.obstacle_detected = False
         self.obstacle_cleared = False
         self.obstacle_stop_start = None
-        self.obstacle_stop_duration = 30.0 
-        self.box_disappear_duration = 20.0 
+        self.obstacle_stop_duration = 20.0 
+        self.box_disappear_duration = 10.0 
+        self.box_timer = None
         self.box_removed = False
 
     def spawn_box_once(self, house):
@@ -236,7 +237,8 @@ class CameraFollower(Node):
             return
 
         self.lower, self.upper = self.house_colours[self.TARGET_HOUSE]
-        self.colour_low, self.colour_up = self.house_colours["obstacle"]
+        self.colour_low = (120, 30, 30)
+        self.colour_up  = (170, 255, 255)
 
         # Colour camera
         self.colour_sub = self.create_subscription(
@@ -398,7 +400,7 @@ class CameraFollower(Node):
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
         # self.get_logger().info(f"hsv {hsv}")
-        # self.get_logger().info(f"house colour low {self.colour_low}, up {self.colour_up}")
+        self.get_logger().info(f"house colour low {self.colour_low}, up {self.colour_up}")
         # Only check for obstacle if not yet cleared
         if not self.obstacle_cleared:
             mask = cv2.inRange(hsv, np.array(self.colour_low), np.array(self.colour_up))
@@ -407,14 +409,14 @@ class CameraFollower(Node):
 
             center = mask[:, w//2 - 80:w//2 + 80]
             self.get_logger().info(f"Obstacle center ratio: {np.sum(center > 0) / center.size:.3f}")
-            self.obstacle_detected = (np.sum(center > 0) / center.size) > self.stop_ratio
+            self.obstacle_detected = (np.sum(center > 0) / center.size) > self.obstacle_stop_ratio
             if self.obstacle_detected and self.obstacle_stop_start is None:
                 self.get_logger().info("Obstacle detected - stopping for 30s")
                 self.obstacle_stop_start = self.get_clock().now()
 
                 # Schedule box removal after 20 seconds
                 self.get_logger().info("Box will disappear in 20s")
-                self.create_timer(self.box_disappear_duration, self.remove_box)
+                self.box_timer =self.create_timer(self.box_disappear_duration, self.remove_box)
 
         # House detection logic 
         if self.all_turns_complete:   
