@@ -431,16 +431,17 @@ class CameraFollower(Node):
         try:
             cmd = [
                 'gz', 'service',
-                '-s', '/world/empty/delete',
+                '-s', '/world/empty/remove',
                 '--reqtype', 'gz.msgs.Entity',
                 '--reptype', 'gz.msgs.Boolean',
                 '--timeout', '5000',
-                '--req', f'name: "{box_name}"'
+                '--req', f'name: "{box_name}" type: 2'  # type: 2 means MODEL
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
             
             if result.returncode == 0:
                 self.get_logger().info(f'Box {box_name} removed successfully!')
+                self.box_removed = True
             else:
                 self.get_logger().error(f'Failed to remove box: {result.stderr}')
         except Exception as e:
