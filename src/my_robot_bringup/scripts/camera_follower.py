@@ -370,7 +370,6 @@ class CameraFollower(Node):
         else:
             
             self.approaching_intersection = False
-            self.f_line_found = True
 
         
         # ORIGINAL: Line following logic (unchanged)
@@ -419,9 +418,8 @@ class CameraFollower(Node):
             M = cv2.moments(segments['MIDDLE'])
             if M["m00"] > 0:
                 target_cx = (M["m10"] / M["m00"]) + m_start
-            self.f_line_found = True
         
-        # Only check sides if MIDDLE is NOT found
+            # Only check sides if MIDDLE is NOT found
         elif segment_density['LEFT'] and segment_density['RIGHT']:
             # Both sides visible - use weighted average
             M_left = cv2.moments(segments['LEFT'])
@@ -431,21 +429,16 @@ class CameraFollower(Node):
                 cx_left = M_left["m10"] / M_left["m00"]
                 cx_right = (M_right["m10"] / M_right["m00"]) + m_end
                 target_cx = (cx_left + cx_right) / 2.0
-            self.f_line_found = True
             
         elif segment_density['LEFT']:
             M = cv2.moments(segments['LEFT'])
             if M["m00"] > 0:
                 target_cx = M["m10"] / M["m00"]
-            self.f_line_found = True
         
         elif segment_density['RIGHT']:
             M = cv2.moments(segments['RIGHT'])
             if M["m00"] > 0:
                 target_cx = (M["m10"] / M["m00"]) + m_end
-            self.f_line_found = True
-        else:
-            self.f_line_found = False
 
         # 5. Calculate error
         if target_cx is not None:
@@ -680,6 +673,17 @@ class CameraFollower(Node):
                 
             #NOT DOING TURN
             else:
+
+                # Slow down when approaching intersection
+                if self.approaching_intersection and not self.at_intersection:
+                    self.cmd.linear.x = 0.1
+                    self.cmd.angular.z = 0.0
+                    self.get_logger().info("Approaching intersection - moving slowly")
+                    return
+                
+                
+
+                #need to do turn?
                 # NEW: Intersection detection using MAGENTA from middle camera
                 # Detect intersection and execute turn
                 if self.at_intersection and not self.all_turns_complete and not self.needToClearIntersection:
@@ -695,7 +699,7 @@ class CameraFollower(Node):
                     self.publisher.publish(self.cmd)
                     
                     # Initiate turn based on turn plan
-                    turn_direction = "RIGHT" if self.turn_plan[self.turn_index] == "right" else "LEFT"
+                    turn_direction = "RIGHT" if self.turn_plan[self.turn_index] == True else "LEFT"
                     self.get_logger().info(f"Executing turn {self.turn_index + 1}: {turn_direction}")
 
                     # Logic: only execute turn if the path exists
@@ -709,14 +713,6 @@ class CameraFollower(Node):
                         # Don't start a turn, just continue following the line
                     else:
                         self.get_logger().warn("No valid path detected at intersection!")
-                    
-
-                # Slow down when approaching intersection
-                if self.approaching_intersection and not self.at_intersection:
-                    self.cmd.linear.x = 0.1
-                    self.cmd.angular.z = 0.0
-                    self.get_logger().info("Approaching intersection - moving slowly")
-                    return
 
                 # Normal line following
                 if self.f_line_found:
@@ -728,8 +724,12 @@ class CameraFollower(Node):
                     self.already_failed = False
 
                 else:
-                    
-
+                    if self.at_intersection and self.needToClearIntersection and not self.f_line_found:
+                        self.cmd.linear.x = 0.1
+                        self.cmd.angular.z = 0.0
+                        self.get_logger().info("Going straight at intersection - slowly.")
+                        return
+                
                     # Lost line - recovery mode
                     self.sum_line_error = 0.0
                     self.cmd.linear.x = 0.0
