@@ -295,7 +295,7 @@ class CameraFollower(Node):
         self.front_magenta_ratio = magenta_ratio
         
         # Robot is ON intersection when bottom-middle sees significant magenta
-        if magenta_ratio > 0.90:  # More than 90% of image is magenta (robot center is ON the tile)
+        if magenta_ratio > 0.60:  # More than 60% of image is magenta (robot center is ON the tile)
             self.at_intersection = True
         else:
             if(self.at_intersection and self.needToClearIntersection):
@@ -342,7 +342,7 @@ class CameraFollower(Node):
         magenta_ratio_roi = self.detect_magenta_ratio(img_roi)
         
         # If we see magenta in bottom of front camera (approaching intersection)
-        if (magenta_ratio_roi > 0.80) or (not self.needToClearIntersection and not self.at_intersection and self.approaching_intersection):  
+        if (magenta_ratio_roi > 0.30) or (not self.needToClearIntersection and not self.at_intersection and self.approaching_intersection):  
             # 80% threshold in the ROI - we don't want it locking too early, because it may be misaligned. 
             # OR:
             #keep perpetuating this value until we either have cleared the intersection (entered go straight at intersection)
