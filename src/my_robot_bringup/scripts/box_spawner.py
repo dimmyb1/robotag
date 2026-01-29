@@ -51,12 +51,12 @@ class BoxSpawner(Node):
       self.spawn_box_at(x, y, z)
 
     def spawn_box_at(self, x, y, z):        
-        self.get_logger().info(f'Spawning purple box at position: ({x}, {y}, {z})')
+        self.get_logger().info(f'Spawning green box at position: ({x}, {y}, {z})')
         
         # Create SDF string
         sdf_string = f'''<?xml version="1.0" ?>
 <sdf version="1.6">
-  <model name="random_purple_box">
+  <model name="random_green_box">
     <pose>{x} {y} {z} 0 0 0</pose>
     <static>false</static>
     <link name="box_link">

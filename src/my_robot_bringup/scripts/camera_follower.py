@@ -427,7 +427,7 @@ class CameraFollower(Node):
             self.get_logger().warn("No box to remove")
             return
         self.get_logger().info("Removing box from simulation...")
-        box_name = "random_purple_box"
+        box_name = "random_green_box"
         try:
             cmd = [
                 'gz', 'service',
