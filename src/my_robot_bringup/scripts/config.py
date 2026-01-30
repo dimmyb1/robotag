@@ -22,11 +22,11 @@ directions = {
             'HOUSE_4':  [False, False],
             'HOUSE_5':  [True, False, True, False],
             'HOUSE_6':  [True, False, False, False],
-            'HOUSE_7':  [False, True, False, True, False, True, True],
-            'HOUSE_8':  [False, True, False, True, False, False, False],
-            'HOUSE_9':  [False, True, False, True, False, True, False, False, True],
-            'HOUSE_10': [False, True, False, True, False, False, True, True, True],
-            'PO':       [False, True, True]
+            'HOUSE_7':  [False, True, True, True],
+            'HOUSE_8':  [False, True, True, False],
+            'HOUSE_9':  [False, True, True, True],
+            'HOUSE_10': [False, True, True, False, True],
+            'PO':       [False, True]
 
         },
 
