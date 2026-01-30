@@ -31,30 +31,30 @@ directions = {
         },
 
         'HOUSE_2': {
-            'HOUSE_1':  [False, False, True, True, False, True],
-            'HOUSE_3':  [False, False, True, True, True],
-            'HOUSE_4':  [False, False, True, False, False],
-            'HOUSE_5':  [True, True, True],
-            'HOUSE_6':  [True, False, False],
-            'HOUSE_7':  [True, False, True, True, True, False],
-            'HOUSE_8':  [False, False, False, True, False, True, True, True],
-            'HOUSE_9':  [True, False, True, False],
-            'HOUSE_10': [False, False, False, True, False, False, False],
-            'PO':       [False, False, True, False, True, False, True]
+            'HOUSE_1':  [False, True, True],
+            'HOUSE_3':  [False, True, True],
+            'HOUSE_4':  [False, True, False],
+            'HOUSE_5':  [True, True],
+            'HOUSE_6':  [True, False],
+            'HOUSE_7':  [True, False],
+            'HOUSE_8':  [False, False, True, False, True, True],
+            'HOUSE_9':  [True, False],
+            'HOUSE_10': [False, False, True, False, False],
+            'PO':       [False, True, False, False]
 
         },
 
         'HOUSE_3': {
-            'HOUSE_1': [False, True],
-            'HOUSE_2': [True, False, False, True, False],
-            'HOUSE_4': [True, True, False],
-            'HOUSE_5': [True, False, True, False, False],
-            'HOUSE_6': [True, False, False, True, True, False, False],
-            'HOUSE_7': [True, True, True, False, False, True, False, True, True],
-            'HOUSE_8': [True, False, True, True, False, True, True, True],
-            'HOUSE_9': [True, False, False, True, True, False, True, False],
-            'HOUSE_10': [True, False, True, True, False, False, False],
-            'PO':       [True, True, True, False, True]
+            'HOUSE_1': [False],
+            'HOUSE_2': [True, False, False],
+            'HOUSE_4': [True, True],
+            'HOUSE_5': [True, False, True, False],
+            'HOUSE_6': [True, False, False, False],
+            'HOUSE_7': [True, True, False, True, True],
+            'HOUSE_8': [True, False, True, True, False, True, True],
+            'HOUSE_9': [True, False, False, False],
+            'HOUSE_10': [True, False, True, True, False, False],
+            'PO':       [True, True, False]
 
         },
 
