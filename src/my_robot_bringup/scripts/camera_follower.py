@@ -354,10 +354,9 @@ class CameraFollower(Node):
             self.f_line_found = False
 
             # 2. Check for black line in TOP MIDDLE (to see if path continues forward)
-            # Define ROI: Top 30% of height, middle 20% of width
             top_limit = int(h * 0.50)
-            left_limit = int(w * 0.40)
-            right_limit = int(w * 0.60)
+            left_limit = int(w * 0.30)
+            right_limit = int(w * 0.70)
             
             # Crop the HSV image to this top-middle box
             hsv_top_middle = img[0:top_limit, left_limit:right_limit]
@@ -499,10 +498,10 @@ class CameraFollower(Node):
             self.get_logger().info(f"Initialised cardinals where start_yaw is {self.start_yaw}")
             # Facing SOUTH (~3.14), adding pi/2 (Left) should result in EAST (~ -1.57)
             self.cardinals = {
-                'SOUTH': self.normalize_angle(self.start_yaw),
-                'WEST':  self.normalize_angle(self.start_yaw + math.pi/2 ) , # Right -0.2 to maybe correct 0.2 rad diff
-                'NORTH': self.normalize_angle(self.start_yaw + math.pi),    # Behind
-                'EAST':  self.normalize_angle(self.start_yaw - math.pi/2 )  # Left
+                'SOUTH': self.normalize_angle(0.0),
+                'WEST':  self.normalize_angle(math.pi/2 ) , # Right -0.2 to maybe correct 0.2 rad diff
+                'NORTH': self.normalize_angle(math.pi),    # Behind
+                'EAST':  self.normalize_angle(- math.pi/2 )  # Left
             }
             self.current_cardinal_target = self.cardinals['SOUTH']
             self.cardinals_initialized = True
