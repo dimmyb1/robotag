@@ -784,7 +784,7 @@ class CameraFollower(Node):
                     else:
                         self.cmd.angular.z = spin_speed   # Turn left
                         
-                    self.get_logger().info("Line lost - recovering...")
+                    self.get_logger().debug("Line lost - recovering...")
                     
 
             # House detection
