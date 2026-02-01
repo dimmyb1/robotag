@@ -963,6 +963,9 @@ class CameraFollower(Node):
                 self.get_logger().info("House reached - STOPPING")
             
             # Check if we need to correct alignment - house on side but not front
+            elif self.house_visible_front:
+                self.cmd.linear.x = 1.0
+                self.cmd.angular.z = 0.0
             else:
             
                 if (self.house_visible_right or self.house_visible_left) and not self.house_visible_front and not self.house_reached:
