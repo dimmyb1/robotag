@@ -819,7 +819,7 @@ class CameraFollower(Node):
                     #reset PID stuff after correcting back to line.
                     if self.was_line_lost:
                         self.sum_line_error = 0.0
-                        self.last_line_error = self.line_error
+                        self.last_line_error = 0.0
                         self.heading_ref = None
                         self.was_line_lost = False
 
