@@ -72,10 +72,16 @@ class CameraFollower(Node):
         self.heading_kp = 0.6    # start 0.4–0.8
 
         self.house_visible = False
+        self.house_visible_front = False
+        self.house_visible_left = False
+        self.house_visible_right = False
         self.house_reached = False
         # Count the number of times the house was seen
         # This is done to switch to house detection mode
         self.house_seen_frames = 0
+        
+        # Correction mode when house is on side but not front
+        self.correcting_to_house = False
 
         # Stop distance proxy image-based - when house fills 25% of center
         # fine tuned based on experiement with house 2
@@ -365,7 +371,8 @@ class CameraFollower(Node):
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
 
             center = mask[:, w//2 - 80:w//2 + 80]
-            self.house_visible = np.sum(mask > 0) > 1200
+            self.house_visible_left = np.sum(mask > 0) > 1200
+            self.house_visible = self.house_visible or self.house_visible_left
 
             if (np.sum(center > 0) / center.size) > self.stop_ratio and not self.doing_turn:
                 self.get_logger().info("Found house on left side, turning...")
@@ -390,7 +397,8 @@ class CameraFollower(Node):
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
 
             center = mask[:, w//2 - 80:w//2 + 80]
-            self.house_visible = np.sum(mask > 0) > 1200
+            self.house_visible_right = np.sum(mask > 0) > 1200
+            self.house_visible = self.house_visible or self.house_visible_right
 
             if (np.sum(center > 0) / center.size) > self.stop_ratio and not self.doing_turn:
                 self.get_logger().info("Found house on right side, turning...")
@@ -408,8 +416,8 @@ class CameraFollower(Node):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         
-        # NEW: At intersection, check for forward line alignment
-        if self.at_intersection:
+        # NEW: Only check forward line when stopped and actively aligning
+        if self.at_intersection and self.aligning_at_intersection:
             self.forward_line_error, self.forward_line_found = self.get_forward_line_alignment(img, h, w)
         
         # NEW: Check for magenta in BOTTOM portion of front camera (approaching intersection)
@@ -449,6 +457,9 @@ class CameraFollower(Node):
         else:
             self.approaching_intersection = False
 
+        # Don't do normal line following if at/approaching intersection
+        if self.at_intersection or self.approaching_intersection:
+            return
         
         # ORIGINAL: Line following logic (unchanged)
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -558,7 +569,11 @@ class CameraFollower(Node):
 
             center = mask[:, w//2 - 80:w//2 + 80]
             # self.get_logger().info(f"House center ratio: {np.sum(center > 0) / center.size:.3f}")
-            self.house_visible = np.sum(mask > 0) > 1200
+            self.house_visible_front = np.sum(mask > 0) > 1200
+            
+            # Overall visibility is if ANY camera sees it
+            self.house_visible = self.house_visible_front or self.house_visible_left or self.house_visible_right
+            
             self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio     
             # self.get_logger().info(f"House visible: {self.house_visible}, House reached ratio: {np.sum(center > 0) / center.size:.3f}")
 
@@ -798,56 +813,42 @@ class CameraFollower(Node):
                         self.aligning_at_intersection = True
                         return
                     
-                    # Step 2: Align using forward line visual feedback
+                    # Step 2: Check paths and decide on turn/alignment
                     elif self.aligning_at_intersection:
-                        # Use forward line to align if visible
-                        if self.forward_line_found:
-                            # PID control to center on forward line
+                        # Read available paths
+                        self.get_logger().info(f"Path availability - Left: {self.left_line}, Right: {self.right_line}, Front: {self.front_line}")
+                        
+                        # Check what we're supposed to do
+                        turn_direction = "RIGHT" if self.turn_plan[self.turn_index] else "LEFT"
+                        need_to_turn = (self.turn_plan[self.turn_index] and self.right_line) or (not self.turn_plan[self.turn_index] and self.left_line)
+                        
+                        # ONLY align if we're going straight AND forward line exists
+                        if not need_to_turn and self.front_line and self.forward_line_found:
+                            # Align to forward line using PID
                             angular = self.kp * self.forward_line_error
                             
                             if abs(self.forward_line_error) < 0.05:  # Aligned!
                                 self.cmd.angular.z = 0.0
                                 self.cmd.linear.x = 0.0
                                 self.aligning_at_intersection = False
-                                
-                                self.get_logger().info(f"Aligned using forward line! Error was: {self.forward_line_error:.3f}")
-                                
-                                # NOW take the camera readings after alignment
-                                self.get_logger().info(f"Path availability - Left: {self.left_line}, Right: {self.right_line}, Front: {self.front_line}")
-                                
                                 self.needToClearIntersection = True
                                 
-                                # Initiate turn based on turn plan
-                                turn_direction = "RIGHT" if self.turn_plan[self.turn_index] else "LEFT"
-                                self.get_logger().info(f"Executing turn {self.turn_index + 1}: {turn_direction}")
-
-                                # Logic: only execute turn if the path exists
-                                if (self.turn_plan[self.turn_index] and self.right_line) or (not self.turn_plan[self.turn_index] and self.left_line):
-                                    self.start_turn(self.turn_plan[self.turn_index])
-                                    self.publisher.publish(self.cmd)
-                                    return
-                                elif self.front_line:
-                                    self.get_logger().info("Intended turn path blocked, continuing straight")
-                                else:
-                                    self.get_logger().warn("No valid path detected at intersection!")
+                                self.get_logger().info(f"Aligned for straight path! Error: {self.forward_line_error:.3f}")
                             else:
                                 # Continue aligning
                                 self.cmd.linear.x = 0.0
                                 self.cmd.angular.z = angular
                                 self.get_logger().debug(f"Aligning to forward line... error: {self.forward_line_error:.3f}")
                         else:
-                            # No forward line visible - skip alignment and just execute turn
-                            self.get_logger().warn("No forward line for alignment - executing turn without alignment")
+                            # We're turning or no alignment needed - just execute turn immediately
+                            self.cmd.angular.z = 0.0
+                            self.cmd.linear.x = 0.0
                             self.aligning_at_intersection = False
-                            
-                            # Read paths and execute turn
-                            self.get_logger().info(f"Path availability - Left: {self.left_line}, Right: {self.right_line}, Front: {self.front_line}")
                             self.needToClearIntersection = True
                             
-                            turn_direction = "RIGHT" if self.turn_plan[self.turn_index] else "LEFT"
                             self.get_logger().info(f"Executing turn {self.turn_index + 1}: {turn_direction}")
                             
-                            if (self.turn_plan[self.turn_index] and self.right_line) or (not self.turn_plan[self.turn_index] and self.left_line):
+                            if need_to_turn:
                                 self.start_turn(self.turn_plan[self.turn_index])
                             elif self.front_line:
                                 self.get_logger().info("Intended turn path blocked, continuing straight")
@@ -862,7 +863,7 @@ class CameraFollower(Node):
                     #reset PID stuff after correcting back to line.
                     if self.was_line_lost:
                         self.sum_line_error = 0.0
-                        self.last_line_error = 0.0
+                        self.last_line_error = self.line_error
                         self.heading_ref = None
                         self.was_line_lost = False
 
@@ -951,7 +952,29 @@ class CameraFollower(Node):
             elif self.house_reached:
                 self.mode = Mode.STOP
                 self.get_logger().info("House reached - STOPPING")
+            
+            # Check if we need to correct alignment - house on side but not front
+            elif (self.house_visible_right or self.house_visible_left) and not self.house_visible_front and not self.house_reached:
+                # Only correct if we're NOT super close (use a lower threshold)
+                # If house_reached uses 0.95, we'll correct only if ratio < 0.7
+                # This prevents correction when very close
+                
+                if not self.correcting_to_house:
+                    self.get_logger().info(f"House on side but not front - correcting alignment. Right: {self.house_visible_right}, Left: {self.house_visible_left}")
+                    self.correcting_to_house = True
+                
+                # Slow rotation toward the house
+                self.cmd.linear.x = 0.0
+                
+                if self.house_visible_right:
+                    self.cmd.angular.z = -0.2  # Turn right slowly
+                else:  # house_visible_left
+                    self.cmd.angular.z = 0.2   # Turn left slowly
+                    
             else:
+                # Normal approach - house is in front or correction complete
+                self.correcting_to_house = False
+                
                 # Approach house slowly
                 if self.f_line_found:
                     linear, angular = self.calculate_line_following_command(0.08)
