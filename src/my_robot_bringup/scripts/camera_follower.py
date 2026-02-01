@@ -72,10 +72,16 @@ class CameraFollower(Node):
         self.heading_kp = 0.6    # start 0.4–0.8
 
         self.house_visible = False
+        self.house_visible_front = False
+        self.house_visible_left = False
+        self.house_visible_right = False
         self.house_reached = False
         # Count the number of times the house was seen
         # This is done to switch to house detection mode
         self.house_seen_frames = 0
+        
+        # Correction mode when house is on side but not front
+        self.correcting_to_house = False
 
         # Stop distance proxy image-based - when house fills 25% of center
         # fine tuned based on experiement with house 2
@@ -365,7 +371,8 @@ class CameraFollower(Node):
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
 
             center = mask[:, w//2 - 80:w//2 + 80]
-            self.house_visible = np.sum(mask > 0) > 1200
+            self.house_visible_left = np.sum(mask > 0) > 1200
+            self.house_visible = self.house_visible or self.house_visible_left
 
             if (np.sum(center > 0) / center.size) > self.stop_ratio and not self.doing_turn:
                 self.get_logger().info("Found house on left side, turning...")
@@ -390,7 +397,8 @@ class CameraFollower(Node):
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
 
             center = mask[:, w//2 - 80:w//2 + 80]
-            self.house_visible = np.sum(mask > 0) > 1200
+            self.house_visible_right = np.sum(mask > 0) > 1200
+            self.house_visible = self.house_visible or self.house_visible_right
 
             if (np.sum(center > 0) / center.size) > self.stop_ratio and not self.doing_turn:
                 self.get_logger().info("Found house on right side, turning...")
@@ -558,7 +566,11 @@ class CameraFollower(Node):
 
             center = mask[:, w//2 - 80:w//2 + 80]
             # self.get_logger().info(f"House center ratio: {np.sum(center > 0) / center.size:.3f}")
-            self.house_visible = np.sum(mask > 0) > 1200
+            self.house_visible_front = np.sum(mask > 0) > 1200
+            
+            # Overall visibility is if ANY camera sees it
+            self.house_visible = self.house_visible_front or self.house_visible_left or self.house_visible_right
+            
             self.house_reached = (np.sum(center > 0) / center.size) > self.stop_ratio     
             # self.get_logger().info(f"House visible: {self.house_visible}, House reached ratio: {np.sum(center > 0) / center.size:.3f}")
 
@@ -951,7 +963,28 @@ class CameraFollower(Node):
             elif self.house_reached:
                 self.mode = Mode.STOP
                 self.get_logger().info("House reached - STOPPING")
+            
+            # Check if we need to correct alignment - house on side but not front
+            elif (self.house_visible_right or self.house_visible_left) and not self.house_visible_front and not self.house_reached:
+                # Only correct if we're NOT super close
+                # This prevents correction when very close
+                
+                if not self.correcting_to_house:
+                    self.get_logger().info(f"House on side but not front - correcting alignment. Right: {self.house_visible_right}, Left: {self.house_visible_left}")
+                    self.correcting_to_house = True
+                
+                # Slow rotation toward the house
+                self.cmd.linear.x = 0.0
+                
+                if self.house_visible_right:
+                    self.cmd.angular.z = -0.2  # Turn right slowly
+                else:  # house_visible_left
+                    self.cmd.angular.z = 0.2   # Turn left slowly
+                    
             else:
+                # Normal approach - house is in front or correction complete
+                self.correcting_to_house = False
+                
                 # Approach house slowly
                 if self.f_line_found:
                     linear, angular = self.calculate_line_following_command(0.08)
