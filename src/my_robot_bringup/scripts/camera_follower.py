@@ -754,7 +754,7 @@ class CameraFollower(Node):
                         self.get_logger().info(f"Intersection detected! Magenta ratio: {self.front_magenta_ratio:.2f}")
                                                 
                         self.get_logger().info(f"Starting cardinal alignment to {self.current_cardinal_target:.2f} rad")
-                        self.get_logger().info(f"current yaw {self.current_yaw} rad")
+                        self.get_logger().info(f"current yaw {self.normalize_angle(self.current_yaw)} rad")
                         # Stop completely
                         self.cmd.linear.x = 0.0
                         self.cmd.angular.z = 0.0
