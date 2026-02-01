@@ -754,8 +754,8 @@ class CameraFollower(Node):
                     if not self.aligning_at_intersection:
                         self.get_logger().info(f"Intersection detected! Magenta ratio: {self.front_magenta_ratio:.2f}")
                                                 
-                        self.get_logger().info(f"Starting cardinal alignment to {self.current_cardinal_target:.2f} rad")
-                        self.get_logger().info(f"current yaw {self.normalize_angle(self.current_yaw)} rad")
+                        #self.get_logger().info(f"Starting cardinal alignment to {self.current_cardinal_target:.2f} rad")
+                        #self.get_logger().info(f"current yaw {self.normalize_angle(self.current_yaw)} rad")
                         # Stop completely
                         self.cmd.linear.x = 0.0
                         self.cmd.angular.z = 0.0
@@ -768,51 +768,51 @@ class CameraFollower(Node):
                     # Step 2: Align to cardinal direction
                     elif self.aligning_at_intersection:
                         # Calculate error to target cardinal direction
-                        error = self.angle_error(self.target_yaw, self.current_yaw)
+                        #error = self.angle_error(self.target_yaw, self.current_yaw)
                         
                         # Check if alignment is complete
-                        if abs(error) < 0.05:  # Within 3 degrees
-                            self.cmd.angular.z = 0.0
-                            self.cmd.linear.x = 0.0
+                        #if abs(error) < 0.05:  # Within 3 degrees
+                        self.cmd.angular.z = 0.0
+                        self.cmd.linear.x = 0.0
                             
                             
-                            self.aligning_at_intersection = False
-                            self.get_logger().info(f"Cardinal alignment complete! Now reading paths...")
+                        self.aligning_at_intersection = False
+                        self.get_logger().info(f"Cardinal alignment complete! Now reading paths...")
                             
-                            # NOW take the camera readings after alignment
-                            self.get_logger().info(f"Path availability - Left: {self.left_line}, Right: {self.right_line}, Front: {self.front_line}")
+                        # NOW take the camera readings after alignment
+                        self.get_logger().info(f"Path availability - Left: {self.left_line}, Right: {self.right_line}, Front: {self.front_line}")
                             
-                            self.needToClearIntersection = True
+                        self.needToClearIntersection = True
                             
-                            # Initiate turn based on turn plan
-                            turn_direction = "RIGHT" if self.turn_plan[self.turn_index] else "LEFT"
-                            self.get_logger().info(f"Executing turn {self.turn_index + 1}: {turn_direction}")
+                        # Initiate turn based on turn plan
+                        turn_direction = "RIGHT" if self.turn_plan[self.turn_index] else "LEFT"
+                        self.get_logger().info(f"Executing turn {self.turn_index + 1}: {turn_direction}")
 
-                            # Logic: only execute turn if the path exists
-                            # If turning right and right path exists, OR turning left and left path exists
-                            if (self.turn_plan[self.turn_index] and self.right_line) or (not self.turn_plan[self.turn_index] and self.left_line):
-                                self.start_turn(self.turn_plan[self.turn_index])
-                                self.publisher.publish(self.cmd)
-                                return
-                            elif self.front_line:
-                                # If the intended turn path doesn't exist but front does, go straight
-                                self.get_logger().info("Intended turn path blocked, continuing straight")
-                                # Don't start a turn, just continue following the line
-                            else:
-                                self.get_logger().warn("No valid path detected at intersection!")
-                        else:
-                            # Continue aligning
-                            # Stop moving forward, only rotate
-                            self.cmd.linear.x = 0.0
-                            ANGULAR = self.kp * error
-                            self.cmd.angular.z = ANGULAR
-                            # Minimum rotation speed to overcome friction
-                            # if ANGULAR > 0:
-                            #     self.cmd.angular.z = max(ANGULAR, 0.15)
-                            # else:
-                            #     self.cmd.angular.z = min(ANGULAR, -0.15)
+                        # Logic: only execute turn if the path exists
+                        # If turning right and right path exists, OR turning left and left path exists
+                        if (self.turn_plan[self.turn_index] and self.right_line) or (not self.turn_plan[self.turn_index] and self.left_line):
+                            self.start_turn(self.turn_plan[self.turn_index])
                             self.publisher.publish(self.cmd)
                             return
+                        elif self.front_line:
+                            # If the intended turn path doesn't exist but front does, go straight
+                            self.get_logger().info("Intended turn path blocked, continuing straight")
+                            # Don't start a turn, just continue following the line
+                        else:
+                            self.get_logger().warn("No valid path detected at intersection!")
+                        # else:
+                        #     # Continue aligning
+                        #     # Stop moving forward, only rotate
+                        #     self.cmd.linear.x = 0.0
+                        #     ANGULAR = self.kp * error
+                        #     self.cmd.angular.z = ANGULAR
+                        #     # Minimum rotation speed to overcome friction
+                        #     # if ANGULAR > 0:
+                        #     #     self.cmd.angular.z = max(ANGULAR, 0.15)
+                        #     # else:
+                        #     #     self.cmd.angular.z = min(ANGULAR, -0.15)
+                        #     self.publisher.publish(self.cmd)
+                        #     return
 
                 # Normal line following
                 if self.f_line_found:
