@@ -49,6 +49,7 @@ class CameraFollower(Node):
         self.kd = 0.1
 
         # offset from center
+        self.was_line_lost = False
         self.line_error = 0.0
         self.last_line_error = 0.0
         self.sum_line_error = 0.0
@@ -815,7 +816,13 @@ class CameraFollower(Node):
 
                 # Normal line following
                 if self.f_line_found:
-                    
+                    #reset PID stuff after correcting back to line.
+                    if self.was_line_lost:
+                        self.sum_line_error = 0.0
+                        self.last_line_error = self.line_error
+                        self.heading_ref = None
+                        self.was_line_lost = False
+
                     linear, angular = self.calculate_line_following_command(0.15)  # Normal speed
                     
                     self.cmd.linear.x = linear
@@ -845,6 +852,7 @@ class CameraFollower(Node):
                     #     return
                 
                     # Lost line - recovery mode
+                    self.was_line_lost = True
                     self.sum_line_error = 0.0
                     self.cmd.linear.x = 0.0
                     
