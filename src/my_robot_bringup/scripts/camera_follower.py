@@ -569,9 +569,9 @@ class CameraFollower(Node):
             # Facing SOUTH (~3.14), adding pi/2 (Left) should result in EAST (~ -1.57)
             self.cardinals = {
                 'NORTH': self.normalize_angle(self.start_yaw),
-                'WEST':  self.normalize_angle(self.start_yaw + math.pi/2 ) , # Right 
+                'WEST':  self.normalize_angle(self.start_yaw - math.pi/2 ) , # Right 
                 'SOUTH': self.normalize_angle(self.start_yaw + math.pi),    # Behind
-                'EAST':  self.normalize_angle(self.start_yaw - math.pi/2 )  # Left
+                'EAST':  self.normalize_angle(self.start_yaw + math.pi/2 )  # Left
             }
             self.current_cardinal_target = self.cardinals['SOUTH']
             self.cardinals_initialized = True
@@ -753,37 +753,22 @@ class CameraFollower(Node):
                     # Step 1: Initiate alignment to cardinal direction
                     if not self.aligning_at_intersection:
                         self.get_logger().info(f"Intersection detected! Magenta ratio: {self.front_magenta_ratio:.2f}")
-                        
-                        if not self.is_same_angle(self.current_cardinal_target, self.current_yaw):
-                        
-                            self.get_logger().info(f"Starting cardinal alignment to {self.current_cardinal_target:.2f} rad")
-                            
-                            # Stop completely
-                            self.cmd.linear.x = 0.0
-                            self.cmd.angular.z = 0.0
-                            self.publisher.publish(self.cmd)
-
-                            
-                        
+                                                
+                        self.get_logger().info(f"Starting cardinal alignment to {self.current_cardinal_target:.2f} rad")
+                        self.get_logger().info(f"current yaw {self.current_yaw} rad")
+                        # Stop completely
+                        self.cmd.linear.x = 0.0
+                        self.cmd.angular.z = 0.0
+                        self.publisher.publish(self.cmd)
                         # Set flag to start alignment
                         self.aligning_at_intersection = True
+                        self.target_yaw = self.current_cardinal_target
                         return
                     
                     # Step 2: Align to cardinal direction
                     elif self.aligning_at_intersection:
                         # Calculate error to target cardinal direction
-                        error = self.angle_error(self.current_cardinal_target, self.current_yaw)
-                        
-                        # Stop moving forward, only rotate
-                        self.cmd.linear.x = 0.0
-                        
-                        ANGULAR = self.kp * error
-                        
-                        # Minimum rotation speed to overcome friction
-                        if ANGULAR > 0:
-                            self.cmd.angular.z = max(ANGULAR, 0.15)
-                        else:
-                            self.cmd.angular.z = min(ANGULAR, -0.15)
+                        error = self.angle_error(self.target_yaw, self.current_yaw)
                         
                         # Check if alignment is complete
                         if abs(error) < 0.05:  # Within 3 degrees
@@ -816,6 +801,15 @@ class CameraFollower(Node):
                                 self.get_logger().warn("No valid path detected at intersection!")
                         else:
                             # Continue aligning
+                            # Stop moving forward, only rotate
+                            self.cmd.linear.x = 0.0
+                            ANGULAR = self.kp * error
+                            self.cmd.angular.z = ANGULAR
+                            # Minimum rotation speed to overcome friction
+                            # if ANGULAR > 0:
+                            #     self.cmd.angular.z = max(ANGULAR, 0.15)
+                            # else:
+                            #     self.cmd.angular.z = min(ANGULAR, -0.15)
                             self.publisher.publish(self.cmd)
                             return
 
