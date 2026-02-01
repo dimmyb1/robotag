@@ -785,7 +785,7 @@ class CameraFollower(Node):
             else:
 
                 # Slow down when approaching intersection
-                if self.approaching_intersection and not self.at_intersection:
+                if self.approaching_intersection and not self.at_intersection and not self.all_turns_complete:
                     self.cmd.linear.x = 0.1
                     self.cmd.angular.z = 0.0
                     self.publisher.publish(self.cmd)
@@ -914,8 +914,6 @@ class CameraFollower(Node):
                     # Spin in direction of last known error
 
                     spin_speed = 0.3
-
-                    
                     if self.last_line_error > 0:
                         self.cmd.angular.z = -spin_speed  # Turn right
                     else:
@@ -965,23 +963,25 @@ class CameraFollower(Node):
                 self.get_logger().info("House reached - STOPPING")
             
             # Check if we need to correct alignment - house on side but not front
-            elif (self.house_visible_right or self.house_visible_left) and not self.house_visible_front and not self.house_reached:
-                # Only correct if we're NOT super close
-                # This prevents correction when very close
-                
-                if not self.correcting_to_house:
-                    self.get_logger().info(f"House on side but not front - correcting alignment. Right: {self.house_visible_right}, Left: {self.house_visible_left}")
-                    self.correcting_to_house = True
-                
-                # Slow rotation toward the house
-                self.cmd.linear.x = 0.0
-                
-                if self.house_visible_right:
-                    self.cmd.angular.z = -0.2  # Turn right slowly
-                else:  # house_visible_left
-                    self.cmd.angular.z = 0.2   # Turn left slowly
-                    
             else:
+            
+                if (self.house_visible_right or self.house_visible_left) and not self.house_visible_front and not self.house_reached:
+                    # Only correct if we're NOT super close
+                    # This prevents correction when very close
+                    
+                    if not self.correcting_to_house:
+                        self.get_logger().info(f"House on side but not front - correcting alignment. Right: {self.house_visible_right}, Left: {self.house_visible_left}")
+                        self.correcting_to_house = True
+                    
+                    # Slow rotation toward the house
+                    self.cmd.linear.x = 0.0
+                    
+                    if self.house_visible_right:
+                        self.cmd.angular.z = -0.2  # Turn right slowly
+                    else:  # house_visible_left
+                        self.cmd.angular.z = 0.2   # Turn left slowly
+                    
+            
                 # Normal approach - house is in front or correction complete
                 self.correcting_to_house = False
                 
