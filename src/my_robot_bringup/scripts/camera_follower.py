@@ -727,6 +727,8 @@ class CameraFollower(Node):
         if self.turn_index == 0 and not self.doing_turn:
             self.get_logger().info("Starting navigation - initiating first turn")
             half_turn = (self.start in ["HOUSE_2", "HOUSE_7"] and self.turn_plan[0])
+            self.start_turn(self.turn_plan[0], half_turn=half_turn)
+            #double check cardinality
             if not self.is_same_angle(self.current_cardinal_target, self.current_yaw):
                 self.get_logger().info(f"current cardinal target: {self.current_cardinal_target} but current yaw: {self.current_yaw}!!! not aligned; setting cardinal to match with yaw!!!")
 
@@ -737,9 +739,6 @@ class CameraFollower(Node):
                         closestCardinal = self.cardinals[c]
                 self.current_cardinal_target = closestCardinal
                 self.target_yaw = closestCardinal
-            self.start_turn(self.turn_plan[0], half_turn=half_turn)
-            #double check cardinality
-            
 
         if self.mode == Mode.FOLLOW_LINE:
             # Handle active turn
