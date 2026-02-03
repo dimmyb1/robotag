@@ -89,7 +89,7 @@ class CameraFollower(Node):
         self.obstacle_stop_ratio = 0.70
         self.side_stop_ratio = 0.65
 
-        # Cardinal placeholders (Now properly set in odom_callback)
+        # Cardinal placeholders
         self.cardinals = {}
         self.current_cardinal_target = 0.0
 
