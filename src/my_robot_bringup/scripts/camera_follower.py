@@ -5,7 +5,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from nav_msgs.msg import Odometry
-# control robot velocity through this
+# Control robot velocity through this
 from geometry_msgs.msg import Twist
 import numpy as np
 import cv2
@@ -17,14 +17,14 @@ import json
 from rclpy.qos import QoSProfile, DurabilityPolicy
 import subprocess
 
-# robots states
+# Robot's states
 class Mode(Enum):
     FOLLOW_LINE = 1
     VERIFY_HOUSE = 2
     STOP = 3
 
 class CameraFollower(Node):
-    # call it with the house its finding
+    # Call it with the house it's finding
     def __init__(self):
         super().__init__('camera_house_follower')
         self.TARGET_HOUSE = None
@@ -42,24 +42,24 @@ class CameraFollower(Node):
         self.start_yaw = 0.0
         self.target_yaw = 0.0
         self.odom_ready = False
-        self.cardinals_initialized = False # New flag to set cardinals once
+        self.cardinals_initialized = False # Flag to set cardinals once
 
         self.kp = 0.6
         self.ki = 0.0
         self.kd = 0.1
 
-        # offset from center
+        # Offset from centre
         self.was_line_lost = False
         self.line_error = 0.0
         self.last_line_error = 0.0
         self.sum_line_error = 0.0
         self.left_line = False
         self.right_line = False
-        self.front_line = False  # NEW: front path detection
+        self.front_line = False  # Front path detection
         
-        # NEW: Intersection detection
+        # Intersection detection
         self.at_intersection = False
-        self.approaching_intersection = False  # NEW: for slowing down approach
+        self.approaching_intersection = False  # For slowing down approach
         self.front_magenta_ratio = 0.0
         self.aligning_at_intersection = False
         
@@ -69,7 +69,7 @@ class CameraFollower(Node):
 
         self.f_line_found = False
         self.heading_ref = None
-        self.heading_kp = 0.6    # start 0.4–0.8
+        self.heading_kp = 0.6    # Start 0.4–0.8
 
         self.house_visible = False
         self.house_visible_front = False
@@ -84,7 +84,7 @@ class CameraFollower(Node):
         self.correcting_to_house = False
 
         # Stop distance proxy image-based - when house fills 25% of center
-        # fine tuned based on experiement with house 2
+        # Fine tuned based on experiement with house 2
         self.stop_ratio = 0.95
         self.obstacle_stop_ratio = 0.70
 
@@ -96,7 +96,7 @@ class CameraFollower(Node):
 
         # Subscriptions
 
-        #front camera for line-following
+        # Front camera for line-following
         self.front_sub = self.create_subscription(
             Image,
             '/front_camera/image_raw',
@@ -112,7 +112,7 @@ class CameraFollower(Node):
             10
         )
 
-        # left - intersection / left line
+        # Left - intersection / left line
         self.bl_sub = self.create_subscription(
             Image,
             '/bl_camera/image_raw',
@@ -120,7 +120,7 @@ class CameraFollower(Node):
             10
         )
 
-        # right - intersection / right line
+        # Right - intersection / right line
         self.br_sub = self.create_subscription(
             Image,
             '/br_camera/image_raw',
@@ -186,10 +186,10 @@ class CameraFollower(Node):
             rgb_np = np.uint8([[list(rgb)]])
             hsv = cv2.cvtColor(rgb_np, cv2.COLOR_RGB2HSV)[0][0]
 
-            # widen HSV range to tolerate lighting
+            # Widen HSV range to tolerate lighting
             h, s, v = hsv
             # self.get_logger().info("Value of h in hsv", h, s, v, "in name", name)
-            # widen HSV range to tolerate lighting and distinguish similar hues
+            # Widen HSV range to tolerate lighting and distinguish similar hues
             if name == "HOUSE_4":
                 lower = (max(h - 8, 0), 30, 40)
                 upper = (min(h + 8, 179), 255, 255)
