@@ -87,6 +87,7 @@ class CameraFollower(Node):
         # Fine tuned based on experiement with house 2
         self.stop_ratio = 0.95
         self.obstacle_stop_ratio = 0.70
+        self.side_stop_ratio = 0.65
 
         # Cardinal placeholders (Now properly set in odom_callback)
         self.cardinals = {}
@@ -125,14 +126,6 @@ class CameraFollower(Node):
             Image,
             '/br_camera/image_raw',
             self.br_callback,
-            10
-        )
-
-        # Colour camera, top camera for house detection
-        self.colour_sub = self.create_subscription(
-            Image,
-            'colour_camera/image_raw',
-            self.colour_callback,
             10
         )
 
@@ -374,7 +367,7 @@ class CameraFollower(Node):
             self.house_visible_left = np.sum(mask > 0) > 1200
             self.house_visible = self.house_visible or self.house_visible_left
 
-            if (np.sum(center > 0) / center.size) > self.stop_ratio and not self.doing_turn:
+            if (np.sum(center > 0) / center.size) > self.side_stop_ratio and not self.doing_turn:
                 self.get_logger().info("Found house on left side, turning...")
                 self.start_turn(False)
 
@@ -400,7 +393,7 @@ class CameraFollower(Node):
             self.house_visible_right = np.sum(mask > 0) > 1200
             self.house_visible = self.house_visible or self.house_visible_right
 
-            if (np.sum(center > 0) / center.size) > self.stop_ratio and not self.doing_turn:
+            if (np.sum(center > 0) / center.size) > self.side_stop_ratio and not self.doing_turn:
                 self.get_logger().info("Found house on right side, turning...")
                 self.start_turn(True)
             
@@ -954,6 +947,7 @@ class CameraFollower(Node):
                     self.cmd.linear.x = 0.0
                     self.doing_turn = False
                     self.get_logger().info(f"Turn {self.turn_index}/{len(self.turn_plan)} complete")
+                    self.house_reached = True
                                 
                 self.publisher.publish(self.cmd)
 
