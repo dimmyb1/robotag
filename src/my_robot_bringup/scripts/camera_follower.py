@@ -730,7 +730,15 @@ class CameraFollower(Node):
             self.start_turn(self.turn_plan[0], half_turn=half_turn)
             #double check cardinality
             if not self.is_same_angle(self.current_cardinal_target, self.current_yaw):
-                self.get_logger().info(f"current cardinal target: {self.current_cardinal_target} but current yaw: {self.current_yaw}!!! not aligned!!!")
+                self.get_logger().info(f"current cardinal target: {self.current_cardinal_target} but current yaw: {self.current_yaw}!!! not aligned; setting cardinal to match with yaw!!!")
+
+                error = math.pi * 2
+                closestCardinal = self.current_cardinal_target
+                for c in ["NORTH", "SOUTH", "EAST", "WEST"]:
+                    if self.angle_error(self.cardinals[c], self.current_yaw) < error :
+                        closestCardinal = self.cardinals[c]
+                self.current_cardinal_target = closestCardinal
+                self.target_yaw = closestCardinal
 
         if self.mode == Mode.FOLLOW_LINE:
             # Handle active turn
