@@ -953,6 +953,9 @@ class CameraFollower(Node):
             elif self.house_reached:
                 self.mode = Mode.STOP
                 self.house_reached = False
+                self.house_visible = False
+                self.house_visible_left = False
+                self.house_visible_right = False
                 self.get_logger().info("House reached - STOPPING")
             
             # Check if we need to correct alignment - house on side but not front
@@ -1010,6 +1013,7 @@ class CameraFollower(Node):
 
             self.navigation_active = False
             self.mode == Mode.FOLLOW_LINE
+            self.all_turns_complete = False
             self.get_logger().info("Navigation complete")
             self.publish_done()
 
