@@ -24,7 +24,6 @@ class Mode(Enum):
     STOP = 3
 
 class CameraFollower(Node):
-    # Call it with the house it's finding
     def __init__(self):
         super().__init__('camera_house_follower')
         self.TARGET_HOUSE = None
@@ -55,11 +54,13 @@ class CameraFollower(Node):
         self.sum_line_error = 0.0
         self.left_line = False
         self.right_line = False
-        self.front_line = False  # Front path detection
+        # Front path detection
+        self.front_line = False  
         
         # Intersection detection
         self.at_intersection = False
-        self.approaching_intersection = False  # For slowing down approach
+        # For slowing down approach
+        self.approaching_intersection = False  
         self.front_magenta_ratio = 0.0
         self.aligning_at_intersection = False
         
@@ -69,7 +70,7 @@ class CameraFollower(Node):
 
         self.f_line_found = False
         self.heading_ref = None
-        self.heading_kp = 0.6    # Start 0.4–0.8
+        self.heading_kp = 0.6    
 
         self.house_visible = False
         self.house_visible_front = False
@@ -96,7 +97,6 @@ class CameraFollower(Node):
         #self.wait_until = self.get_clock().now()
 
         # Subscriptions
-
         # Front camera for line-following
         self.front_sub = self.create_subscription(
             Image,
@@ -155,7 +155,6 @@ class CameraFollower(Node):
         # Loop every 0.05 seconds
         self.cmd = Twist()
         self.control_timer = self.create_timer(0.05, self.control_loop)
-        #self.publish_timer = self.create_timer(0.05, self.publish_current_cmd)
         # Exact RGB colors from Gazebo diffuse values
         colors = {
             "HOUSE_1": (97, 63, 0),
@@ -180,7 +179,7 @@ class CameraFollower(Node):
             # Widen HSV range to tolerate lighting
             h, s, v = hsv
             # self.get_logger().info("Value of h in hsv", h, s, v, "in name", name)
-            # Widen HSV range to tolerate lighting and distinguish similar hues
+            # Widen HSV range to tolerate lighting and distinguish similar hues for these specific houses
             if name == "HOUSE_4":
                 lower = (max(h - 8, 0), 30, 40)
                 upper = (min(h + 8, 179), 255, 255)
@@ -308,7 +307,7 @@ class CameraFollower(Node):
         Look at TOP portion of front camera to find the black line beyond intersection.
         Returns angular correction needed to align with that line.
         """
-        # Look at top 30% of frame (beyond the intersection)
+        # Look at top 30% of frame - beyond the intersection
         top_section = img[0:int(h*0.3), :]
         hsv = cv2.cvtColor(top_section, cv2.COLOR_RGB2HSV)
         
@@ -318,14 +317,16 @@ class CameraFollower(Node):
         # Find horizontal centre of black pixels
         black_pixels = np.where(mask_black > 0)
         
-        if len(black_pixels[1]) > 50:  # Enough pixels to be reliable
+        # Enough pixels to be reliable
+        if len(black_pixels[1]) > 50:  
             # Calculate centroid
             cx = np.mean(black_pixels[1])
             
             # Calculate error from image centre
             error = (cx - w/2) / (w/2)
             
-            return error, True  # error, line_found
+            # error, line_found
+            return error, True  
         
         return 0.0, False  # No line found
 
@@ -334,7 +335,7 @@ class CameraFollower(Node):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
 
-        # NEW: Check if robot CENTRE is over magenta (intersection confirmation)
+        # Check if robot CENTRE is over magenta - intersection confirmation
         magenta_ratio = self.detect_magenta_ratio(img)
         self.front_magenta_ratio = magenta_ratio
         
