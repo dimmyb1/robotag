@@ -111,7 +111,7 @@ class BoxSpawner(Node):
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
             
             if result.returncode == 0:
-                self.get_logger().info('purple box spawned successfully!')
+                self.get_logger().info('green box spawned successfully!')
             else:
                 self.get_logger().error(f'Failed to spawn box: {result.stderr}')
         except Exception as e:

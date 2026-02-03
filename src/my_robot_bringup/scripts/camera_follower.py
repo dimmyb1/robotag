@@ -1012,7 +1012,7 @@ class CameraFollower(Node):
             self.publisher.publish(self.cmd)
 
             self.navigation_active = False
-            self.mode == Mode.FOLLOW_LINE
+            self.mode = Mode.FOLLOW_LINE
             self.all_turns_complete = False
             self.turn_index = 0
             self.get_logger().info("Navigation complete")
