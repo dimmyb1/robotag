@@ -41,7 +41,8 @@ class CameraFollower(Node):
         self.start_yaw = 0.0
         self.target_yaw = 0.0
         self.odom_ready = False
-        self.cardinals_initialized = False # Flag to set cardinals once
+        # Flag to set cardinals once
+        self.cardinals_initialized = False 
 
         self.kp = 0.6
         self.ki = 0.0
@@ -93,8 +94,6 @@ class CameraFollower(Node):
         # Cardinal placeholders
         self.cardinals = {}
         self.current_cardinal_target = 0.0
-
-        #self.wait_until = self.get_clock().now()
 
         # Subscriptions
         # Front camera for line-following
@@ -241,11 +240,6 @@ class CameraFollower(Node):
         self.doing_turn = False
         self.last_line_error = 0
         self.needToClearIntersection = False
-
-        # Reset heading lock to start reference
-        #if self.cardinals_initialized:
-        #    self.get_logger().info(f"RESETTING CARDINALS TO NORTH")
-        #    self.current_cardinal_target = self.cardinals['NORTH']
 
         # --- COMPUTE TURN PLAN ---
         # true or false list for right or left turns respectively
@@ -662,9 +656,6 @@ class CameraFollower(Node):
 
     def start_turn(self, turn_right, half_turn=False):
         self.doing_turn = True
-        # I think we need a check here for whether or not self.current_cardinal_target is actually correct
-        # since the map has some corners, at which the robot would need to turn, but these turns 
-        # aren't in dir dir, and not intersections
         self.get_logger().info(f"Starting turn {'RIGHT' if turn_right else 'LEFT'}{' (180)' if half_turn else ''}")
         if half_turn:
             # Turn around
@@ -769,9 +760,7 @@ class CameraFollower(Node):
                     if self.turn_index >= len(self.turn_plan):
                         self.all_turns_complete = True
                         self.get_logger().info("All turns complete - searching for house")
-                                
-                
-            #NOT DOING TURN
+            # not doing turn
             else:
 
                 # Slow down when approaching intersection
@@ -872,29 +861,8 @@ class CameraFollower(Node):
                     
                     self.cmd.linear.x = linear
                     self.cmd.angular.z = angular
-                
-                    """
-                    # Calculate shortest angular distance to target
-                    error = self.angle_error(self.target_yaw, self.current_yaw)
-                    
-                    if(abs(error) >= 1.53): #88 degrees, the robot must have turned at some point
-                        self.get_logger().info("corner detected - updating cardinal target")
-                        closestCardinal = self.current_cardinal_target
-                        for c in ["NORTH", "SOUTH", "EAST", "WEST"]:
-                            if self.angle_error(self.cardinals[c], self.current_yaw) < error :
-                                closestCardinal = self.cardinals[c]
-
-                        self.current_cardinal_target = closestCardinal
-                        self.target_yaw = closestCardinal
-                    """
 
                 else:
-                    # if self.at_intersection and self.needToClearIntersection and not self.f_line_found:
-                    #     self.cmd.linear.x = 0.1
-                    #     self.cmd.angular.z = 0.0
-                    #     self.publisher.publish(self.cmd)
-                    #     self.get_logger().info("Going straight at intersection - slowly.")
-                    #     return
                 
                     # Lost line - recovery mode
                     self.was_line_lost = True
