@@ -849,6 +849,7 @@ class CameraFollower(Node):
                             else:
                                 self.get_logger().warn("No valid path detected at intersection!")
                             self.turn_index +=1
+                            self.get_logger().info(f"Turn {self.turn_index}/{len(self.turn_plan)} complete")
                         self.publisher.publish(self.cmd)
                         return
 
