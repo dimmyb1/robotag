@@ -411,7 +411,7 @@ class CameraFollower(Node):
         magenta_ratio_roi = self.detect_magenta_ratio(img_roi)
         
         # If we see magenta in bottom of front camera - approaching intersection
-        if (magenta_ratio_roi > 0.30) or (not self.needToClearIntersection and not self.at_intersection and self.approaching_intersection):  
+        if (magenta_ratio_roi > 0.30) and (not self.needToClearIntersection and not self.at_intersection):  
             # 80% threshold in the ROI - we don't want it locking too early, because it may be misaligned. 
             # OR:
             # keep perpetuating this value until we either have cleared the intersection - entered go straight at intersection
