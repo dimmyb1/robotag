@@ -127,7 +127,7 @@ directions = {
 
         'HOUSE_9': {
             'HOUSE_1':  [True, False, False, False],
-            'HOUSE_2':  [False, False, True],
+            'HOUSE_2':  [False, True],
             'HOUSE_3':  [False, True, True, True],
             'HOUSE_4':  [False, True, True, False],
             'HOUSE_5':  [False, False],
@@ -139,7 +139,7 @@ directions = {
         },
 
         'HOUSE_10': {
-            'HOUSE_1':  [True, False, True, False, False],
+            'HOUSE_1':  [False, True, False, True, False],
             'HOUSE_2':  [False, True, True, False, True],
             'HOUSE_3':  [False, True, True, False, False, True],
             'HOUSE_4':  [False, True, True, False, False, False],
