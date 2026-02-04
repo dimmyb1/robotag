@@ -424,7 +424,7 @@ class CameraFollower(Node):
 
         
         # If we see magenta in bottom of front camera - approaching intersection
-        if (magenta_ratio_roi > 0.30) and (not self.needToClearIntersection and not self.at_intersection):  
+        if (magenta_ratio_roi > 0.30) and (not self.needToClearIntersection and not self.at_intersection) or (not self.at_intersection and self.approaching_intersection):  
             # Threshold set to 30% to detect the intersection tile early enough to slow down
             self.approaching_intersection = True
             self.get_logger().info(f"Approaching intersection")
