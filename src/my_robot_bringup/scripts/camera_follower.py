@@ -417,11 +417,6 @@ class CameraFollower(Node):
             self.get_logger().info(f"Approaching intersection")
             
             self.f_line_found = False
-
-            # Check for black line in TOP MIDDLE to see if path continues forward
-            top_limit = int(h * 0.50)
-            left_limit = int(w * 0.30)
-            right_limit = int(w * 0.70)
             
             # Crop the HSV image to this top-middle box
             hsv_top_middle = img[:, :]
