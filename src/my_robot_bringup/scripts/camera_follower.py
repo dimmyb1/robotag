@@ -455,18 +455,6 @@ class CameraFollower(Node):
             row_data = gray[scan_row, :]
             _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
 
-            # Detect and reject horizontal/perpendicular lines
-            # A horizontal line will have black pixels spanning most of the width
-            total_black_pixels = np.sum(thresh == 255)
-            horizontal_line_detected = total_black_pixels > (w * 0.3)  # If >30% of width is black
-            
-            if horizontal_line_detected:
-                # ignore any intersections and look higher for the main straight line we want
-                #honestly this section may be biasing our search for a straight line since it could be looking at a high diagonal or perpendicular line...
-                scan_row = int(h * 0.7)  
-                row_data = gray[scan_row, :]
-                _, thresh = cv2.threshold(row_data, 50, 255, cv2.THRESH_BINARY_INV)
-
             # 2. Define Custom Segment Boundaries
             m_start = int((w/2) - ((1/10) * w) / 2)
             m_end = int((w/2) + ((1/10) * w) / 2)
