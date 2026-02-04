@@ -8,10 +8,10 @@ directions = {
                'HOUSE_4': [True, True], 
                'HOUSE_5': [False, False, False, True], 
                'HOUSE_6': [False, False, False, True, True], 
-               'HOUSE_7': [False, True], 
-               'HOUSE_8': [False, False], 
-               'HOUSE_9': [False, True], 
-               'HOUSE_10': [False, False, True]
+               'HOUSE_7': [False, True, True], 
+               'HOUSE_8': [False, True, False], 
+               'HOUSE_9': [False, True, True], 
+               'HOUSE_10': [False, False, True, False]
 
         },
         
