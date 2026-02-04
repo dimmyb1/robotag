@@ -508,8 +508,6 @@ class CameraFollower(Node):
                 new_error = float(target_cx - (w / 2)) / (w / 2)
                 if abs(new_error) < 0.08:
                     self.heading_ref = self.current_yaw
-                else:
-                    self.heading_ref = None
                 
                 self.line_error = new_error
                 self.f_line_found = True
@@ -867,8 +865,7 @@ class CameraFollower(Node):
                     #reset PID stuff after correcting back to line.
                     if self.was_line_lost:
                         self.sum_line_error = 0.0
-                        self.last_line_error = 0.0
-                        self.heading_ref = None
+                        self.last_line_error = self.line_error
                         self.was_line_lost = False
 
                         if self.uncertainty_cardinality:
