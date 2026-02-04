@@ -813,11 +813,7 @@ class CameraFollower(Node):
                                 if (self.turn_plan[self.turn_index] and self.right_line) or (not self.turn_plan[self.turn_index] and self.left_line):
                                     self.start_turn(self.turn_plan[self.turn_index])
                                     self.publisher.publish(self.cmd)
-                                    self.turn_plan +=1
-                                    # Check if all turns are done
-                                    if self.turn_index >= len(self.turn_plan):
-                                        self.all_turns_complete = True
-                                        self.get_logger().info("All turns complete - searching for house")
+                                    
                                     return
                                 elif self.front_line:
                                     self.get_logger().info("Intended turn path blocked, continuing straight")
