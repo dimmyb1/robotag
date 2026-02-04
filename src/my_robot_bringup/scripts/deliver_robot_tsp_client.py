@@ -20,9 +20,6 @@ class DeliverobotTSPClient(Node):
         self.targets = random.sample(HOUSES, 3)
         
         # Hardcoded targets for testing
-        self.targets[0] = "HOUSE_1"  # Ensure starting point is HOUSE_1
-        self.targets[1] = "HOUSE_3"  
-        self.targets[2] = "HOUSE_4"  
         self.get_logger().info(f"Generated targets: {self.targets}")
 
         # Publish targets for getting the optimised path 
@@ -84,9 +81,6 @@ class DeliverobotTSPClient(Node):
 
         data = json.loads(response.message)
         self.optimized_route = data['route']
-        self.optimized_route[1] = "HOUSE_4"  # Ensure starting point is HOUSE_1
-        self.optimized_route[2] = "HOUSE_3"  # Ensure starting point is HOUSE_1
-        self.optimized_route[3] = "HOUSE_1"  # Ensure starting point is HOUSE_1
         self.get_logger().info(f"Optimized route received: {self.optimized_route}")
         self.start_mission()
 
