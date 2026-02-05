@@ -881,16 +881,16 @@ class CameraFollower(Node):
 
                             if (0 < self.current_yaw <= math.pi / 4) or( 0 >= self.current_yaw > -math.pi / 4) :
                                 #facing north
-                                self.current_cardinal_target = "NORTH"
+                                self.current_cardinal_target = self.cardinals["NORTH"]
                             elif -3 * math.pi / 4 < self.current_yaw <= - math.pi / 4:
                                 #facing east
-                                self.current_cardinal_target = "EAST"
+                                self.current_cardinal_target = self.cardinals["EAST"]
                             elif (- math.pi < self.current_yaw <= - 3 * math.pi / 4) or (math.pi >= self.current_yaw > 3 * math.pi / 4):
                                 #facing south
-                                self.current_cardinal_target = "SOUTH"
+                                self.current_cardinal_target = self.cardinals["SOUTH"]
                             elif 3 * math.pi / 4 >= self.current_yaw > math.pi / 4:
                                 #facing west
-                                self.current_cardinal_target = "WEST"
+                                self.current_cardinal_target = self.cardinals["WEST"]
                             else:
                                 self.get_logger.info("could not eliminate uncertainty in cardinality")
                             self.target_yaw = self.current_cardinal_target
