@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:property name="camera_length" value="0.01" />
-    <xacro:property name="camera_width" value="0.05" />
+    <xacro:property name="camera_length" value="0.002" />
+    <xacro:property name="camera_width" value="0.035" />
     <xacro:property name="camera_height" value="0.05" />
 
-    <link name="camera_linkBL">
+    <link name="camera_link">
         <visual>
             <geometry>
                 <box size="${camera_length} ${camera_width} ${camera_height}" />
@@ -21,22 +21,23 @@
                            o_xyz="0 0 0" o_rpy="0 0 0" />
     </link>
 
-    <joint name="base_camera_jointBL" type="fixed">
-        <parent link="base_link" />
-        <child link="camera_linkBL" />
-        <origin xyz="0.3 0.25 0.1" rpy="0 0.4 ${pi/2}" />
+    <joint name="base_camera_joint" type="fixed">
+        <parent link="servo_link" />
+        <child link="camera_link" />
+        <!-- Positioned on top of the camera, facing forward (rpy="0 0 0") -->
+        <origin xyz="-0.005 0 0.06" rpy="0 2.793 0" />
     </joint>
 
-    <link name="camera_link_opticalBL" />
+    <link name="camera_link_optical" />
 
-    <joint name="camera_optical_jointBL" type="fixed">
+    <joint name="optical_joint" type="fixed">
         <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
-        <parent link="camera_linkBL"/>
-        <child link="camera_link_opticalBL"/>
+        <parent link="camera_link"/>
+        <child link="camera_link_optical"/>
     </joint>
 
-    <gazebo reference="camera_linkBL">
-        <sensor name="bl_camera" type="camera">
+    <gazebo reference="camera_link">
+        <sensor name="camera" type="camera">
             <camera>
                 <horizontal_fov>1.3962634</horizontal_fov>
                 <image>
@@ -53,17 +54,17 @@
                     <mean>0.0</mean>
                     <stddev>0.007</stddev>
                 </noise>
-                <optical_frame_id>camera_link_opticalBL</optical_frame_id>
-                <camera_info_topic>bl_camera/camera_info</camera_info_topic>
+                <optical_frame_id>camera_link_optical</optical_frame_id>
+                <camera_info_topic>camera/camera_info</camera_info_topic>
             </camera>
             <always_on>1</always_on>
             <update_rate>3</update_rate>
             <visualize>true</visualize>
-            <topic>bl_camera/image_raw</topic> 
+            <topic>camera/image_raw</topic> 
 
             <plugin
                 filename="gz-sim-camera-system"
-                name="bl_camera_plugin"/>           
+                name="camera_plugin"/>           
         </sensor>
     </gazebo>
 
