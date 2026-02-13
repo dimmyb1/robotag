@@ -44,16 +44,17 @@
     </link>
 
     <!-- Front box -->
-    <joint name="front_box_joint" type="fixed">
+    <joint name="servo_joint" type="continuous">
         <parent link="base_link"/>
-        <child link="front_box_link"/>
+        <child link="servo_link"/>
         <origin xyz="0.125 0 0.20" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
     </joint>
-    <link name="front_box_link">
+    <link name="servo_link">
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <box size="0.3 0.3 0.25"/>
+                <box size="0.035 0.01 0.015"/>
             </geometry>
             <material name="accent_orange">
                 <color rgba="0.95 0.47 0.14 1.0"/>
