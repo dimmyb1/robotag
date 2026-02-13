@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 
-<xacro:macro name="bot" params="bot_name">
-    <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- <xacro:macro name="bot" params="bot_name"> -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
         <!-- Updated properties to match your robot model -->
         <xacro:property name="base_length" value="0.21"/>
@@ -14,7 +14,8 @@
         <!-- ========================= -->
         <!-- Base Footprint (empty)   -->
         <!-- ========================= -->
-        <link name="${bot_name}_base_footprint"/>
+        <!-- <link name="${bot_name}_base_footprint"/> -->
+        <link name="base_footprint"/>
 
         <!-- Fixed transform to base_link (body_link in your model) -->
         <joint name="base_joint" type="fixed">
@@ -99,10 +100,10 @@
             </link>
         </xacro:macro>
 
-        <xacro:rear_wheel_link prefix="rear_left"/>
-        <xacro:rear_wheel_link prefix="rear_right"/>
-        <xacro:rear_wheel_link prefix="front_left"/>
-        <xacro:rear_wheel_link prefix="front_right"/>
+        <xacro:wheel_link prefix="rear_left"/>
+        <xacro:wheel_link prefix="rear_right"/>
+        <xacro:wheel_link prefix="front_left"/>
+        <xacro:wheel_link prefix="front_right"/>
 
 
         <joint name="rear_left_wheel_joint" type="continuous">
@@ -134,8 +135,8 @@
         </joint>
 
 
-    </robot>
-</xacro:macro>
+</robot>
+<!-- </xacro:macro> -->
 
-<xacro:rear_wheel_link bot_name="twix"/>
-<xacro:rear_wheel_link bot_name="twirl"/>
+<!-- <xacro:rear_wheel_link bot_name="twix"/>
+<xacro:rear_wheel_link bot_name="twirl"/> -->

@@ -11,14 +11,15 @@
         <mu1 value="1" />
         <mu2 value="1" />
     </gazebo>
-
-    <!--slippery front wheels-->
     
-    <gazebo reference="front_caster_link">
-        <mu1 value="0.0"/><mu2 value="0.0"/>
+     <gazebo reference="front_left_wheel_link">
+        <mu1 value="1" />
+        <mu2 value="1" />
     </gazebo>
-    <gazebo reference="rear_caster_link">
-        <mu1 value="0.0"/><mu2 value="0.0"/>
+
+    <gazebo reference="right_right_wheel_link">
+        <mu1 value="1" />
+        <mu2 value="1" />
     </gazebo>
 
     <!-- Differential Drive Plugin -->
@@ -28,8 +29,8 @@
             name="gz::sim::systems::DiffDrive">
             <left_joint>rear_left_wheel_joint</left_joint>
             <right_joint>rear_right_wheel_joint</right_joint>
-            <wheel_separation>0.56</wheel_separation>
-            <wheel_radius>0.15</wheel_radius>
+            <wheel_separation>0.124</wheel_separation>
+            <wheel_radius>0.032</wheel_radius>
 
             <max_wheel_torque>100</max_wheel_torque>
             <max_wheel_acceleration>2.0</max_wheel_acceleration>
@@ -46,8 +47,8 @@
             name="gz::sim::systems::JointStatePublisher">
             <joint_name>rear_left_wheel_joint</joint_name>
             <joint_name>rear_right_wheel_joint</joint_name>
-            <joint_name>rear_caster_joint</joint_name>
-            <joint_name>front_caster_joint</joint_name>
+            <joint_name>front_left_wheel_link</joint_name>
+            <joint_name>front_right_wheel_link</joint_name>
         </plugin>
     </gazebo>
 
