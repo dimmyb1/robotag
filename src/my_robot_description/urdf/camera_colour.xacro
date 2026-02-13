@@ -25,7 +25,7 @@
         <parent link="servo_link" />
         <child link="camera_link" />
         <!-- Positioned on top of the camera, facing forward (rpy="0 0 0") -->
-        <origin xyz="0.085 0 0.0825" rpy="1.047 0 0" />
+        <origin xyz="-0.005 0 0.06" rpy="0 1.047 0" />
     </joint>
 
     <link name="camera_link_optical" />
