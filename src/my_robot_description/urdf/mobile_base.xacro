@@ -122,14 +122,14 @@
 
         <joint name="front_left_wheel_joint" type="continuous">
             <parent link="base_link"/>
-            <child link="rear_left_wheel_link"/>
+            <child link="front_left_wheel_link"/>
             <origin xyz="0.04 ${-(base_width/2.0) - 0.016} -0.02" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
         <joint name="front_right_wheel_joint" type="continuous">
             <parent link="base_link"/>
-            <child link="rear_right_wheel_link"/>
+            <child link="front_right_wheel_link"/>
             <origin xyz="0.04 ${(base_width/2.0) + 0.016} -0.02" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
