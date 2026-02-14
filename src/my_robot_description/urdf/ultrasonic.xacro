@@ -30,7 +30,7 @@
 
     <link name="lidar_link_optical" />
 
-    <joint name="optical_joint" type="fixed">
+    <joint name="lidar_optical_joint" type="fixed">
         <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
         <parent link="lidar_link"/>
         <child link="lidar_link_optical"/>
