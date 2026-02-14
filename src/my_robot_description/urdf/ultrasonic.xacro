@@ -1,70 +1,68 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:property name="camera_length" value="0.002" />
-    <xacro:property name="camera_width" value="0.035" />
-    <xacro:property name="camera_height" value="0.05" />
+    <xacro:property name="lidar_length" value="0.002" />
+    <xacro:property name="lidar_width" value="0.05" />
+    <xacro:property name="lidar_height" value="0.023" />
 
-    <link name="camera_link">
+    <link name="lidar_link">
         <visual>
             <geometry>
-                <box size="${camera_length} ${camera_width} ${camera_height}" />
+                <box size="${lidar_length} ${lidar_width} ${lidar_height}" />
             </geometry>
             <material name="grey" />
         </visual>
         <collision>
             <geometry>
-                <box size="${camera_length} ${camera_width} ${camera_height}" />
+                <box size="${lidar_length} ${lidar_width} ${lidar_height}" />
             </geometry>
         </collision>
-        <xacro:box_inertia m="0.1" x="${camera_length}" y="${camera_width}" z="${camera_height}"
+        <xacro:box_inertia m="0.1" x="${lidar_length}" y="${lidar_width}" z="${lidar_height}"
                            o_xyz="0 0 0" o_rpy="0 0 0" />
     </link>
 
-    <joint name="base_camera_joint" type="fixed">
+    <joint name="base_lidar_joint" type="fixed">
         <parent link="servo_link" />
-        <child link="camera_link" />
-        <!-- Positioned on top of the camera, facing forward (rpy="0 0 0") -->
-        <origin xyz="-0.005 0 0.06" rpy="0 2.793 0" />
+        <child link="lidar_link" />
+        <!-- Positioned on top of the lidar, facing forward (rpy="0 0 0") -->
+        <origin xyz="-0.005 0 0.02" rpy="0 0 0" />
     </joint>
 
-    <link name="camera_link_optical" />
+    <link name="lidar_link_optical" />
 
     <joint name="optical_joint" type="fixed">
         <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
-        <parent link="camera_link"/>
-        <child link="camera_link_optical"/>
+        <parent link="lidar_link"/>
+        <child link="lidar_link_optical"/>
     </joint>
 
-    <gazebo reference="camera_link">
-        <sensor name="camera" type="camera">
-            <camera>
-                <horizontal_fov>1.3962634</horizontal_fov>
-                <image>
-                    <width>640</width>
-                    <height>480</height>
-                    <format>R8G8B8</format>
-                </image>
-                <clip>
-                    <near>0.1</near>
-                    <far>15</far>
-                </clip>
-                <noise>
-                    <type>gaussian</type>
-                    <mean>0.0</mean>
-                    <stddev>0.007</stddev>
-                </noise>
-                <optical_frame_id>camera_link_optical</optical_frame_id>
-                <camera_info_topic>camera/camera_info</camera_info_topic>
-            </camera>
-            <always_on>1</always_on>
-            <update_rate>3</update_rate>
-            <visualize>true</visualize>
-            <topic>camera/image_raw</topic> 
+    <gazebo reference="lidar_link">
+        <sensor type="ray" name="lidar_sensor">
+            <update_rate>10.0</update_rate>
+            <ray>
+                <scan>
+                    <horizontal>
+                    <samples>720</samples>
+                    <resolution>1</resolution>
+                    <min_angle>-3.14159</min_angle>
+                    <max_angle>3.14159</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.12</min>
+                    <max>10.0</max>
+                    <resolution>0.01</resolution>
+                </range>
+            </ray>
 
-            <plugin
-                filename="gz-sim-camera-system"
-                name="camera_plugin"/>           
+            <plugin name="gazebo_ros_laser" filename="libgazebo_ros_ray_sensor.so">
+            <ros>
+                <namespace>/</namespace>
+                <remapping>~/out:=scan</remapping>
+            </ros>
+            <output_type>sensor_msgs/LaserScan</output_type>
+            <frame_name>lidar_link</frame_name>
+            </plugin>
         </sensor>
     </gazebo>
 
