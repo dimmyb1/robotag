@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:property name="lidar_length" value="0.002" />
+    <xacro:property name="lidar_length" value="0.024" />
     <xacro:property name="lidar_width" value="0.05" />
     <xacro:property name="lidar_height" value="0.023" />
 
@@ -24,8 +24,7 @@
     <joint name="base_lidar_joint" type="fixed">
         <parent link="servo_link" />
         <child link="lidar_link" />
-        <!-- Positioned on top of the lidar, facing forward (rpy="0 0 0") -->
-        <origin xyz="-0.005 0 0.02" rpy="0 0 0" />
+        <origin xyz="-0.0025 0 0.026" rpy="0 0 0" />
     </joint>
 
     <link name="lidar_link_optical" />
