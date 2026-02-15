@@ -24,7 +24,7 @@
     <joint name="base_camera_joint" type="fixed">
         <parent link="servo_link" />
         <child link="camera_link" />
-        <origin xyz="-0.016 0 0.082" rpy="0 2.793 3.142" />
+        <origin xyz="-0.016 0 0.082" rpy="0 0.349 3.142" />
     </joint>
 
     <link name="camera_link_optical" />
