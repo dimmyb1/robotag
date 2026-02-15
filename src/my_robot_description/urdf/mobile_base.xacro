@@ -47,18 +47,18 @@
                     o_xyz="0 0 0" o_rpy="0 0 0"/>
         </link>
 
-        <!-- Front box -->
+        <!-- servo -->
         <joint name="servo_joint" type="continuous">
             <parent link="base_link"/>
             <child link="servo_link"/>
-            <origin xyz="0.09 0 0.03" rpy="0 0 0"/>
+            <origin xyz="0.076 0 0.03" rpy="0 0 0"/>
             <axis xyz="0 0 1"/>
         </joint>
         <link name="servo_link">
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <box size="0.035 0.01 0.015"/>
+                    <box size="0.032 0.01 0.015"/>
                 </geometry>
                 <material name="accent_orange">
                     <color rgba="0.95 0.47 0.14 1.0"/>
@@ -67,7 +67,7 @@
             <collision>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <box size="0.035 0.01 0.015"/>
+                    <box size="0.032 0.01 0.015"/>
                 </geometry>
             </collision>
             <xacro:box_inertia m="1.0" x="0.035" y="0.01" z="0.015" 
@@ -109,28 +109,28 @@
         <joint name="rear_left_wheel_joint" type="continuous">
             <parent link="base_link"/>
             <child link="rear_left_wheel_link"/>
-            <origin xyz="-0.04 ${-(base_width/2.0) - 0.016} 0" rpy="0 0 0"/>
+            <origin xyz="-0.04 ${-(base_width/2.0) - 0.016} -0.005" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
         <joint name="rear_right_wheel_joint" type="continuous">
             <parent link="base_link"/>
             <child link="rear_right_wheel_link"/>
-            <origin xyz="-0.04 ${(base_width/2.0) + 0.016} 0" rpy="0 0 0"/>
+            <origin xyz="-0.04 ${(base_width/2.0) + 0.016} -0.005" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
         <joint name="front_left_wheel_joint" type="continuous">
             <parent link="base_link"/>
             <child link="front_left_wheel_link"/>
-            <origin xyz="0.04 ${-(base_width/2.0) - 0.016} 0" rpy="0 0 0"/>
+            <origin xyz="0.04 ${-(base_width/2.0) - 0.016} -0.005" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
         <joint name="front_right_wheel_joint" type="continuous">
             <parent link="base_link"/>
             <child link="front_right_wheel_link"/>
-            <origin xyz="0.04 ${(base_width/2.0) + 0.016} 0" rpy="0 0 0"/>
+            <origin xyz="0.04 ${(base_width/2.0) + 0.016} -0.005" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
