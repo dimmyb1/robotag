@@ -36,7 +36,7 @@
     </joint>
 
     <gazebo reference="ir_linkBM">
-        <sensor name="bm_ir" type="ir">
+        <sensor name="bm_ir" type="camera">
             <ir>
                 <horizontal_fov>1.3962634</horizontal_fov>
                 <image>
