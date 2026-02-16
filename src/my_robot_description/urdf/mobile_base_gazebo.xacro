@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:macro name="gazebo_file" params="bot_name" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <!-- Friction for wheels -->
-    <gazebo reference="rear_left_wheel_link">
+    <gazebo reference="${bot_name}_rear_left_wheel_link">
         <mu1 value="1" />
         <mu2 value="1" />
     </gazebo>
 
-    <gazebo reference="rear_right_wheel_link">
+    <gazebo reference="${bot_name}_rear_right_wheel_link">
         <mu1 value="1" />
         <mu2 value="1" />
     </gazebo>
     
-     <gazebo reference="front_left_wheel_link">
+     <gazebo reference="${bot_name}_front_left_wheel_link">
         <mu1 value="1" />
         <mu2 value="1" />
     </gazebo>
 
-    <gazebo reference="right_right_wheel_link">
+    <gazebo reference="${bot_name}_front_right_wheel_link">
         <mu1 value="1" />
         <mu2 value="1" />
     </gazebo>
@@ -45,11 +45,11 @@
         <plugin
             filename="gz-sim-joint-state-publisher-system"
             name="gz::sim::systems::JointStatePublisher">
-            <joint_name>rear_left_wheel_joint</joint_name>
-            <joint_name>rear_right_wheel_joint</joint_name>
-            <joint_name>front_left_wheel_link</joint_name>
-            <joint_name>front_right_wheel_link</joint_name>
+            <joint_name>${bot_name}_rear_left_wheel_joint</joint_name>
+            <joint_name>${bot_name}_rear_right_wheel_joint</joint_name>
+            <joint_name>${bot_name}_front_left_wheel_link</joint_name>
+            <joint_name>${bot_name}_front_right_wheel_link</joint_name>
         </plugin>
     </gazebo>
 
-</robot>
+</xacro:macro>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 
-<xacro:macro name="bot" params="bot_name">
+<xacro:macro name="bot" params="bot_name" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
         <!-- Updated properties to match your robot model -->
         <xacro:property name="base_length" value="0.21"/>
@@ -127,8 +127,9 @@
         </joint>
 
 
-    <xacro:ir_sensor botname="${bot_name}"/>
-    <xacro:camera_sensor botname="${bot_name}"/>
-    <xacro:ultrasonic_sensor botname="${bot_name}"/>
+    <xacro:ir_sensor bot_name="${bot_name}"/>
+    <xacro:camera_sensor bot_name="${bot_name}"/>
+    <xacro:ultrasonic_sensor bot_name="${bot_name}"/>
+    <xacro:gazebo_file bot_name="${bot_name}"/>
 </xacro:macro>
 
