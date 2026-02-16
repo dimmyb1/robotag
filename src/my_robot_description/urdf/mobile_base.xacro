@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 
-<!-- <xacro:macro name="bot" params="bot_name"> -->
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:macro name="bot" params="bot_name">
+    <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
         <!-- Updated properties to match your robot model -->
         <xacro:property name="base_length" value="0.21"/>
@@ -14,28 +14,25 @@
         <!-- ========================= -->
         <!-- Base Footprint (empty)   -->
         <!-- ========================= -->
-        <!-- <link name="${bot_name}_base_footprint"/> -->
-        <link name="base_footprint"/>
+        <link name="${bot_name}_base_footprint"/>
 
         <!-- Fixed transform to base_link (body_link in your model) -->
-        <joint name="base_joint" type="fixed">
-            <parent link="base_footprint"/>
-            <child link="base_link"/>
+        <joint name="${bot_name}_base_joint" type="fixed">
+            <parent link="${bot_name}_base_footprint"/>
+            <child link="${bot_name}_base_link"/>
             <origin xyz="0 0 0.02"/>
         </joint>
 
         <!-- =============== -->
         <!-- Base link body  -->
         <!-- =============== -->
-        <link name="base_link">
+        <link name="${bot_name}_base_link">
             <visual>
                 <geometry>
                     <box size="${base_length} ${base_width} ${base_height}"/>
                 </geometry>
                 <origin xyz="0 0 0"/>
-                <material name="body_blue">
-                    <color rgba="0.09 0.46 0.71 1.0"/>
-                </material>
+                <material name="${bot_name}"/>
             </visual>
             <collision>
                 <geometry>
@@ -48,21 +45,19 @@
         </link>
 
         <!-- servo -->
-        <joint name="servo_joint" type="continuous">
-            <parent link="base_link"/>
-            <child link="servo_link"/>
+        <joint name="${bot_name}_servo_joint" type="continuous">
+            <parent link="${bot_name}_base_link"/>
+            <child link="${bot_name}_servo_link"/>
             <origin xyz="0.076 0 0.03" rpy="0 0 0"/>
             <axis xyz="0 0 1"/>
         </joint>
-        <link name="servo_link">
+        <link name="${bot_name}_servo_link">
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
                     <box size="0.032 0.01 0.015"/>
                 </geometry>
-                <material name="accent_orange">
-                    <color rgba="0.95 0.47 0.14 1.0"/>
-                </material>
+                <material name="accent_orange"/>
             </visual>
             <collision>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -78,16 +73,14 @@
         <!-- ============================ -->
         <!-- Rear Wheels (Driven)        -->
         <!-- ============================ -->
-        <xacro:macro name="wheel_link" params="prefix">
-            <link name="${prefix}_wheel_link">
+        <xacro:macro name="${bot_name}_wheel_link" params="prefix">
+            <link name="${bot_name}_${prefix}_wheel_link">
                 <visual>
                     <geometry>
                         <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
                     </geometry>
                     <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
-                    <material name="rubber_black">
-                        <color rgba="0.06 0.06 0.06 1.0"/>
-                    </material>
+                    <material name="rubber_black"/>
                 </visual>
                 <collision>
                     <geometry>
@@ -106,37 +99,35 @@
         <xacro:wheel_link prefix="front_right"/>
 
 
-        <joint name="rear_left_wheel_joint" type="continuous">
-            <parent link="base_link"/>
-            <child link="rear_left_wheel_link"/>
+        <joint name="${bot_name}_rear_left_wheel_joint" type="continuous">
+            <parent link="${bot_name}_base_link"/>
+            <child link="${bot_name}_rear_left_wheel_link"/>
             <origin xyz="-0.04 ${-(base_width/2.0) - 0.016} -0.005" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
-        <joint name="rear_right_wheel_joint" type="continuous">
-            <parent link="base_link"/>
-            <child link="rear_right_wheel_link"/>
+        <joint name="${bot_name}_rear_right_wheel_joint" type="continuous">
+            <parent link="${bot_name}_base_link"/>
+            <child link="${bot_name}_rear_right_wheel_link"/>
             <origin xyz="-0.04 ${(base_width/2.0) + 0.016} -0.005" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
-        <joint name="front_left_wheel_joint" type="continuous">
-            <parent link="base_link"/>
-            <child link="front_left_wheel_link"/>
+        <joint name="${bot_name}_front_left_wheel_joint" type="continuous">
+            <parent link="${bot_name}_base_link"/>
+            <child link="${bot_name}_front_left_wheel_link"/>
             <origin xyz="0.04 ${-(base_width/2.0) - 0.016} -0.005" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
-        <joint name="front_right_wheel_joint" type="continuous">
-            <parent link="base_link"/>
-            <child link="front_right_wheel_link"/>
+        <joint name="${bot_name}_front_right_wheel_joint" type="continuous">
+            <parent link="${bot_name}_base_link"/>
+            <child link="${bot_name}_front_right_wheel_link"/>
             <origin xyz="0.04 ${(base_width/2.0) + 0.016} -0.005" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
         </joint>
 
 
-</robot>
-<!-- </xacro:macro> -->
+    </robot>
+</xacro:macro>
 
-<!-- <xacro:rear_wheel_link bot_name="twix"/>
-<xacro:rear_wheel_link bot_name="twirl"/> -->

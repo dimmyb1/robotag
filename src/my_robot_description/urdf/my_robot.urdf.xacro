@@ -9,3 +9,6 @@
     <xacro:include filename="camera.xacro" />
 
 </robot>
+
+<xacro:bot bot_name="twix"/>
+<xacro:bot bot_name="twirl"/>

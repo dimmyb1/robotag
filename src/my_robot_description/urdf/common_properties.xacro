@@ -18,6 +18,12 @@
     <material name="body_blue">
         <color rgba="0.09 0.46 0.71 1.0"/>
     </material>
+    <material name="twix">
+        <color rgba="1 1 0 1.0"/>
+    </material>
+    <material name="twirl">
+        <color rgba="0 1 0 1.0"/>
+    </material>
 
     <material name="accent_orange">
         <color rgba="0.95 0.47 0.14 1.0"/>
