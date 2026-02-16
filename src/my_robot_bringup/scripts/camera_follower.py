@@ -98,31 +98,31 @@ class CameraFollower(Node):
 
         # Subscriptions
         # Front camera for line-following
-        self.front_sub = self.create_subscription(
+        self.cam_sub = self.create_subscription(
             Image,
-            '/front_camera/image_raw',
+            '/camera/image_raw',
             self.front_callback,
             1
         )
 
         # Bottom-middle - bottom intersection arrival detection
-        self.bm_sub = self.create_subscription(
+        self.ir_sub = self.create_subscription(
             Image,
-            '/bm_camera/image_raw',
+            '/ir/image_raw',
             self.bm_callback,
             10
         )
 
         # Left - intersection / left line
-        self.bl_sub = self.create_subscription(
+        self.lidar_sub = self.create_subscription(
             Image,
-            '/bl_camera/image_raw',
+            '/sensor_msgs/LaserScan',
             self.bl_callback,
             10
         )
 
         # Right - intersection / right line
-        self.br_sub = self.create_subscription(
+        self.esp_sub = self.create_subscription(
             Image,
             '/br_camera/image_raw',
             self.br_callback,
