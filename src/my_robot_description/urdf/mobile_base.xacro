@@ -2,7 +2,6 @@
 
 
 <xacro:macro name="bot" params="bot_name">
-    <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
         <!-- Updated properties to match your robot model -->
         <xacro:property name="base_length" value="0.21"/>
@@ -128,6 +127,8 @@
         </joint>
 
 
-    </robot>
+    <xacro:ir_sensor botname="${bot_name}"/>
+    <xacro:camera_sensor botname="${bot_name}"/>
+    <xacro:ultrasonic_sensor botname="${bot_name}"/>
 </xacro:macro>
 
