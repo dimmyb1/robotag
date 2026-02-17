@@ -14,8 +14,8 @@
         <color rgba="0.5 0 0 1.0"/>
     </material>
 
-    <!-- Additional colors for your robot model -->
-    <material name="body_blue">
+    <!-- Robot Base Colour (Blue, Green, Yellow) -->
+    <material name="generic">
         <color rgba="0.09 0.46 0.71 1.0"/>
     </material>
     <material name="twix">

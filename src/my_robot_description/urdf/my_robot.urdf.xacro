@@ -9,7 +9,7 @@
     <xacro:include filename="camera.xacro" />
     <xacro:include filename="wheel.xacro"/>
 
-    <xacro:arg name="bot_name" default="twix"/>
+    <xacro:arg name="bot_name" default="generic"/>
     <xacro:bot bot_name="$(arg bot_name)"/>
 
 </robot>
