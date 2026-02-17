@@ -69,10 +69,10 @@
         </link>
 
         <!-- wheels -->
-        <xacro:wheel bot_name="${bot_name}" prefix="rear_left" invert_x="-1" invert_y="-1"/>
-        <xacro:wheel bot_name="${bot_name}" prefix="rear_right" invert_x="-1" invert_y="1"/>
-        <xacro:wheel bot_name="${bot_name}" prefix="front_left" invert_x="1" invert_y="-1"/>
-        <xacro:wheel bot_name="${bot_name}" prefix="front_right" invert_x="1" invert_y="1"/>    
+        <xacro:wheel bot_name="${bot_name}" prefix="rear_left" invert_x="-1" invert_y="1"/>
+        <xacro:wheel bot_name="${bot_name}" prefix="rear_right" invert_x="-1" invert_y="-1"/>
+        <xacro:wheel bot_name="${bot_name}" prefix="front_left" invert_x="1" invert_y="1"/>
+        <xacro:wheel bot_name="${bot_name}" prefix="front_right" invert_x="1" invert_y="-1"/>    
 
         <!-- sensors -->
         <xacro:ir_sensor bot_name="${bot_name}"/>
