@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<xacro:macro name="gazebo_file" params="bot_name" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:macro name="gazebo_file" params="bot_name" >
 
     <!-- Friction for wheels -->
     <gazebo reference="${bot_name}_rear_left_wheel_link">
@@ -53,3 +54,4 @@
     </gazebo>
 
 </xacro:macro>
+</robot>
