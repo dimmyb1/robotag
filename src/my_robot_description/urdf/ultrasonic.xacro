@@ -42,10 +42,10 @@
             <ray>
                 <scan>
                     <horizontal>
-                    <samples>720</samples>
-                    <resolution>1</resolution>
-                    <min_angle>-3.14159</min_angle>
-                    <max_angle>3.14159</max_angle>
+                        <samples>720</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-3.14159</min_angle>
+                        <max_angle>3.14159</max_angle>
                     </horizontal>
                 </scan>
                 <range>
@@ -55,14 +55,8 @@
                 </range>
             </ray>
 
-            <plugin name="gazebo_ros_laser" filename="libgazebo_ros_ray_sensor.so">
-            <ros>
-                <namespace>/</namespace>
-                <remapping>~/out:=scan</remapping>
-            </ros>
-            <output_type>sensor_msgs/LaserScan</output_type>
-            <frame_name>${bot_name}_lidar_link</frame_name>
-            </plugin>
+            <topic>${bot_name}/scan</topic>
+            <gz_frame_id>${bot_name}_lidar_link</gz_frame_id>
         </sensor>
     </gazebo>
 

@@ -79,54 +79,42 @@
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
 
-# Bottom-left camera
-- ros_topic_name: "/bl_camera/camera_info"
-  gz_topic_name: "/bl_camera/camera_info"
+# irs
+- ros_topic_name: "/twix_ir/camera_info"
+  gz_topic_name: "/twix_ir/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/bl_camera/image_raw"
-  gz_topic_name: "/bl_camera/image_raw"
+- ros_topic_name: "/twix_ir/image_raw"
+  gz_topic_name: "/twix_ir/image_raw"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
 
-# Bottom-middle camera
-- ros_topic_name: "/bm_camera/camera_info"
-  gz_topic_name: "/bm_camera/camera_info"
+- ros_topic_name: "/twirl_ir/camera_info"
+  gz_topic_name: "/twirl_ir/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/bm_camera/image_raw"
-  gz_topic_name: "/bm_camera/image_raw"
+- ros_topic_name: "/twirl_ir/image_raw"
+  gz_topic_name: "/twirl_ir/image_raw"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
 
-# Bottom-right camera
-- ros_topic_name: "/br_camera/camera_info"
-  gz_topic_name: "/br_camera/camera_info"
-  ros_type_name: "sensor_msgs/msg/CameraInfo"
-  gz_type_name: "gz.msgs.CameraInfo"
+# lidars
+- ros_topic_name: "/twix/scan"
+  gz_topic_name: "/twix/scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/br_camera/image_raw"
-  gz_topic_name: "/br_camera/image_raw"
-  ros_type_name: "sensor_msgs/msg/Image"
-  gz_type_name: "gz.msgs.Image"
+- ros_topic_name: "/twirl/scan"
+  gz_topic_name: "/twirl/scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
   direction: GZ_TO_ROS
 
-# Colour camera
-- ros_topic_name: "/colour_camera/camera_info"
-  gz_topic_name: "/colour_camera/camera_info"
-  ros_type_name: "sensor_msgs/msg/CameraInfo"
-  gz_type_name: "gz.msgs.CameraInfo"
-  direction: GZ_TO_ROS
-
-- ros_topic_name: "/colour_camera/image_raw"
-  gz_topic_name: "/colour_camera/image_raw"
-  ros_type_name: "sensor_msgs/msg/Image"
-  gz_type_name: "gz.msgs.Image"
-  direction: GZ_TO_ROS
+#ESPs ?
