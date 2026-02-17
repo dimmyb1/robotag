@@ -22,6 +22,12 @@
             <origin xyz="0 0 0.02"/>
         </joint>
 
+        <joint name="${bot_name}_world_joint" type="floating">
+            <parent link="world"/>
+            <child link="${bot_name}_base_footprint"/>
+            <origin xyz="0 0 0"/>
+        </joint>
+
         <!-- =============== -->
         <!-- Base link body  -->
         <!-- =============== -->
