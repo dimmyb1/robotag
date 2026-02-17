@@ -36,12 +36,17 @@
             <param name="robot_description"
                    value="$(command 'xacro $(var urdf_path) bot_name:=twix')" />
             <param name="use_sim_time" value="true" />
-            <param name="publish_robot_description" value="true" />
+            <!-- <param name="publish_robot_description" value="true" /> -->
+            <remap from="tf" to="/tf" />
+            <remap from="tf_static" to="/tf_static" />
         </node>
 
         <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" >
             <param name="use_sim_time" value="true" />
         </node>
+
+        <node pkg="tf2_ros" exec="static_transform_publisher" name="twix_world_tf"
+            args="-6.5 2.5 0 0 0 0 world twix_odom" value="true" />
 
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twix -x -6.5 -y 2.5 -z 0.875 -Y 3.14159" />
@@ -55,17 +60,22 @@
             <param name="robot_description"
                    value="$(command 'xacro $(var urdf_path) bot_name:=twirl')" />
             <param name="use_sim_time" value="true" />
-            <param name="publish_robot_description" value="true" />
+            <!-- <param name="publish_robot_description" value="true" /> -->
+            <remap from="tf" to="/tf" />
+            <remap from="tf_static" to="/tf_static" />
         </node>
 
         <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" >
             <param name="use_sim_time" value="true" />
         </node>
 
+        <node pkg="tf2_ros" exec="static_transform_publisher" name="twirl_world_tf"
+            args="-6.5 4.5 0 0 0 0 world twirl_odom" value="true" />
+
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twirl -x -6.5 -y 4.5 -z 0.875 -Y 3.14159" />
     </group>
-    
+
     <node pkg="ros_gz_bridge" exec="parameter_bridge">
         <param name="config_file" value="$(var gazebo_config_path)" />
     </node>
