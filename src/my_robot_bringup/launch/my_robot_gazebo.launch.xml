@@ -9,13 +9,13 @@
     <let name="rviz_config_path"
         value="$(find-pkg-share my_robot_description)/rviz/urdf_config.rviz" />
 
-    <node pkg="robot_state_publisher" exec="robot_state_publisher">
+    <!-- <node pkg="robot_state_publisher" exec="robot_state_publisher">
         <param name="robot_description"
                value="$(command 'xacro $(var urdf_path)')" />
         <param name="use_sim_time"
                 value="true" />
         <param name="publish_robot_description" value="true" />
-    </node>
+    </node> -->
 
     <include file = "$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
         <!-- <arg name="gz_args" value="empty.sdf -r"/> -->
@@ -23,13 +23,49 @@
         <arg name="gz_args" value="$(find-pkg-share my_robot_bringup)/worlds/hello_world.sdf -r"/>
     </include>
 
-    <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" >
+    <!-- <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" >
         <param name="use_sim_time"
                 value="true" />
-    </node>
+    </node> -->
 
     <node pkg="ros_gz_sim" exec="create" args="-topic /robot_description -name my_robot -x -6.5 -y 2.5 -z 0.875 -Y 3.14159" />
+    <group>
+        <push-ros-namespace namespace="twix"/>
+        
+        <node pkg="robot_state_publisher" exec="robot_state_publisher">
+            <param name="robot_description"
+                   value="$(command 'xacro $(var urdf_path) bot_name:=twix')" />
+            <param name="use_sim_time" value="true" />
+            <param name="publish_robot_description" value="true" />
+        </node>
 
+        <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" >
+            <param name="use_sim_time" value="true" />
+        </node>
+
+        <node pkg="ros_gz_sim" exec="create" 
+              args="-topic robot_description -name twix -x -6.5 -y 2.5 -z 0.875 -Y 3.14159" />
+    </group>
+
+
+    <group>
+        <push-ros-namespace namespace="twirl"/>
+        
+        <node pkg="robot_state_publisher" exec="robot_state_publisher">
+            <param name="robot_description"
+                   value="$(command 'xacro $(var urdf_path) bot_name:=twirl')" />
+            <param name="use_sim_time" value="true" />
+            <param name="publish_robot_description" value="true" />
+        </node>
+
+        <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" >
+            <param name="use_sim_time" value="true" />
+        </node>
+
+        <node pkg="ros_gz_sim" exec="create" 
+              args="-topic robot_description -name twirl -x -6.5 -y 4.5 -z 0.875 -Y 3.14159" />
+    </group>
+    
     <node pkg="ros_gz_bridge" exec="parameter_bridge">
         <param name="config_file" value="$(var gazebo_config_path)" />
     </node>

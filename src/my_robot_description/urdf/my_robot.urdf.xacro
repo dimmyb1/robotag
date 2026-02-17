@@ -12,6 +12,9 @@
     <xacro:bot bot_name="twix"/>
     <xacro:bot bot_name="twirl"/>
 
+    <xacro:arg name="bot_name" default="twix"/>
+    <xacro:bot bot_name="$(arg bot_name)"/>
+
 </robot>
 
 
