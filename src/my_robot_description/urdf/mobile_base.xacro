@@ -68,7 +68,15 @@
                     o_xyz="0 0 0" o_rpy="0 0 0"/>
         </link>
 
+        <!-- wheels -->
+
         <xacro:wheel bot_name="${bot_name}"/>
+
+        <xacro:wheel_link bot_name="${bot_name}" prefix="rear_left" invert_x="-1" invert_y="-1"/>
+        <xacro:wheel_link bot_name="${bot_name}" prefix="rear_right" invert_x="-1" invert_y="1"/>
+        <xacro:wheel_link bot_name="${bot_name}" prefix="front_left" invert_x="1" invert_y="-1"/>
+        <xacro:wheel_link bot_name="${bot_name}" prefix="front_right" invert_x="1" invert_y="1"/>    
+
         <xacro:ir_sensor bot_name="${bot_name}"/>
         <xacro:camera_sensor bot_name="${bot_name}"/>
         <xacro:ultrasonic_sensor bot_name="${bot_name}"/>
