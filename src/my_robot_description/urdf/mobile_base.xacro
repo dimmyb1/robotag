@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
-
-<xacro:macro name="bot" params="bot_name" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:macro name="bot" params="bot_name" >
 
         <!-- Updated properties to match your robot model -->
         <xacro:property name="base_length" value="0.21"/>
@@ -132,4 +132,5 @@
     <xacro:ultrasonic_sensor bot_name="${bot_name}"/>
     <xacro:gazebo_file bot_name="${bot_name}"/>
 </xacro:macro>
+</robot>
 

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<xacro:macro name="ir_sensor" params="bot_name" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:macro name="ir_sensor" params="bot_name" >
 
     <xacro:property name="ir_length" value="0.01" />
     <xacro:property name="ir_width" value="0.045" />
@@ -68,3 +69,4 @@
     </gazebo>
 
 </xacro:macro>
+</robot>

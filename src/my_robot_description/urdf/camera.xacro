@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<xacro:macro name="camera_sensor" params="bot_name" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:macro name="camera_sensor" params="bot_name" >
 
     <xacro:property name="camera_length" value="0.002" />
     <xacro:property name="camera_width" value="0.031" />
@@ -68,3 +69,4 @@
     </gazebo>
 
 </xacro:macro>
+</robot>
