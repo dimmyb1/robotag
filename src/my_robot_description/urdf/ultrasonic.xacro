@@ -37,7 +37,7 @@
     </joint>
 
     <gazebo reference="${bot_name}_lidar_link">
-        <sensor type="ray" name="lidar_sensor">
+        <sensor type="ray" name="${bot_name}_lidar_sensor">
             <update_rate>10.0</update_rate>
             <ray>
                 <scan>
@@ -60,8 +60,8 @@
                 <namespace>/</namespace>
                 <remapping>~/out:=scan</remapping>
             </ros>
-            <output_type>${bot_name}_sensor_msgs/LaserScan</output_type>
-            <frame_name>lidar_link</frame_name>
+            <output_type>sensor_msgs/LaserScan</output_type>
+            <frame_name>${bot_name}_lidar_link</frame_name>
             </plugin>
         </sensor>
     </gazebo>

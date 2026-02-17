@@ -1,57 +1,57 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-<xacro:macro name="gazebo_file" params="bot_name" >
+    <xacro:macro name="gazebo_file" params="bot_name" >
 
-    <!-- Friction for wheels -->
-    <gazebo reference="${bot_name}_rear_left_wheel_link">
-        <mu1 value="1" />
-        <mu2 value="1" />
-    </gazebo>
+        <!-- Friction for wheels -->
+        <gazebo reference="${bot_name}_rear_left_wheel_link">
+            <mu1 value="1" />
+            <mu2 value="1" />
+        </gazebo>
 
-    <gazebo reference="${bot_name}_rear_right_wheel_link">
-        <mu1 value="1" />
-        <mu2 value="1" />
-    </gazebo>
-    
-     <gazebo reference="${bot_name}_front_left_wheel_link">
-        <mu1 value="1" />
-        <mu2 value="1" />
-    </gazebo>
+        <gazebo reference="${bot_name}_rear_right_wheel_link">
+            <mu1 value="1" />
+            <mu2 value="1" />
+        </gazebo>
+        
+        <gazebo reference="${bot_name}_front_left_wheel_link">
+            <mu1 value="1" />
+            <mu2 value="1" />
+        </gazebo>
 
-    <gazebo reference="${bot_name}_front_right_wheel_link">
-        <mu1 value="1" />
-        <mu2 value="1" />
-    </gazebo>
+        <gazebo reference="${bot_name}_front_right_wheel_link">
+            <mu1 value="1" />
+            <mu2 value="1" />
+        </gazebo>
 
-    <!-- Differential Drive Plugin -->
-    <gazebo>
-        <plugin
-            filename="gz-sim-diff-drive-system"
-            name="gz::sim::systems::DiffDrive">
-            <left_joint>rear_left_wheel_joint</left_joint>
-            <right_joint>rear_right_wheel_joint</right_joint>
-            <wheel_separation>0.124</wheel_separation>
-            <wheel_radius>0.032</wheel_radius>
+        <!-- Differential Drive Plugin -->
+        <gazebo>
+            <plugin
+                filename="gz-sim-diff-drive-system"
+                name="gz::sim::systems::DiffDrive">
+                <left_joint>${bot_name}_rear_left_wheel_joint</left_joint>
+                <right_joint>${bot_name}_rear_right_wheel_joint</right_joint>
+                <wheel_separation>0.124</wheel_separation>
+                <wheel_radius>0.032</wheel_radius>
 
-            <max_wheel_torque>100</max_wheel_torque>
-            <max_wheel_acceleration>2.0</max_wheel_acceleration>
+                <max_wheel_torque>100</max_wheel_torque>
+                <max_wheel_acceleration>2.0</max_wheel_acceleration>
 
-            <frame_id>odom</frame_id>
-            <child_frame_id>base_footprint</child_frame_id>
-        </plugin>
-    </gazebo>
+                <frame_id>odom</frame_id>
+                <child_frame_id>${bot_name}_base_footprint</child_frame_id>
+            </plugin>
+        </gazebo>
 
-    <!-- Joint State Publisher -->
-    <gazebo>
-        <plugin
-            filename="gz-sim-joint-state-publisher-system"
-            name="gz::sim::systems::JointStatePublisher">
-            <joint_name>${bot_name}_rear_left_wheel_joint</joint_name>
-            <joint_name>${bot_name}_rear_right_wheel_joint</joint_name>
-            <joint_name>${bot_name}_front_left_wheel_link</joint_name>
-            <joint_name>${bot_name}_front_right_wheel_link</joint_name>
-        </plugin>
-    </gazebo>
+        <!-- Joint State Publisher -->
+        <gazebo>
+            <plugin
+                filename="gz-sim-joint-state-publisher-system"
+                name="gz::sim::systems::JointStatePublisher">
+                <joint_name>${bot_name}_rear_left_wheel_joint</joint_name>
+                <joint_name>${bot_name}_rear_right_wheel_joint</joint_name>
+                <joint_name>${bot_name}_front_left_wheel_joint</joint_name>
+                <joint_name>${bot_name}_front_right_wheel_joint</joint_name>
+            </plugin>
+        </gazebo>
 
-</xacro:macro>
+    </xacro:macro>
 </robot>
