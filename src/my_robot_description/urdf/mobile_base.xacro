@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-<xacro:macro name="bot" params="bot_name" >
+    <xacro:macro name="bot" params="bot_name" >
 
         <!-- Updated properties to match your robot model -->
         <xacro:property name="base_length" value="0.21"/>
@@ -68,69 +68,11 @@
                     o_xyz="0 0 0" o_rpy="0 0 0"/>
         </link>
 
-        
-        <!-- ============================ -->
-        <!-- Rear Wheels (Driven)        -->
-        <!-- ============================ -->
-        <xacro:macro name="wheel_link" params="bot_name prefix">
-            <link name="${bot_name}_${prefix}_wheel_link">
-                <visual>
-                    <geometry>
-                        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
-                    </geometry>
-                    <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
-                    <material name="rubber_black"/>
-                </visual>
-                <collision>
-                    <geometry>
-                        <sphere radius="${wheel_radius}"/>
-                    </geometry>
-                    <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
-                </collision>
-                <xacro:cylinder_inertia m="1.0" r="${wheel_radius}" l="${wheel_length}" 
-                                        o_xyz="0 0 0" o_rpy="${pi/2.0} 0 0"/>
-            </link>
-        </xacro:macro>
-
-        <xacro:wheel_link bot_name="${bot_name}" prefix="rear_left"/>
-        <xacro:wheel_link bot_name="${bot_name}" prefix="rear_right"/>
-        <xacro:wheel_link bot_name="${bot_name}" prefix="front_left"/>
-        <xacro:wheel_link bot_name="${bot_name}" prefix="front_right"/>
-
-
-        <joint name="${bot_name}_rear_left_wheel_joint" type="continuous">
-            <parent link="${bot_name}_base_link"/>
-            <child link="${bot_name}_rear_left_wheel_link"/>
-            <origin xyz="-0.04 ${-(base_width/2.0) - 0.016} -0.005" rpy="0 0 0"/>
-            <axis xyz="0 1 0"/>
-        </joint>
-
-        <joint name="${bot_name}_rear_right_wheel_joint" type="continuous">
-            <parent link="${bot_name}_base_link"/>
-            <child link="${bot_name}_rear_right_wheel_link"/>
-            <origin xyz="-0.04 ${(base_width/2.0) + 0.016} -0.005" rpy="0 0 0"/>
-            <axis xyz="0 1 0"/>
-        </joint>
-
-        <joint name="${bot_name}_front_left_wheel_joint" type="continuous">
-            <parent link="${bot_name}_base_link"/>
-            <child link="${bot_name}_front_left_wheel_link"/>
-            <origin xyz="0.04 ${-(base_width/2.0) - 0.016} -0.005" rpy="0 0 0"/>
-            <axis xyz="0 1 0"/>
-        </joint>
-
-        <joint name="${bot_name}_front_right_wheel_joint" type="continuous">
-            <parent link="${bot_name}_base_link"/>
-            <child link="${bot_name}_front_right_wheel_link"/>
-            <origin xyz="0.04 ${(base_width/2.0) + 0.016} -0.005" rpy="0 0 0"/>
-            <axis xyz="0 1 0"/>
-        </joint>
-
-
-    <xacro:ir_sensor bot_name="${bot_name}"/>
-    <xacro:camera_sensor bot_name="${bot_name}"/>
-    <xacro:ultrasonic_sensor bot_name="${bot_name}"/>
-    <xacro:gazebo_file bot_name="${bot_name}"/>
-</xacro:macro>
+        <xacro:wheel bot_name="${bot_name}"/>
+        <xacro:ir_sensor bot_name="${bot_name}"/>
+        <xacro:camera_sensor bot_name="${bot_name}"/>
+        <xacro:ultrasonic_sensor bot_name="${bot_name}"/>
+        <xacro:gazebo_file bot_name="${bot_name}"/>
+    </xacro:macro>
 </robot>
 
