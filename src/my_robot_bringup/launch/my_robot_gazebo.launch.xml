@@ -46,7 +46,7 @@
         </node>
 
         <node pkg="tf2_ros" exec="static_transform_publisher" name="twix_world_tf"
-            args="-6.5 2.5 0 0 0 0 world twix_odom" value="true" />
+            args="-6.5 2.5 0 0 0 0 world twix_odom" />
 
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twix -x -6.5 -y 2.5 -z 0.875 -Y 3.14159" />
@@ -70,7 +70,7 @@
         </node>
 
         <node pkg="tf2_ros" exec="static_transform_publisher" name="twirl_world_tf"
-            args="-6.5 4.5 0 0 0 0 world twirl_odom" value="true" />
+            args="-6.5 4.5 0 0 0 0 world twirl_odom" />
 
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twirl -x -6.5 -y 4.5 -z 0.875 -Y 3.14159" />
