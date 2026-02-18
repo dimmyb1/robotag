@@ -67,11 +67,11 @@
     <node pkg="rviz2" exec="rviz2" output="screen" 
           args="-d $(var rviz_config_path)" />
 
-    <node pkg="ros_simple_follower" exec="laserTracker.py" name="twix_laser_tracker">
+    <node pkg="simple_follower" exec="laserTracker.py" name="twix_laser_tracker">
         <remap from="/scan" to="/twix/scan" />
     </node>
 
-    <node pkg="ros_simple_follower" exec="follower.py" name="twix_follower">
+    <node pkg="simple_follower" exec="follower.py" name="twix_follower">
         <remap from="/cmd_vel" to="/twix/cmd_vel" />
     </node>
 </launch>
