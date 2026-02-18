@@ -1,0 +1,77 @@
+<launch>
+
+    <let name="urdf_path"
+        value="$(find-pkg-share my_robot_description)/urdf/my_robot.urdf.xacro" />
+
+    <let name ="gazebo_config_path"
+        value="$(find-pkg-share my_robot_bringup)/config/gazebo_bridge.yaml" />
+
+    <let name="rviz_config_path"
+        value="$(find-pkg-share my_robot_description)/rviz/two_robots_config.rviz" />
+
+    <include file = "$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+        <arg name="gz_args" value="$(find-pkg-share my_robot_bringup)/worlds/empty_world.sdf -r"/>
+    </include>
+
+    <group>
+        <push-ros-namespace namespace="twix"/>
+        
+        <node pkg="robot_state_publisher" exec="robot_state_publisher">
+            <param name="robot_description"
+                   value="$(command 'xacro $(var urdf_path) bot_name:=twix')" />
+            <param name="use_sim_time" value="true" />
+            <!-- <param name="publish_robot_description" value="true" /> -->
+            <remap from="tf" to="/tf" />
+            <remap from="tf_static" to="/tf_static" />
+        </node>
+
+        <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" >
+            <param name="use_sim_time" value="true" />
+        </node>
+
+        <node pkg="tf2_ros" exec="static_transform_publisher" name="twix_world_tf"
+            args="-6.5 2.5 0 0 0 0 world twix_odom" />
+
+        <node pkg="ros_gz_sim" exec="create" 
+              args="-topic robot_description -name twix -x -6.5 -y 2.5 -z 0.875 -Y 3.14159" />
+    </group>
+
+
+    <group>
+        <push-ros-namespace namespace="twirl"/>
+        
+        <node pkg="robot_state_publisher" exec="robot_state_publisher">
+            <param name="robot_description"
+                   value="$(command 'xacro $(var urdf_path) bot_name:=twirl')" />
+            <param name="use_sim_time" value="true" />
+            <!-- <param name="publish_robot_description" value="true" /> -->
+            <remap from="tf" to="/tf" />
+            <remap from="tf_static" to="/tf_static" />
+        </node>
+
+        <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" >
+            <param name="use_sim_time" value="true" />
+        </node>
+
+        <node pkg="tf2_ros" exec="static_transform_publisher" name="twirl_world_tf"
+            args="-6.5 4.5 0 0 0 0 world twirl_odom" />
+
+        <node pkg="ros_gz_sim" exec="create" 
+              args="-topic robot_description -name twirl -x -6.5 -y 4.5 -z 0.875 -Y 3.14159" />
+    </group>
+
+    <node pkg="ros_gz_bridge" exec="parameter_bridge">
+        <param name="config_file" value="$(var gazebo_config_path)" />
+    </node>
+
+    <node pkg="rviz2" exec="rviz2" output="screen" 
+          args="-d $(var rviz_config_path)" />
+
+    <node pkg="ros_simple_follower" exec="laserTracker.py" name="twix_laser_tracker">
+        <remap from="/scan" to="/twix/scan" />
+    </node>
+
+    <node pkg="ros_simple_follower" exec="follower.py" name="twix_follower">
+        <remap from="/cmd_vel" to="/twix/cmd_vel" />
+    </node>
+</launch>
