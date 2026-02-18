@@ -38,6 +38,8 @@
 
                 <frame_id>${bot_name}_odom</frame_id>
                 <child_frame_id>${bot_name}_base_footprint</child_frame_id>
+
+                <topic>${bot_name}/cmd_vel</topic>
             </plugin>
         </gazebo>
 
