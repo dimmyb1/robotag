@@ -117,10 +117,17 @@
   gz_type_name: "gz.msgs.LaserScan"
   direction: GZ_TO_ROS
 
-# FOR CONTROLLING TWIRL (TESTING VIA TELEOP KEYBOARD)
+# FOR CONTROLLING  (TESTING VIA TELEOP KEYBOARD)
 - ros_topic_name: "/twirl/cmd_vel"
   gz_topic_name: "/twirl/cmd_vel"
   ros_type_name: "sensor_msgs/msg/Twist"
   gz_type_name: "gz.msgs.Twist"
   direction: ROS_TO_GZ
+
+- ros_topic_name: "/twix/cmd_vel"
+  gz_topic_name: "/twix/cmd_vel"
+  ros_type_name: "sensor_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
 #ESPs ?
