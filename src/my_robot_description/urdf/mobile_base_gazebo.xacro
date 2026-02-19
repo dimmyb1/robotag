@@ -29,7 +29,11 @@
                 filename="gz-sim-diff-drive-system"
                 name="gz::sim::systems::DiffDrive">
                 <left_joint>${bot_name}_rear_left_wheel_joint</left_joint>
+                <left_joint>${bot_name}_front_left_wheel_joint</left_joint>
+                
                 <right_joint>${bot_name}_rear_right_wheel_joint</right_joint>
+                <right_joint>${bot_name}_front_right_wheel_joint</right_joint>
+
                 <wheel_separation>0.124</wheel_separation>
                 <wheel_radius>0.032</wheel_radius>
 
