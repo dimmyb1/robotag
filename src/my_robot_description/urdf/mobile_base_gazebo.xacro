@@ -4,23 +4,23 @@
 
         <!-- Friction for wheels -->
         <gazebo reference="${bot_name}_rear_left_wheel_link">
-            <mu1 value="1" />
-            <mu2 value="1" />
+            <mu1 value="0.5" />
+            <mu2 value="0.5" />
         </gazebo>
 
         <gazebo reference="${bot_name}_rear_right_wheel_link">
-            <mu1 value="1" />
-            <mu2 value="1" />
+            <mu1 value="0.5" />
+            <mu2 value="0.5" />
         </gazebo>
         
         <gazebo reference="${bot_name}_front_left_wheel_link">
-            <mu1 value="1" />
-            <mu2 value="1" />
+            <mu1 value="0.5" />
+            <mu2 value="0.5" />
         </gazebo>
 
         <gazebo reference="${bot_name}_front_right_wheel_link">
-            <mu1 value="1" />
-            <mu2 value="1" />
+            <mu1 value="0.5" />
+            <mu2 value="0.5" />
         </gazebo>
 
         <!-- Differential Drive Plugin -->
@@ -30,7 +30,7 @@
                 name="gz::sim::systems::DiffDrive">
                 <left_joint>${bot_name}_rear_left_wheel_joint</left_joint>
                 <left_joint>${bot_name}_front_left_wheel_joint</left_joint>
-                
+
                 <right_joint>${bot_name}_rear_right_wheel_joint</right_joint>
                 <right_joint>${bot_name}_front_right_wheel_joint</right_joint>
 
