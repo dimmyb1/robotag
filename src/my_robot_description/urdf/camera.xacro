@@ -31,7 +31,7 @@
     <link name="${bot_name}_camera_link_optical" />
 
     <joint name="${bot_name}_optical_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+        <origin xyz="0 0 0" rpy="0 0 {pi}"/>
         <parent link="${bot_name}_camera_link"/>
         <child link="${bot_name}_camera_link_optical"/>
     </joint>
@@ -46,7 +46,7 @@
                     <format>R8G8B8</format>
                 </image>
                 <clip>
-                    <near>0.1</near>
+                    <near>0.0001</near>
                     <far>15</far>
                 </clip>
                 <noise>
