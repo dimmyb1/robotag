@@ -31,7 +31,7 @@
     <link name="${bot_name}_camera_link_optical" />
 
     <joint name="${bot_name}_optical_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="0 0 {pi}"/>
+        <origin xyz="0 0 0" rpy="0 0 ${pi}"/>
         <parent link="${bot_name}_camera_link"/>
         <child link="${bot_name}_camera_link_optical"/>
     </joint>
