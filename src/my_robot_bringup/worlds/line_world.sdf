@@ -69,8 +69,43 @@
       <pose>0 0 0 0 0 0</pose>
       <self_collide>false</self_collide>
     </model>
+
+    <model name="circuit_0">
+      <static>true</static> 
+      <pose>6 0 0.025 0 0 0</pose>
+      
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>2.53 2.36</size> 
+            </plane>
+          </geometry>
+          
+          <material>
+            <diffuse>1 1 1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_map>textures/base_path.png</albedo_map>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>2.53 2.36</size>
+            </plane>
+          </geometry>
+        </collision>
+
+      </link>
+    </model>
     
-    <model name="path">
+    <model name="circuit_1">
       <static>true</static> 
       <pose>0 0 0.025 0 0 0</pose>
       
