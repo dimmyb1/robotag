@@ -14,5 +14,3 @@
     <xacro:bot bot_name="$(arg bot_name)"/>
 
 </robot>
-
-

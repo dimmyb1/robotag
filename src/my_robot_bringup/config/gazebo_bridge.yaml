@@ -117,6 +117,19 @@
   gz_type_name: "gz.msgs.LaserScan"
   direction: GZ_TO_ROS
 
+#MPU6050s
+- ros_topic_name: "/twirl/imu"
+  gz_topic_name: "/twirl/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twix/imu"
+  gz_topic_name: "/twix/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
 # FOR CONTROLLING  (TESTING VIA TELEOP KEYBOARD)
 - ros_topic_name: "/twirl/cmd_vel"
   gz_topic_name: "/twirl/cmd_vel"
