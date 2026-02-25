@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="mpu_sensor" params="bot_name">
+        <xacro:property name="mpu_length" value="0.004" />
+        <xacro:property name="mpu_width" value="0.004" />
+        <xacro:property name="mpu_height" value="0.001" />
+
+        <link name="${bot_name}_mpu_link">
+            <visual>
+                <geometry>
+                    <box size="${mpu_length} ${mpu_width} ${mpu_height}" />
+                </geometry>
+                <material name="grey" />
+            </visual>
+            <collision>
+                <geometry>
+                    <box size="${mpu_length} ${mpu_width} ${mpu_height}" />
+                </geometry>
+            </collision>
+            <xacro:box_inertia m="0.1" x="${mpu_length}" y="${mpu_width}" z="${mpu_height}"
+                            o_xyz="0 0 0" o_rpy="0 0 0" />
+        </link>
+
+        <joint name="${bot_name}_base_mpu_joint" type="fixed">
+            <parent link="${bot_name}_base_link" />
+            <child link="${bot_name}_mpu_link" />
+            <origin xyz="0.0035 -0.032 0.0525" rpy="0 0 0" />
+            <preserveFixedJoint>tru</preserveFixedJoint>
+        </joint>
+
+        <gazebo reference="${bot_name}_mpu_link">
+            <sensor type="imu" name="${bot_name}_imu_sensor">
+                <always_on>true</always_on>
+                <update_rate>100</update_rate> <visualize>true</visualize>
+                <topic>/${bot_name}/imu</topic>
+                <imu>
+                    <angular_velocity>
+                        <x>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>2e-4</stddev> <bias_mean>0.0000075</bias_mean>
+                                <bias_stddev>0.0000008</bias_stddev>
+                            </noise>
+                        </x>
+                        </angular_velocity>
+                    <linear_acceleration>
+                        <x>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>1.7e-2</stddev> <bias_mean>0.1</bias_mean>
+                                <bias_stddev>0.001</bias_stddev>
+                            </noise>
+                        </x>
+                        </linear_acceleration>
+                </imu>
+            </sensor>
+        </gazebo>
+    </xacro:macro>
+</robot>
