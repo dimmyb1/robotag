@@ -76,7 +76,9 @@
 
         <!-- sensors -->
         <xacro:ir_sensor bot_name="${bot_name}"/>
-        <xacro:camera_sensor bot_name="${bot_name}"/>
+        <xacro:camera_sensor bot_name="${bot_name}" position_name="L" />
+        <xacro:camera_sensor bot_name="${bot_name}" position_name="M" />
+        <xacro:camera_sensor bot_name="${bot_name}" position_name="R" />
         <xacro:ultrasonic_sensor bot_name="${bot_name}"/>
         <xacro:mpu_sensor bot_name="${bot_name}"/>
         <!-- gazebo -->

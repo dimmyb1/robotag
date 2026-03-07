@@ -55,26 +55,74 @@
 #   direction: GZ_TO_ROS
 
 # cameras
-- ros_topic_name: "/twix_camera/camera_info"
-  gz_topic_name: "/twix_camera/camera_info"
+- ros_topic_name: "/twix_camera_L/camera_info"
+  gz_topic_name: "/twix_camera_L/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/twix_camera/image_raw"
-  gz_topic_name: "/twix_camera/image_raw"
+- ros_topic_name: "/twix_camera_L/image_raw"
+  gz_topic_name: "/twix_camera_L/image_raw"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/twirl_camera/camera_info"
-  gz_topic_name: "/twirl_camera/camera_info"
+- ros_topic_name: "/twirl_camera_L/camera_info"
+  gz_topic_name: "/twirl_camera_L/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/twirl_camera/image_raw"
-  gz_topic_name: "/twirl_camera/image_raw"
+- ros_topic_name: "/twirl_camera_L/image_raw"
+  gz_topic_name: "/twirl_camera_L/image_raw"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twix_camera_M/camera_info"
+  gz_topic_name: "/twix_camera_M/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twix_camera_M/image_raw"
+  gz_topic_name: "/twix_camera_M/image_raw"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twirl_camera_M/camera_info"
+  gz_topic_name: "/twirl_camera_M/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twirl_camera_M/image_raw"
+  gz_topic_name: "/twirl_camera_M/image_raw"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twix_camera_R/camera_info"
+  gz_topic_name: "/twix_camera_R/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twix_camera_R/image_raw"
+  gz_topic_name: "/twix_camera_R/image_raw"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twirl_camera_R/camera_info"
+  gz_topic_name: "/twirl_camera_R/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/twirl_camera_R/image_raw"
+  gz_topic_name: "/twirl_camera_R/image_raw"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
