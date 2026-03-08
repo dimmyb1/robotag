@@ -18,83 +18,80 @@ import subprocess
 class line_follower():
     def __init__(self):
         # Array to store the 3 read sensors
-        colours = [0,0,0]
+        self.colours = [0,0,0]
         # Speed for every movement except right turning 
-        speed = 60
+        self.speed = 60
         # Counter to hold which angles we have searched so that the robot does not move random angles used in the switch case
-        searchStep = 0
+        self.searchStep = 0
 
         # Calibrated black colour minimum and maximum
         # These might be changed for the actual demo during preperation time
-        blackMax = 900
-        blackMin = 500
+        self. blackMax = 900
+        self.blackMin = 500
 
         # ants that will be used throughout
-        realDelay = 150
+        self.realDelay = 150
         # Ammount to move for angles
-        rightThirty = 500
-        leftThirty = 500
-        leftSixty = 1200
-        rightSixty = 1000
-        leftNinety = 1600
-        rightNinety = 1400
-        leftOneEighty = 3200
+        self.rightThirty = 500
+        self.leftThirty = 500
+        self.leftSixty = 1200
+        self.rightSixty = 1000
+        self.leftNinety = 1600
+        self.rightNinety = 1400
+        self.leftOneEighty = 3200
         # rightOneEighty = 3000 # Not tested (not used)
         # fullRot = realDelay*39 # Not tested (not used)
+        self.ir_M_detected = False
+        self.ir_L_detected = False
+        self.ir_R_detected = False
 
+        
         # Subscriptions
-        # Front camera for line-following
-        self.cam_sub = self.create_subscription(
-            Image,
-            '/camera/image_raw',
-            self.front_callback,
-            1
-        )
-
-        # Bottom-middle - bottom intersection arrival detection
         self.ir_L_sub = self.create_subscription(
             Image,
             '/ir/image_raw',
-            self.bm_callback,
-            10
+            self.ir_L_callback,
+            1
         )
         self.ir_M_sub = self.create_subscription(
             Image,
             '/ir/image_raw',
-            self.bm_callback,
-            10
+            self.ir_M_callback,
+            1
         )
         self.ir_R_sub = self.create_subscription(
             Image,
             '/ir/image_raw',
-            self.bm_callback,
-            10
+            self.ir_R_callback,
+            1
         )
 
-        # Left - intersection / left line
-        self.lidar_sub = self.create_subscription(
-            Image,
-            '/sensor_msgs/LaserScan',
-            self.bl_callback,
-            10
-        )
+    def detect_black(self, hsv):
+        # returns a mask of black pixels in the image
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([26, 26, 26])
+        return cv2.inRange(hsv, lower_black, upper_black)
+    
+    def ir_M_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
 
-        # Right - intersection / right line
-        self.esp_sub = self.create_subscription(
-            Image,
-            '/br_camera/image_raw',
-            self.br_callback,
-            10
-        )
+        # Check if robot CENTRE is over magenta - intersection confirmation
+        self.ir_M_detected = self.detect_black(img)
+        
+    def ir_L_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
 
-        # Odometry subscriber
-        self.odom_sub = self.create_subscription(
-            Odometry,
-            '/odom',
-            self.odom_callback,
-            10
-        )
+        # Check if robot CENTRE is over magenta - intersection confirmation
+        self.ir_L_detected = self.detect_black(img)
 
+    def ir_R_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+
+        # Check if robot CENTRE is over magenta - intersection confirmation
+        self.ir_R_detected = self.detect_black(img)
 
     # --------------------------
     # Motor Control Functions
