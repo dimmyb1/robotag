@@ -34,6 +34,11 @@
 
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twix -x -0.35 -y -0.43 -z 0.875 -Y 3.14159" />
+
+        <node pkg="my_robot_bringup"
+          exec="line_follower.py"
+          name="line_follower"
+          output="screen"/>
     </group>
 
 
@@ -58,6 +63,11 @@
 
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twirl -x 0.68 -y 0.60 -z 0.875 -Y 3.14159" />
+
+        <node pkg="my_robot_bringup"
+          exec="line_follower.py"
+          name="line_follower"
+          output="screen"/>
     </group>
 
     <node pkg="ros_gz_bridge" exec="parameter_bridge">
@@ -67,11 +77,5 @@
     <node pkg="rviz2" exec="rviz2" output="screen" 
           args="-d $(var rviz_config_path)" />
 
-    <node pkg="my_robot_bringup" exec="tsp_route_calculator.py" output="screen"/>
 
-    <node pkg="my_robot_bringup" exec="deliver_robot_tsp_client.py" output="screen"/>
-
-    <node pkg="my_robot_bringup" exec="camera_follower.py" output="screen"/>
-
-    <node pkg="my_robot_bringup" exec="box_spawner.py" output="screen"/>
 </launch>
