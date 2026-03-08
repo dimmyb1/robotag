@@ -14,8 +14,9 @@ from std_msgs.msg import String
 import json
 from rclpy.qos import QoSProfile, DurabilityPolicy
 import subprocess
+import time
 
-class line_follower():
+class line_follower(Node):
     def __init__(self):
         # Array to store the 3 read sensors
         self.colours = [0,0,0]
@@ -41,7 +42,9 @@ class line_follower():
         self.leftOneEighty = 3200
         # rightOneEighty = 3000 # Not tested (not used)
         # fullRot = realDelay*39 # Not tested (not used)
-
+        self.motion_active = False
+        self.motion_end_time = 0
+        self.current_motion = None
 
         # Subscriptions
         self.ir_L_sub = self.create_subscription(
@@ -62,6 +65,11 @@ class line_follower():
             self.ir_R_callback,
             1
         )
+
+        self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd = Twist()
+
+        self.timer = self.create_timer(0.05, self.loop)
 
     def detect_black(self, hsv):
         # returns a mask of black pixels in the image
@@ -93,38 +101,33 @@ class line_follower():
     # --------------------------
     # Motor Control Functions
     # --------------------------
-    def moveFwd(self, speed) :
-        self.cmd.linear.x = speed
+    def start_motion(self, linear=0.0, angular=0.0, duration_ms=0):
+        self.cmd.linear.x = linear
+        self.cmd.angular.z = angular
         self.publisher.publish(self.cmd)
 
-    def moveRev(self, speed) :
-        self.cmd.linear.x = - speed
-        self.publisher.publish(self.cmd)
+        self.motion_active = True
+        self.motion_end_time = time.time() + (duration_ms / 1000.0)
+
+    def update_motion(self):
+        if self.motion_active and time.time() >= self.motion_end_time:
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = 0.0
+            self.publisher.publish(self.cmd)
+            self.motion_active = False
 
     def stopMov(self) :
-        self.cmd.angular.z = 0.0
-        self.cmd.linear.x = 0.0
-        self.publisher.publish(self.cmd)
-
-    def delay(self, dummyVar) :
-        #create a timer
-        dummyVar+=0
-
+        self.start_motion()
+        
     # --------------------------
     # Basic Turning Functions
     # --------------------------
 
-    def turnRight(self, speed, realDelay) :
-        speed = 70
-        self.cmd.angular.z = speed
-        self.delay(realDelay)
-        self.stopMov()
-        speed = 60
+    def turnRight(self, speed, duration):
+        self.start_motion(angular=speed, duration_ms=duration)
 
     def turnLeft(self, speed, realDelay) :
-        self.cmd.angular.z = speed
-        self.delay(realDelay)
-        self.stopMov()
+        self.start_motion(angular=speed, duration_ms=duration)
 
 
     def smartTurnRight(self, totalDuration,stepDelay = 100) :
@@ -166,12 +169,14 @@ class line_follower():
         
 
     def loop(self):
-        self.get_logger().info(f"ITR20001_getAnaloguexxx_L={self.colours[0]}")
-        self.get_logger().info(f"ITR20001_getAnaloguexxx_M={self.colours[1]}")
-        self.get_logger().info(f"ITR20001_getAnaloguexxx_R={self.colours[2]}")
+        # self.get_logger().info(f"ITR20001_getAnaloguexxx_L={self.colours[0]}")
+        # self.get_logger().info(f"ITR20001_getAnaloguexxx_M={self.colours[1]}")
+        # self.get_logger().info(f"ITR20001_getAnaloguexxx_R={self.colours[2]}")
 
-        # Call the follow line function
-        self.followLine()
+        self.update_motion()
+
+        if not self.motion_active:
+            self.followLine()
 
     
     def main() :
@@ -192,79 +197,47 @@ class line_follower():
         rclpy.shutdown()
         
     
-    def moveForwardWhileOnTrack(self) :
-        # Move foward
-        self.moveFwd()
-        # Scan
-        while (True):
-            # If the middle is not black
-            if (not (self.blackMin < self.colours[1] < self.blackMax)) :
-                # Stop moving and return
-                self.stopMov()
-                break
-            
-            self.delay(10) # micro-loop
+    def moveForwardWhileOnTrack(self):
+        self.start_motion(linear=1.0)
         
 
+    def search(self):
+        if self.searchStep == 0:
+            self.turnRight(1.0, self.rightThirty)
+
+        elif self.searchStep == 1:
+            self.turnLeft(1.0, self.leftSixty)
+
+        elif self.searchStep == 2:
+            self.turnRight(1.0, self.rightNinety)
+
+        elif self.searchStep == 3:
+            self.turnLeft(1.0, self.leftNinety)
+
+        elif self.searchStep == 4:
+            self.turnLeft(1.0, self.leftOneEighty)
+
+        else:
+            self.start_motion(linear=-1.0, duration_ms=self.realDelay)
+            self.searchStep = 0
+            return
+
+        self.searchStep += 1
 
     def followLine(self):
-        #colours[] -> 0:L, 1:M, 2:R
-        if(self.blackMin < self.colours[1] < self.blackMax): #if M==black, move forward
-            self.moveForwardWhileOnTrack()
-        elif (self.blackMin < self.colours[0] < self.blackMax) :#if L==black, turn a bit to the left to correct
-            self.turnLeft(self.realDelay)
-        elif (self.blackMin < self.colours[2] < self.blackMax):#if R==black, turn a bit to the right to correct
-            self.turnRight(self.realDelay)
-        #if nowhere is black, try to find the path again.
+
+        L = self.colours[0]
+        M = self.colours[1]
+        R = self.colours[2]
+
+        if self.blackMin < M < self.blackMax:
+            self.start_motion(linear=1.0)
+
+        elif self.blackMin < L < self.blackMax:
+            self.turnLeft(1.0, self.realDelay)
+
+        elif self.blackMin < R < self.blackMax:
+            self.turnRight(-1.0, self.realDelay)
+
         else:
-            found = False
-            if searchStep == 0:
-                self.get_logger().info("Search Step 0: Turn right 30")
-                # Turn 30 right whilst searching 
-                found = self.smartTurnRight(self.rightThirty)
-            elif searchStep == 1: 
-                self.get_logger().info("Search Step 1: Turn left 60")
-                # Turn 30 left to reset
-                self.turnLeft(self.leftThirty)
-                # Turn 60 left whilst searching 
-                found = self.smartTurnLeft(self.leftSixty)
-                    
-            elif searchStep == 2:
-                self.get_logger().info("Search Step 2: Turn right 90")
-                # Turn 60 right to reset
-                self.turnRight(self.rightSixty)
-                # Turn 90 right whilst searching 
-                found = self.smartTurnRight(self.rightNinety)
-                    
-            elif searchStep == 3:
-                self.get_logger().info("Search Step 3: Turn left 90")
-                # Turn 90 left to reset
-                self.turnLeft(self.leftNinety)
-                # Turn 90 left whilst searching 
-                found = self.smartTurnLeft(self.leftNinety)
-                    
-            elif searchStep == 4:
-                self.get_logger().info("Search Step 4: Turn left 180")
-                # Turn 180 left whilst searching - only 90 left to turn 180
-                found = self.smartTurnLeft(self.leftNinety)
-                    
-            elif searchStep == 5:
-                self.get_logger().info("Search Step 5: Turn left 360")
-                # Turn a whole turn whilst searching 
-                found = self.smartTurnLeft(self.leftOneEighty)
-                    
-            else:
-                self.get_logger().info("Search failed. Reversing...")
-                # Reverse and restart the loop
-                self.moveRev()
-                self.delay(self.realDelay)
-                self.stopMov()
-                searchStep = 0
-                    
-                
-            if (found) :
-                # reset search if line found
-                searchStep = 0
-            else:
-                # continue search if not found
-                searchStep+=1
+            self.search()
