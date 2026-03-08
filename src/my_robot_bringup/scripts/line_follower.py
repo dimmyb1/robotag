@@ -192,81 +192,73 @@ class line_follower():
         rclpy.shutdown()
         
     
-
-
     def moveForwardWhileOnTrack(self) :
         # Move foward
-        rightFwd()
-        leftFwd()
+        self.moveFwd()
         # Scan
         while (True):
-            colours[0] = AppITR20001.DeviceDriverSet_ITR20001_getAnaloguexxx_L()
-            colours[1] = AppITR20001.DeviceDriverSet_ITR20001_getAnaloguexxx_M()
-            colours[2] = AppITR20001.DeviceDriverSet_ITR20001_getAnaloguexxx_R()
-
             # If the middle is not black
-            if (not (blackMin < colours[1] < blackMax)) :
+            if (not (self.blackMin < self.colours[1] < self.blackMax)) :
                 # Stop moving and return
-                stopMov()
+                self.stopMov()
                 break
             
-            delay(10) # micro-loop
+            self.delay(10) # micro-loop
         
 
 
     def followLine(self):
         #colours[] -> 0:L, 1:M, 2:R
-        if(blackMin < colours[1] < blackMax): #if M==black, move forward
-            moveForwardWhileOnTrack()
-        elif (blackMin < colours[0] < blackMax) :#if L==black, turn a bit to the left to correct
-            turnLeft(realDelay)
-        elif (blackMin < colours[2] < blackMax):#if R==black, turn a bit to the right to correct
-            turnRight(realDelay)
+        if(self.blackMin < self.colours[1] < self.blackMax): #if M==black, move forward
+            self.moveForwardWhileOnTrack()
+        elif (self.blackMin < self.colours[0] < self.blackMax) :#if L==black, turn a bit to the left to correct
+            self.turnLeft(self.realDelay)
+        elif (self.blackMin < self.colours[2] < self.blackMax):#if R==black, turn a bit to the right to correct
+            self.turnRight(self.realDelay)
         #if nowhere is black, try to find the path again.
         else:
             found = False
             if searchStep == 0:
                 self.get_logger().info("Search Step 0: Turn right 30")
                 # Turn 30 right whilst searching 
-                found = smartTurnRight(rightThirty)
+                found = self.smartTurnRight(self.rightThirty)
             elif searchStep == 1: 
                 self.get_logger().info("Search Step 1: Turn left 60")
                 # Turn 30 left to reset
-                turnLeft(leftThirty)
+                self.turnLeft(self.leftThirty)
                 # Turn 60 left whilst searching 
-                found = smartTurnLeft(leftSixty)
+                found = self.smartTurnLeft(self.leftSixty)
                     
             elif searchStep == 2:
                 self.get_logger().info("Search Step 2: Turn right 90")
                 # Turn 60 right to reset
-                turnRight(rightSixty)
+                self.turnRight(self.rightSixty)
                 # Turn 90 right whilst searching 
-                found = smartTurnRight(rightNinety)
+                found = self.smartTurnRight(self.rightNinety)
                     
             elif searchStep == 3:
                 self.get_logger().info("Search Step 3: Turn left 90")
                 # Turn 90 left to reset
-                turnLeft(leftNinety)
+                self.turnLeft(self.leftNinety)
                 # Turn 90 left whilst searching 
-                found = smartTurnLeft(leftNinety)
+                found = self.smartTurnLeft(self.leftNinety)
                     
             elif searchStep == 4:
                 self.get_logger().info("Search Step 4: Turn left 180")
                 # Turn 180 left whilst searching - only 90 left to turn 180
-                found = smartTurnLeft(leftNinety)
+                found = self.smartTurnLeft(self.leftNinety)
                     
             elif searchStep == 5:
                 self.get_logger().info("Search Step 5: Turn left 360")
                 # Turn a whole turn whilst searching 
-                found = smartTurnLeft(leftOneEighty)
+                found = self.smartTurnLeft(self.leftOneEighty)
                     
             else:
                 self.get_logger().info("Search failed. Reversing...")
                 # Reverse and restart the loop
-                rightRev()
-                leftRev()
-                delay(realDelay)
-                stopMov()
+                self.moveRev()
+                self.delay(self.realDelay)
+                self.stopMov()
                 searchStep = 0
                     
                 
