@@ -114,7 +114,7 @@
           <geometry>
             <plane>
               <normal>0 0 1</normal>
-              <size>2.53 2.36</size> 
+              <size>2 1.87</size> 
             </plane>
           </geometry>
           
