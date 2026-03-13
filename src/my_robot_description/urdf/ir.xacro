@@ -3,15 +3,15 @@
 <xacro:macro name="ir_sensor" params="bot_name position_name">
 
     <xacro:property name="ir_length" value="0.01" />
-    <xacro:property name="ir_width" value="0.045" />
-    <xacro:property name="ir_height" value="0.03" />
+    <xacro:property name="ir_width" value="0.004" />
+    <xacro:property name="ir_height" value="0.006" />
 
-    <xacro:property name="y_offset" value="0.0" />
+    <xacro:property name="y_offset" value="0.008" />
     <xacro:if value="${position_name == 'L'}">
-        <xacro:property name="y_offset" value="${ir_width}" />
+        <xacro:property name="y_offset" value="${0.008}" />
     </xacro:if>
     <xacro:if value="${position_name == 'R'}">
-        <xacro:property name="y_offset" value="${-ir_width}" />
+        <xacro:property name="y_offset" value="${-0.008}" />
     </xacro:if>
 
     <link name="${bot_name}_ir_${position_name}_link">

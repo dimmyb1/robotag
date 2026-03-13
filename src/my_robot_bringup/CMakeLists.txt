@@ -14,7 +14,7 @@ install(
 )
 
 install(PROGRAMS
-  scripts/camera_follower.py
+  scripts/line_follower.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
