@@ -6,13 +6,14 @@
     <xacro:property name="ir_width" value="0.004" />
     <xacro:property name="ir_height" value="0.006" />
 
-    <xacro:property name="y_offset" value="0.008" />
+    <xacro:property name="y_offset" value="0.0" />
     <xacro:if value="${position_name == 'L'}">
         <xacro:property name="y_offset" value="${0.008}" />
     </xacro:if>
     <xacro:if value="${position_name == 'R'}">
         <xacro:property name="y_offset" value="${-0.008}" />
     </xacro:if>
+    <!-- else, M would be 0.0 -->
 
     <link name="${bot_name}_ir_${position_name}_link">
         <visual>
@@ -33,7 +34,7 @@
     <joint name="${bot_name}_${position_name}_base_ir_joint" type="fixed">
         <parent link="${bot_name}_base_link" />
         <child link="${bot_name}_ir_${position_name}_link" />
-        <origin xyz="0.084 0 -0.0275" rpy="0 ${pi/2} 0" />
+        <origin xyz="0.195 ${y_offset}} -0.0275" rpy="0 ${pi/2} 0" />
     </joint>
 
     <link name="${bot_name}_ir_${position_name}_link_optical" />
