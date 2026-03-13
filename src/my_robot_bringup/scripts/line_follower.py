@@ -126,7 +126,7 @@ class line_follower(Node):
     def turnRight(self, speed, duration):
         self.start_motion(angular=speed, duration_ms=duration)
 
-    def turnLeft(self, speed, realDelay) :
+    def turnLeft(self, speed, duration) :
         self.start_motion(angular=speed, duration_ms=duration)
 
 
