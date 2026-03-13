@@ -8,10 +8,10 @@
 
     <xacro:property name="y_offset" value="0.0" />
     <xacro:if value="${position_name == 'L'}">
-        <xacro:property name="y_offset" value="${camera_width}" />
+        <xacro:property name="y_offset" value="${ir_width}" />
     </xacro:if>
     <xacro:if value="${position_name == 'R'}">
-        <xacro:property name="y_offset" value="${-camera_width}" />
+        <xacro:property name="y_offset" value="${-ir_width}" />
     </xacro:if>
 
     <link name="${bot_name}_ir_${position_name}_link">
