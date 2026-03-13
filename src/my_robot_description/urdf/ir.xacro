@@ -8,10 +8,10 @@
 
     <xacro:property name="y_offset" value="0.0" />
     <xacro:if value="${position_name == 'L'}">
-        <xacro:property name="y_offset" value="${0.008}" />
+        <xacro:property name="y_offset" value="0.008" />
     </xacro:if>
     <xacro:if value="${position_name == 'R'}">
-        <xacro:property name="y_offset" value="${-0.008}" />
+        <xacro:property name="y_offset" value="-0.008" />
     </xacro:if>
     <!-- else, M would be 0.0 -->
 
