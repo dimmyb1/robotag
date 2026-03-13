@@ -25,7 +25,7 @@
             <parent link="${bot_name}_base_link" />
             <child link="${bot_name}_mpu_link" />
             <origin xyz="0.0035 -0.032 0.0525" rpy="0 0 0" />
-            <preserveFixedJoint>tru</preserveFixedJoint>
+            <preserveFixedJoint>true</preserveFixedJoint>
         </joint>
 
         <gazebo reference="${bot_name}_mpu_link">

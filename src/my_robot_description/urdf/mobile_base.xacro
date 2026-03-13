@@ -75,10 +75,10 @@
         <xacro:wheel bot_name="${bot_name}" prefix="front_right" invert_x="1" invert_y="-1"/>    
 
         <!-- sensors -->
-        <xacro:ir_sensor bot_name="${bot_name}"/>
-        <xacro:camera_sensor bot_name="${bot_name}" position_name="L" />
-        <xacro:camera_sensor bot_name="${bot_name}" position_name="M" />
-        <xacro:camera_sensor bot_name="${bot_name}" position_name="R" />
+        <xacro:camera_sensor bot_name="${bot_name}"/>
+        <xacro:ir_sensor bot_name="${bot_name}" position_name="L" />
+        <xacro:ir_sensor bot_name="${bot_name}" position_name="M" />
+        <xacro:ir_sensor bot_name="${bot_name}" position_name="R" />
         <xacro:ultrasonic_sensor bot_name="${bot_name}"/>
         <xacro:mpu_sensor bot_name="${bot_name}"/>
         <!-- gazebo -->
