@@ -119,11 +119,11 @@ class line_follower(Node):
     # Basic Turning Functions
     # --------------------------
 
-    def turnRight(self, speed, duration):
-        self.start_motion(angular=speed, duration_ms=duration)
+    def turnRight(self, duration):
+        self.start_motion(angular=-1.0, duration_ms=duration)
 
-    def turnLeft(self, speed, duration) :
-        self.start_motion(angular=speed, duration_ms=duration)
+    def turnLeft(self, duration) :
+        self.start_motion(angular=1.0, duration_ms=duration)
 
 
     def smartTurnRight(self, totalDuration,stepDelay = 100) :
@@ -179,15 +179,15 @@ class line_follower(Node):
             self.found = self.smartTurnRight(self.rightThirty)
 
         elif self.searchStep == 1:
-            self.turnLeft(1.0, self.leftThirty)
+            self.turnLeft(self.leftThirty)
             self.found = self.smartTurnRight(self.leftSixty)
 
         elif self.searchStep == 2:
-            self.turnRight(1.0, self.rightSixty)
+            self.turnRight(self.rightSixty)
             self.found = self.smartTurnRight(self.rightNinety)
 
         elif self.searchStep == 3:
-            self.turnLeft(1.0, self.leftNinety)
+            self.turnLeft(self.leftNinety)
             self.found = self.smartTurnLeft(self.leftNinety)
 
         elif self.searchStep == 4:
@@ -217,10 +217,10 @@ class line_follower(Node):
             self.moveForwardWhileOnTrack()
 
         elif self.minPixels < L:
-            self.turnLeft(1.0, self.realDelay)
+            self.turnLeft(self.realDelay)
 
         elif self.minPixels < R:
-            self.turnRight(-1.0, self.realDelay)
+            self.turnRight(self.realDelay)
 
         else:
             self.search()
