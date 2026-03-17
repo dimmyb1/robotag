@@ -76,7 +76,8 @@ class line_follower(Node):
         # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
         upper_black = np.array([26, 26, 26])
-        return cv2.inRange(hsv, lower_black, upper_black)
+        mask = cv2.inRange(hsv, lower_black, upper_black)
+        return cv2.countNonZero(mask) #this would return an int
     
     def ir_M_callback(self, msg):
         h, w = msg.height, msg.width
