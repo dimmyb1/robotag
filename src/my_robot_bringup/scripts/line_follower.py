@@ -50,24 +50,24 @@ class line_follower(Node):
         # Subscriptions
         self.ir_L_sub = self.create_subscription(
             Image,
-            '/ir/image_raw',
+            'ir/image_raw',
             self.ir_L_callback,
             1
         )
         self.ir_M_sub = self.create_subscription(
             Image,
-            '/ir/image_raw',
+            'ir/image_raw',
             self.ir_M_callback,
             1
         )
         self.ir_R_sub = self.create_subscription(
             Image,
-            '/ir/image_raw',
+            'ir/image_raw',
             self.ir_R_callback,
             1
         )
 
-        self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
         self.cmd = Twist()
 
         self.timer = self.create_timer(0.05, self.loop)
@@ -177,26 +177,7 @@ class line_follower(Node):
         self.update_motion()
 
         if not self.motion_active:
-            self.followLine()
-
-    
-    def main() :
-        rclpy.init()
-        node = line_follower()
-        
-        try:
-            rclpy.spin(node)
-        except KeyboardInterrupt:
-            pass
-
-        # Stop the robot
-        stop_cmd = Twist()
-        node.publisher.publish(stop_cmd)
-        node.get_logger().info('Shutting down - Robot stopped')
-
-        node.destroy_node()
-        rclpy.shutdown()
-        
+            self.followLine()    
     
     def moveForwardWhileOnTrack(self):
         self.start_motion(linear=1.0)
@@ -242,3 +223,23 @@ class line_follower(Node):
 
         else:
             self.search()
+
+def main():
+    rclpy.init()
+    node = line_follower()
+        
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+
+    # Stop the robot
+    stop_cmd = Twist()
+    node.publisher.publish(stop_cmd)
+    node.get_logger().info('Shutting down - Robot stopped')
+
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
