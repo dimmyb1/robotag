@@ -177,72 +177,40 @@ class line_follower(Node):
             self.elapsed += stepDelay
         
         return False
-        
-
-    def loop(self):
-        self.update_motion()
-
-        if not self.motion_active:
-            self.followLine()  
-
-        if self.searchLeft:
-            self.found = self.smartTurnLeft(self.dur)
-            
-            if(self.found):
-                self.searchStep = 0
-            else:
-                self.searchStep+=1
-
-        elif self.searchRight:
-            self.found = self.smartTurnRight(self.dur)
-            
-            if(self.found):
-                self.searchStep = 0
-            else:
-                self.searchStep+=1
-
-
-        
-
-            
-    
-    def moveForwardWhileOnTrack(self):
-        self.start_motion(linear=0.5)
-        
+                
 
     def search(self):
         if self.searchStep == 0:
-            self.searchRight = True
-            self.dur = self.rightThirty
+            self.found = self.smartTurnRight(self.rightThirty)
 
         elif self.searchStep == 1:
             self.turnLeft(self.leftThirty)
-            self.searchLeft = True
-            self.dur = self.leftSixty
+            self.found = self.smartTurnLeft(self.leftSixty)
 
         elif self.searchStep == 2:
             self.turnRight(self.rightSixty)
-            self.searchRight = True
-            self.dur = self.rightNinety
+            self.found = self.smartTurnRight(self.rightNinety)
 
         elif self.searchStep == 3:
             self.turnLeft(self.leftNinety)
-            self.searchLeft = True
-            self.dur = self.leftNinety
+            self.found = self.smartTurnLeft(self.leftNinety)
 
         elif self.searchStep == 4:
-            self.searchLeft = True
-            self.dur = self.leftNinety
+            self.found = self.smartTurnLeft(self.leftNinety)
 
         elif self.searchStep ==5:
-            self.searchLeft = True
-            self.dur = self.leftOneEighty
+            self.found = self.smartTurnLeft(self.leftOneEighty)
 
         else:
             #reverse and restart search
             self.start_motion(linear=-0.5, duration_ms=self.realDelay)
             self.searchStep = 0
             return
+        
+        if(self.found):
+            self.searchStep = 0
+        else:
+            self.searchStep+=1
 
         
 
@@ -253,7 +221,7 @@ class line_follower(Node):
         R = self.colours[2]
 
         if self.minPixels < M :
-            self.moveForwardWhileOnTrack()
+            self.start_motion(linear=0.5)
 
         elif self.minPixels < L:
             self.turnLeft(self.realDelay)
@@ -263,6 +231,14 @@ class line_follower(Node):
 
         else:
             self.search()
+
+        
+    def loop(self):
+        self.update_motion()
+
+        if not self.motion_active:
+            self.followLine()  
+
 
 def main():
     rclpy.init()
