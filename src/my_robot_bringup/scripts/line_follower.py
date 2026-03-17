@@ -137,6 +137,10 @@ class line_follower(Node):
         self.start_motion(angular=0.5, duration_ms=duration)
 
 
+    #---------------------
+    # Searching for Line
+    #---------------------
+
     def smartTurnRight(self, totalDuration,stepDelay = 100) :
         # Let the counter be equal to 0
         elapsed = 0
@@ -157,8 +161,6 @@ class line_follower(Node):
 
 
     def smartTurnLeft(self, totalDuration,stepDelay = 100) :
-        # Let the counter be equal to 0
-        #self.elapsed = 0
         # While the angle is less then the expected turn
         if (self.elapsed < totalDuration):
             
@@ -177,42 +179,64 @@ class line_follower(Node):
             self.elapsed += stepDelay
         
         return False
-                
+        
 
     def search(self):
         if self.searchStep == 0:
-            self.found = self.smartTurnRight(self.rightThirty)
+            self.searchRight = True
+            self.dur = self.rightThirty
 
         elif self.searchStep == 1:
             self.turnLeft(self.leftThirty)
-            self.found = self.smartTurnLeft(self.leftSixty)
+            self.searchLeft = True
+            self.dur = self.leftSixty
 
         elif self.searchStep == 2:
             self.turnRight(self.rightSixty)
-            self.found = self.smartTurnRight(self.rightNinety)
+            self.searchRight = True
+            self.dur = self.rightNinety
 
         elif self.searchStep == 3:
             self.turnLeft(self.leftNinety)
-            self.found = self.smartTurnLeft(self.leftNinety)
+            self.searchLeft = True
+            self.dur = self.leftNinety
 
         elif self.searchStep == 4:
-            self.found = self.smartTurnLeft(self.leftNinety)
+            self.searchLeft = True
+            self.dur = self.leftNinety
 
         elif self.searchStep ==5:
-            self.found = self.smartTurnLeft(self.leftOneEighty)
+            self.searchLeft = True
+            self.dur = self.leftOneEighty
 
         else:
             #reverse and restart search
             self.start_motion(linear=-0.5, duration_ms=self.realDelay)
             self.searchStep = 0
             return
-        
-        if(self.found):
-            self.searchStep = 0
-        else:
-            self.searchStep+=1
+
+        self.handleSearchLoop()
 
         
+
+    def handleSearchLoop(self):
+        if not self.searching:
+            self.elapsed = 0
+
+        if self.searchLeft:
+            self.found = self.smartTurnLeft(self.dur)
+        
+        elif self.searchRight:
+            self.found = self.smartTurnRight(self.dur)
+
+        if(self.found):
+            self.searchStep = 0
+        elif(self.elapsed>=self.dur):
+            self.searchStep+=1
+
+    #------------------------
+    # Normal Line Following
+    #------------------------
 
     def followLine(self):
 
@@ -232,13 +256,12 @@ class line_follower(Node):
         else:
             self.search()
 
-        
+      
     def loop(self):
         self.update_motion()
 
         if not self.motion_active:
-            self.followLine()  
-
+            self.followLine() 
 
 def main():
     rclpy.init()
