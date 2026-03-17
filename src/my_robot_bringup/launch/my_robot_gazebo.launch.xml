@@ -35,7 +35,7 @@
 
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twix -x -0.0835 -y -0.3395 -z 0.0420 -Y 3.14159" />
-0 ${
+        
         <node pkg="my_robot_bringup"
           exec="line_follower.py"
           name="line_follower"
