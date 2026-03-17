@@ -29,12 +29,12 @@ class line_follower(Node):
 
         # Calibrated black colour minimum and maximum
         # These might be changed for the actual demo during preperation time
-        self. blackMax = 900
-        self.blackMin = 500
+        # self. blackMax = 900
+        # self.blackMin = 500
 
         # ants that will be used throughout
         self.realDelay = 150
-        # Ammount to move for angles
+        # Amount to move for angles
         self.rightThirty = 500
         self.leftThirty = 500
         self.leftSixty = 1200
@@ -80,25 +80,21 @@ class line_follower(Node):
         mask = cv2.inRange(hsv, lower_black, upper_black)
         return cv2.countNonZero(mask) #this would return an int
     
-    def ir_M_callback(self, msg):
-        h, w = msg.height, msg.width
-        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-
-        # Check if robot CENTRE is over magenta - intersection confirmation
-        self.colours[1] = self.detect_black(img)
-        
     def ir_L_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-
-        # Check if robot CENTRE is over magenta - intersection confirmation
         self.colours[0] = self.detect_black(img)
+
+    def ir_M_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        self.colours[1] = self.detect_black(img)
+        
+    
 
     def ir_R_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-
-        # Check if robot CENTRE is over magenta - intersection confirmation
         self.colours[2] = self.detect_black(img)
 
     # --------------------------
@@ -214,13 +210,13 @@ class line_follower(Node):
         M = self.colours[1]
         R = self.colours[2]
 
-        if self.blackMin < M < self.blackMax:
+        if 0 < M :
             self.start_motion(linear=1.0)
 
-        elif self.blackMin < L < self.blackMax:
+        elif 0 < L:
             self.turnLeft(1.0, self.realDelay)
 
-        elif self.blackMin < R < self.blackMax:
+        elif 0 < R:
             self.turnRight(-1.0, self.realDelay)
 
         else:
