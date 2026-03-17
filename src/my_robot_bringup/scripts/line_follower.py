@@ -176,7 +176,7 @@ class line_follower(Node):
 
     def search(self):
         if self.searchStep == 0:
-            self.found = self.smartTurnRight(1.0, self.rightThirty)
+            self.found = self.smartTurnRight(self.rightThirty)
 
         elif self.searchStep == 1:
             self.turnLeft(1.0, self.leftThirty)
