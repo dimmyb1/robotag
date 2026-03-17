@@ -135,7 +135,7 @@ class line_follower(Node):
             self.turnRight(stepDelay)
 
             # Check if there is a black line in one of the sensors if so return to continue executing
-            if (self.blackMin < self.colours[1] < self.blackMax) or  (self.blackMin < self.colours[0] < self.blackMax) or (self.blackMin < self.colours[2] < self.blackMax) :
+            if (self.minPixels < self.colours[1]) or  (self.minPixels < self.colours[0]) or (self.minPixels < self.colours[2]) :
                 self.get_logger().info("Line found during right turn!")
                 return True
             
@@ -154,7 +154,7 @@ class line_follower(Node):
             self.turnLeft(stepDelay)
 
             # Check if there is a black line in one of the sensors if so return to continue executing
-            if (self.blackMin < self.colours[1] < self.blackMax) or (self.blackMin < self.colours[0] < self.blackMax) or (self.blackMin < self.colours[2] < self.blackMax):
+            if (self.minPixels < self.colours[1]) or (self.minPixels < self.colours[0]) or (self.minPixels < self.colours[2]):
                 self.get_logger().info("Line found during left turn!")
                 return True
             
