@@ -68,6 +68,8 @@ class line_follower(Node):
         self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
         self.cmd = Twist()
 
+        self.timer = self.create_timer(0.05, self.loop)
+
     def detect_black(self, hsv):
         # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
