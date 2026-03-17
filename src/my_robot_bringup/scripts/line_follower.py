@@ -20,6 +20,16 @@ import time
 class line_follower(Node):
     def __init__(self):
         super().__init__('line_follower')
+
+        robot_name = self.get_namespace().strip('/')
+
+        if not robot_name:
+            robot_name = 'generic'
+
+        topic_L = f'/{robot_name}_ir_L/image_raw'
+        topic_M = f'/{robot_name}_ir_M/image_raw'
+        topic_R = f'/{robot_name}_ir_R/image_raw'
+
         # Array to store the 3 read sensors
         self.colours = [0,0,0]
         # Speed for every movement except right turning 
@@ -48,19 +58,19 @@ class line_follower(Node):
         # Subscriptions
         self.ir_L_sub = self.create_subscription(
             Image,
-            'ir/image_raw',
+            topic_L,
             self.ir_L_callback,
             1
         )
         self.ir_M_sub = self.create_subscription(
             Image,
-            'ir/image_raw',
+            topic_M,
             self.ir_M_callback,
             1
         )
         self.ir_R_sub = self.create_subscription(
             Image,
-            'ir/image_raw',
+            topic_R,
             self.ir_R_callback,
             1
         )
@@ -86,8 +96,6 @@ class line_follower(Node):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         self.colours[1] = self.detect_black(img)
-        
-    
 
     def ir_R_callback(self, msg):
         h, w = msg.height, msg.width
@@ -102,8 +110,11 @@ class line_follower(Node):
         self.cmd.angular.z = angular
         self.publisher.publish(self.cmd)
 
-        self.motion_active = True
-        self.motion_end_time = time.time() + (duration_ms / 1000.0)
+        if duration_ms > 0:
+            self.motion_active = True
+            self.motion_end_time = time.time() + (duration_ms / 1000.0)
+        else:
+            self.motion_active = False #it will run continuously
 
     def update_motion(self):
         if self.motion_active and time.time() >= self.motion_end_time:
