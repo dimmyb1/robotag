@@ -31,11 +31,11 @@
         </node>
 
         <node pkg="tf2_ros" exec="static_transform_publisher" name="twix_world_tf"
-            args="-0.35 -0.43 0 0 0 0 world twix_odom" />
+            args="-0.0835 -0.3395 0.0420 0 0 0 world twix_odom" />
 
         <node pkg="ros_gz_sim" exec="create" 
-              args="-topic robot_description -name twix -x -0.35 -y -0.43 -z 0.875 -Y 3.14159" />
-
+              args="-topic robot_description -name twix -x -0.0835 -y -0.3395 -z 0.0420 -Y 3.14159" />
+0 ${
         <node pkg="my_robot_bringup"
           exec="line_follower.py"
           name="line_follower"
@@ -60,10 +60,10 @@
         </node>
 
         <node pkg="tf2_ros" exec="static_transform_publisher" name="twirl_world_tf"
-            args="0.68 0.6 0 0 0 0 world twirl_odom" />
+            args="0.3056 0.4703 0.0420 0 0 0 world twirl_odom" />
 
         <node pkg="ros_gz_sim" exec="create" 
-              args="-topic robot_description -name twirl -x 0.68 -y 0.60 -z 0.875 -Y 3.14159" />
+              args="-topic robot_description -name twirl -x 0.3056 -y 0.4703 -z 0.0420 -Y 3.14159" />
 
         <node pkg="my_robot_bringup"
           exec="line_follower.py"
