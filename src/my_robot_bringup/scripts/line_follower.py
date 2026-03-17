@@ -36,7 +36,11 @@ class line_follower(Node):
         self.speed = 60
         # Counter to hold which angles we have searched so that the robot does not move random angles used in the switch case
         self.searchStep = 0
-
+        self.dur = 0
+        self.elapsed = 0
+        self.searchLeft = False
+        self.searchRight = False
+        self.searching = False
         self.minPixels = 20
 
         # ints that will be used throughout
@@ -222,6 +226,7 @@ class line_follower(Node):
     def handleSearchLoop(self):
         if not self.searching:
             self.elapsed = 0
+            self.searching = True
 
         if self.searchLeft:
             self.found = self.smartTurnLeft(self.dur)
@@ -231,8 +236,10 @@ class line_follower(Node):
 
         if(self.found):
             self.searchStep = 0
+            self.searching = False
         elif(self.elapsed>=self.dur):
             self.searchStep+=1
+            self.searching = False
 
     #------------------------
     # Normal Line Following
