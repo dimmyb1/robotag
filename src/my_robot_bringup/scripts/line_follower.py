@@ -217,6 +217,7 @@ class line_follower(Node):
             #reverse and restart search
             self.start_motion(linear=-0.5, duration_ms=self.realDelay)
             self.searchStep = 0
+            self.searchinig = False
             return
 
         self.handleSearchLoop()
