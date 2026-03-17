@@ -19,6 +19,7 @@ import time
 
 class line_follower(Node):
     def __init__(self):
+        super().__init__('line_follower')
         # Array to store the 3 read sensors
         self.colours = [0,0,0]
         # Speed for every movement except right turning 
