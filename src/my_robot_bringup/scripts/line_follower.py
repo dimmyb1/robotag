@@ -27,12 +27,9 @@ class line_follower(Node):
         # Counter to hold which angles we have searched so that the robot does not move random angles used in the switch case
         self.searchStep = 0
 
-        # Calibrated black colour minimum and maximum
-        # These might be changed for the actual demo during preperation time
-        # self. blackMax = 900
-        # self.blackMin = 500
+        self.minPixels = 20
 
-        # ants that will be used throughout
+        # ints that will be used throughout
         self.realDelay = 150
         # Amount to move for angles
         self.rightThirty = 500
@@ -78,7 +75,7 @@ class line_follower(Node):
         lower_black = np.array([0, 0, 0])
         upper_black = np.array([26, 26, 26])
         mask = cv2.inRange(hsv, lower_black, upper_black)
-        return cv2.countNonZero(mask) #this would return an int
+        return cv2.countNonZero(mask) #(int) num of black pixels in img
     
     def ir_L_callback(self, msg):
         h, w = msg.height, msg.width
@@ -168,10 +165,6 @@ class line_follower(Node):
         
 
     def loop(self):
-        # self.get_logger().info(f"ITR20001_getAnaloguexxx_L={self.colours[0]}")
-        # self.get_logger().info(f"ITR20001_getAnaloguexxx_M={self.colours[1]}")
-        # self.get_logger().info(f"ITR20001_getAnaloguexxx_R={self.colours[2]}")
-
         self.update_motion()
 
         if not self.motion_active:
@@ -183,26 +176,36 @@ class line_follower(Node):
 
     def search(self):
         if self.searchStep == 0:
-            self.turnRight(1.0, self.rightThirty)
+            self.found = self.smartTurnRight(1.0, self.rightThirty)
 
         elif self.searchStep == 1:
-            self.turnLeft(1.0, self.leftSixty)
+            self.turnLeft(1.0, self.leftThirty)
+            self.found = self.smartTurnRight(self.leftSixty)
 
         elif self.searchStep == 2:
-            self.turnRight(1.0, self.rightNinety)
+            self.turnRight(1.0, self.rightSixty)
+            self.found = self.smartTurnRight(self.rightNinety)
 
         elif self.searchStep == 3:
             self.turnLeft(1.0, self.leftNinety)
+            self.found = self.smartTurnLeft(self.leftNinety)
 
         elif self.searchStep == 4:
-            self.turnLeft(1.0, self.leftOneEighty)
+            self.found = self.smartTurnLeft(self.leftNinety)
+
+        elif self.searchStep ==5:
+            self.found = self.smartTurnLeft(self.leftOneEighty)
 
         else:
+            #reverse and restart search
             self.start_motion(linear=-1.0, duration_ms=self.realDelay)
             self.searchStep = 0
             return
 
-        self.searchStep += 1
+        if(self.found):
+            self.searchStep = 0
+        else:
+            self.searchStep+=1
 
     def followLine(self):
 
@@ -210,13 +213,13 @@ class line_follower(Node):
         M = self.colours[1]
         R = self.colours[2]
 
-        if 0 < M :
-            self.start_motion(linear=1.0)
+        if self.minPixels < M :
+            self.moveForwardWhileOnTrack()
 
-        elif 0 < L:
+        elif self.minPixels < L:
             self.turnLeft(1.0, self.realDelay)
 
-        elif 0 < R:
+        elif self.minPixels < R:
             self.turnRight(-1.0, self.realDelay)
 
         else:
