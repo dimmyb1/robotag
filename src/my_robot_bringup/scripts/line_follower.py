@@ -45,16 +45,18 @@ class line_follower(Node):
 
         # ints that will be used throughout
         self.realDelay = 150
+
         # Amount to move for angles
-        self.rightThirty = 500
-        self.leftThirty = 500
-        self.leftSixty = 1200
-        self.rightSixty = 1000
-        self.leftNinety = 1600
-        self.rightNinety = 1400
-        self.leftOneEighty = 3200
+        self.rightThirty = 1066
+        self.leftThirty = 1066
+        self.leftSixty = 2133
+        self.rightSixty = 2133
+        self.leftNinety = 3200
+        self.rightNinety = 3200
+        self.leftOneEighty = 6400
         # rightOneEighty = 3000 # Not tested (not used)
         # fullRot = realDelay*39 # Not tested (not used)
+
         self.motion_active = False
         self.motion_end_time = 0
         self.current_motion = None
