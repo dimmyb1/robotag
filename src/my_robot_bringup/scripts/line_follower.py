@@ -142,19 +142,20 @@ class line_follower(Node):
     # Searching for Line
     #---------------------
 
-    def smartTurnRight(self, totalDuration,stepDelay = 100) :
+    def smartTurnRight(self, totalDuration,stepDelay = 50) :
         # While the angle is less then the expected turn
         if (self.elapsed < totalDuration):
             # Check if there is a black line in one of the sensors if so return to continue executing
             if (self.minPixels < self.colours[1]) or  (self.minPixels < self.colours[0]) or (self.minPixels < self.colours[2]) :
-                self.get_logger().info("Line found during right turn!")
                 
+                self.get_logger().info("Line found during right turn!")
+                self.stopMov()
                 self.searchRight = False
                 
                 return True
             
             # Continue turning right
-            self.turnRight(stepDelay)
+            self.turnRight(0)
             
             # Increment the steps
             self.elapsed += stepDelay
@@ -162,18 +163,19 @@ class line_follower(Node):
         return False
 
 
-    def smartTurnLeft(self, totalDuration,stepDelay = 100) :
+    def smartTurnLeft(self, totalDuration,stepDelay = 50) :
         # While the angle is less then the expected turn
         if (self.elapsed < totalDuration):
             
             # Check if there is a black line in one of the sensors if so return to continue executing
             if (self.minPixels < self.colours[1]) or (self.minPixels < self.colours[0]) or (self.minPixels < self.colours[2]):
                 self.get_logger().info("Line found during left turn!")
+                self.stopMov()
                 self.searchLeft = False
                 return True
             
             # otherwise continue turning left
-            self.turnLeft(stepDelay)
+            self.turnLeft(0)
 
             # Increment the steps
             self.elapsed += stepDelay
