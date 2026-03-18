@@ -186,15 +186,15 @@ class line_follower(Node):
     def search(self):
         if self.searchStep == 0:
             self.searchRight = True
-            self.dur = self.thirty
+            self.dur = self.thirty *2
 
         elif self.searchStep == 1:
             self.searchLeft = True
-            self.dur = self.thirty * 3
+            self.dur = self.thirty * 4
 
         elif self.searchStep == 2:
             self.searchRight = True
-            self.dur = self.thirty *5
+            self.dur = self.thirty *6
 
         elif self.searchStep == 3:
             self.searchLeft = True
