@@ -240,6 +240,7 @@ class line_follower(Node):
             self.searching = False
             self.elapsed = 0
         elif(self.elapsed>=self.dur):
+            self.stopMov()
             self.searchStep+=1
             self.searching = False
             self.elapsed = 0
