@@ -234,9 +234,11 @@ class line_follower(Node):
 
         if self.searchLeft:
             self.found = self.smartTurnLeft(self.dur)
+            self.searchLeft = False
         
         elif self.searchRight:
             self.found = self.smartTurnRight(self.dur)
+            self.searchRight = False
 
         if(self.found):
             self.searchStep = 0
