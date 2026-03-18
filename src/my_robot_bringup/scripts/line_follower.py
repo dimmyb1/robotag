@@ -162,7 +162,7 @@ class line_follower(Node):
             self.turnRight(stepDelay)
             
             # Increment the steps
-            elapsed += stepDelay
+            self.elapsed += stepDelay
             
         return False
 
