@@ -159,8 +159,9 @@ class line_follower(Node):
             
             # Increment the steps
             self.elapsed += stepDelay
+            return False # exit and wait for next tick
             
-        return False
+        return False # finished full arc
 
 
     def smartTurnLeft(self, totalDuration,stepDelay = 50) :
@@ -179,60 +180,61 @@ class line_follower(Node):
 
             # Increment the steps
             self.elapsed += stepDelay
+            return False
         
         return False
         
 
     def search(self):
-        if self.searchStep == 0:
-            self.searchRight = True
-            self.dur = self.thirty *2
+        #start condition
+        if not self.searching:
+            self.elapsed = 0
+            self.found = False
 
-        elif self.searchStep == 1:
-            self.searchLeft = True
-            self.dur = self.thirty * 4
+            if self.searchStep == 0:
+                self.searchRight = True
+                self.dur = self.thirty *2
 
-        elif self.searchStep == 2:
-            self.searchRight = True
-            self.dur = self.thirty *6
+            elif self.searchStep == 1:
+                self.searchLeft = True
+                self.dur = self.thirty * 4
 
-        elif self.searchStep == 3:
-            self.searchLeft = True
-            self.dur = self.thirty * 6
+            elif self.searchStep == 2:
+                self.searchRight = True
+                self.dur = self.thirty *6
 
-        elif self.searchStep == 4:
-            self.searchLeft = True
-            self.dur = self.thirty * 3
+            elif self.searchStep == 3:
+                self.searchLeft = True
+                self.dur = self.thirty * 6
 
-        elif self.searchStep ==5:
-            self.searchLeft = True
-            self.dur = self.thirty * 6
+            elif self.searchStep == 4:
+                self.searchLeft = True
+                self.dur = self.thirty * 3
 
-        else:
-            #reverse and restart search
-            self.start_motion(linear=-0.25, duration_ms=self.realDelay)
-            self.searchStep = 0
-            self.searching = False
-            return
+            elif self.searchStep ==5:
+                self.searchLeft = True
+                self.dur = self.thirty * 6
+
+            else:
+                #reverse and restart search
+                self.start_motion(linear=-0.25, duration_ms=self.realDelay)
+                self.searchStep = 0
+                self.searching = False
+                return
+            
+            self.searching = True
 
         self.handleSearchLoop()
 
         
 
     def handleSearchLoop(self):
-        #start condition
-        if not self.searching:
-            self.elapsed = 0
-            self.searching = True
-
         #carry out turn
         if self.searchLeft:
             self.found = self.smartTurnLeft(self.dur)
-            self.searchLeft = False
         
         elif self.searchRight:
             self.found = self.smartTurnRight(self.dur)
-            self.searchRight = False
 
         #end conditions
         if(self.found):
