@@ -190,6 +190,8 @@ class line_follower(Node):
         if not self.searching:
             self.elapsed = 0
             self.found = False
+            self.searchLeft = False
+            self.searchRight = False
 
             if self.searchStep == 0:
                 self.searchRight = True
