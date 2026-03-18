@@ -47,13 +47,8 @@ class line_follower(Node):
         self.realDelay = 150
 
         # Amount to move for angles
-        self.rightThirty = 1066
-        self.leftThirty = 1066
-        self.leftSixty = 2133
-        self.rightSixty = 2133
-        self.leftNinety = 3200
-        self.rightNinety = 3200
-        self.leftOneEighty = 6400
+        self.thirty = 1066
+        
         # rightOneEighty = 3000 # Not tested (not used)
         # fullRot = realDelay*39 # Not tested (not used)
 
@@ -189,30 +184,27 @@ class line_follower(Node):
     def search(self):
         if self.searchStep == 0:
             self.searchRight = True
-            self.dur = self.rightThirty
+            self.dur = self.thirty
 
         elif self.searchStep == 1:
-            self.turnLeft(self.leftThirty)
             self.searchLeft = True
-            self.dur = self.leftSixty
+            self.dur = self.thirty * 3
 
         elif self.searchStep == 2:
-            self.turnRight(self.rightSixty)
             self.searchRight = True
-            self.dur = self.rightNinety
+            self.dur = self.thirty *5
 
         elif self.searchStep == 3:
-            self.turnLeft(self.leftNinety)
             self.searchLeft = True
-            self.dur = self.leftNinety
+            self.dur = self.thirty * 6
 
         elif self.searchStep == 4:
             self.searchLeft = True
-            self.dur = self.leftNinety
+            self.dur = self.thirty * 3
 
         elif self.searchStep ==5:
             self.searchLeft = True
-            self.dur = self.leftOneEighty
+            self.dur = self.thirty * 6
 
         else:
             #reverse and restart search
@@ -226,10 +218,12 @@ class line_follower(Node):
         
 
     def handleSearchLoop(self):
+        #start condition
         if not self.searching:
             self.elapsed = 0
             self.searching = True
 
+        #carry out turn
         if self.searchLeft:
             self.found = self.smartTurnLeft(self.dur)
             self.searchLeft = False
@@ -238,12 +232,15 @@ class line_follower(Node):
             self.found = self.smartTurnRight(self.dur)
             self.searchRight = False
 
+        #end conditions
         if(self.found):
             self.searchStep = 0
             self.searching = False
+            self.elapsed = 0
         elif(self.elapsed>=self.dur):
             self.searchStep+=1
             self.searching = False
+            self.elapsed = 0
 
     #------------------------
     # Normal Line Following
