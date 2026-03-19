@@ -47,7 +47,7 @@ class line_follower(Node):
         self.realDelay = 150
 
         # Amount to move for angles
-        self.thirty = 2200
+        self.thirty = 4400
 
         self.motion_active = False
         self.motion_end_time = 0
