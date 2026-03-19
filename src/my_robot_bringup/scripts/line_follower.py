@@ -258,7 +258,7 @@ class line_follower(Node):
         R = self.colours[2]
 
         if self.minPixels < M :
-            self.start_motion(linear=0.25)
+            self.start_motion(linear=0.15)
 
         elif self.minPixels < L:
             self.turnLeft(self.realDelay)
