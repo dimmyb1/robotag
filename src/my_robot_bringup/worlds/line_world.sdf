@@ -132,7 +132,7 @@
           <geometry>
             <plane>
               <normal>0 0 1</normal>
-              <size>2.53 2.36</size>
+              <size>2 1.87</size>
             </plane>
           </geometry>
         </collision>
@@ -142,7 +142,7 @@
 
     <model name="wheel">
       <static>true</static> 
-      <pose>0 0 3 0 0 0</pose>
+      <pose>0 3 0.025 0 0 0</pose>
       
       <link name="link">
         <visual name="visual">
