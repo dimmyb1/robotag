@@ -139,6 +139,41 @@
 
       </link>
     </model>
+
+    <model name="wheel">
+      <static>true</static> 
+      <pose>0 0 3 0 0 0</pose>
+      
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>2 2</size> 
+            </plane>
+          </geometry>
+          
+          <material>
+            <diffuse>1 1 1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_map>textures/wheel.png</albedo_map>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>2 2</size>
+            </plane>
+          </geometry>
+        </collision>
+
+      </link>
+    </model>
     
     
     <model name='floor'>
