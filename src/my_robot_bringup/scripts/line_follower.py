@@ -260,11 +260,23 @@ class line_follower(Node):
         if self.minPixels < M :
             self.start_motion(linear=0.15)
 
+            self.searchStep = 0
+            self.searching = False
+            self.elapsed = 0
+
         elif self.minPixels < L:
             self.turnLeft(self.realDelay)
 
+            self.searchStep = 0
+            self.searching = False
+            self.elapsed = 0
+
         elif self.minPixels < R:
             self.turnRight(self.realDelay)
+
+            self.searchStep = 0
+            self.searching = False
+            self.elapsed = 0
 
         else:
             self.search()
