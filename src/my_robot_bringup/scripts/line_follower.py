@@ -47,10 +47,7 @@ class line_follower(Node):
         self.realDelay = 150
 
         # Amount to move for angles
-        self.thirty = 2132
-        
-        # rightOneEighty = 3000 # Not tested (not used)
-        # fullRot = realDelay*39 # Not tested (not used)
+        self.thirty = 2200
 
         self.motion_active = False
         self.motion_end_time = 0
@@ -225,6 +222,7 @@ class line_follower(Node):
                 return
             
             self.searching = True
+            self.get_logger().info(f"STEP {self.searchStep}")
 
         self.handleSearchLoop()
 
