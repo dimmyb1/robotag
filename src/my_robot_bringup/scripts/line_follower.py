@@ -47,7 +47,7 @@ class line_follower(Node):
         self.realDelay = 150
 
         # Amount to move for angles
-        self.thirty = 1066
+        self.thirty = 2132
         
         # rightOneEighty = 3000 # Not tested (not used)
         # fullRot = realDelay*39 # Not tested (not used)
@@ -207,7 +207,7 @@ class line_follower(Node):
 
             elif self.searchStep == 3:
                 self.searchLeft = True
-                self.dur = self.thirty * 6
+                self.dur = self.thirty * 7
 
             elif self.searchStep == 4:
                 self.searchLeft = True
