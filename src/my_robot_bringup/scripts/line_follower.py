@@ -129,10 +129,10 @@ class line_follower(Node):
     # --------------------------
 
     def turnRight(self, duration):
-        self.start_motion(angular=-0.5, duration_ms=duration)
+        self.start_motion(angular=-0.75, duration_ms=duration)
 
     def turnLeft(self, duration) :
-        self.start_motion(angular=0.5, duration_ms=duration)
+        self.start_motion(angular=0.75, duration_ms=duration)
 
 
     #---------------------
