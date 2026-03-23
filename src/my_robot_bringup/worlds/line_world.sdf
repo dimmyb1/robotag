@@ -140,7 +140,30 @@
       </link>
     </model>
 
-    <model name="wheel">
+    <model name="circuit_1_redone">
+      <static>true</static> 
+      <pose>0 3 0.025 0 0 0</pose>
+      
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>2 2</size> 
+            </plane>
+          </geometry>
+          
+          <material>
+            <diffuse>1 1 1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_map>textures/fixed_path.png</albedo_map>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+
+    <!-- <model name="wheel">
       <static>true</static> 
       <pose>0 3 0.025 0 0 0</pose>
       
@@ -173,7 +196,7 @@
         </collision>
 
       </link>
-    </model>
+    </model> -->
     
     
     <model name='floor'>
