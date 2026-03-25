@@ -156,6 +156,9 @@ class line_follower(Node):
             
         elif self.behaviourMode == 3:
             # 3 - Greedy
+
+            # access radar info (implement)
+            
             return
         elif self.behaviourMode == 4:
             # 4 - Avoidant
@@ -195,6 +198,8 @@ class line_follower(Node):
 
         #call function to turn towards intended direction by using MPU readings for current facing direction and the intended cardinal direction.(IMPLEMENT)
         
+    #Ultrasonic Functions
+    #callback for ultrasonic - radar (implement) - keep some vars up to date
 
     #Line Following Functions
     def detect_black(self, img):
