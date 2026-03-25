@@ -81,7 +81,6 @@ class line_follower(Node):
         self.current_node = 'A'
         self.current_destination = 'A'
         self.skipZero = False
-        self.dummy = 1
         self.behaviourMode = 0
         # behaviourMode settings:
         # 0 - not set (no behaviour)
@@ -122,7 +121,28 @@ class line_follower(Node):
     def traverseGraph(self):
         #define some preference algorithm.
         #use distances if you want (Nd, Ed, Sd, Wd)
-        self.dummy = 1
+        # behaviourMode settings:
+        if self.behaviourMode == 1:
+            # 1 - Simple Line Follower
+            return
+        elif self.behaviourMode == 2:
+            # 2 - Random
+            return
+        elif self.behaviourMode == 3:
+            # 3 - Greedy
+            return
+        elif self.behaviourMode == 4:
+            # 4 - Avoidant
+            return
+        elif self.behaviourMode == 5:
+            # 5 - Interceptive
+            return
+        elif self.behaviourMode == 6:
+            # 6 - Trap Layer
+            return
+        else:
+            # 0 - not set (no behaviour)
+            return
 
     def updatePos(self):
         #update current variables
