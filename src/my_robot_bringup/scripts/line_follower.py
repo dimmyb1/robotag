@@ -121,7 +121,7 @@ class line_follower(Node):
 
 
     #Graph Functions
-    def traverseGraph(self):
+    def planDestination(self):
         choice = -1
         #define some preference algorithm.
         #use distances if you want (Nd, Ed, Sd, Wd)
@@ -172,9 +172,9 @@ class line_follower(Node):
 
     def updatePos(self):
         #update current variables
-        #if gray detected (implement):
+        #if gray detected:
         if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
-            #do some check to ensure we aren't being triggered by the last gray section we saw 
+            #do some check to ensure we aren't being triggered by the last gray section we saw (IMPLEMENT)
 
             self.get_logger().info("Intersection detected!")
             #self.current_node = self.current_destination
@@ -182,6 +182,7 @@ class line_follower(Node):
                 if n.name == self.current_destination:
                     self.current_node = n
         #   self.current_destination = self. Function to Calculate Next Destination.
+        self.planDestination()
 
         #update sweeping setting
         if (self.current_node == 'A' and self.current_destination == self.A.Nc) or (self.current_node == 'B' and self.current_destination == self.B.Nc) or (self.current_node == 'C' and self.current_destination == self.C.Ec) or (self.current_node == 'E' and self.current_destination == self.E.Nc):
@@ -192,11 +193,10 @@ class line_follower(Node):
         else:
             self.skipZero = False
 
-        #call function to turn towards intended direction by using MPU readings for current facing direction and the intended cardinal direction.
+        #call function to turn towards intended direction by using MPU readings for current facing direction and the intended cardinal direction.(IMPLEMENT)
         
 
     #Line Following Functions
-
     def detect_black(self, img):
         # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
