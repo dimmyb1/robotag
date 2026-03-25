@@ -80,6 +80,7 @@ class line_follower(Node):
         self.current_node = 'A'
         self.current_destination = 'A'
         self.skipZero = False
+        self.dummy = 1
 
         # Subscriptions
         self.ir_L_sub = self.create_subscription(
@@ -108,9 +109,14 @@ class line_follower(Node):
 
 
     #Graph Functions
+    def traverseGraph(self):
+        #define some preference algorithm.
+        #use distances if you want (Nd, Ed, Sd, Wd)
+        self.dummy = 1
+
     def updatePos(self):
         #update current variables
-        #if gray detected:
+        #if gray detected (implement):
         #   self.current_node = self.current_destination
         #   self.current_destination = self. Function to Calculate Next Destination.
 
@@ -133,10 +139,13 @@ class line_follower(Node):
         mask = cv2.inRange(hsv, lower_black, upper_black)
         return cv2.countNonZero(mask) #(int) num of black pixels in img
     
+    #def detect_gray()  (implement)
+    
     def ir_L_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         self.colours[0] = self.detect_black(img)
+        #self.isGray[0] = self.detect_gray(img) (implement for all 3 callbacks + handle somewhere)
 
     def ir_M_callback(self, msg):
         h, w = msg.height, msg.width
