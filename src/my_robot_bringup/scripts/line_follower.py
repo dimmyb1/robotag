@@ -46,6 +46,7 @@ class line_follower(Node):
 
         # Array to store the 3 read sensors
         self.colours = [0,0,0]
+        self.isGray = [0,0,0]
         # Speed for every movement except right turning 
         self.speed = 60
         # Counter to hold which angles we have searched so that the robot does not move random angles used in the switch case
@@ -81,6 +82,15 @@ class line_follower(Node):
         self.current_destination = 'A'
         self.skipZero = False
         self.dummy = 1
+        self.behaviourMode = 0
+        # behaviourMode settings:
+        # 0 - not set (no behaviour)
+        # 1 - Simple Line Follower
+        # 2 - Random
+        # 3 - Greedy
+        # 4 - Avoidant
+        # 5 - Interceptive
+        # 6 - Trap Layer
 
         # Subscriptions
         self.ir_L_sub = self.create_subscription(
@@ -117,7 +127,8 @@ class line_follower(Node):
     def updatePos(self):
         #update current variables
         #if gray detected (implement):
-        #   self.current_node = self.current_destination
+        if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
+            self.current_node = self.current_destination
         #   self.current_destination = self. Function to Calculate Next Destination.
 
         #update sweeping setting
@@ -132,30 +143,37 @@ class line_follower(Node):
 
     #Line Following Functions
 
-    def detect_black(self, hsv):
+    def detect_black(self, img):
         # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
         upper_black = np.array([26, 26, 26])
-        mask = cv2.inRange(hsv, lower_black, upper_black)
+        mask = cv2.inRange(img, lower_black, upper_black)
         return cv2.countNonZero(mask) #(int) num of black pixels in img
     
-    #def detect_gray()  (implement)
+    def detect_gray(self, img):
+        # returns a mask of black pixels in the image
+        lower_gray = np.array([85, 85, 85])
+        upper_gray = np.array([128, 128, 128])
+        mask = cv2.inRange(img, lower_gray, upper_gray)
+        return cv2.countNonZero(mask) #(int) num of gray pixels in img
     
     def ir_L_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         self.colours[0] = self.detect_black(img)
-        #self.isGray[0] = self.detect_gray(img) (implement for all 3 callbacks + handle somewhere)
+        self.isGray[0] = self.detect_gray(img)
 
     def ir_M_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         self.colours[1] = self.detect_black(img)
+        self.isGray[1] = self.detect_gray(img)
 
     def ir_R_callback(self, msg):
         h, w = msg.height, msg.width
         img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
         self.colours[2] = self.detect_black(img)
+        self.isGray[2] = self.detect_gray(img)
 
     # --------------------------
     # Motor Control Functions
