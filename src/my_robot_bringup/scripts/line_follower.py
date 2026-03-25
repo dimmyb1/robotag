@@ -82,6 +82,7 @@ class line_follower(Node):
         self.current_destination = 'A'
         self.skipZero = False
         self.behaviourMode = 0
+        self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
         # behaviourMode settings:
         # 0 - not set (no behaviour)
         # 1 - Simple Line Follower
@@ -123,7 +124,13 @@ class line_follower(Node):
         #use distances if you want (Nd, Ed, Sd, Wd)
         # behaviourMode settings:
         if self.behaviourMode == 1:
-            # 1 - Simple Line Follower
+            # 1 - Simple Line Follower (using pink path)
+            #self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
+            self.i_patrol+=1
+            if self.i_patrol >= 16:
+                self.i_patrol = 0
+
+            self.current_destination = self.patrolPath[self.i_patrol]
             return
         elif self.behaviourMode == 2:
             # 2 - Random
