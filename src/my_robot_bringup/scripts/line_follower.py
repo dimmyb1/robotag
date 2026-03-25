@@ -17,6 +17,20 @@ from rclpy.qos import QoSProfile, DurabilityPolicy
 import subprocess
 import time
 
+class Noden():
+    def __init__(self):
+        self.Nd = 0
+        self.Nc = 'Z'
+        self.Ed = 0
+        self.Ec = 'Z'
+        self.Sd = 0
+        self.Sc = 'Z'
+        self.Wd = 0
+        self.Wc = 'Z'
+        self.name = 'Z'
+        
+
+
 class line_follower(Node):
     def __init__(self):
         super().__init__('line_follower')
@@ -53,6 +67,20 @@ class line_follower(Node):
         self.motion_end_time = 0
         self.current_motion = None
 
+        # Graph
+        self.A = Noden(78, 11, 61, 140, 'B', 'B', 'F', 'E', 'A')
+        self.B = Noden(106, 14, 29, 11, 'A', 'C', 'D', 'A', 'B')
+        self.C = Noden(155, 49, 10, 15, 'H', 'D', 'D', 'B', 'C')
+        self.D = Noden(13, 59, 40, 46, 'C', 'C', 'F', 'B', 'D')
+        self.E =Noden(128, 12, 49, 90, 'A', 'F', 'G', 'G', 'E')
+        self.F =Noden(111, 70, 11, 34, 'A', 'D', 'G', 'E', 'F')
+        self.G =Noden(9, 12, 109, 34, 'F', 'H', 'E','E', 'G')
+        self.H =Noden(130, 85, 89, 14, 'C', 'H', 'H', 'G', 'H')
+
+        self.current_node = 'A'
+        self.current_destination = 'A'
+        self.skipZero = False
+
         # Subscriptions
         self.ir_L_sub = self.create_subscription(
             Image,
@@ -77,6 +105,26 @@ class line_follower(Node):
         self.cmd = Twist()
 
         self.timer = self.create_timer(0.05, self.loop)
+
+
+    #Graph Functions
+    def updatePos(self):
+        #update current variables
+        #if gray detected:
+        #   self.current_node = self.current_destination
+        #   self.current_destination = self. Function to Calculate Next Destination.
+
+        #update sweeping setting
+        if (self.current_node == 'A' and self.current_destination == self.A.Nc) or (self.current_node == 'B' and self.current_destination == self.B.Nc) or (self.current_node == 'C' and self.current_destination == self.C.Ec) or (self.current_node == 'E' and self.current_destination == self.E.Nc):
+            #special case
+            self.skipZero = True
+        elif(self.current_node in ['F', 'G']):
+            self.skipZero = True
+        else:
+            self.skipZero = False
+        
+
+    #Line Following Functions
 
     def detect_black(self, hsv):
         # returns a mask of black pixels in the image
@@ -193,9 +241,13 @@ class line_follower(Node):
             if self.searchStep == 0:
                 self.searchLeft = True
                 self.dur = self.thirty
+
             elif self.searchStep == 1:
                 self.searchRight = True
-                self.dur = self.thirty *3
+                if self.skipZero:
+                    self.dur = self.thirty *2
+                else:
+                    self.dur = self.thirty *3
 
             elif self.searchStep == 2:
                 self.searchLeft = True
