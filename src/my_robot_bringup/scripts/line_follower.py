@@ -16,6 +16,7 @@ import json
 from rclpy.qos import QoSProfile, DurabilityPolicy
 import subprocess
 import time
+import random
 
 class Noden():
     def __init__(self):
@@ -78,11 +79,12 @@ class line_follower(Node):
         self.G =Noden(9, 12, 109, 34, 'F', 'H', 'E','E', 'G')
         self.H =Noden(130, 85, 89, 14, 'C', 'H', 'H', 'G', 'H')
 
-        self.current_node = 'A'
-        self.current_destination = 'A'
+        self.current_node = self.A
+        self.current_destination = 'F'
         self.skipZero = False
         self.behaviourMode = 0
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
+        self.i_patrol = 0
         # behaviourMode settings:
         # 0 - not set (no behaviour)
         # 1 - Simple Line Follower
@@ -120,6 +122,7 @@ class line_follower(Node):
 
     #Graph Functions
     def traverseGraph(self):
+        choice = -1
         #define some preference algorithm.
         #use distances if you want (Nd, Ed, Sd, Wd)
         # behaviourMode settings:
@@ -129,12 +132,28 @@ class line_follower(Node):
             self.i_patrol+=1
             if self.i_patrol >= 16:
                 self.i_patrol = 0
-
             self.current_destination = self.patrolPath[self.i_patrol]
-            return
+            
         elif self.behaviourMode == 2:
             # 2 - Random
-            return
+            #randomly choose a direction (0-3)
+            choice = random.randint(0,3)
+            if choice == 0:
+                #north
+                self.current_destination = self.current_node.Nc
+            elif choice == 1:
+                #east
+                self.current_destination = self.current_node.Ec
+            elif choice == 2:
+                #south
+                self.current_destination = self.current_node.Sc
+            elif choice == 3:
+                #west
+                self.current_destination = self.current_node.Wc
+            else:
+                self.get_logger().info(f"Bad random number generated, no such choice value as {choice}")
+                
+            
         elif self.behaviourMode == 3:
             # 3 - Greedy
             return
@@ -155,7 +174,13 @@ class line_follower(Node):
         #update current variables
         #if gray detected (implement):
         if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
-            self.current_node = self.current_destination
+            #do some check to ensure we aren't being triggered by the last gray section we saw 
+
+            self.get_logger().info("Intersection detected!")
+            #self.current_node = self.current_destination
+            for n  in [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]:
+                if n.name == self.current_destination:
+                    self.current_node = n
         #   self.current_destination = self. Function to Calculate Next Destination.
 
         #update sweeping setting
@@ -166,6 +191,8 @@ class line_follower(Node):
             self.skipZero = True
         else:
             self.skipZero = False
+
+        #call function to turn towards intended direction by using MPU readings for current facing direction and the intended cardinal direction.
         
 
     #Line Following Functions
