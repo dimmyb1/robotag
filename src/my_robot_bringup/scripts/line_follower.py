@@ -30,7 +30,10 @@ class Noden():
         self.Wc = 'Z'
         self.name = 'Z'
         
-
+class Cell():
+    def __init__(self):
+        self.x = 0
+        self.y = 0
 
 class line_follower(Node):
     def __init__(self):
@@ -94,6 +97,32 @@ class line_follower(Node):
         # 5 - Interceptive
         # 6 - Trap Layer
 
+        self.Pab1 = 0.0
+        self.Pab2 = 0.0
+        self.Paf1 = 0.0
+        self.Pae1 = 0.0
+        self.Pef1 = 0.0
+        self.Peg1 = 0.0
+        self.Peg2 = 0.0
+        self.Pgh1 = 0.0
+        self.Phh1 = 0.0
+        self.Pfg1 = 0.0
+        self.Pfd1 = 0.0
+        self.Pbd1 = 0.0
+        self.Pbc1 = 0.0
+        self.Pcd1 = 0.0
+        self.Pcd2 = 0.0
+        self.Pch1 = 0.0
+
+        self.PA = 0.0
+        self.PB = 0.0
+        self.PC = 0.0
+        self.PD = 0.0
+        self.PE = 0.0
+        self.PF = 0.0
+        self.PG = 0.0
+        self.PH = 0.0
+
         # Subscriptions
         self.ir_L_sub = self.create_subscription(
             Image,
@@ -121,6 +150,129 @@ class line_follower(Node):
 
 
     #Graph Functions
+    def calculateProbabilities(self):
+        #let's say radar stores the closest ultrasonic ping in euclidean metric
+        radar = 8.2
+        servo = 10
+        #and servo was the angle at which we go tthe reading, +- the known margin of error
+        #and that boxmeas is the l / w of the boxes in the grid in euclidean metric
+        boxmeas = 2
+
+        #and let's say we have estimated our current coordinates to be x and y
+        x = 2
+        y = 3
+        # so minimum (2,3), maximum (3,4) starts
+        #these need to be estimated by timing how long we're following a black line for against our pretimed table
+
+        #then we can calculate our minimum and maximums for manhattan distance
+        manhattan = math.ceil(radar / boxmeas) 
+
+        #keeping within the bounds of a 5x6 matrix (0-4 , 0-5)
+        #find all of the cells are within a manhattan distance of "manhattan" from x and y for our minimum band
+        #and from x+1 and y+1 for our maximum band
+        #then, we have a hard maximum set for x coord at matrixBound(x+- manhattan) and matrixBound(y coord at y+-manhattan)
+        #add padding that allows a manhattan+1 distance from x+1 and y+1 staying within the two bounds
+
+        #now we have a set of cells which the opponent can be in
+        cells = [Cell(1,2), Cell(2,3)]
+
+        #reset probabilities
+        self.Pab1 = 0.0
+        self.Pab2 = 0.0
+        self.Paf1 = 0.0
+        self.Pae1 = 0.0
+        self.Pef1 = 0.0
+        self.Peg1 = 0.0
+        self.Peg2 = 0.0
+        self.Pgh1 = 0.0
+        self.Phh1 = 0.0
+        self.Pfg1 = 0.0
+        self.Pfd1 = 0.0
+        self.Pbd1 = 0.0
+        self.Pbc1 = 0.0
+        self.Pcd1 = 0.0
+        self.Pcd2 = 0.0
+        self.Pch1 = 0.0
+
+        self.PA = 0.0
+        self.PB = 0.0
+        self.PC = 0.0
+        self.PD = 0.0
+        self.PE = 0.0
+        self.PF = 0.0
+        self.PG = 0.0
+        self.PH = 0.0
+
+
+        for c in cells:
+            if c.x == 0:
+                if c.y == 0:
+                    self.Peg2 +=1
+                elif c.y == 1:
+                    self.Peg2 += 1
+                elif c.y == 2:
+                    self.Pae1 += 0.25
+                    self.Peg2 = 0.75
+                elif c.y == 3:
+                    self.Pae1 +=1
+                elif c.y == 4:
+                    self.Pae1 +=1
+                elif c.y == 5:
+                    return
+            elif c.x == 1:
+                if c.y == 0:
+                    return
+                elif c.y == 1:
+                    return
+                elif c.y == 2:
+                    return
+                elif c.y == 3:
+                    return
+                elif c.y == 4:
+                    return
+                elif c.y == 5:
+                    return
+            elif c.x == 2:
+                if c.y == 0:
+                    return
+                elif c.y == 1:
+                    return
+                elif c.y == 2:
+                    return
+                elif c.y == 3:
+                    return
+                elif c.y == 4:
+                    return
+                elif c.y == 5:
+                    return
+            elif c.x == 3:
+                if c.y == 0:
+                    return
+                elif c.y == 1:
+                    return
+                elif c.y == 2:
+                    return
+                elif c.y == 3:
+                    return
+                elif c.y == 4:
+                    return
+                elif c.y == 5:
+                    return
+            elif c.x == 4:
+                if c.y == 0:
+                    return
+                elif c.y == 1:
+                    return
+                elif c.y == 2:
+                    return
+                elif c.y == 3:
+                    return
+                elif c.y == 4:
+                    return
+                elif c.y == 5:
+                    return
+        
+
     def planDestination(self):
         choice = -1
         #define some preference algorithm.
