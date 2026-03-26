@@ -148,7 +148,18 @@ class line_follower(Node):
 
         self.timer = self.create_timer(0.05, self.loop)
 
-
+    def upBound(self, x, manhattan, bound):
+        upx = x + manhattan + 1
+        if upx > bound:
+            upx = bound
+        return upx
+    
+    def lowBound(self, x, manhattan):
+        lowx = x - manhattan - 1
+        if lowx < 0:
+            lowx = 0
+        return lowx
+    
     #Graph Functions
     def calculateProbabilities(self):
         #let's say radar stores the closest ultrasonic ping in euclidean metric
@@ -167,14 +178,32 @@ class line_follower(Node):
         #then we can calculate our minimum and maximums for manhattan distance
         manhattan = math.ceil(radar / boxmeas) 
 
+        cells = []
         #keeping within the bounds of a 5x6 matrix (0-4 , 0-5)
+        upx = self.upBound(x, manhattan, 4)
+        upy = self.upBound(y, manhattan, 5)
+        lowx = self.lowBound(x, manhattan)
+        lowy = self.lowBound(y, manhattan)
+        
         #find all of the cells are within a manhattan distance of "manhattan" from x and y for our minimum band
+        for ix in range(lowx, upx):
+            for iy in range(lowy, upy):
+                cells.append(Cell(ix,iy))
+
         #and from x+1 and y+1 for our maximum band
+        upx = self.upBound(x+1, manhattan, 4)
+        upy = self.upBound(y+1, manhattan, 5)
+        lowx = self.lowBound(x+1, manhattan)
+        lowy = self.lowBound(y+1, manhattan)
+        
+        for ix in range(lowx, upx):
+            for iy in range(lowy, upy):
+                cells.append(Cell(ix,iy))
+
+       
         #then, we have a hard maximum set for x coord at matrixBound(x+- manhattan) and matrixBound(y coord at y+-manhattan)
         #add padding that allows a manhattan+1 distance from x+1 and y+1 staying within the two bounds
-
         #now we have a set of cells which the opponent can be in
-        cells = [Cell(1,2), Cell(2,3)]
 
         #trim selection by using servo and mpu angle
 
