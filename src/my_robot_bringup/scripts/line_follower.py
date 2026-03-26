@@ -198,14 +198,21 @@ class line_follower(Node):
         
         for ix in range(lowx, upx):
             for iy in range(lowy, upy):
-                cells.append(Cell(ix,iy))
-
-       
+                if Cell(ix,iy) not in cells:
+                    cells.append(Cell(ix,iy))
+        
         #then, we have a hard maximum set for x coord at matrixBound(x+- manhattan) and matrixBound(y coord at y+-manhattan)
         #add padding that allows a manhattan+1 distance from x+1 and y+1 staying within the two bounds
-        #now we have a set of cells which the opponent can be in
+        padx = self.upBound(x+1, manhattan+1, upx)
+        pady = self.upBound(y+1, manhattan+1, upy)
+        for ix in range(lowx, padx):
+            for iy in range(lowy, pady):
+                if Cell(ix,iy) not in cells:
+                    cells.append(Cell(ix,iy))
 
-        #trim selection by using servo and mpu angle
+        #trim selection by using servo and mpu angle (implement)
+        
+        #now we have a set of cells which the opponent can be in
 
 
         #reset probabilities
