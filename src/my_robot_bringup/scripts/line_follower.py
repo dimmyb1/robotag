@@ -176,6 +176,9 @@ class line_follower(Node):
         #now we have a set of cells which the opponent can be in
         cells = [Cell(1,2), Cell(2,3)]
 
+        #trim selection by using servo and mpu angle
+
+
         #reset probabilities
         self.Pab1 = 0.0
         self.Pab2 = 0.0
@@ -310,6 +313,21 @@ class line_follower(Node):
                 elif c.y == 5:
                     self.Pch1 +=1
         
+        #finally, we have aggregated all the probabilities - so we take the maximum value
+        max = -1
+        consider = [self.Pab1,self.Pab2,self.Paf1,self.Pae1,self.Pef1,self.Peg1,self.Peg2,self.Pgh1,self.Phh1,self.Pfg1,self.Pfd1,self.Pbd1,self.Pbc1,self.Pcd1,self.Pcd2,self.Pch1,self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
+        for a in consider:
+            if a>=max:
+                max = a
+            else:
+                consider.remove(a)
+
+        for a in consider:
+            if a < max:
+                consider.remove(a)
+
+        
+
 
     def planDestination(self):
         choice = -1
