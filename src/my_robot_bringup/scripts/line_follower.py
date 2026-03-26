@@ -149,13 +149,13 @@ class line_follower(Node):
         self.timer = self.create_timer(0.05, self.loop)
 
     def upBound(self, x, manhattan, bound):
-        upx = x + manhattan + 1
+        upx = x + manhattan 
         if upx > bound:
-            upx = bound
-        return upx
+            upx = bound + 1
+        return upx 
     
     def lowBound(self, x, manhattan):
-        lowx = x - manhattan - 1
+        lowx = x - manhattan 
         if lowx < 0:
             lowx = 0
         return lowx
@@ -188,7 +188,8 @@ class line_follower(Node):
         #find all of the cells are within a manhattan distance of "manhattan" from x and y for our minimum band
         for ix in range(lowx, upx):
             for iy in range(lowy, upy):
-                cells.append(Cell(ix,iy))
+                if abs(x - ix) + abs(y - ix) == manhattan:
+                    cells.append(Cell(ix,iy))
 
         #and from x+1 and y+1 for our maximum band
         upx = self.upBound(x+1, manhattan, 4)
@@ -198,7 +199,7 @@ class line_follower(Node):
         
         for ix in range(lowx, upx):
             for iy in range(lowy, upy):
-                if Cell(ix,iy) not in cells:
+                if (Cell(ix,iy) not in cells) and (abs(x - ix) + abs(y - ix) == manhattan):
                     cells.append(Cell(ix,iy))
         
         #then, we have a hard maximum set for x coord at matrixBound(x+- manhattan) and matrixBound(y coord at y+-manhattan)
