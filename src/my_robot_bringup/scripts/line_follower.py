@@ -212,65 +212,103 @@ class line_follower(Node):
                     self.Peg2 += 1
                 elif c.y == 2:
                     self.Pae1 += 0.25
-                    self.Peg2 = 0.75
+                    self.Peg2 += 0.75
                 elif c.y == 3:
                     self.Pae1 +=1
                 elif c.y == 4:
                     self.Pae1 +=1
-                elif c.y == 5:
-                    return
+                # elif c.y == 5:
+                #     return
             elif c.x == 1:
                 if c.y == 0:
-                    return
+                    self.Peg2 +=1
                 elif c.y == 1:
-                    return
+                    self.Peg2 +=0.156
+                    self.Peg1 +=0.844
                 elif c.y == 2:
-                    return
+                    self.PE = 1
+                    self.Peg1+= 0.25
+                    self.Peg2+= 0.25
+                    self.Pef1+= 0.25
+                    self.Pae1+= 0.25
                 elif c.y == 3:
-                    return
+                    self.Pae1 += 0.293
+                    self.Paf1 += 0.707
                 elif c.y == 4:
-                    return
+                    self.PA = 1
+                    self.Pab1+= 0.25
+                    self.Pab2+= 0.25
+                    self.Paf1+= 0.25
+                    self.Pae1+= 0.25
                 elif c.y == 5:
-                    return
+                    self.Pab1 += 1
             elif c.x == 2:
                 if c.y == 0:
-                    return
+                    self.Peg2 +=1
                 elif c.y == 1:
-                    return
+                    self.PG = 1
+                    self.Pgh1+= 0.25
+                    self.Pfg1+= 0.25
+                    self.Peg1+= 0.25
+                    self.Peg2+= 0.25
                 elif c.y == 2:
-                    return
+                    self.PF = 1
+                    self.Pef1+= 0.25
+                    self.Pfg1+= 0.25
+                    self.Paf1+= 0.25
+                    self.Pfd1+= 0.25
                 elif c.y == 3:
-                    return
+                    self.Pbd1 += 0.498
+                    self.Paf1 += 0.498
+                    self.Pfd1 += 0.004
                 elif c.y == 4:
-                    return
+                    self.PB = 1
+                    self.Pab1+= 0.25
+                    self.Pab2+= 0.25
+                    self.Pbc1+= 0.25
+                    self.Pbd1+= 0.25
                 elif c.y == 5:
-                    return
+                    self.Pab1 += 1
             elif c.x == 3:
                 if c.y == 0:
-                    return
+                    self.Phh1 +=1
                 elif c.y == 1:
-                    return
+                    self.PH = 1
+                    self.Pgh1+= 0.25
+                    self.Pch1+= 0.25
+                    self.Phh1+= 0.25
                 elif c.y == 2:
-                    return
+                    self.Pfd1 += 0.477
+                    self.Pch1 += 0.523
                 elif c.y == 3:
-                    return
+                    self.PD = 1
+                    self.Pfd1+= 0.25
+                    self.Pcd1+= 0.25
+                    self.Pcd2+= 0.25
+                    self.Pbd1+= 0.25
                 elif c.y == 4:
-                    return
+                    self.PC = 1
+                    self.Pcd1+= 0.25
+                    self.Pcd2+= 0.25
+                    self.Pbc1+= 0.25
+                    self.Pch1+= 0.25
                 elif c.y == 5:
-                    return
+                    self.Pch1 +=1
             elif c.x == 4:
                 if c.y == 0:
-                    return
+                    self.Phh1 +=1
                 elif c.y == 1:
-                    return
+                    self.Phh1 +=1
                 elif c.y == 2:
-                    return
+                    self.Pch1 +=1
                 elif c.y == 3:
-                    return
+                    self.Pch1 += 0.376
+                    self.Pcd2 += 0.301
                 elif c.y == 4:
-                    return
+                    self.Pch1 +=0.35
+                    self.Pcd2 += 0.65
                 elif c.y == 5:
-                    return
+                    self.Pch1 +=1
         
 
     def planDestination(self):
