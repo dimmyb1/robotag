@@ -186,21 +186,21 @@ class line_follower(Node):
         lowy = self.lowBound(y, manhattan)
         
         #find all of the cells are within a manhattan distance of "manhattan" from x and y for our minimum band
-        for ix in range(lowx, upx):
-            for iy in range(lowy, upy):
-                if abs(x - ix) + abs(y - ix) == manhattan:
-                    cells.append(Cell(ix,iy))
+        # for ix in range(lowx, upx):
+        #     for iy in range(lowy, upy):
+        #         if abs(x - ix) + abs(y - ix) == manhattan:
+        #             cells.append(Cell(ix,iy))
 
         #and from x+1 and y+1 for our maximum band
-        upx = self.upBound(x+1, manhattan, 4)
-        upy = self.upBound(y+1, manhattan, 5)
-        lowx = self.lowBound(x+1, manhattan)
-        lowy = self.lowBound(y+1, manhattan)
+        # upx = self.upBound(x+1, manhattan, 4)
+        # upy = self.upBound(y+1, manhattan, 5)
+        # lowx = self.lowBound(x+1, manhattan)
+        # lowy = self.lowBound(y+1, manhattan)
         
-        for ix in range(lowx, upx):
-            for iy in range(lowy, upy):
-                if (Cell(ix,iy) not in cells) and (abs(x - ix) + abs(y - ix) == manhattan):
-                    cells.append(Cell(ix,iy))
+        # for ix in range(lowx, upx):
+        #     for iy in range(lowy, upy):
+        #         if (Cell(ix,iy) not in cells) and (abs(x - ix) + abs(y - ix) == manhattan):
+        #             cells.append(Cell(ix,iy))
         
         #then, we have a hard maximum set for x coord at matrixBound(x+- manhattan) and matrixBound(y coord at y+-manhattan)
         #add padding that allows a manhattan+1 distance from x+1 and y+1 staying within the two bounds
@@ -208,7 +208,7 @@ class line_follower(Node):
         pady = self.upBound(y+1, manhattan+1, upy)
         for ix in range(lowx, padx):
             for iy in range(lowy, pady):
-                if Cell(ix,iy) not in cells:
+                if (Cell(ix,iy) not in cells) and ((abs(x - ix) + abs(y - ix) == manhattan) or (abs(x - ix) + abs(y - ix) == manhattan+1)):
                     cells.append(Cell(ix,iy))
 
         #trim selection by using servo and mpu angle (implement)
