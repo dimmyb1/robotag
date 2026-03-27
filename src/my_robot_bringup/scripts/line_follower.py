@@ -349,7 +349,25 @@ class line_follower(Node):
             if a < max:
                 consider.remove(a)
 
-        
+        #now consider only contains the max probability options for where the opponent can be
+        #check if the top option is a node
+        b = False
+        for a in consider:
+            if a in [self.PA, self.PB, self.PC, self.PD, self.PE, self.PF, self.PG, self.PH]:
+                self.opponentCurrentProb = a
+                b = True
+
+        if not b:
+            #if no nodes, then they are along an edge
+            #we should check where the opponent was last seen to decide which one is 
+            lastDest = self.opponentCurrent
+            #self.opponentCurrent = consider
+
+            considerNeighbour = []
+
+            for a in consider:
+
+
 
 
     def planDestination(self):
