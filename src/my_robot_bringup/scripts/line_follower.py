@@ -29,7 +29,11 @@ class Noden():
         self.Wd = 0
         self.Wc = 'Z'
         self.name = 'Z'
-        
+        self.Nt = 0.0
+        self.Et = 0.0
+        self.St = 0.0
+        self.Wt = 0.0
+     
 class Cell():
     def __init__(self):
         self.x = 0
@@ -81,6 +85,8 @@ class line_follower(Node):
         self.F =Noden(111, 70, 11, 34, 'A', 'D', 'G', 'E', 'F')
         self.G =Noden(9, 12, 109, 34, 'F', 'H', 'E','E', 'G')
         self.H =Noden(130, 85, 89, 14, 'C', 'H', 'H', 'G', 'H')
+
+        self.myNodes = [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]
 
         self.current_node = self.A
         self.current_destination = 'F'
@@ -147,6 +153,8 @@ class line_follower(Node):
         self.cmd = Twist()
 
         self.timer = self.create_timer(0.05, self.loop)
+
+    def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList)
 
     def upBound(self, x, manhattan, bound):
         upx = x + manhattan 
@@ -366,7 +374,8 @@ class line_follower(Node):
             considerNeighbour = []
 
             for a in consider:
-
+                #abc
+                dummy = 1
 
 
 
