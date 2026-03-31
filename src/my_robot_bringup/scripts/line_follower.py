@@ -206,13 +206,14 @@ class line_follower(Node):
         ts = []
         paths = []
         explorable = [nFrom]
-        explored = []
+        #explored = []
+        #keep finding the directly reachable nodes until we've exhausted all possible paths
         while(explorable):
             t1=-1.0
             t2=-1.0
 
             n = explorable.pop()
-            explored.append(n)
+            #explored.append(n)
             neighbours = [n.Nc, n.Ec, n.Sc, n.Wc]
             #is the destination directly reachable from the current node (nFrom)?
             if nTo.name in neighbours :
@@ -220,8 +221,10 @@ class line_follower(Node):
                 i = neighbours.index(c)
                 t1 = self.returnNode(neighbours[i]).Times[i]
 
+                #and (self.returnNode(ch) not in explored)
+                #prepare next paths
                 for ch in neighbours:
-                    if (ch != c) and (self.returnNode(ch) not in explorable) and (self.returnNode(ch) not in explored) and (self.returnNode(ch).Times[neighbours.index(ch)] < tE + F):
+                    if (ch != c) and (self.returnNode(ch) not in explorable) and (self.returnNode(ch).Times[neighbours.index(ch)] < tE + F):
                         explorable.append(self.returnNode(ch))
 
                 neighbours.remove(c)
