@@ -213,13 +213,17 @@ class line_follower(Node):
         possiblePaths = []
         for l in seenLastList:
             for n in seenNowList:
-                #is it directly reachable?
-                t1, t2, pdir = self.directlyReachable(l,n, timeElapsed, FORGIVENESS_IN_TIME_S)
+                #is it directly reachable? then add them to the possible paths as a list of directions. therefore possiblePaths is a list of lists of directions
+                pdir = self.directlyReachable(l,n, timeElapsed, FORGIVENESS_IN_TIME_S)
+                if(pdir):
+                    possiblePaths.extend(pdir)
+
                 
-                if(t1 < timeElapsed + FORGIVENESS_IN_TIME_S) and (t1>=0):
-                    possiblePaths.append(pdir[0])
-                if(t2 < timeElapsed + FORGIVENESS_IN_TIME_S) and (t2>=0):
-                    possiblePaths.append(pdir[1])
+
+                
+
+
+
 
                 
 
