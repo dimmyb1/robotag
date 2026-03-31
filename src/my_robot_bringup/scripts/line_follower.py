@@ -154,7 +154,33 @@ class line_follower(Node):
 
         self.timer = self.create_timer(0.05, self.loop)
 
-    def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList)
+    def returnNode(self, c):
+        if c == 'A':
+            return self.A
+        elif c == 'B':
+            return self.B
+        elif c == 'C':
+            return self.C
+        elif c == 'D':
+            return self.D
+        elif c == 'E':
+            return self.E
+        elif c == 'F':
+            return self.F
+        elif c == 'G':
+            return self.G
+        elif c == 'H':
+            return self.H
+        else:
+            self.get_logger().info(f"Can't return nonexistent char-node value")
+            return None
+
+    def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList):
+        FORGIVENESS_IN_TIME_S = 5.0
+
+        
+
+
 
     def upBound(self, x, manhattan, bound):
         upx = x + manhattan 
