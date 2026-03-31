@@ -203,16 +203,16 @@ class line_follower(Node):
         return paths
     
     def indirectlyReachable(self, nFrom, nTo, tE, F):
-        ts = []
         paths = []
-        explorable = [(nFrom, 0.0)]
+        explorable = [(nFrom, 0.0, [])]
         #explored = []
         #keep finding the directly reachable nodes until we've exhausted all possible paths
         while(explorable):
             t1=-1.0
             t2=-1.0
 
-            n, at = explorable.pop()
+            #where at means aggregated Time per path
+            n, at, pSoFar = explorable.pop()
             #explored.append(n)
             neighbours = [n.Nc, n.Ec, n.Sc, n.Wc]
             #is the destination directly reachable from the current node (nFrom)?
@@ -225,12 +225,15 @@ class line_follower(Node):
                 #prepare next paths
                 for ch in neighbours:
                     if (ch != c)  and (self.returnNode(ch).Times[neighbours.index(ch)] + at < tE + F):
-                        explorable.append((self.returnNode(ch), at))
+                        at2 = self.returnNode(ch).Times[neighbours.index(ch)] + at
+                        pSoFar2 = pSoFar + neighbours.index(ch)
+                        explorable.append((self.returnNode(ch), at2, pSoFar2))
 
                 neighbours.remove(c)
 
                 if(t1 < tE + F):
-                    paths.append([i])
+                    pSoFar1 = pSoFar + [i]
+                    paths.append([pSoFar1])
 
                 if c in neighbours:
                     #if there's another path to the same node
@@ -238,7 +241,8 @@ class line_follower(Node):
                     t2 = self.returnNode(neighbours[i]).Times[i]
                     neighbours.remove(c)
                     if(t2 < tE + F):
-                        paths.append([i])
+                        pSoFar1 = pSoFar + [i]
+                        paths.append([pSoFar1])
 
         #paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
         return paths
