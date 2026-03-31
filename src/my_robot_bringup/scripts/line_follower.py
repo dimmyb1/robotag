@@ -173,41 +173,38 @@ class line_follower(Node):
             return None
         
     
-    def reachable(self, nFrom, nTo):
+    def directlyReachable(self, nFrom, nTo):
+        paths = []
+        #nFrom and nTo are both Nodens 
+        #nTo is our DESTINATION
+        #nFrom is the node we are leaving from - i.e. we are seeing nFrom.N nFrom.E nFrom.S nFrom.W ...
         c = 'Z'
         f = True
         t1 = -1.0
         t2 = -1.0
 
+
         neighbours = [nFrom.Nc, nFrom.Ec, nFrom.Sc, nFrom.Wc]
+        #is the destination directly reachable from the current node (nFrom)?
         if nTo.name in neighbours :
             c = nTo.name
+            i = neighbours.index(c)
+            t1 = self.returnNode(neighbours[i]).Times[i]
+            neighbours.remove(c)
+            paths.append([i])
 
-            #ok, it's in, but are there 2 paths to the same one?
-            dests = []
-            currInt = 0
-
-            for ac in neighbours:
-                if ac not in dests:
-                    dests.append(ac)
-                    currInt+=1
-                else:
-                    #if there are 2 paths to the same node, we must take note of the times
-                    t1 = self.returnNode(dests[dests.index(ac)]).Times[dests.index(ac)]
-                    t2 = self.returnNode(neighbours[currInt]).Times[currInt]
-
-                    return f,c, t1, t2
-
-            #at this point, we've either returned (found 2 paths)
-            #or we found 4 unique paths, and they're stored in dests as chars
-            #dests is sorted in N E S W
-            #so we can take index of c and use that in Times
-            t1 = self.returnNode(dests[dests.index()])
+            if c in neighbours:
+                #if there's another path to the same node
+                i = neighbours.index(c)
+                t2 = self.returnNode(neighbours[i]).Times[i]
+                paths.append([i])
             
         else:
+            #no, it is not a direct neighbour.
             f=False
 
-        return f,c, t1, t2
+        #return bool(FOUND?Yes), char(nodeName), firstEdgeTime, secondEdgeTime, paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
+        return f,c, t1, t2, paths
     
 
     def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList, timeElapsed):
