@@ -178,8 +178,6 @@ class line_follower(Node):
         #nFrom and nTo are both Nodens 
         #nTo is our DESTINATION
         #nFrom is the node we are leaving from - i.e. we are seeing nFrom.N nFrom.E nFrom.S nFrom.W ...
-        c = 'Z'
-        f = True
         t1 = -1.0
         t2 = -1.0
 
@@ -198,13 +196,9 @@ class line_follower(Node):
                 i = neighbours.index(c)
                 t2 = self.returnNode(neighbours[i]).Times[i]
                 paths.append([i])
-            
-        else:
-            #no, it is not a direct neighbour.
-            f=False
 
         #return bool(FOUND?Yes), char(nodeName), firstEdgeTime, secondEdgeTime, paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
-        return f,c, t1, t2, paths
+        return t1, t2, paths
     
 
     def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList, timeElapsed):
@@ -219,9 +213,12 @@ class line_follower(Node):
             for n in seenNowList:
                 newPath = []
                 #is it directly reachable?
-                yes, charName = self.reachable(l,n)
-                if(yes):
-                    newPath.append(self.returnNode(charName))
+                yes, charName, t1, t2, pdir = self.directlyReachable(l,n)
+                
+                if(t1 < timeElapsed + FORGIVENESS_IN_TIME_S) and (t1>=0):
+                    possiblePaths.append(pdir[0])
+                if(t2 < timeElapsed + FORGIVENESS_IN_TIME_S) and (t2>=0):
+                    possiblePaths.append(pdir[1])
 
 
 
