@@ -182,23 +182,32 @@ class line_follower(Node):
         neighbours = [nFrom.Nc, nFrom.Ec, nFrom.Sc, nFrom.Wc]
         if nTo.name in neighbours :
             c = nTo.name
+
+            #ok, it's in, but are there 2 paths to the same one?
             dests = []
             currInt = 0
+
             for ac in neighbours:
                 if ac not in dests:
                     dests.append(ac)
                     currInt+=1
                 else:
+                    #if there are 2 paths to the same node, we must take note of the times
                     t1 = self.returnNode(dests[dests.index(ac)]).Times[dests.index(ac)]
                     t2 = self.returnNode(neighbours[currInt]).Times[currInt]
 
                     return f,c, t1, t2
 
+            #at this point, we've either returned (found 2 paths)
+            #or we found 4 unique paths, and they're stored in dests as chars
+            #dests is sorted in N E S W
+            #so we can take index of c and use that in Times
+            t1 = self.returnNode(dests[dests.index()])
             
         else:
             f=False
 
-        return f,c, t
+        return f,c, t1, t2
     
 
     def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList, timeElapsed):
