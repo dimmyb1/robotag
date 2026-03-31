@@ -173,14 +173,13 @@ class line_follower(Node):
             return None
         
     
-    def directlyReachable(self, nFrom, nTo):
+    def directlyReachable(self, nFrom, nTo, tE, F):
         paths = []
         #nFrom and nTo are both Nodens 
         #nTo is our DESTINATION
         #nFrom is the node we are leaving from - i.e. we are seeing nFrom.N nFrom.E nFrom.S nFrom.W ...
         t1 = -1.0
         t2 = -1.0
-
 
         neighbours = [nFrom.Nc, nFrom.Ec, nFrom.Sc, nFrom.Wc]
         #is the destination directly reachable from the current node (nFrom)?
@@ -189,16 +188,19 @@ class line_follower(Node):
             i = neighbours.index(c)
             t1 = self.returnNode(neighbours[i]).Times[i]
             neighbours.remove(c)
-            paths.append([i])
+
+            if(t1 < tE + F):
+                paths.append([i])
 
             if c in neighbours:
                 #if there's another path to the same node
                 i = neighbours.index(c)
                 t2 = self.returnNode(neighbours[i]).Times[i]
-                paths.append([i])
+                if(t2 < tE + F):
+                    paths.append([i])
 
-        #return bool(FOUND?Yes), char(nodeName), firstEdgeTime, secondEdgeTime, paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
-        return t1, t2, paths
+        #paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
+        return paths
     
 
     def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList, timeElapsed):
@@ -211,14 +213,15 @@ class line_follower(Node):
         possiblePaths = []
         for l in seenLastList:
             for n in seenNowList:
-                newPath = []
                 #is it directly reachable?
-                yes, charName, t1, t2, pdir = self.directlyReachable(l,n)
+                t1, t2, pdir = self.directlyReachable(l,n, timeElapsed, FORGIVENESS_IN_TIME_S)
                 
                 if(t1 < timeElapsed + FORGIVENESS_IN_TIME_S) and (t1>=0):
                     possiblePaths.append(pdir[0])
                 if(t2 < timeElapsed + FORGIVENESS_IN_TIME_S) and (t2>=0):
                     possiblePaths.append(pdir[1])
+
+                
 
 
 
