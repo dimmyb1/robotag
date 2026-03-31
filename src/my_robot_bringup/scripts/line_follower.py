@@ -202,6 +202,45 @@ class line_follower(Node):
         #paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
         return paths
     
+    def indirectlyReachable(self, nFrom, nTo, tE, F):
+        ts = []
+        paths = []
+        explorable = [nFrom]
+        explored = []
+        while(explorable):
+            t1=-1.0
+            t2=-1.0
+
+            n = explorable.pop()
+            explored.append(n)
+            neighbours = [n.Nc, n.Ec, n.Sc, n.Wc]
+            #is the destination directly reachable from the current node (nFrom)?
+            if nTo.name in neighbours :
+                c = nTo.name
+                i = neighbours.index(c)
+                t1 = self.returnNode(neighbours[i]).Times[i]
+
+                for ch in neighbours:
+                    if (ch != c) and (self.returnNode(ch) not in explorable) and (self.returnNode(ch) not in explored) and (self.returnNode(ch).Times[neighbours.index(ch)] < tE + F):
+                        explorable.append(self.returnNode(ch))
+
+                neighbours.remove(c)
+
+                if(t1 < tE + F):
+                    paths.append([i])
+
+                if c in neighbours:
+                    #if there's another path to the same node
+                    i = neighbours.index(c) +1
+                    t2 = self.returnNode(neighbours[i]).Times[i]
+                    neighbours.remove(c)
+                    if(t2 < tE + F):
+                        paths.append([i])
+
+        #paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
+        return paths
+            
+    
 
     def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList, timeElapsed):
         FORGIVENESS_IN_TIME_S = 5.0
@@ -218,7 +257,7 @@ class line_follower(Node):
                 if(pdir):
                     possiblePaths.extend(pdir)
 
-                
+                self.indirectlyReachable();
 
                 
 
