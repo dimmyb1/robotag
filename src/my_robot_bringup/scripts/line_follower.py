@@ -219,30 +219,34 @@ class line_follower(Node):
             if nTo.name in neighbours :
                 c = nTo.name
                 i = neighbours.index(c)
-                t1 = self.returnNode(neighbours[i]).Times[i] +at
-
-                #and (self.returnNode(ch) not in explored) and (self.returnNode(ch) not in explorable)
-                #prepare next paths
-                for ch in neighbours:
-                    if (ch != c)  and (self.returnNode(ch).Times[neighbours.index(ch)] + at < tE + F):
-                        at2 = self.returnNode(ch).Times[neighbours.index(ch)] + at
-                        pSoFar2 = pSoFar + neighbours.index(ch)
-                        explorable.append((self.returnNode(ch), at2, pSoFar2))
-
-                neighbours.remove(c)
+                t1 = n.Times[i] +at
 
                 if(t1 < tE + F):
                     pSoFar1 = pSoFar + [i]
                     paths.append([pSoFar1])
 
+                #and (self.returnNode(ch) not in explored) and (self.returnNode(ch) not in explorable)
+                #prepare next paths
+                for ch in neighbours:
+                    if (ch != c)  and (n.Times[neighbours.index(ch)] + at < tE + F):
+                        at2 = n.Times[neighbours.index(ch)] + at
+                        pSoFar2 = pSoFar + [neighbours.index(ch)]
+                        explorable.append((self.returnNode(ch), at2, pSoFar2))
+
+                neighbours.remove(c)
+
+                
+
                 if c in neighbours:
                     #if there's another path to the same node
                     i = neighbours.index(c) +1
-                    t2 = self.returnNode(neighbours[i]).Times[i] +at
-                    neighbours.remove(c)
+                    t2 = n.Times[i] +at
+
                     if(t2 < tE + F):
                         pSoFar1 = pSoFar + [i]
                         paths.append([pSoFar1])
+
+                    neighbours.remove(c)
 
         #paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
         return paths
