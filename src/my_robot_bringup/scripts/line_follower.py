@@ -219,7 +219,7 @@ class line_follower(Node):
             if nTo.name in neighbours :
                 c = nTo.name
                 i = neighbours.index(c)
-                t1 = self.returnNode(neighbours[i]).Times[i]
+                t1 = self.returnNode(neighbours[i]).Times[i] +at
 
                 #and (self.returnNode(ch) not in explored) and (self.returnNode(ch) not in explorable)
                 #prepare next paths
@@ -238,7 +238,7 @@ class line_follower(Node):
                 if c in neighbours:
                     #if there's another path to the same node
                     i = neighbours.index(c) +1
-                    t2 = self.returnNode(neighbours[i]).Times[i]
+                    t2 = self.returnNode(neighbours[i]).Times[i] +at
                     neighbours.remove(c)
                     if(t2 < tE + F):
                         pSoFar1 = pSoFar + [i]
