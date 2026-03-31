@@ -29,10 +29,7 @@ class Noden():
         self.Wd = 0
         self.Wc = 'Z'
         self.name = 'Z'
-        self.Nt = 0.0
-        self.Et = 0.0
-        self.St = 0.0
-        self.Wt = 0.0
+        self.Times = [0.0, 0.0, 0.0, 0.0]
      
 class Cell():
     def __init__(self):
@@ -174,11 +171,51 @@ class line_follower(Node):
         else:
             self.get_logger().info(f"Can't return nonexistent char-node value")
             return None
+        
+    
+    def reachable(self, nFrom, nTo):
+        c = 'Z'
+        f = True
+        t1 = -1.0
+        t2 = -1.0
 
-    def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList):
+        neighbours = [nFrom.Nc, nFrom.Ec, nFrom.Sc, nFrom.Wc]
+        if nTo.name in neighbours :
+            c = nTo.name
+            dests = []
+            currInt = 0
+            for ac in neighbours:
+                if ac not in dests:
+                    dests.append(ac)
+                    currInt+=1
+                else:
+                    t1 = self.returnNode(dests[dests.index(ac)]).Times[dests.index(ac)]
+                    t2 = self.returnNode(neighbours[currInt]).Times[currInt]
+
+                    return f,c, t1, t2
+
+            
+        else:
+            f=False
+
+        return f,c, t
+    
+
+    def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList, timeElapsed):
         FORGIVENESS_IN_TIME_S = 5.0
 
-        
+        #create path 
+        #is there a path from last pos to a in consider?
+        #which has a similar estimated time from the last time we checked?
+
+        possiblePaths = []
+        for l in seenLastList:
+            for n in seenNowList:
+                newPath = []
+                #is it directly reachable?
+                yes, charName = self.reachable(l,n)
+                if(yes):
+                    newPath.append(self.returnNode(charName))
 
 
 
