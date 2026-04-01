@@ -262,7 +262,11 @@ class line_follower(Node):
     def calculateProbabilities(self):
         #let's say radar stores the closest ultrasonic ping in euclidean metric
         radar = 8.2
-        servo = 10
+        servo1 = 10
+        servo2 = 90
+        #we get two readings: first ping entering reading
+        # second ping exiting reading
+        # the order doesnt make a difference, main thing is that we have the angle, wwe'll just take min or max of the two values.
         #and servo was the angle at which we go tthe reading, +- the known margin of error
         #and that boxmeas is the l / w of the boxes in the grid in euclidean metric
         boxmeas = 2
@@ -296,6 +300,50 @@ class line_follower(Node):
                     cells.append(Cell(ix,iy))
 
         #trim selection by using servo and mpu angle (implement)
+
+        #first we will check if the mark is right in front of us
+        lesserServo = min(servo1, servo2)
+        biggerServo = max(servo1, servo2)
+        #for now i assume these to be in euclidean 
+
+        #get current cardinal direction we're facing (implement)
+
+        if(lesserServo < 90 and biggerServo > 90):
+            #if current cardinal direction we're facing is North or South
+            for c in cells:
+                if(c.x != x):
+                    cells.remove(c)
+
+            #if current cardinal is East or West:
+            for c in cells:
+                if(c.y != y):
+                    cells.remove(c)
+
+        else:
+            #it isnt directly in front of us.
+            #is it on the left or on the right?
+            if(biggerServo <= 90):
+                #on the right side:
+                #if facing North
+                #take the maximum area
+                diffX = 4-x
+
+                diffY = math.ceil(diffX * math.tan(biggerServo))
+                servoCells = []
+                
+
+                for iy in range(1, (diffY / 2)+1):
+                    if((ix /2)+ x < 5):
+                        servoCells.append(Cell(ix+x, ))
+
+                for iy in range((diffY/2) +1, diffY +1):
+                    if((ix) + x < 5):
+                        servoCells.append(Cell())
+                        
+
+                        
+
+
         
         #now we have a set of cells which the opponent can be in
 
