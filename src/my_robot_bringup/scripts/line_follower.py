@@ -325,6 +325,7 @@ class line_follower(Node):
             if(biggerServo <= 90):
                 servoCells = []
                 #on the right side:
+
                 #if facing North
                 #take the maximum area
                 diffX = 4-x
@@ -352,12 +353,22 @@ class line_follower(Node):
                         servoCells.remove(Cell(ix+x, iy))
 
 
+                #elif south
+
+                #elif east
+
+                #elif west
+
+
+            else:
+                #on the LHS
+                dummy=1
 
                 
-                #now find INTERSECTION with radius cells
-                for c in cells:
-                    if c not in servoCells:
-                        cells.remove(c)
+            #now find INTERSECTION with radius cells
+            for c in cells:
+                if c not in servoCells:
+                    cells.remove(c)
                         
 
                         
