@@ -323,29 +323,48 @@ class line_follower(Node):
             #it isnt directly in front of us.
             #is it on the left or on the right?
             if(biggerServo <= 90):
+                servoCells = []
                 #on the right side:
                 #if facing North
                 #take the maximum area
                 diffX = 4-x
-
                 diffY = math.ceil(diffX * math.tan(biggerServo))
-                servoCells = []
-                
 
                 for iy in range(1, (diffY / 2)+1):
-                    if((ix /2)+ x < 5):
-                        servoCells.append(Cell(ix+x, ))
+                    if((diffX /2)+ x < 5):
+                        servoCells.append(Cell(ix+x, iy))
 
                 for iy in range((diffY/2) +1, diffY +1):
-                    if((ix) + x < 5):
-                        servoCells.append(Cell())
+                    if((diffX) + x < 5):
+                        servoCells.append(Cell(ix+x, iy))
+
+                        
+                #now make the smaller triangle
+                diffX = 4-x
+                diffY = math.ceil(diffX * math.tan(lesserServo))
+
+                for iy in range(1, (diffY / 2)+1):
+                    if((diffX /2)+ x < 5):
+                        servoCells.remove(Cell(ix+x, iy))
+
+                for iy in range((diffY/2) +1, diffY +1):
+                    if((diffX) + x < 5):
+                        servoCells.remove(Cell(ix+x, iy))
+
+
+
+                
+                #now find INTERSECTION with radius cells
+                for c in cells:
+                    if c not in servoCells:
+                        cells.remove(c)
                         
 
                         
 
 
         
-        #now we have a set of cells which the opponent can be in
+        #now we have a pretty small set of cells which the opponent can be in
 
 
         #reset probabilities
