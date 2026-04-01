@@ -172,37 +172,7 @@ class line_follower(Node):
             self.get_logger().info(f"Can't return nonexistent char-node value")
             return None
         
-    
-    def directlyReachable(self, nFrom, nTo, tE, F):
-        paths = []
-        #nFrom and nTo are both Nodens 
-        #nTo is our DESTINATION
-        #nFrom is the node we are leaving from - i.e. we are seeing nFrom.N nFrom.E nFrom.S nFrom.W ...
-        t1 = -1.0
-        t2 = -1.0
-
-        neighbours = [nFrom.Nc, nFrom.Ec, nFrom.Sc, nFrom.Wc]
-        #is the destination directly reachable from the current node (nFrom)?
-        if nTo.name in neighbours :
-            c = nTo.name
-            i = neighbours.index(c)
-            t1 = self.returnNode(neighbours[i]).Times[i]
-            neighbours.remove(c)
-
-            if(t1 < tE + F):
-                paths.append([i])
-
-            if c in neighbours:
-                #if there's another path to the same node
-                i = neighbours.index(c)
-                t2 = self.returnNode(neighbours[i]).Times[i]
-                if(t2 < tE + F):
-                    paths.append([i])
-
-        #paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
-        return paths
-    
-    def indirectlyReachable(self, nFrom, nTo, tE, F):
+    def allReachable(self, nFrom, nTo, tE, F):
         paths = []
         explorable = [(nFrom, 0.0, [])]
         #explored = []
@@ -228,7 +198,7 @@ class line_follower(Node):
                 #and (self.returnNode(ch) not in explored) and (self.returnNode(ch) not in explorable)
                 #prepare next paths
                 for ch in neighbours:
-                    if (ch != c)  and (n.Times[neighbours.index(ch)] + at < tE + F):
+                    if (ch != c)  and (n.Times[neighbours.index(ch)] + at < tE + F) and (n.Times[neighbours.index(ch)] + at > tE - F):
                         at2 = n.Times[neighbours.index(ch)] + at
                         pSoFar2 = pSoFar + [neighbours.index(ch)]
                         explorable.append((self.returnNode(ch), at2, pSoFar2))
@@ -248,7 +218,7 @@ class line_follower(Node):
 
                     neighbours.remove(c)
 
-        #paths: e.g. [ [0], [3]  ] -> path 1 is: go north (0); path 2 is: go west (3)
+        #paths: e.g. [ [0], [3,2,1]  ] -> path 1 is: go north (0); path 2 is: go west (3) go south, (2), go east (1)
         return paths
             
     
@@ -264,11 +234,8 @@ class line_follower(Node):
         for l in seenLastList:
             for n in seenNowList:
                 #is it directly reachable? then add them to the possible paths as a list of directions. therefore possiblePaths is a list of lists of directions
-                pdir = self.directlyReachable(l,n, timeElapsed, FORGIVENESS_IN_TIME_S)
-                if(pdir):
-                    possiblePaths.extend(pdir)
-
-                self.indirectlyReachable();
+                pdir = self.allReachable(l,n, timeElapsed, FORGIVENESS_IN_TIME_S)
+                possiblePaths.append((self.returnNode(l), pdir))
 
                 
 
