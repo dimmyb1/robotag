@@ -327,33 +327,71 @@ class line_follower(Node):
                 #on the right side:
 
                 #if facing North
-                #take the maximum area
-                diffX = 4-x
-                diffY = math.ceil(diffX * math.tan(biggerServo))
+                if(dummy==1):
+                    #take the maximum area
+                    diffX = 4-x
+                    diffY = math.ceil(diffX * math.tan(biggerServo))
 
-                for iy in range(1, (diffY / 2)+1):
-                    if((diffX /2)+ x < 5):
-                        servoCells.append(Cell(ix+x, iy))
+                    ix = x + 1
+                    while(ix<5):
+                        if(ix < (x + math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(iy + y < 6):
+                                    servoCells.append(Cell(ix, iy+y))
+                        elif(ix < (x + diffX)):
+                            for iy in range(diffY):
+                                if(iy + y < 6):
+                                    servoCells.append(Cell(ix, iy+y))
 
-                for iy in range((diffY/2) +1, diffY +1):
-                    if((diffX) + x < 5):
-                        servoCells.append(Cell(ix+x, iy))
+                        ix+=1
 
                         
-                #now make the smaller triangle
-                diffX = 4-x
-                diffY = math.ceil(diffX * math.tan(lesserServo))
 
-                for iy in range(1, (diffY / 2)+1):
-                    if((diffX /2)+ x < 5):
-                        servoCells.remove(Cell(ix+x, iy))
+                            
+                    #now make the smaller triangle
+                    diffY = math.ceil(diffX * math.tan(lesserServo))
 
-                for iy in range((diffY/2) +1, diffY +1):
-                    if((diffX) + x < 5):
-                        servoCells.remove(Cell(ix+x, iy))
+                    ix = x + 1
+                    while(ix<5):
+                        if(ix < (x + math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(iy + y < 6):
+                                    servoCells.remove(Cell(ix, iy+y))
+                        elif(ix < (x + diffX)):
+                            for iy in range(diffY):
+                                if(iy + y < 6):
+                                    servoCells.remove(Cell(ix, iy+y))
+
+                        ix+=1
 
 
                 #elif south
+                elif(dummy==2):
+                    #take the maximum area
+                    diffX = x
+                    diffY = math.ceil(diffX * math.tan(biggerServo))
+
+                    for iy in range(1, (diffY / 2)+1):
+                        if((diffX /2)+ x < 5):
+                            servoCells.append(Cell(ix+x, iy))
+
+                    for iy in range((diffY/2) +1, diffY +1):
+                        if((diffX) + x < 5):
+                            servoCells.append(Cell(ix+x, iy))
+
+                            
+                    #now make the smaller triangle
+                    diffY = math.ceil(diffX * math.tan(lesserServo))
+
+                    for iy in range(1, (diffY / 2)+1):
+                        if((diffX /2)+ x < 5):
+                            servoCells.remove(Cell(ix+x, iy))
+
+                    for iy in range((diffY/2) +1, diffY +1):
+                        if((diffX) + x < 5):
+                            servoCells.remove(Cell(ix+x, iy))
 
                 #elif east
 
