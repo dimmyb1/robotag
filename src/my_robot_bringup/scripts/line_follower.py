@@ -403,6 +403,40 @@ class line_follower(Node):
 
 
                 #elif east
+                    #take the maximum area
+                    diffY = y
+                    diffX = math.ceil(diffY * math.tan(biggerServo))
+
+                    iy = y - 1
+                    while(iy>-1):
+                        if(iy >= (y - math.ceil(diffY / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x - ix > 0):
+                                    servoCells.append(Cell(x - ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x - ix > 0):
+                                    servoCells.append(Cell(x - ix, iy))
+
+                        iy-=1
+                            
+                    #now make the smaller triangle
+                    diffY = math.ceil(diffX * math.tan(lesserServo))
+
+                    ix = x - 1
+                    while(ix>-1):
+                        if(ix > (x - math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(y - iy > 0):
+                                    servoCells.remove(Cell(ix, y-iy))
+                        else:
+                            for iy in range(diffY):
+                                if(y - iy > 0):
+                                    servoCells.remove(Cell(ix, y-iy))
+
+                        ix-=1
 
                 #elif west
 
