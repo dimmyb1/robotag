@@ -345,9 +345,6 @@ class line_follower(Node):
                                     servoCells.append(Cell(ix, iy+y))
 
                         ix+=1
-
-                        
-
                             
                     #now make the smaller triangle
                     diffY = math.ceil(diffX * math.tan(lesserServo))
@@ -359,7 +356,7 @@ class line_follower(Node):
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6):
                                     servoCells.remove(Cell(ix, iy+y))
-                        elif(ix < (x + diffX)):
+                        else:
                             for iy in range(diffY):
                                 if(iy + y < 6):
                                     servoCells.remove(Cell(ix, iy+y))
@@ -373,25 +370,37 @@ class line_follower(Node):
                     diffX = x
                     diffY = math.ceil(diffX * math.tan(biggerServo))
 
-                    for iy in range(1, (diffY / 2)+1):
-                        if((diffX /2)+ x < 5):
-                            servoCells.append(Cell(ix+x, iy))
+                    ix = x - 1
+                    while(ix>-1):
+                        if(ix > (x - math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(y - iy > 0):
+                                    servoCells.append(Cell(ix, y-iy))
+                        else:
+                            for iy in range(diffY):
+                                if(y - iy > 0):
+                                    servoCells.append(Cell(ix, y-iy))
 
-                    for iy in range((diffY/2) +1, diffY +1):
-                        if((diffX) + x < 5):
-                            servoCells.append(Cell(ix+x, iy))
-
+                        ix-=1
                             
                     #now make the smaller triangle
                     diffY = math.ceil(diffX * math.tan(lesserServo))
 
-                    for iy in range(1, (diffY / 2)+1):
-                        if((diffX /2)+ x < 5):
-                            servoCells.remove(Cell(ix+x, iy))
+                    ix = x - 1
+                    while(ix>-1):
+                        if(ix > (x - math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(y - iy > 0):
+                                    servoCells.remove(Cell(ix, y-iy))
+                        else:
+                            for iy in range(diffY):
+                                if(y - iy > 0):
+                                    servoCells.remove(Cell(ix, y-iy))
 
-                    for iy in range((diffY/2) +1, diffY +1):
-                        if((diffX) + x < 5):
-                            servoCells.remove(Cell(ix+x, iy))
+                        ix-=1
+
 
                 #elif east
 
