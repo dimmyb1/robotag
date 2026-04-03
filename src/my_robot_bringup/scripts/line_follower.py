@@ -497,9 +497,9 @@ class line_follower(Node):
                     #now make the smaller triangle
                     diffY = math.ceil(diffX * math.tan(180 - biggerServo))
 
-                    ix = x + 1
-                    while(ix<5):
-                        if(ix < (x + math.ceil(diffX / 2))):
+                    ix = x - 1
+                    while(ix>-1):
+                        if(ix > (x - math.ceil(diffX / 2))):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6):
@@ -509,7 +509,7 @@ class line_follower(Node):
                                 if(iy + y < 6):
                                     servoCells.remove(Cell(ix, iy+y))
 
-                        ix+=1
+                        ix-=1
 
                 
             #now find INTERSECTION with radius cells
