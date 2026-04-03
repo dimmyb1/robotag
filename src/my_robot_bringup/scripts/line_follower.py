@@ -338,7 +338,7 @@ class line_follower(Node):
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6):
                                     servoCells.append(Cell(ix, iy+y))
-                        elif(ix < (x + diffX)):
+                        else:
                             for iy in range(diffY):
                                 if(iy + y < 6):
                                     servoCells.append(Cell(ix, iy+y))
@@ -482,7 +482,7 @@ class line_follower(Node):
 
                     ix = x - 1
                     while(ix>-1):
-                        if(ix > (x - math.ceil(diffX / 2))):
+                        if(ix >= (x - math.ceil(diffX / 2))):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6):
@@ -499,7 +499,7 @@ class line_follower(Node):
 
                     ix = x - 1
                     while(ix>-1):
-                        if(ix > (x - math.ceil(diffX / 2))):
+                        if(ix >= (x - math.ceil(diffX / 2))):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6):
