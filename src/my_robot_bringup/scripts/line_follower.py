@@ -323,6 +323,8 @@ class line_follower(Node):
             #it isnt directly in front of us.
             #is it on the left or on the right?
             servoCells = []
+
+
             #on the right side:
             if(biggerServo <= 90):
                 #if facing North
@@ -333,14 +335,14 @@ class line_follower(Node):
 
                     ix = x + 1
                     while(ix<5):
-                        if(ix < (x + math.ceil(diffX / 2))):
+                        if  (ix <= (x + math.ceil(diffX / 2))):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
-                                if(iy + y < 6):
+                                if(iy + y < 6) and (iy + y > -1):
                                     servoCells.append(Cell(ix, iy+y))
                         else:
                             for iy in range(diffY):
-                                if(iy + y < 6):
+                                if(iy + y < 6) and (iy + y > -1):
                                     servoCells.append(Cell(ix, iy+y))
 
                         ix+=1
@@ -350,14 +352,14 @@ class line_follower(Node):
 
                     ix = x + 1
                     while(ix<5):
-                        if(ix < (x + math.ceil(diffX / 2))):
+                        if(ix <= (x + math.ceil(diffX / 2))):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
-                                if(iy + y < 6):
+                                if(iy + y < 6) and (iy + y > -1):
                                     servoCells.remove(Cell(ix, iy+y))
                         else:
                             for iy in range(diffY):
-                                if(iy + y < 6):
+                                if(iy + y < 6) and (iy + y > -1):
                                     servoCells.remove(Cell(ix, iy+y))
 
                         ix+=1
@@ -443,7 +445,7 @@ class line_follower(Node):
 
                     iy = y + 1
                     while(iy<6):
-                        if(iy < (y + math.ceil(diffY / 2))):
+                        if  ((iy < (y + math.ceil(diffY / 2))) and y%2!=0) or ((iy <= (y + math.ceil(diffY / 2))) and y%2==0)  :
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix < 5):
@@ -460,7 +462,7 @@ class line_follower(Node):
 
                     iy = y + 1
                     while(iy<6):
-                        if(iy < (y + math.ceil(diffY / 2))):
+                        if ((iy < (y + math.ceil(diffY / 2))) and y%2!=0) or ((iy <= (y + math.ceil(diffY / 2))) and y%2==0):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix > -1):
