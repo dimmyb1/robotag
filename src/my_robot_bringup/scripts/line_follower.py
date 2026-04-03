@@ -278,27 +278,18 @@ class line_follower(Node):
         #these need to be estimated by timing how long we're following a black line for against our pretimed table
 
         #then we can calculate our minimum and maximums for manhattan distance
-        manhattan = math.ceil(radar / boxmeas) 
-
-        
-        #keeping within the bounds of a 5x6 matrix (0-4 , 0-5)
-        #find all of the cells are within a manhattan distance of "manhattan" from x and y for our minimum band
-        #and from x+1 and y+1 for our maximum band
-        #then, we have a hard maximum set for x coord at matrixBound(x+- manhattan) and matrixBound(y coord at y+-manhattan)
-        #add padding that allows a manhattan+1 distance from x+1 and y+1 staying within the two bounds
-        upx = self.upBound(x, manhattan, 4)
-        upy = self.upBound(y, manhattan, 5)
-        lowx = self.lowBound(x, manhattan)
-        lowy = self.lowBound(y, manhattan)
-        padx = self.upBound(x+1, manhattan+1, upx)
-        pady = self.upBound(y+1, manhattan+1, upy)
-
+        #MAKE A CIRCLE
+        #we first find minimum
+        minL1 = math.ceil(radar / boxmeas)
+        maxL1 = (math.ceil(radar / math.sqrt(2 * math.pow(boxmeas,2))) *2) +1
         cells = []
-        for ix in range(lowx, padx):
-            for iy in range(lowy, pady):
-                if (Cell(ix,iy) not in cells) and ((abs(x - ix) + abs(y - ix) == manhattan) or (abs(x - ix) + abs(y - ix) == manhattan+1)):
+
+        for ix in range(5):
+            for iy in range(6):
+                if ( (abs(x-ix) + abs(y-iy)) in range(minL1, maxL1 +1)   ):
                     cells.append(Cell(ix,iy))
 
+        #MAKE A CONE
         #trim selection by using servo and mpu angle (implement)
 
         #first we will check if the mark is right in front of us
