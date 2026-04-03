@@ -456,7 +456,7 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffX = math.ceil(diffX * math.tan(lesserServo))
+                    diffX = math.ceil(diffY * math.tan(lesserServo))
 
                     iy = y + 1
                     while(iy<6):
@@ -467,7 +467,7 @@ class line_follower(Node):
                                     servoCells.remove(Cell(x - ix, iy))
                         else:
                             for ix in range(diffX):
-                                if(x - ix > -1) and (x- ix > -1):
+                                if(x - ix > -1):
                                     servoCells.remove(Cell(x - ix, iy))
 
                         iy+=1
