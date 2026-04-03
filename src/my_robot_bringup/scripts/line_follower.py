@@ -322,10 +322,9 @@ class line_follower(Node):
         else:
             #it isnt directly in front of us.
             #is it on the left or on the right?
+            servoCells = []
+            #on the right side:
             if(biggerServo <= 90):
-                servoCells = []
-                #on the right side:
-
                 #if facing North
                 if(dummy==1):
                     #take the maximum area
@@ -475,7 +474,42 @@ class line_follower(Node):
 
             else:
                 #on the LHS
-                dummy=1
+                #if facing North
+                if(dummy==1):
+                    #take the maximum area
+                    diffX = x
+                    diffY = math.ceil(diffX * math.tan(180 - lesserServo))
+
+                    ix = x - 1
+                    while(ix>-1):
+                        if(ix > (x - math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(iy + y < 6):
+                                    servoCells.append(Cell(ix, iy+y))
+                        else:
+                            for iy in range(diffY):
+                                if(iy + y < 6):
+                                    servoCells.append(Cell(ix, iy+y))
+
+                        ix-=1
+                            
+                    #now make the smaller triangle
+                    diffY = math.ceil(diffX * math.tan(180 - biggerServo))
+
+                    ix = x + 1
+                    while(ix<5):
+                        if(ix < (x + math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(iy + y < 6):
+                                    servoCells.remove(Cell(ix, iy+y))
+                        else:
+                            for iy in range(diffY):
+                                if(iy + y < 6):
+                                    servoCells.remove(Cell(ix, iy+y))
+
+                        ix+=1
 
                 
             #now find INTERSECTION with radius cells
