@@ -463,11 +463,11 @@ class line_follower(Node):
                         if(iy < (y + math.ceil(diffY / 2))):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
-                                if(x - ix < 5):
+                                if(x - ix > -1):
                                     servoCells.remove(Cell(x - ix, iy))
                         else:
                             for ix in range(diffX):
-                                if(x - ix < 5):
+                                if(x - ix > -1):
                                     servoCells.remove(Cell(x - ix, iy))
 
                         iy+=1
@@ -548,6 +548,77 @@ class line_follower(Node):
 
                         ix+=1
 
+                elif(dummy==2):
+                    #take the maximum area
+                    diffY = y
+                    diffX = math.ceil(diffY * math.tan(180 - lesserServo))
+
+                    iy = y + 1
+                    while(iy<6):
+                        if(iy < (y + math.ceil(diffY / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x + ix < 5):
+                                    servoCells.append(Cell(x + ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x + ix < 5):
+                                    servoCells.append(Cell(x + ix, iy))
+
+                        iy+=1
+                            
+                    #now make the smaller triangle
+                    diffX = math.ceil(diffX * math.tan(180 - biggerServo))
+
+                    iy = y + 1
+                    while(iy<6):
+                        if(iy < (y + math.ceil(diffY / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x + ix < 5):
+                                    servoCells.remove(Cell(x + ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x + ix < 5):
+                                    servoCells.remove(Cell(x + ix, iy))
+
+                        iy+=1
+
+                elif(dummy==3):
+                    #west left
+                    diffY = y
+                    diffX = math.ceil(diffY * math.tan(180 - lesserServo))
+
+                    iy = y - 1
+                    while(iy> -1):
+                        if(iy >= (y - math.ceil(diffY / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x - ix > -1):
+                                    servoCells.append(Cell(x - ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x - ix > -1):
+                                    servoCells.append(Cell(x - ix, iy))
+
+                        iy-=1
+                            
+                    #now make the smaller triangle
+                    diffX = math.ceil(diffX * math.tan(180 - biggerServo))
+
+                    iy = y - 1
+                    while(iy> -1):
+                        if(iy >= (y - math.ceil(diffY / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x - ix > -1):
+                                    servoCells.append(Cell(x - ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x - ix > -1):
+                                    servoCells.append(Cell(x - ix, iy))
+
+                        iy-=1
                 
             #now find INTERSECTION with radius cells
             for c in cells:
