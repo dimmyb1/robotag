@@ -307,7 +307,7 @@ class line_follower(Node):
         #for now i assume these to be in euclidean 
 
         #get current cardinal direction we're facing (implement)
-
+        #check if not detected at all! or if you only have 1 reading! (implement)
         if(lesserServo < 90 and biggerServo > 90):
             #if current cardinal direction we're facing is North or South
             for c in cells:
@@ -421,7 +421,7 @@ class line_follower(Node):
                         iy-=1
                             
                     #now make the smaller triangle
-                    diffX = math.ceil(diffX * math.tan(lesserServo))
+                    diffX = math.ceil(diffY * math.tan(lesserServo))
 
                     iy = y - 1
                     while(iy>-1):
@@ -568,7 +568,7 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffX = math.ceil(diffX * math.tan(180 - biggerServo))
+                    diffX = math.ceil(diffY * math.tan(180 - biggerServo))
 
                     iy = y + 1
                     while(iy<6):
@@ -604,7 +604,7 @@ class line_follower(Node):
                         iy-=1
                             
                     #now make the smaller triangle
-                    diffX = math.ceil(diffX * math.tan(180 - biggerServo))
+                    diffX = math.ceil(diffY * math.tan(180 - biggerServo))
 
                     iy = y - 1
                     while(iy> -1):
