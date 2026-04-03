@@ -516,12 +516,12 @@ class line_follower(Node):
                 #if facing south
                 elif(dummy==1):
                     #take the maximum area
-                    diffX = x
+                    diffX = 4 - x
                     diffY = math.ceil(diffX * math.tan(180 - lesserServo))
 
                     ix = x + 1
                     while(ix<5):
-                        if(ix < (x + math.ceil(diffX / 2))):
+                        if((ix < (x + math.ceil(diffX / 2))) and (x%2!=0)) or ((ix <= (x + math.ceil(diffX / 2))) and (x%2==0)):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(y - iy > -1):
