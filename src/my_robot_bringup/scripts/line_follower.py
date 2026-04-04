@@ -2,7 +2,7 @@
 # Imports
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, Imu, LaserScan
 from nav_msgs.msg import Odometry
 # Control robot velocity through this
 from geometry_msgs.msg import Twist
@@ -11,7 +11,7 @@ import cv2
 from enum import Enum
 from config import directions
 import math
-from std_msgs.msg import String
+from std_msgs.msg import String, Float64
 import json
 from rclpy.qos import QoSProfile, DurabilityPolicy
 import subprocess
@@ -48,6 +48,8 @@ class line_follower(Node):
         topic_L = f'/{robot_name}_ir_L/image_raw'
         topic_M = f'/{robot_name}_ir_M/image_raw'
         topic_R = f'/{robot_name}_ir_R/image_raw'
+        topic_IMU = f'/{robot_name}/imu'
+        topic_LIDAR = f'/{robot_name}/scan'
 
         # Array to store the 3 read sensors
         self.colours = [0,0,0]
@@ -145,6 +147,20 @@ class line_follower(Node):
             self.ir_R_callback,
             1
         )
+
+        self.imu_sub = self.create_subscription(
+            Imu,
+            topic_IMU,
+            self.imu_callback,
+            10)
+            
+        self.lidar_sub = self.create_subscription(
+            LaserScan,
+            topic_LIDAR,
+            self.lidar_callback,
+            10)
+        
+        self.servo_pub = self.create_publisher(Float64, '/servo_cmd', 10)
 
         self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
         self.cmd = Twist()
@@ -872,8 +888,56 @@ class line_follower(Node):
 
         #call function to turn towards intended direction by using MPU readings for current facing direction and the intended cardinal direction.(IMPLEMENT)
         
-    #Ultrasonic Functions
-    #callback for ultrasonic - radar (implement) - keep some vars up to date
+    #MPU5060 / IMU callback
+    def imu_callback(self, msg: Imu):
+        # The IMU gives us a quaternion (x, y, z, w)
+        q = msg.orientation
+        
+        # Convert the quaternion to Yaw (Rotation around the Z axis) in radians
+        siny_cosp = 2 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
+        yaw_rad = math.atan2(siny_cosp, cosy_cosp)
+        
+        # Optional: Convert to degrees for easier human reading
+        yaw_deg = math.degrees(yaw_rad)
+        
+        self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
+
+    #Ultrasonic functions
+    def lidar_callback(self, msg: LaserScan):
+        # msg.ranges contains the array of distance readings.
+        # We use a list comprehension to filter out infinity and NaN (None-equivalent) values.
+        valid_ranges = [
+            r for r in msg.ranges 
+            if not math.isinf(r) and not math.isnan(r)
+        ]
+        
+        if valid_ranges:
+            # Example: Find the closest object from the valid readings
+            closest_obstacle = min(valid_ranges)
+            self.get_logger().info(f'Valid Lidar Rays: {len(valid_ranges)}. Closest object is at {closest_obstacle:.2f} meters.')
+        else:
+            self.get_logger().info('No valid LiDAR data received in this scan.')
+
+    def set_servo_angle(self, angle_degrees):
+        # 1. Clamp the angle to respect your URDF limits (-90 to +90)
+        clamped_angle = max(-90.0, min(90.0, angle_degrees))
+        
+        # 2. Convert degrees to radians (ROS 2 standard)
+        angle_radians = math.radians(clamped_angle)
+        
+        # 3. Create and publish the message
+        msg = Float64()
+        msg.data = angle_radians
+        
+        # If using ros2_control Float64MultiArray, it would look like this instead:
+        # msg = Float64MultiArray()
+        # msg.data = [angle_radians] # Assuming it's the only joint or the first joint in the controller array
+        
+        self.servo_pub.publish(msg)
+        self.get_logger().info(f'Commanded servo to {clamped_angle}° ({angle_radians:.2f} rad)')
+
+        #example usage: set_servo_angle(45.0)
 
     #Line Following Functions
     def detect_black(self, img):
