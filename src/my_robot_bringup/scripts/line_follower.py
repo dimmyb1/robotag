@@ -82,8 +82,8 @@ class line_follower(Node):
         self.D = Noden(13, 59, 40, 46, 'C', 'C', 'F', 'B', 'D', [0.0, 0.0, 0.0, 0.0])
         self.E =Noden(128, 12, 49, 90, 'A', 'F', 'G', 'G', 'E', [0.0, 0.0, 0.0, 0.0])
         self.F =Noden(111, 70, 11, 34, 'A', 'D', 'G', 'E', 'F', [0.0, 0.0, 0.0, 0.0])
-        self.G =Noden(9, 12, 109, 34, 'F', 'H', 'E','E', 'G')
-        self.H =Noden(130, 85, 89, 14, 'C', 'H', 'H', 'G', 'H')
+        self.G =Noden(9, 12, 109, 34, 'F', 'H', 'E','E', 'G', [0.0, 0.0, 0.0, 0.0])
+        self.H =Noden(130, 85, 89, 14, 'C', 'H', 'H', 'G', 'H', [0.0, 0.0, 0.0, 0.0])
 
         self.myNodes = [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]
 
