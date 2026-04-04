@@ -19,17 +19,17 @@ import time
 import random
 
 class Noden():
-    def __init__(self):
-        self.Nd = 0
-        self.Nc = 'Z'
-        self.Ed = 0
-        self.Ec = 'Z'
-        self.Sd = 0
-        self.Sc = 'Z'
-        self.Wd = 0
-        self.Wc = 'Z'
-        self.name = 'Z'
-        self.Times = [0.0, 0.0, 0.0, 0.0]
+    def __init__(self, nd, nc, ed, ec, sd,sc, wd, wc, n, t):
+        self.Nd = nd
+        self.Nc = nc
+        self.Ed = ed
+        self.Ec = ec
+        self.Sd = sd
+        self.Sc = sc
+        self.Wd = wd
+        self.Wc = wc
+        self.name = n
+        self.Times = t
      
 class Cell():
     def __init__(self):
