@@ -76,12 +76,12 @@ class line_follower(Node):
         self.current_motion = None
 
         # Graph
-        self.A = Noden(78, 11, 61, 140, 'B', 'B', 'F', 'E', 'A')
-        self.B = Noden(106, 14, 29, 11, 'A', 'C', 'D', 'A', 'B')
-        self.C = Noden(155, 49, 10, 15, 'H', 'D', 'D', 'B', 'C')
-        self.D = Noden(13, 59, 40, 46, 'C', 'C', 'F', 'B', 'D')
-        self.E =Noden(128, 12, 49, 90, 'A', 'F', 'G', 'G', 'E')
-        self.F =Noden(111, 70, 11, 34, 'A', 'D', 'G', 'E', 'F')
+        self.A = Noden(78, 11, 61, 140, 'B', 'B', 'F', 'E', 'A', [0.0, 0.0, 0.0, 0.0])
+        self.B = Noden(106, 14, 29, 11, 'A', 'C', 'D', 'A', 'B', [0.0, 0.0, 0.0, 0.0])
+        self.C = Noden(155, 49, 10, 15, 'H', 'D', 'D', 'B', 'C', [0.0, 0.0, 0.0, 0.0])
+        self.D = Noden(13, 59, 40, 46, 'C', 'C', 'F', 'B', 'D', [0.0, 0.0, 0.0, 0.0])
+        self.E =Noden(128, 12, 49, 90, 'A', 'F', 'G', 'G', 'E', [0.0, 0.0, 0.0, 0.0])
+        self.F =Noden(111, 70, 11, 34, 'A', 'D', 'G', 'E', 'F', [0.0, 0.0, 0.0, 0.0])
         self.G =Noden(9, 12, 109, 34, 'F', 'H', 'E','E', 'G')
         self.H =Noden(130, 85, 89, 14, 'C', 'H', 'H', 'G', 'H')
 
