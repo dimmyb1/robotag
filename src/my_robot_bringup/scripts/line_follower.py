@@ -11,7 +11,7 @@ import cv2
 from enum import Enum
 from config import directions
 import math
-from std_msgs.msg import String, Float64
+from std_msgs.msg import String, Float64, Float64MultiArray
 import json
 from rclpy.qos import QoSProfile, DurabilityPolicy
 import subprocess
@@ -900,7 +900,27 @@ class line_follower(Node):
 
 
     #Ultrasonic functions
-    
+    # Subscribe to the topic you just created
+        self.data_sub = self.create_subscription(
+            Float64MultiArray,
+            '/object_data',
+            self.object_data_callback,
+            10
+        )
+
+    def object_data_callback(self, msg):
+        # Unpack the array based on the order you published it
+        entry_angle = msg.data[0]
+        exit_angle = msg.data[1]
+        distance = msg.data[2]
+        
+        # Now you have exactly what you care about to use in this script
+        self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
+        
+        # Add your robot's decision-making logic here!
+        # if distance < 0.5:
+        #     self.stop_robot()
+        # etc...
 
 
 
