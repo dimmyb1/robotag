@@ -40,17 +40,6 @@ class line_follower(Node):
     def __init__(self):
         super().__init__('line_follower')
 
-        robot_name = self.get_namespace().strip('/')
-
-        if not robot_name:
-            robot_name = 'generic'
-
-        topic_L = f'/{robot_name}_ir_L/image_raw'
-        topic_M = f'/{robot_name}_ir_M/image_raw'
-        topic_R = f'/{robot_name}_ir_R/image_raw'
-        topic_IMU = f'/{robot_name}/imu'
-        
-
         # Array to store the 3 read sensors
         self.colours = [0,0,0]
         self.isGray = [0,0,0]
@@ -133,7 +122,23 @@ class line_follower(Node):
         self.PG = 0.0
         self.PH = 0.0
 
+
+
         # Subscriptions
+
+        robot_name = self.get_namespace().strip('/')
+
+        if not robot_name:
+            robot_name = 'generic'
+
+        topic_L = f'/{robot_name}_ir_L/image_raw'
+        topic_M = f'/{robot_name}_ir_M/image_raw'
+        topic_R = f'/{robot_name}_ir_R/image_raw'
+        topic_IMU = f'/{robot_name}/imu'
+        topic_object = f"{robot_name}/object_data"
+
+
+
         self.ir_L_sub = self.create_subscription(
             Image,
             topic_L,
@@ -158,6 +163,13 @@ class line_follower(Node):
             topic_IMU,
             self.imu_callback,
             10)
+        
+        self.data_sub = self.create_subscription(
+            Float64MultiArray,
+            topic_object,
+            self.ultrasonic_callback,
+            10
+        )
             
         
 
@@ -905,15 +917,7 @@ class line_follower(Node):
 
 
     #Ultrasonic functions
-    # Subscribe to the topic you just created
-        self.data_sub = self.create_subscription(
-            Float64MultiArray,
-            '/object_data',
-            self.object_data_callback,
-            10
-        )
-
-    def object_data_callback(self, msg):
+    def ultrasonic_callback(self, msg):
         # Unpack the array based on the order you published it
         #ANGLES ARE IN RADIANS (but i can do math.degrees(v) to convert to normal degrees if i need to)
         self.entry_angle = msg.data[0]
