@@ -75,6 +75,11 @@ class line_follower(Node):
         self.motion_end_time = 0
         self.current_motion = None
 
+        #ultrasonic sensor related variables
+        self.entry_angle = 0.0
+        self.exit_angle = 0.0
+        self.ultrasonic_distance = 0.0
+
         # Graph
         self.A = Noden(78, 11, 61, 140, 'B', 'B', 'F', 'E', 'A', [0.0, 0.0, 0.0, 0.0])
         self.B = Noden(106, 14, 29, 11, 'A', 'C', 'D', 'A', 'B', [0.0, 0.0, 0.0, 0.0])
@@ -910,17 +915,13 @@ class line_follower(Node):
 
     def object_data_callback(self, msg):
         # Unpack the array based on the order you published it
-        entry_angle = msg.data[0]
-        exit_angle = msg.data[1]
-        distance = msg.data[2]
+        #ANGLES ARE IN RADIANS (but i can do math.degrees(v) to convert to normal degrees if i need to)
+        self.entry_angle = msg.data[0]
+        self.exit_angle = msg.data[1]
+        self.ultrasonic_distance = msg.data[2]
         
         # Now you have exactly what you care about to use in this script
-        self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
-        
-        # Add your robot's decision-making logic here!
-        # if distance < 0.5:
-        #     self.stop_robot()
-        # etc...
+        #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
 
 
 
