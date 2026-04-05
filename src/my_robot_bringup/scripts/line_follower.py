@@ -903,21 +903,28 @@ class line_follower(Node):
         
         self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
 
+
+
     #Ultrasonic functions
-    def lidar_callback(self, msg: LaserScan):
-        # msg.ranges contains the array of distance readings.
-        # We use a list comprehension to filter out infinity and NaN (None-equivalent) values.
-        valid_ranges = [
-            r for r in msg.ranges 
-            if not math.isinf(r) and not math.isnan(r)
-        ]
+    def lidar_callback(self, msg):
+        # Find indices where the lidar actually hit something
+        hit_indices = [i for i, distance in enumerate(msg.ranges) 
+                    if msg.range_min < distance < msg.range_max]
         
-        if valid_ranges:
-            # Example: Find the closest object from the valid readings
-            closest_obstacle = min(valid_ranges)
-            self.get_logger().info(f'Valid Lidar Rays: {len(valid_ranges)}. Closest object is at {closest_obstacle:.2f} meters.')
-        else:
-            self.get_logger().info('No valid LiDAR data received in this scan.')
+        if not hit_indices:
+            self.get_logger().info("Nothing detected.")
+            return
+            
+        # The edges are the first and last indices of the hits
+        left_index = hit_indices[0]
+        right_index = hit_indices[-1]
+        
+        # Calculate angles (in radians)
+        left_angle = msg.angle_min + (left_index * msg.angle_increment)
+        right_angle = msg.angle_min + (right_index * msg.angle_increment)
+        
+        # Shortest distance to the object
+        shortest_distance = min([msg.ranges[i] for i in hit_indices])
 
     def set_servo_angle(self, angle_degrees):
         # 1. Clamp the angle to respect your URDF limits (-90 to +90)
@@ -938,6 +945,8 @@ class line_follower(Node):
         self.get_logger().info(f'Commanded servo to {clamped_angle}° ({angle_radians:.2f} rad)')
 
         #example usage: set_servo_angle(45.0)
+
+
 
     #Line Following Functions
     def detect_black(self, img):
