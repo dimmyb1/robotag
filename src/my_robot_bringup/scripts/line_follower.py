@@ -49,7 +49,7 @@ class line_follower(Node):
         topic_M = f'/{robot_name}_ir_M/image_raw'
         topic_R = f'/{robot_name}_ir_R/image_raw'
         topic_IMU = f'/{robot_name}/imu'
-        topic_LIDAR = f'/{robot_name}/scan'
+        
 
         # Array to store the 3 read sensors
         self.colours = [0,0,0]
@@ -154,13 +154,7 @@ class line_follower(Node):
             self.imu_callback,
             10)
             
-        self.lidar_sub = self.create_subscription(
-            LaserScan,
-            topic_LIDAR,
-            self.lidar_callback,
-            10)
         
-        self.servo_pub = self.create_publisher(Float64, '/servo_cmd', 10)
 
         self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
         self.cmd = Twist()
@@ -906,45 +900,7 @@ class line_follower(Node):
 
 
     #Ultrasonic functions
-    def lidar_callback(self, msg):
-        # Find indices where the lidar actually hit something
-        hit_indices = [i for i, distance in enumerate(msg.ranges) 
-                    if msg.range_min < distance < msg.range_max]
-        
-        if not hit_indices:
-            self.get_logger().info("Nothing detected.")
-            return
-            
-        # The edges are the first and last indices of the hits
-        left_index = hit_indices[0]
-        right_index = hit_indices[-1]
-        
-        # Calculate angles (in radians)
-        left_angle = msg.angle_min + (left_index * msg.angle_increment)
-        right_angle = msg.angle_min + (right_index * msg.angle_increment)
-        
-        # Shortest distance to the object
-        shortest_distance = min([msg.ranges[i] for i in hit_indices])
-
-    def set_servo_angle(self, angle_degrees):
-        # 1. Clamp the angle to respect your URDF limits (-90 to +90)
-        clamped_angle = max(-90.0, min(90.0, angle_degrees))
-        
-        # 2. Convert degrees to radians (ROS 2 standard)
-        angle_radians = math.radians(clamped_angle)
-        
-        # 3. Create and publish the message
-        msg = Float64()
-        msg.data = angle_radians
-        
-        # If using ros2_control Float64MultiArray, it would look like this instead:
-        # msg = Float64MultiArray()
-        # msg.data = [angle_radians] # Assuming it's the only joint or the first joint in the controller array
-        
-        self.servo_pub.publish(msg)
-        self.get_logger().info(f'Commanded servo to {clamped_angle}° ({angle_radians:.2f} rad)')
-
-        #example usage: set_servo_angle(45.0)
+    
 
 
 
