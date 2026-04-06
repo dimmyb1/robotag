@@ -784,6 +784,26 @@ class line_follower(Node):
                 elif c.y == 5:
                     self.Pch1 +=1
         
+        #first, let us normalise all the probabilities so that they are comparable
+        #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
+        #check the short edges first:
+        for a in [self.Pfg1, self.Pgh1, self.Pab2, self.Pbc1, self.Pcd1, self.Pef1]:
+            a = a / 0.5
+
+        self.Pfd1 /= 0.981
+        self.Pbd1 /= 0.998
+        self.Peg1 /= 1.344
+        self.Pcd2 /= 1.451
+        self.Paf1 /= 1.705
+        self.Pab1 /= 2.5
+        self.Pae1 /= 3.043
+        self.Phh1 /= 3.5
+        self.Pch1 /= 4.749
+        self.Peg2 /= 5.406
+
+        #now everything is written as P E [0,1]
+
+
         #finally, we have aggregated all the probabilities - so we take the maximum value
         #ACTUALLY WE'RE NO LONGER TAKING MAXIMUM VALUE.
 
@@ -807,7 +827,7 @@ class line_follower(Node):
                 if (a < 0.5):
                     consider.remove(a)
 
-            #0.25 was generally found to be the lowest but most common low probability value. (e.g. half a short path)
+        #0.25 was generally found to be the lowest but most common low probability value. (e.g. half a short path)
         elif(max> 0.25):
             for a in consider:
                 if (a <= 0.25):
@@ -832,25 +852,7 @@ class line_follower(Node):
                 #remove any 0 probability options
 
         #so, is it worth considering the node? or is there a likely edge?
-        #first, let us refactor all the probabilities to be comparable
-        #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
-        #so let's make everything comparable through normalisation
-        #check the short edges first:
-        for a in [self.Pfg1, self.Pgh1, self.Pab2, self.Pbc1, self.Pcd1, self.Pef1]:
-            a = a / 0.5
-
-        self.Pfd1 /= 0.981
-        self.Pbd1 /= 0.998
-        self.Peg1 /= 1.344
-        self.Pcd2 /= 1.451
-        self.Paf1 /= 1.705
-        self.Pab1 /= 2.5
-        self.Pae1 /= 3.043
-        self.Phh1 /= 3.5
-        self.Pch1 /= 4.749
-        self.Peg2 /= 5.406
-
-        #now everything is written as P E [0,1]
+        
 
         
 
