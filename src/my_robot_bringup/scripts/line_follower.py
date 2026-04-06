@@ -840,17 +840,28 @@ class line_follower(Node):
         #check if the likeliest option is a node
         b = False
         nConsider = [self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
-        
-        for a in nConsider:
-            if a != 0:
-                self.opponentCurrentProb = a
-                b = True
-                #b means we found a node
-                #node probabilities are set to 1.0 by default if the cell is active
-            else:
-                nConsider.remove(a)
-                #remove any 0 probability options
+        count = 0
+        for c in cells:
+            count+=1
 
+        if(max < 1 / count):
+            for a in nConsider:
+                if a != 0:
+                    #node probabilities are set to 1.0 by default if the cell is active
+                    #so let's normalise.
+                    a /= count
+                    # node probability /= number of cells selected
+                    # so PX = 1 / numOfCells
+
+                    
+                    b = True
+                    #b means we found a selected node
+                else:
+                    nConsider.remove(a)
+                    #remove any 0 probability options
+        else:
+            dummy=2
+            #im still figuring out this section of logic
         #so, is it worth considering the node? or is there a likely edge?
         
 
