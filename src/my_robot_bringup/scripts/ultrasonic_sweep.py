@@ -1,7 +1,8 @@
 import rclpy
+import math
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan, JointState
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Float64MultiArray, Float64 # <-- Added Float64 for servo commands
 
 class SweepingUltrasonicNode(Node):
     def __init__(self):
@@ -16,33 +17,54 @@ class SweepingUltrasonicNode(Node):
         topic_LIDAR = f"{topic_prefix}/scan"
         topic_object = f"{topic_prefix}/object_data"
         
-        # Subscribe to the simulated servo's joint states
-        self.joint_sub = self.create_subscription(
-            JointState, 
-            topic_joint, 
-            self.joint_callback, 
-            10
-        )
+        # NOTE: Change this topic to match whatever your ros2_control or servo plugin uses!
+        topic_servo_cmd = f"{topic_prefix}/servo_cmd" 
         
-        # Subscribe to the narrow-beam LiDAR
-        self.scan_sub = self.create_subscription(
-            LaserScan,
-            topic_LIDAR,
-            self.scan_callback,
-            10
-        )
+        # Subscribers
+        self.joint_sub = self.create_subscription(JointState, topic_joint, self.joint_callback, 10)
+        self.scan_sub = self.create_subscription(LaserScan, topic_LIDAR, self.scan_callback, 10)
         
-        # Publisher for the calculated object data
-        self.object_pub = self.create_publisher(
-            Float64MultiArray, 
-            topic_object, 
-            10
-        )
+        # Publishers
+        self.object_pub = self.create_publisher(Float64MultiArray, topic_object, 10)
         
+        # Command publisher for the servo. (If your controller requires a Float64MultiArray instead, change this)
+        self.cmd_pub = self.create_publisher(Float64, topic_servo_cmd, 10)
+        
+        # State variables for detection
         self.current_servo_angle = 0.0
         self.is_detecting = False
         self.entry_angle = None
         self.min_distance = float('inf')
+        
+        # State variables for sweeping
+        self.target_angle = 0.0
+        self.sweep_direction = 1  # 1 for increasing angle, -1 for decreasing
+        self.sweep_speed = 1.0    # Radians per second
+        self.timer_period = 0.05  # 20 Hz update rate
+        
+        # Create a timer to constantly publish movement commands
+        self.timer = self.create_timer(self.timer_period, self.sweep_timer_callback)
+
+    def sweep_timer_callback(self):
+        # Calculate how much to move this cycle
+        step = self.sweep_speed * self.timer_period
+        
+        # Update target angle
+        self.target_angle += (self.sweep_direction * step)
+        
+        # Reverse direction if we hit the -90 or +90 degree limits (approx 1.57 radians)
+        limit = math.pi / 2.0
+        if self.target_angle >= limit:
+            self.target_angle = limit
+            self.sweep_direction = -1
+        elif self.target_angle <= -limit:
+            self.target_angle = -limit
+            self.sweep_direction = 1
+            
+        # Publish the command to the servo
+        cmd_msg = Float64()
+        cmd_msg.data = self.target_angle
+        self.cmd_pub.publish(cmd_msg)
 
     def joint_callback(self, msg):
         try:
