@@ -802,7 +802,7 @@ class line_follower(Node):
         #TRIM UNLIKELY OPTIONS
 
         #0.5 is the minimum probability for the shortest paths in the map
-        if(max> 0.5):
+        if(max>= 0.5):
             for a in consider:
                 if (a < 0.5):
                     consider.remove(a)
@@ -839,9 +839,19 @@ class line_follower(Node):
         for a in [self.Pfg1, self.Pgh1, self.Pab2, self.Pbc1, self.Pcd1, self.Pef1]:
             a = a / 0.5
 
+        self.Pfd1 /= 0.981
+        self.Pbd1 /= 0.998
+        self.Peg1 /= 1.344
+        self.Pcd2 /= 1.451
         self.Paf1 /= 1.705
         self.Pab1 /= 2.5
         self.Pae1 /= 3.043
+        self.Phh1 /= 3.5
+        self.Pch1 /= 4.749
+        self.Peg2 /= 5.406
+
+        #now everything is written as P E [0,1]
+
         
 
         if not b:
