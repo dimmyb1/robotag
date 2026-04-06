@@ -785,17 +785,48 @@ class line_follower(Node):
                     self.Pch1 +=1
         
         #finally, we have aggregated all the probabilities - so we take the maximum value
-        max = -1
-        consider = [self.Pab1,self.Pab2,self.Paf1,self.Pae1,self.Pef1,self.Peg1,self.Peg2,self.Pgh1,self.Phh1,self.Pfg1,self.Pfd1,self.Pbd1,self.Pbc1,self.Pcd1,self.Pcd2,self.Pch1,self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
-        for a in consider:
-            if a>=max:
-                max = a
-            else:
-                consider.remove(a)
+        #ACTUALLY WE'RE NO LONGER TAKING MAXIMUM VALUE.
 
+        #what we are doing now is: anything less than 0.5 probability (unless it is max value) is cut
+        max = -1
+        consider = [self.Pab1,self.Pab2,self.Paf1,self.Pae1,self.Pef1,self.Peg1,self.Peg2,self.Pgh1,self.Phh1,self.Pfg1,self.Pfd1,self.Pbd1,self.Pbc1,self.Pcd1,self.Pcd2,self.Pch1]
+        nConsider = [self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
         for a in consider:
-            if a < max:
+            if(a == 0):
                 consider.remove(a)
+                #remove any 0 probability paths
+
+            elif a>=max:
+                max = a
+                #keep track of the maximum
+
+
+        #0.5 is the minimum probability for the shortest paths in the map
+        if(max> 0.5):
+            for a in consider:
+                if (a < 0.5):
+                    consider.remove(a)
+
+            #0.25 was generally found to be the lowest but most common low probability value. (e.g. half a short path)
+        elif(max> 0.25):
+            for a in consider:
+                if (a <= 0.25):
+                    consider.remove(a)
+
+        #
+
+        
+        # for a in consider:
+        #     if a>=max:
+        #         max = a
+        #     else:
+        #         consider.remove(a)
+
+        # for a in consider:
+        #     if a < max:
+        #         consider.remove(a)
+
+
 
         #now consider only contains the max probability options for where the opponent can be
         #check if the top option is a node
