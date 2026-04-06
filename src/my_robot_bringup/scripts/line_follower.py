@@ -790,7 +790,6 @@ class line_follower(Node):
         #what we are doing now is: anything less than 0.5 probability (unless it is max value) is cut
         max = -1
         consider = [self.Pab1,self.Pab2,self.Paf1,self.Pae1,self.Pef1,self.Peg1,self.Peg2,self.Pgh1,self.Phh1,self.Pfg1,self.Pfd1,self.Pbd1,self.Pbc1,self.Pcd1,self.Pcd2,self.Pch1]
-        nConsider = [self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
         for a in consider:
             if(a == 0):
                 consider.remove(a)
@@ -800,6 +799,7 @@ class line_follower(Node):
                 max = a
                 #keep track of the maximum
 
+        #TRIM UNLIKELY OPTIONS
 
         #0.5 is the minimum probability for the shortest paths in the map
         if(max> 0.5):
@@ -813,28 +813,36 @@ class line_follower(Node):
                 if (a <= 0.25):
                     consider.remove(a)
 
-        #
+        #consider now only contains the likeliest options
 
-        
-        # for a in consider:
-        #     if a>=max:
-        #         max = a
-        #     else:
-        #         consider.remove(a)
+        #but are they possible?
 
-        # for a in consider:
-        #     if a < max:
-        #         consider.remove(a)
-
-
-
-        #now consider only contains the max probability options for where the opponent can be
-        #check if the top option is a node
+        #check if the likeliest option is a node
         b = False
-        for a in consider:
-            if a in [self.PA, self.PB, self.PC, self.PD, self.PE, self.PF, self.PG, self.PH]:
+        nConsider = [self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
+        
+        for a in nConsider:
+            if a != 0:
                 self.opponentCurrentProb = a
                 b = True
+                #b means we found a node
+                #node probabilities are set to 1.0 by default if the cell is active
+            else:
+                nConsider.remove(a)
+                #remove any 0 probability options
+
+        #so, is it worth considering the node? or is there a likely edge?
+        #first, let us refactor all the probabilities to be comparable
+        #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
+        #so let's make everything comparable through normalisation
+        #check the short edges first:
+        for a in [self.Pfg1, self.Pgh1, self.Pab2, self.Pbc1, self.Pcd1, self.Pef1]:
+            a = a / 0.5
+
+        self.Paf1 /= 1.705
+        self.Pab1 /= 2.5
+        self.Pae1 /= 3.043
+        
 
         if not b:
             #if no nodes, then they are along an edge
