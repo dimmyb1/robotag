@@ -287,16 +287,13 @@ class line_follower(Node):
     
     #Graph Functions
     def calculateProbabilities(self):
-        #let's say radar stores the closest ultrasonic ping in euclidean metric
-        radar = 8.2
-        servo1 = 10
-        servo2 = 90
-        #we get two readings: first ping entering reading
-        # second ping exiting reading
+        #let's say radar stores the closest ultrasonic ping in euclidean metric in self.ultrasonic_distance
+        #we get two readings: first ping entering reading (self.entry_angle)
+        # second ping exiting reading (self.exit_angle)
         # the order doesnt make a difference, main thing is that we have the angle, wwe'll just take min or max of the two values.
         #and servo was the angle at which we go tthe reading, +- the known margin of error
-        #and that boxmeas is the l / w of the boxes in the grid in euclidean metric
-        boxmeas = 2
+        #and that BOXMEAS is the l / w of the boxes in the grid in euclidean metric
+        BOXMEAS = 2
 
         #and let's say we have estimated our current coordinates to be x and y
         x = 2
@@ -307,8 +304,8 @@ class line_follower(Node):
         #then we can calculate our minimum and maximums for manhattan distance
         #MAKE A CIRCLE
         #we first find minimum
-        minL1 = math.ceil(radar / boxmeas)
-        maxL1 = (math.ceil(radar / math.sqrt(2 * math.pow(boxmeas,2))) *2) +1
+        minL1 = math.ceil(self.ultrasonic_distance / BOXMEAS)
+        maxL1 = (math.ceil(self.ultrasonic_distance / math.sqrt(2 * math.pow(BOXMEAS,2))) *2) +1
         cells = []
 
         for ix in range(5):
@@ -320,8 +317,8 @@ class line_follower(Node):
         #trim selection by using servo and mpu angle (implement)
 
         #first we will check if the mark is right in front of us
-        lesserServo = min(servo1, servo2)
-        biggerServo = max(servo1, servo2)
+        lesserServo = min(self.entry_angle, self.exit_angle)
+        biggerServo = max(self.entry_angle, self.exit_angle)
         #for now i assume these to be in euclidean 
 
         #get current cardinal direction we're facing (implement)
