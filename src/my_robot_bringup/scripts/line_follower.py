@@ -936,8 +936,8 @@ class line_follower(Node):
             
             #Neighbouring Edge Key -> nek
             for nek in neighbours:
-                Px[k] += CONTAMINATION * ( self.Po[nek] / len(nek))
-                #?!
+                lenNnek = len(self.getNeighbourEdgesOf(nek))
+                Px[k] += CONTAMINATION * ( self.Po[nek] / lenNnek)
 
         #now we replace Po with Px
         self.Po = Px.copy()
