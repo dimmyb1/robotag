@@ -145,6 +145,28 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
+        def returnNodeEdges(self, fromN):
+            if fromN == 'A':
+                return ["Pab1", "Pab2", "Paf1", "Pae1"]
+            elif fromN == 'B':
+                return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
+            elif fromN == 'C':
+                return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+            elif fromN == 'D':
+                return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+            elif fromN == 'E':
+                dummy=1
+            elif fromN == 'F':
+                dummy=1
+            elif fromN == 'G':
+                dummy=1
+            elif fromN == 'H':
+                dummy=1
+
+        def getNeighbourEdgesOf(self, fromK):
+            dummy = 1
+            return dummy
+
         # self.P["Pab1"] = 0.0
         # self.P["Pab2"] = 0.0
         # self.P["Paf1"] = 0.0
