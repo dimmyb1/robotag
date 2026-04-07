@@ -1120,6 +1120,7 @@ class line_follower(Node):
         # behaviourMode settings:
         if self.behaviourMode == 1:
             # 1 - Simple Line Follower (using pink path)
+
             #self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
             self.i_patrol+=1
             if self.i_patrol >= 16:
@@ -1128,6 +1129,7 @@ class line_follower(Node):
             
         elif self.behaviourMode == 2:
             # 2 - Random
+
             #randomly choose a direction (0-3)
             choice = random.randint(0,3)
             if choice == 0:
@@ -1148,8 +1150,18 @@ class line_follower(Node):
             
         elif self.behaviourMode == 3:
             # 3 - Greedy
+            self.calculateProbabilities()
 
-            # access radar info (implement)
+            #take max likely edge
+            maxV = -1
+            maxK = ""
+            for k,v in self.P.items():
+                if v > maxV:
+                    maxV = v
+                    maxK = k
+
+            #then we want to generate a path from our current node to that edge (maxK)
+
             
             return
         elif self.behaviourMode == 4:
@@ -1160,6 +1172,9 @@ class line_follower(Node):
             return
         elif self.behaviourMode == 6:
             # 6 - Trap Layer
+            return
+        elif self.behaviourMode ==7:
+            # 7 - Epsilon Greedy
             return
         else:
             # 0 - not set (no behaviour)
