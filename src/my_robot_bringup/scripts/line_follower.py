@@ -934,7 +934,8 @@ class line_follower(Node):
             for nek in neighbours:
                 Px[k] += CONTAMINATION * ( self.Po[nek] / len(neighbours))
 
-
+        #now we replace Po with Px
+        self.Po = Px
 
         #first, let us normalise all the probabilities so that they are comparable
         #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
