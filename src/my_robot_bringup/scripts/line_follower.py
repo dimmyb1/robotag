@@ -833,18 +833,20 @@ class line_follower(Node):
                 if (a <= 0.25):
                     consider.remove(a)
 
-        #consider now only contains the likeliest options
-
-        #but are they possible?
+        
 
         #check if the likeliest option is a node
+        
+        #so, is it worth considering the node? or is there a likely edge?
         b = False
-        nConsider = [self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
+        
         count = 0
         for c in cells:
             count+=1
 
         if(max < 1 / count):
+            nConsider = [self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
+            #the robot is more likely to be exactly at an intersection than on any particular path.
             for a in nConsider:
                 if a != 0:
                     #node probabilities are set to 1.0 by default if the cell is active
@@ -859,13 +861,13 @@ class line_follower(Node):
                 else:
                     nConsider.remove(a)
                     #remove any 0 probability options
-        else:
-            dummy=2
-            #im still figuring out this section of logic
-        #so, is it worth considering the node? or is there a likely edge?
+
+        #otherwise, we just wont consider any of the nodes.
         
 
-        
+        #consider now only contains the likeliest options
+        #if we are using nodes, then we are dealing with (probably only 1) node in nConsider
+        #but are they *possible*?
 
         if not b:
             #if no nodes, then they are along an edge
@@ -878,6 +880,15 @@ class line_follower(Node):
             for a in consider:
                 #abc
                 dummy = 1
+
+                #we need to check exactly which of current possible edges would be feasible to arrive at in the time that has passed since our last check
+                #so we go to our other function
+
+        else:
+            #if we are almost certainly at a node
+            #ez
+            #just pop a node and assume that to be the location
+            dummy = nConsider.pop()
 
 
 
