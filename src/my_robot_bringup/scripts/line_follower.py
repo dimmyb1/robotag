@@ -98,6 +98,8 @@ class line_follower(Node):
         self.behaviourMode = 0
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
         self.i_patrol = 0
+        self.facing = 2 #start facing south?
+
         # behaviourMode settings:
         # 0 - not set (no behaviour)
         # 1 - Simple Line Follower
@@ -106,6 +108,7 @@ class line_follower(Node):
         # 4 - Avoidant
         # 5 - Interceptive
         # 6 - Trap Layer
+        # 7 - Epsilon-Greedy
 
         #start off at 1/16
         #(we have 16 edges)
@@ -477,7 +480,7 @@ class line_follower(Node):
             #on the right side:
             if(biggerServo <= 90):
                 #if facing North
-                if(dummy==1):
+                if(self.facing==0):
                     #take the maximum area
                     diffX = 4-x
                     diffY = math.ceil(diffX * math.tan(biggerServo))
@@ -515,7 +518,7 @@ class line_follower(Node):
 
 
                 #elif south
-                elif(dummy==2):
+                elif(self.facing==2):
                     #take the maximum area
                     diffX = x
                     diffY = math.ceil(diffX * math.tan(biggerServo))
@@ -551,8 +554,8 @@ class line_follower(Node):
 
                         ix-=1
 
-
-                #elif east
+                #east?
+                elif self.facing==1:
                     #take the maximum area
                     diffY = y
                     diffX = math.ceil(diffY * math.tan(biggerServo))
@@ -588,7 +591,8 @@ class line_follower(Node):
 
                         iy-=1
 
-                #elif west
+                #west?
+                elif self.facing==3:
                     diffY = 5-y
                     diffX = math.ceil(diffY * math.tan(biggerServo))
 
@@ -626,7 +630,7 @@ class line_follower(Node):
             else:
                 #on the LHS
                 #if facing North
-                if(dummy==1):
+                if self.facing==0:
                     #take the maximum area
                     diffX = x
                     diffY = math.ceil(diffX * math.tan(180 - lesserServo))
@@ -663,7 +667,7 @@ class line_follower(Node):
                         ix-=1
 
                 #if facing south
-                elif(dummy==1):
+                elif(self.facing==2):
                     #take the maximum area
                     diffX = 4 - x
                     diffY = math.ceil(diffX * math.tan(180 - lesserServo))
@@ -699,7 +703,7 @@ class line_follower(Node):
 
                         ix+=1
                 #EAST
-                elif(dummy==2):
+                elif(self.facing==1):
                     #take the maximum area
                     diffY = 5-y
                     diffX = math.ceil(diffY * math.tan(180 - lesserServo))
@@ -735,7 +739,7 @@ class line_follower(Node):
 
                         iy+=1
 
-                elif(dummy==3):
+                elif(self.facing==3):
                     #west left
                     diffY = y
                     diffX = math.ceil(diffY * math.tan(180 - lesserServo))
@@ -1115,6 +1119,8 @@ class line_follower(Node):
     def generatePathFromNToE(self, e):
         #self.current_node to edge maxK
         dummy = 1
+        #generate the shortest path from N to one of the nodes of the edge.
+        #(implement)
 
     def planDestination(self):
         choice = -1
@@ -1217,11 +1223,20 @@ class line_follower(Node):
         siny_cosp = 2 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
         yaw_rad = math.atan2(siny_cosp, cosy_cosp)
-        
+
         # Optional: Convert to degrees for easier human reading
         yaw_deg = math.degrees(yaw_rad)
+
+        if 0.0 <= yaw_deg < 45.0:
+            self.facing = 0
+        elif 45.0 <= yaw_deg < 135.0 :
+            self.facing = 1
+        elif 135.0 <= yaw_deg < 225.0 :
+            self.facing = 2
+        elif 225.0 <= yaw_deg < 360.0 :
+            self.facing = 3
         
-        self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
+        #self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
 
 
 
