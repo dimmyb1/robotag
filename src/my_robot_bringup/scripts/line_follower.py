@@ -866,19 +866,22 @@ class line_follower(Node):
         #first, let us normalise all the probabilities so that they are comparable
         #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
         #check the short edges first:
-        for a in [self.P["Pfg1"], self.P["Pgh1"], self.P["Pab2"], self.P["Pbc1"], self.P["Pcd1"], self.P["Pef1"]]:
-            a = a / 0.5
+        # for a in [self.P["Pfg1"], self.P["Pgh1"], self.P["Pab2"], self.P["Pbc1"], self.P["Pcd1"], self.P["Pef1"]]:
+        #     a = a / 0.5
 
-        self.P["Pfd1"] /= 0.981
-        self.P["Pbd1"] /= 0.998
-        self.P["Peg1"] /= 1.344
-        self.P["Pcd2"] /= 1.451
-        self.P["Paf1"] /= 1.705
-        self.P["Pab1"] /= 2.5
-        self.P["Pae1"] /= 3.043
-        self.P["Phh1"] /= 3.5
-        self.P["Pch1"] /= 4.749
-        self.P["Peg2"] /= 5.406
+        # self.P["Pfd1"] /= 0.981
+        # self.P["Pbd1"] /= 0.998
+        # self.P["Peg1"] /= 1.344
+        # self.P["Pcd2"] /= 1.451
+        # self.P["Paf1"] /= 1.705
+        # self.P["Pab1"] /= 2.5
+        # self.P["Pae1"] /= 3.043
+        # self.P["Phh1"] /= 3.5
+        # self.P["Pch1"] /= 4.749
+        # self.P["Peg2"] /= 5.406
+
+        #these are actually flawed because now shorter / more compact edges are made likelier than edges 
+        #which are more spread out
 
         #now everything is written as P E [0,1]
 
