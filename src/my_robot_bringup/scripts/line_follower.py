@@ -155,13 +155,14 @@ class line_follower(Node):
             elif fromN == 'D':
                 return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
             elif fromN == 'E':
-                dummy=1
+                return ["Peg1", "Peg2", "Pae1", "Pef1"]
             elif fromN == 'F':
-                dummy=1
+                return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
             elif fromN == 'G':
-                dummy=1
+                return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
             elif fromN == 'H':
-                dummy=1
+                return ["Pch1", "Phh1", "Pgh1"]
+                #this is not a mistake.
 
         def getNeighbourEdgesOf(self, fromK):
             dummy = 1
