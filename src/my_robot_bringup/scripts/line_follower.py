@@ -199,6 +199,7 @@ class line_follower(Node):
             self.get_logger().info(f"Can't return nonexistent char-node value")
             return None
         
+    """
     #UNUSED :(
     def allReachable(self, nFrom, nTo, tE, F):
         paths = []
@@ -267,7 +268,7 @@ class line_follower(Node):
 
         return possiblePaths
 
-                
+    """ 
 
 
 
