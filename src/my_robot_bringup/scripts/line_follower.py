@@ -145,99 +145,73 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
-        def returnNodeEdges(self, fromN):
-            if fromN == 'A':
-                return ["Pab1", "Pab2", "Paf1", "Pae1"]
-            elif fromN == 'B':
-                return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
-            elif fromN == 'C':
-                return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-            elif fromN == 'D':
-                return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
-            elif fromN == 'E':
-                return ["Peg1", "Peg2", "Pae1", "Pef1"]
-            elif fromN == 'F':
-                return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
-            elif fromN == 'G':
-                return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
-            elif fromN == 'H':
-                return ["Pch1", "Phh1", "Pgh1"]
-                #this is not a mistake.
+        
+        
+        def getNeighbourEdgesOf(self, fromE):
+            A = ["Pab1", "Pab2", "Paf1", "Pae1"]
+            B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
+            C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+            D = ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+            E = ["Peg1", "Peg2", "Pae1", "Pef1"]
+            F = ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+            G = ["Peg1", "Peg2", "Pfg1", "Pgh1"]
+            H = ["Pch1", "Phh1", "Pgh1"]
+            #this is not a mistake. H only has 3 unique edge transitions.
+            
+            toReturn = []
 
-        def returnNodeFromEdge(self, fromE):
-            x1 = 'Z'
-            x2 = 'X'
-            if fromE in ["Pab1", "Pab2", "Paf1", "Pae1"]:
-                if(x1 == 'Z'):
-                    x1 = 'A'
+            if fromE in A:
+                if(toReturn):
+                    toReturn.extend(A)
+                    return toReturn
                 else:
-                    x2 = 'A'
-            elif fromE in ["Pab1", "Pab2", "Pbd1", "Pbc1"]:
-                if(x1 == 'Z'):
-                    x1 = 'B'
-                else:
-                    x2 = 'B'
-            elif fromE in ["Pcd1", "Pcd2", "Pch1", "Pbc1"]:
-                if(x1 == 'Z'):
-                    x1 = 'C'
-                else:
-                    x2 = 'C'
-            elif fromE in ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]:
-                if(x1 == 'Z'):
-                    x1 = 'D'
-                else:
-                    x2 = 'D'
-            elif fromE in ["Peg1", "Peg2", "Pae1", "Pef1"]:
-                if(x1 == 'Z'):
-                    x1 = 'E'
-                else:
-                    x2 = 'E'
-            elif fromE in ["Pef1", "Paf1", "Pfg1", "Pfd1"]:
-                if(x1 == 'Z'):
-                    x1 = 'F'
-                else:
-                    x2 = 'F'
-            elif fromE in ["Peg1", "Peg2", "Pfg1", "Pgh1"]:
-                if(x1 == 'Z'):
-                    x1 = 'G'
-                else:
-                    x2 = 'G'
-            elif fromE in ["Pch1", "Phh1", "Pgh1"]:
-                #this is not a mistake. H only has 3 unique edge transitions.
-                if(x1 == 'Z'):
-                    x1 = 'H'
-                else:
-                    x2 = 'H'
+                    toReturn = A
 
-            return x1, x2
+            elif fromE in B:
+                if(toReturn):
+                    toReturn.extend(B)
+                    return toReturn
+                else:
+                    toReturn = B
+            elif fromE in C:
+                if(toReturn):
+                    toReturn.extend(C)
+                    return toReturn
+                else:
+                    toReturn = C
+            elif fromE in D:
+                if(toReturn):
+                    toReturn.extend(D)
+                    return toReturn
+                else:
+                    toReturn = D
+            elif fromE in E:
+                if(toReturn):
+                    toReturn.extend(E)
+                    return toReturn
+                else:
+                    toReturn = E
+            elif fromE in F:
+                if(toReturn):
+                    toReturn.extend(F)
+                    return toReturn
+                else:
+                    toReturn = F
+            elif fromE in G:
+                if(toReturn):
+                    toReturn.extend(G)
+                    return toReturn
+                else:
+                    toReturn = G
+            elif fromE in H:
+                if(toReturn):
+                    toReturn.extend(H)
+                    return toReturn
+                else:
+                    toReturn = H
 
-        def getNeighbourEdgesOf(self, fromK):
-            n1, n2 = self.returnNodeFromEdge(fromK)
-            a1 = self.returnNodeEdges(n1)
-            a2 = self.returnNodeEdges(n2)
+            return toReturn
 
-            a1.remove(fromK)
-            a2.remove(fromK)
-            a3 = a1 + a2
-
-            return a3
-
-        # self.P["Pab1"] = 0.0
-        # self.P["Pab2"] = 0.0
-        # self.P["Paf1"] = 0.0
-        # self.P["Pae1"] = 0.0
-        # self.P["Pef1"] = 0.0
-        # self.P["Peg1"] = 0.0
-        # self.P["Peg2"] = 0.0
-        # self.P["Pgh1"] = 0.0
-        # self.P["Phh1"] = 0.0
-        # self.P["Pfg1"] = 0.0
-        # self.P["Pfd1"] = 0.0
-        # self.P["Pbd1"] = 0.0
-        # self.P["Pbc1"] = 0.0
-        # self.P["Pcd1"] = 0.0
-        # self.P["Pcd2"] = 0.0
-        # self.P["Pch1"] = 0.0
 
         self.PA = 0.0
         self.PB = 0.0
