@@ -914,6 +914,7 @@ class line_follower(Node):
                 elif c.y == 5:
                     self.P["Pch1"] +=1
         
+        #BAYES FILTER
         #let's hop on over to Po dict for a moment
         #Po is a dictionary which is storing our historic info
         #we have a temp dict called Px:
@@ -921,7 +922,7 @@ class line_follower(Node):
         #we will apply some blurring effect and forgetfulness to Po
         PERSISTENCE = 0.7
         CONTAMINATION = 0.3
-        for k,v in self.Po:
+        for k,v in self.Po.items():
             #reduce the weight of the old info by 1-PERSISTENCE
             Px[k] = PERSISTENCE * v
 
@@ -932,23 +933,30 @@ class line_follower(Node):
             #Neighbouring Edge Key -> nek
             for nek in neighbours:
                 Px[k] += CONTAMINATION * ( self.Po[nek] / len(neighbours))
+                #?!
 
         #now we replace Po with Px
-        self.Po = Px
+        self.Po = Px.copy()
+        
         totalProb = 0.0
         #ok! Po has been blurred!
         #now let us update our P values (Bayesian inference)
-        for k,v in self.P:
+        for k in self.P:
             self.P[k] *= self.Po[k]
-            totalProb += v
+            totalProb += self.P[k]
 
         #now we normalise
-        for k,v in self.P:
-            self.P[k] /= totalProb
+        if totalProb == 0: 
+            #make a uniform distribution
+            for k in self.P:
+                self.P[k] /= (1.0 / len(self.P))
+        else:
+            for k in self.P:
+                self.P[k] /= totalProb
 
         #self.P gets cleared every time this function runs anyway
         #so all we have to do is save self.Po as self.P for our next run.
-        self.Po = self.P
+        self.Po = self.P.copy()
 
 
 
@@ -957,7 +965,7 @@ class line_follower(Node):
 
 
 
-        
+
 
         #first, let us normalise all the probabilities so that they are comparable
         #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
