@@ -250,7 +250,7 @@ class line_follower(Node):
             
     
 
-    def findPossiblePaths(self, listOfNodes, seenLastList, seenNowList, timeElapsed):
+    def findPossiblePaths(self, seenLastList, seenNowList, timeElapsed):
         FORGIVENESS_IN_TIME_S = 5.0
 
         #create path 
@@ -264,10 +264,7 @@ class line_follower(Node):
                 pdir = self.allReachable(l,n, timeElapsed, FORGIVENESS_IN_TIME_S)
                 possiblePaths.append((self.returnNode(l), pdir))
 
-                
-
-
-
+        return possiblePaths
 
                 
 
@@ -872,17 +869,27 @@ class line_follower(Node):
         if not b:
             #if no nodes, then they are along an edge
             #we should check where the opponent was last seen to decide which one is 
-            lastDest = self.opponentCurrent
-            #self.opponentCurrent = consider
+            self.opponentLast = self.opponentCurrent
+            self.opponentCurrent = consider
 
-            considerNeighbour = []
+            #let's say we have  atime elapsed variable saved somewhere (implement)
+            timeElapsed = 1.111111
 
-            for a in consider:
-                #abc
-                dummy = 1
+            #we need to check exactly which of current possible edges would be feasible to arrive at in the time that has passed since our last check
+            #so we go to our other function
 
-                #we need to check exactly which of current possible edges would be feasible to arrive at in the time that has passed since our last check
-                #so we go to our other function
+            possibePaths = self.findPossiblePaths(self.opponentLast, self.opponentCurrent, timeElapsed)
+
+            #this gives us all the legal paths the opponent could have done in the time.
+            #this only spells out *complete* node to node paths
+            #therefore, on top of these paths, we must also consider that a new edge may have been started and the robot is somewhere along that path.
+            #so what do we do?
+            #well, we can first parse possiblePaths to see if arriving at a particular edge is possible.
+            #but we won't be doing this with the exact timings, because that would be too brittle of a system.
+            #possiblePaths looks something like {[], [1, 3, 2], [3, 0, 0, 0]} where 0-3 is north - west respectively
+            #therefore we can reconstruct a path that would eventually lead to that edge.
+            #hm.
+            #
 
         else:
             #if we are almost certainly at a node
