@@ -30,11 +30,22 @@ class Noden():
         self.Wc = wc
         self.name = n
         self.Times = t
+
+class Location():
+    def __init__(self, node1, node2, variation):
+        #arbitrarily numbered
+
+        #node 1
+        self.n1 = node1
+        #node 2
+        self.n2 = node2
+        #variational number
+        self.vr = variation
      
 class Cell():
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+    def __init__(self, xx, yy):
+        self.x = xx
+        self.y = yy
 
 class line_follower(Node):
     def __init__(self):
@@ -902,12 +913,18 @@ class line_follower(Node):
         oppEdge = 1
         oppNode = 2
 
+        if(consider):
+            #make sure consider actually has something in it first.
+
+            #we need to take the max valued edge (implement)
+            dummy = 3
+
         if(aNodeFound):
             if(manyNodesFound):
                 dummy = 3
                 #ghandna problema 
                 #lets find the most common one.
-                
+                #(implement)
             else:
                 #ok, set node to the 1 option available
                 oppNode = nConsider.pop()
