@@ -1189,6 +1189,11 @@ class line_follower(Node):
             # 0 - not set (no behaviour)
             return
 
+
+
+
+
+
     def updatePos(self):
         #update current variables
         #if gray detected:
@@ -1214,6 +1219,10 @@ class line_follower(Node):
 
         #call function to turn towards intended direction by using MPU readings for current facing direction and the intended cardinal direction.(IMPLEMENT)
         
+
+
+
+
     #MPU5060 / IMU callback
     def imu_callback(self, msg: Imu):
         # The IMU gives us a quaternion (x, y, z, w)
