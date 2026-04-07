@@ -863,6 +863,28 @@ class line_follower(Node):
                 elif c.y == 5:
                     self.P["Pch1"] +=1
         
+        #let's hop on over to Po dict for a moment
+        #Po is a dictionary which is storing our historic info
+        #we have a temp dict called Px:
+        Px = {}
+        #we will apply some blurring effect and forgetfulness to Po
+        PERSISTENCE = 0.7
+        CONTAMINATION = 0.3
+        for k,v in self.Po:
+            dummy = 2
+            #reduce the weight of the old info by 1-PERSISTENCE
+            Px[k] = PERSISTENCE * v
+
+            #allow for contamination from neighbouring edges at a rate of CONTAMINATION
+            #where PERSISTENCE + CONTAMINATION = 1
+            neighbours = self.getNeighbourEdgesOf(k)
+            
+            #Neighbouring Edge Key -> nek
+            for nek in neighbours:
+                Px[k] += CONTAMINATION * ( self.Po[nek] / len(neighbours))
+
+
+
         #first, let us normalise all the probabilities so that they are comparable
         #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
         #check the short edges first:
@@ -890,16 +912,16 @@ class line_follower(Node):
         #ACTUALLY WE'RE NO LONGER TAKING MAXIMUM VALUE.
 
         #what we are doing now is: anything less than 0.5 probability (unless it is max value) is cut
-        max = -1
-        consider = [self.P["Pab1"],self.P["Pab2"],self.P["Paf1"],self.P["Pae1"],self.P["Pef1"],self.P["Peg1"],self.P["Peg2"],self.P["Pgh1"],self.P["Phh1"],self.P["Pfg1"],self.P["Pfd1"],self.P["Pbd1"],self.P["Pbc1"],self.P["Pcd1"],self.P["Pcd2"],self.P["Pch1"]]
-        for a in consider:
-            if(a == 0):
-                consider.remove(a)
-                #remove any 0 probability paths
+        # max = -1
+        # consider = [self.P["Pab1"],self.P["Pab2"],self.P["Paf1"],self.P["Pae1"],self.P["Pef1"],self.P["Peg1"],self.P["Peg2"],self.P["Pgh1"],self.P["Phh1"],self.P["Pfg1"],self.P["Pfd1"],self.P["Pbd1"],self.P["Pbc1"],self.P["Pcd1"],self.P["Pcd2"],self.P["Pch1"]]
+        # for a in consider:
+        #     if(a == 0):
+        #         consider.remove(a)
+        #         #remove any 0 probability paths
 
-            elif a>=max:
-                max = a
-                #keep track of the maximum
+        #     elif a>=max:
+        #         max = a
+        #         #keep track of the maximum
 
         # #TRIM UNLIKELY OPTIONS
 
@@ -924,56 +946,56 @@ class line_follower(Node):
         #check if the likeliest option is a node
         
         #so, is it worth considering the node? or is there a likely edge?
-        aNodeFound = False
-        manyNodesFound = False
-        count = 0
-        for c in cells:
-            count+=1
+        # aNodeFound = False
+        # manyNodesFound = False
+        # count = 0
+        # for c in cells:
+        #     count+=1
 
-        #if(max < 1 / count):
-        nConsider = [self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
-        #the robot is more likely to be exactly at an intersection than on any particular path.
-        for nodeProb in nConsider:
-            if nodeProb != 0:
-                #node probabilities are set to 1.0 by default if the cell is active
-                #so let's normalise.
-                nodeProb /= count
-                # node probability /= number of cells selected
-                # so PX = 1 / numOfCells
+        # #if(max < 1 / count):
+        # nConsider = [self.PA,self.PB,self.PC,self.PD,self.PE,self.PF,self.PG,self.PH]
+        # #the robot is more likely to be exactly at an intersection than on any particular path.
+        # for nodeProb in nConsider:
+        #     if nodeProb != 0:
+        #         #node probabilities are set to 1.0 by default if the cell is active
+        #         #so let's normalise.
+        #         nodeProb /= count
+        #         # node probability /= number of cells selected
+        #         # so PX = 1 / numOfCells
 
-                if(aNodeFound):
-                    manyNodesFound = True
+        #         if(aNodeFound):
+        #             manyNodesFound = True
 
-                aNodeFound = True
+        #         aNodeFound = True
 
                 
-            else:
-                nConsider.remove(nodeProb)
-                #remove any 0 probability options
+        #     else:
+        #         nConsider.remove(nodeProb)
+        #         #remove any 0 probability options
 
 
         #lets say we have 2 variables for target location: max edge and node
-        oppEdge = 1
-        oppNode = 2
+        # oppEdge = 1
+        # oppNode = 2
 
-        if(consider):
-            #make sure consider actually has something in it first.
+        # if(consider):
+        #     #make sure consider actually has something in it first.
 
-            #we need to take the max valued edge (implement)
-            dummy = 3
+        #     #we need to take the max valued edge (implement)
+        #     dummy = 3
 
-        if(aNodeFound):
-            if(manyNodesFound):
-                dummy = 3
-                #ghandna problema 
-                #lets find the most common one.
-                #(implement)
-            else:
-                #ok, set node to the 1 option available
-                oppNode = nConsider.pop()
+        # if(aNodeFound):
+        #     if(manyNodesFound):
+        #         dummy = 3
+        #         #ghandna problema 
+        #         #lets find the most common one.
+        #         #(implement)
+        #     else:
+        #         #ok, set node to the 1 option available
+        #         oppNode = nConsider.pop()
 
-        else:
-            dummy = 2
+        # else:
+        #     dummy = 2
             #we need to make up the closest node
             #but we need to set the lookAtNode variable (implement) to be false so that we only look at edge, but keep this as reference
 
@@ -981,11 +1003,11 @@ class line_follower(Node):
         #if we are using nodes, then we are dealing with (probably only 1) node in nConsider
         #but are they *possible*?
 
-        if not b:
+        #if not b:
             #if no nodes, then they are along an edge
             #we should check where the opponent was last seen to decide which one is 
-            self.opponentLast = self.opponentCurrent
-            self.opponentCurrent = consider
+            #self.opponentLast = self.opponentCurrent
+            #self.opponentCurrent = consider
 
             #ok. (implement)
             #so we just finished calculating all edge and node probabilities, right? and we normalised 'em.
@@ -998,11 +1020,11 @@ class line_follower(Node):
 
             
 
-        else:
+        #else:
             #if we are almost certainly at a node
             #ez
             #just pop a node and assume that to be the location
-            dummy = nConsider.pop()
+            #dummy = nConsider.pop()
 
 
 
