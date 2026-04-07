@@ -933,11 +933,16 @@ class line_follower(Node):
             #allow for contamination from neighbouring edges at a rate of CONTAMINATION
             #where PERSISTENCE + CONTAMINATION = 1
             neighbours = self.getNeighbourEdgesOf(k)
-            
+            nLen = len(neighbours)
+
             #Neighbouring Edge Key -> nek
             for nek in neighbours:
-                lenNnek = len(self.getNeighbourEdgesOf(nek))
-                Px[k] += CONTAMINATION * ( self.Po[nek] / lenNnek)
+                nekNLen = len(self.getNeighbourEdgesOf(nek))
+
+                if(nekNLen > 0) and (nLen > 0):
+                    Px[k] += (CONTAMINATION / nLen) * ( self.Po[nek] / nekNLen)
+                else:
+                    self.get_logger().info(f"ERR: Checked a node with no neighbours?! Something's gone terribly wrong!")
 
         #now we replace Po with Px
         self.Po = Px.copy()
@@ -954,7 +959,7 @@ class line_follower(Node):
         if totalProb == 0: 
             #make a uniform distribution
             for k in self.P:
-                self.P[k] /= (1.0 / len(self.P))
+                self.P[k] = (1.0 / len(self.P))
         else:
             for k in self.P:
                 self.P[k] /= totalProb
