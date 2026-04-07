@@ -145,22 +145,22 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
-        # self.Pab1 = 0.0
-        # self.Pab2 = 0.0
-        # self.Paf1 = 0.0
-        # self.Pae1 = 0.0
-        # self.Pef1 = 0.0
-        # self.Peg1 = 0.0
-        # self.Peg2 = 0.0
-        # self.Pgh1 = 0.0
-        # self.Phh1 = 0.0
-        # self.Pfg1 = 0.0
-        # self.Pfd1 = 0.0
-        # self.Pbd1 = 0.0
-        # self.Pbc1 = 0.0
-        # self.Pcd1 = 0.0
-        # self.Pcd2 = 0.0
-        # self.Pch1 = 0.0
+        # self.P["Pab1"] = 0.0
+        # self.P["Pab2"] = 0.0
+        # self.P["Paf1"] = 0.0
+        # self.P["Pae1"] = 0.0
+        # self.P["Pef1"] = 0.0
+        # self.P["Peg1"] = 0.0
+        # self.P["Peg2"] = 0.0
+        # self.P["Pgh1"] = 0.0
+        # self.P["Phh1"] = 0.0
+        # self.P["Pfg1"] = 0.0
+        # self.P["Pfd1"] = 0.0
+        # self.P["Pbd1"] = 0.0
+        # self.P["Pbc1"] = 0.0
+        # self.P["Pcd1"] = 0.0
+        # self.P["Pcd2"] = 0.0
+        # self.P["Pch1"] = 0.0
 
         self.PA = 0.0
         self.PB = 0.0
@@ -728,22 +728,24 @@ class line_follower(Node):
 
 
         #reset probabilities
-        self.Pab1 = 0.0
-        self.Pab2 = 0.0
-        self.Paf1 = 0.0
-        self.Pae1 = 0.0
-        self.Pef1 = 0.0
-        self.Peg1 = 0.0
-        self.Peg2 = 0.0
-        self.Pgh1 = 0.0
-        self.Phh1 = 0.0
-        self.Pfg1 = 0.0
-        self.Pfd1 = 0.0
-        self.Pbd1 = 0.0
-        self.Pbc1 = 0.0
-        self.Pcd1 = 0.0
-        self.Pcd2 = 0.0
-        self.Pch1 = 0.0
+        self.P = {
+            "Pab1": 0.0,
+            "Pab2": 0.0,
+            "Paf1": 0.0,
+            "Pae1": 0.0,
+            "Pef1": 0.0,
+            "Peg1": 0.0,
+            "Peg2": 0.0,
+            "Pgh1": 0.0,
+            "Phh1": 0.0,
+            "Pfg1": 0.0,
+            "Pfd1": 0.0,
+            "Pbd1": 0.0,
+            "Pbc1": 0.0,
+            "Pcd1": 0.0,
+            "Pcd2": 0.0,
+            "Pch1": 0.0
+        }
 
         self.PA = 0.0
         self.PB = 0.0
@@ -758,125 +760,125 @@ class line_follower(Node):
         for c in cells:
             if c.x == 0:
                 if c.y == 0:
-                    self.Peg2 +=1
+                    self.P["Peg2"] +=1
                 elif c.y == 1:
-                    self.Peg2 += 1
+                    self.P["Peg2"] += 1
                 elif c.y == 2:
-                    self.Pae1 += 0.25
-                    self.Peg2 += 0.75
+                    self.P["Pae1"] += 0.25
+                    self.P["Peg2"] += 0.75
                 elif c.y == 3:
-                    self.Pae1 +=1
+                    self.P["Pae1"] +=1
                 elif c.y == 4:
-                    self.Pae1 +=1
+                    self.P["Pae1"] +=1
                 # elif c.y == 5:
                 #     return
             elif c.x == 1:
                 if c.y == 0:
-                    self.Peg2 +=1
+                    self.P["Peg2"] +=1
                 elif c.y == 1:
-                    self.Peg2 +=0.156
-                    self.Peg1 +=0.844
+                    self.P["Peg2"] +=0.156
+                    self.P["Peg1"] +=0.844
                 elif c.y == 2:
                     self.PE = 1
-                    self.Peg1+= 0.25
-                    self.Peg2+= 0.25
-                    self.Pef1+= 0.25
-                    self.Pae1+= 0.25
+                    self.P["Peg1"]+= 0.25
+                    self.P["Peg2"]+= 0.25
+                    self.P["Pef1"]+= 0.25
+                    self.P["Pae1"]+= 0.25
                 elif c.y == 3:
-                    self.Pae1 += 0.293
-                    self.Paf1 += 0.707
+                    self.P["Pae1"] += 0.293
+                    self.P["Paf1"] += 0.707
                 elif c.y == 4:
                     self.PA = 1
-                    self.Pab1+= 0.25
-                    self.Pab2+= 0.25
-                    self.Paf1+= 0.25
-                    self.Pae1+= 0.25
+                    self.P["Pab1"]+= 0.25
+                    self.P["Pab2"]+= 0.25
+                    self.P["Paf1"]+= 0.25
+                    self.P["Pae1"]+= 0.25
                 elif c.y == 5:
-                    self.Pab1 += 1
+                    self.P["Pab1"] += 1
             elif c.x == 2:
                 if c.y == 0:
-                    self.Peg2 +=1
+                    self.P["Peg2"] +=1
                 elif c.y == 1:
                     self.PG = 1
-                    self.Pgh1+= 0.25
-                    self.Pfg1+= 0.25
-                    self.Peg1+= 0.25
-                    self.Peg2+= 0.25
+                    self.P["Pgh1"]+= 0.25
+                    self.P["Pfg1"]+= 0.25
+                    self.P["Peg1"]+= 0.25
+                    self.P["Peg2"]+= 0.25
                 elif c.y == 2:
                     self.PF = 1
-                    self.Pef1+= 0.25
-                    self.Pfg1+= 0.25
-                    self.Paf1+= 0.25
-                    self.Pfd1+= 0.25
+                    self.P["Pef1"]+= 0.25
+                    self.P["Pfg1"]+= 0.25
+                    self.P["Paf1"]+= 0.25
+                    self.P["Pfd1"]+= 0.25
                 elif c.y == 3:
-                    self.Pbd1 += 0.498
-                    self.Paf1 += 0.498
-                    self.Pfd1 += 0.004
+                    self.P["Pbd1"] += 0.498
+                    self.P["Paf1"] += 0.498
+                    self.P["Pfd1"] += 0.004
                 elif c.y == 4:
                     self.PB = 1
-                    self.Pab1+= 0.25
-                    self.Pab2+= 0.25
-                    self.Pbc1+= 0.25
-                    self.Pbd1+= 0.25
+                    self.P["Pab1"]+= 0.25
+                    self.P["Pab2"]+= 0.25
+                    self.P["Pbc1"]+= 0.25
+                    self.P["Pbd1"]+= 0.25
                 elif c.y == 5:
-                    self.Pab1 += 1
+                    self.P["Pab1"] += 1
             elif c.x == 3:
                 if c.y == 0:
-                    self.Phh1 +=1
+                    self.P["Phh1"] +=1
                 elif c.y == 1:
                     self.PH = 1
-                    self.Pgh1+= 0.25
-                    self.Pch1+= 0.25
-                    self.Phh1+= 0.25
+                    self.P["Pgh1"]+= 0.25
+                    self.P["Pch1"]+= 0.25
+                    self.P["Phh1"]+= 0.25
                 elif c.y == 2:
-                    self.Pfd1 += 0.477
-                    self.Pch1 += 0.523
+                    self.P["Pfd1"] += 0.477
+                    self.P["Pch1"] += 0.523
                 elif c.y == 3:
                     self.PD = 1
-                    self.Pfd1+= 0.25
-                    self.Pcd1+= 0.25
-                    self.Pcd2+= 0.25
-                    self.Pbd1+= 0.25
+                    self.P["Pfd1"]+= 0.25
+                    self.P["Pcd1"]+= 0.25
+                    self.P["Pcd2"]+= 0.25
+                    self.P["Pbd1"]+= 0.25
                 elif c.y == 4:
                     self.PC = 1
-                    self.Pcd1+= 0.25
-                    self.Pcd2+= 0.25
-                    self.Pbc1+= 0.25
-                    self.Pch1+= 0.25
+                    self.P["Pcd1"]+= 0.25
+                    self.P["Pcd2"]+= 0.25
+                    self.P["Pbc1"]+= 0.25
+                    self.P["Pch1"]+= 0.25
                 elif c.y == 5:
-                    self.Pch1 +=1
+                    self.P["Pch1"] +=1
             elif c.x == 4:
                 if c.y == 0:
-                    self.Phh1 +=1
+                    self.P["Phh1"] +=1
                 elif c.y == 1:
-                    self.Phh1 +=1
+                    self.P["Phh1"] +=1
                 elif c.y == 2:
-                    self.Pch1 +=1
+                    self.P["Pch1"] +=1
                 elif c.y == 3:
-                    self.Pch1 += 0.376
-                    self.Pcd2 += 0.301
+                    self.P["Pch1"] += 0.376
+                    self.P["Pcd2"] += 0.301
                 elif c.y == 4:
-                    self.Pch1 +=0.35
-                    self.Pcd2 += 0.65
+                    self.P["Pch1"] +=0.35
+                    self.P["Pcd2"] += 0.65
                 elif c.y == 5:
-                    self.Pch1 +=1
+                    self.P["Pch1"] +=1
         
         #first, let us normalise all the probabilities so that they are comparable
         #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
         #check the short edges first:
-        for a in [self.Pfg1, self.Pgh1, self.Pab2, self.Pbc1, self.Pcd1, self.Pef1]:
+        for a in [self.P["Pfg1"], self.P["Pgh1"], self.P["Pab2"], self.P["Pbc1"], self.P["Pcd1"], self.P["Pef1"]]:
             a = a / 0.5
 
-        self.Pfd1 /= 0.981
-        self.Pbd1 /= 0.998
-        self.Peg1 /= 1.344
-        self.Pcd2 /= 1.451
-        self.Paf1 /= 1.705
-        self.Pab1 /= 2.5
-        self.Pae1 /= 3.043
-        self.Phh1 /= 3.5
-        self.Pch1 /= 4.749
-        self.Peg2 /= 5.406
+        self.P["Pfd1"] /= 0.981
+        self.P["Pbd1"] /= 0.998
+        self.P["Peg1"] /= 1.344
+        self.P["Pcd2"] /= 1.451
+        self.P["Paf1"] /= 1.705
+        self.P["Pab1"] /= 2.5
+        self.P["Pae1"] /= 3.043
+        self.P["Phh1"] /= 3.5
+        self.P["Pch1"] /= 4.749
+        self.P["Peg2"] /= 5.406
 
         #now everything is written as P E [0,1]
 
@@ -886,7 +888,7 @@ class line_follower(Node):
 
         #what we are doing now is: anything less than 0.5 probability (unless it is max value) is cut
         max = -1
-        consider = [self.Pab1,self.Pab2,self.Paf1,self.Pae1,self.Pef1,self.Peg1,self.Peg2,self.Pgh1,self.Phh1,self.Pfg1,self.Pfd1,self.Pbd1,self.Pbc1,self.Pcd1,self.Pcd2,self.Pch1]
+        consider = [self.P["Pab1"],self.P["Pab2"],self.P["Paf1"],self.P["Pae1"],self.P["Pef1"],self.P["Peg1"],self.P["Peg2"],self.P["Pgh1"],self.P["Phh1"],self.P["Pfg1"],self.P["Pfd1"],self.P["Pbd1"],self.P["Pbc1"],self.P["Pcd1"],self.P["Pcd2"],self.P["Pch1"]]
         for a in consider:
             if(a == 0):
                 consider.remove(a)
