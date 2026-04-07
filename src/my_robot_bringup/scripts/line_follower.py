@@ -268,6 +268,35 @@ class line_follower(Node):
 
         return possiblePaths
 
+        #we need to check exactly which of current possible edges would be feasible to arrive at in the time that has passed since our last check
+            #so we go to our other function
+
+            #possibePaths = self.findPossiblePaths(self.opponentLast, self.opponentCurrent, timeElapsed)
+
+            #this gives us all the legal paths the opponent could have done in the time.
+            #this only spells out *complete* node to node paths
+            #therefore, on top of these paths, we must also consider that a new edge may have been started and the robot is somewhere along that path.
+            #so what do we do?
+            #well, we can first parse possiblePaths to see if arriving at a particular edge is possible.
+            #but we won't be doing this with the exact timings, because that would be too brittle of a system.
+            #possiblePaths looks something like {[], [1, 3, 2], [3, 0, 0, 0]} where 0-3 is north - west respectively
+            #therefore we can reconstruct a path that would eventually lead to that edge.
+            #hm.
+            #ok so after calling possiblePaths, we know all the nodes the robot could have arrived to and left from in this time. 
+            #so we have 4^NC (possible node count) possible edges the opponent could be going down.
+            #i think we need another overlap, which will just check if each of these edges are 0 or not.
+            #we do this per node.
+            #and we just go down their cardinal nodes.
+
+            #ok recap:
+            #possible paths is currently useless.
+
+            #mela, we pass possiblepaths our consider or a matrix of cell to probabilities etc.
+            #at this point, cells is no longer useful and we will never use it again for now.
+
+            #i think the probabilities should be a dictionary i wont lie
+            #IDK HOW IM GONNA DO THIS.
+
     """ 
 
 
@@ -873,41 +902,8 @@ class line_follower(Node):
             #we should check where the opponent was last seen to decide which one is 
             self.opponentLast = self.opponentCurrent
             self.opponentCurrent = consider
-
-            #let's say we have  atime elapsed variable saved somewhere (implement)
-            timeElapsed = 1.111111
-
-            #we need to check exactly which of current possible edges would be feasible to arrive at in the time that has passed since our last check
-            #so we go to our other function
-
-            #possibePaths = self.findPossiblePaths(self.opponentLast, self.opponentCurrent, timeElapsed)
-
-            #this gives us all the legal paths the opponent could have done in the time.
-            #this only spells out *complete* node to node paths
-            #therefore, on top of these paths, we must also consider that a new edge may have been started and the robot is somewhere along that path.
-            #so what do we do?
-            #well, we can first parse possiblePaths to see if arriving at a particular edge is possible.
-            #but we won't be doing this with the exact timings, because that would be too brittle of a system.
-            #possiblePaths looks something like {[], [1, 3, 2], [3, 0, 0, 0]} where 0-3 is north - west respectively
-            #therefore we can reconstruct a path that would eventually lead to that edge.
-            #hm.
-            #ok so after calling possiblePaths, we know all the nodes the robot could have arrived to and left from in this time. 
-            #so we have 4^NC (possible node count) possible edges the opponent could be going down.
-            #i think we need another overlap, which will just check if each of these edges are 0 or not.
-            #we do this per node.
-            #and we just go down their cardinal nodes.
-
-            #ok recap:
-            #possible paths is currently useless.
-
-            #mela, we pass possiblepaths our consider or a matrix of cell to probabilities etc.
-            #at this point, cells is no longer useful and we will never use it again for now.
-
-            #i think the probabilities should be a dictionary i wont lie
-            #IDK HOW IM GONNA DO THIS.
-
-
-            #ok.
+            
+            #ok. (implement)
             #so we just finished calculating all edge and node probabilities, right? and we normalised 'em.
             #so now, we take all of the top 0.5 from the edge probabilities
             #we also definitely store the most probable edge
