@@ -107,23 +107,25 @@ class line_follower(Node):
         # 5 - Interceptive
         # 6 - Trap Layer
 
+        #start off at 1/16
+        #(we have 16 edges)
         self.Po = {
-            "Pab1": 0.01,
-            "Pab2": 0.01,
-            "Paf1": 0.01,
-            "Pae1": 0.01,
-            "Pef1": 0.01,
-            "Peg1": 0.01,
-            "Peg2": 0.01,
-            "Pgh1": 0.01,
-            "Phh1": 0.01,
-            "Pfg1": 0.01,
-            "Pfd1": 0.01,
-            "Pbd1": 0.01,
-            "Pbc1": 0.01,
-            "Pcd1": 0.01,
-            "Pcd2": 0.01,
-            "Pch1": 0.01
+            "Pab1": 0.0625,
+            "Pab2": 0.0625,
+            "Paf1": 0.0625,
+            "Pae1": 0.0625,
+            "Pef1": 0.0625,
+            "Peg1": 0.0625,
+            "Peg2": 0.0625,
+            "Pgh1": 0.0625,
+            "Phh1": 0.0625,
+            "Pfg1": 0.0625,
+            "Pfd1": 0.0625,
+            "Pbd1": 0.0625,
+            "Pbc1": 0.0625,
+            "Pcd1": 0.0625,
+            "Pcd2": 0.0625,
+            "Pch1": 0.0625
         }
         
         self.P = {
@@ -914,6 +916,8 @@ class line_follower(Node):
                 elif c.y == 5:
                     self.P["Pch1"] +=1
         
+
+
         #BAYES FILTER
         #let's hop on over to Po dict for a moment
         #Po is a dictionary which is storing our historic info
@@ -937,12 +941,13 @@ class line_follower(Node):
 
         #now we replace Po with Px
         self.Po = Px.copy()
-        
+
         totalProb = 0.0
         #ok! Po has been blurred!
         #now let us update our P values (Bayesian inference)
         for k in self.P:
             self.P[k] *= self.Po[k]
+            self.P[k] = max(self.P[k], 0.001) #clamp to prevent collapse
             totalProb += self.P[k]
 
         #now we normalise
