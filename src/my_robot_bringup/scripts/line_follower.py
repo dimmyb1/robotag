@@ -199,6 +199,7 @@ class line_follower(Node):
             self.get_logger().info(f"Can't return nonexistent char-node value")
             return None
         
+    #UNUSED :(
     def allReachable(self, nFrom, nTo, tE, F):
         paths = []
         explorable = [(nFrom, 0.0, [])]
@@ -249,7 +250,7 @@ class line_follower(Node):
         return paths
             
     
-
+    #UNUSED :(
     def findPossiblePaths(self, seenLastList, seenNowList, timeElapsed):
         FORGIVENESS_IN_TIME_S = 5.0
 
@@ -878,7 +879,7 @@ class line_follower(Node):
             #we need to check exactly which of current possible edges would be feasible to arrive at in the time that has passed since our last check
             #so we go to our other function
 
-            possibePaths = self.findPossiblePaths(self.opponentLast, self.opponentCurrent, timeElapsed)
+            #possibePaths = self.findPossiblePaths(self.opponentLast, self.opponentCurrent, timeElapsed)
 
             #this gives us all the legal paths the opponent could have done in the time.
             #this only spells out *complete* node to node paths
@@ -903,7 +904,17 @@ class line_follower(Node):
 
             #i think the probabilities should be a dictionary i wont lie
             #IDK HOW IM GONNA DO THIS.
-            
+
+
+            #ok.
+            #so we just finished calculating all edge and node probabilities, right? and we normalised 'em.
+            #so now, we take all of the top 0.5 from the edge probabilities
+            #we also definitely store the most probable edge
+            #and we also try to find an intersecting node between all probable edges, and overlap that with our nConsider
+            #and we save the most probable node
+            #and we have a bool which will just say: do i pay more attention to edge or to node location?
+            #and bam, we have some kinda targetting.
+
             
 
         else:
