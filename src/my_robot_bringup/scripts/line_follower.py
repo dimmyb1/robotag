@@ -936,7 +936,7 @@ class line_follower(Node):
             
             #Neighbouring Edge Key -> nek
             for nek in neighbours:
-                Px[k] += CONTAMINATION * ( self.Po[nek] / len(neighbours))
+                Px[k] += CONTAMINATION * ( self.Po[nek] / len(nek))
                 #?!
 
         #now we replace Po with Px
