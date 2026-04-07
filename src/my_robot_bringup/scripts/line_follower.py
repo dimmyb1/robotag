@@ -107,22 +107,60 @@ class line_follower(Node):
         # 5 - Interceptive
         # 6 - Trap Layer
 
-        self.Pab1 = 0.0
-        self.Pab2 = 0.0
-        self.Paf1 = 0.0
-        self.Pae1 = 0.0
-        self.Pef1 = 0.0
-        self.Peg1 = 0.0
-        self.Peg2 = 0.0
-        self.Pgh1 = 0.0
-        self.Phh1 = 0.0
-        self.Pfg1 = 0.0
-        self.Pfd1 = 0.0
-        self.Pbd1 = 0.0
-        self.Pbc1 = 0.0
-        self.Pcd1 = 0.0
-        self.Pcd2 = 0.0
-        self.Pch1 = 0.0
+        self.Po = {
+            "Pab1": 0.01,
+            "Pab2": 0.01,
+            "Paf1": 0.01,
+            "Pae1": 0.01,
+            "Pef1": 0.01,
+            "Peg1": 0.01,
+            "Peg2": 0.01,
+            "Pgh1": 0.01,
+            "Phh1": 0.01,
+            "Pfg1": 0.01,
+            "Pfd1": 0.01,
+            "Pbd1": 0.01,
+            "Pbc1": 0.01,
+            "Pcd1": 0.01,
+            "Pcd2": 0.01,
+            "Pch1": 0.01
+        }
+        
+        self.P = {
+            "Pab1": 0.0,
+            "Pab2": 0.0,
+            "Paf1": 0.0,
+            "Pae1": 0.0,
+            "Pef1": 0.0,
+            "Peg1": 0.0,
+            "Peg2": 0.0,
+            "Pgh1": 0.0,
+            "Phh1": 0.0,
+            "Pfg1": 0.0,
+            "Pfd1": 0.0,
+            "Pbd1": 0.0,
+            "Pbc1": 0.0,
+            "Pcd1": 0.0,
+            "Pcd2": 0.0,
+            "Pch1": 0.0
+        }
+
+        # self.Pab1 = 0.0
+        # self.Pab2 = 0.0
+        # self.Paf1 = 0.0
+        # self.Pae1 = 0.0
+        # self.Pef1 = 0.0
+        # self.Peg1 = 0.0
+        # self.Peg2 = 0.0
+        # self.Pgh1 = 0.0
+        # self.Phh1 = 0.0
+        # self.Pfg1 = 0.0
+        # self.Pfd1 = 0.0
+        # self.Pbd1 = 0.0
+        # self.Pbc1 = 0.0
+        # self.Pcd1 = 0.0
+        # self.Pcd2 = 0.0
+        # self.Pch1 = 0.0
 
         self.PA = 0.0
         self.PB = 0.0
@@ -858,23 +896,23 @@ class line_follower(Node):
                 max = a
                 #keep track of the maximum
 
-        #TRIM UNLIKELY OPTIONS
+        # #TRIM UNLIKELY OPTIONS
 
-        #0.5 is the minimum probability for the shortest paths in the map
-        if(max>= 0.5):
-            for a in consider:
-                if (a < 0.5):
-                    consider.remove(a)
+        # #0.5 is the minimum probability for the shortest paths in the map
+        # if(max>= 0.5):
+        #     for a in consider:
+        #         if (a < 0.5):
+        #             consider.remove(a)
 
-        #0.25 was generally found to be the lowest but most common low probability value. (e.g. half a short path)
-        elif(max> 0.25):
-            for a in consider:
-                if (a <= 0.25):
-                    consider.remove(a)
-        else:
-            for a in consider:
-                if (a == 0.0):
-                    consider.remove(a)
+        # #0.25 was generally found to be the lowest but most common low probability value. (e.g. half a short path)
+        # elif(max> 0.25):
+        #     for a in consider:
+        #         if (a <= 0.25):
+        #             consider.remove(a)
+        # else:
+        #     for a in consider:
+        #         if (a == 0.0):
+        #             consider.remove(a)
 
         
 
