@@ -889,7 +889,22 @@ class line_follower(Node):
             #possiblePaths looks something like {[], [1, 3, 2], [3, 0, 0, 0]} where 0-3 is north - west respectively
             #therefore we can reconstruct a path that would eventually lead to that edge.
             #hm.
-            #
+            #ok so after calling possiblePaths, we know all the nodes the robot could have arrived to and left from in this time. 
+            #so we have 4^NC (possible node count) possible edges the opponent could be going down.
+            #i think we need another overlap, which will just check if each of these edges are 0 or not.
+            #we do this per node.
+            #and we just go down their cardinal nodes.
+
+            #ok recap:
+            #possible paths is currently useless.
+
+            #mela, we pass possiblepaths our consider or a matrix of cell to probabilities etc.
+            #at this point, cells is no longer useful and we will never use it again for now.
+
+            #i think the probabilities should be a dictionary i wont lie
+            #IDK HOW IM GONNA DO THIS.
+            
+            
 
         else:
             #if we are almost certainly at a node
