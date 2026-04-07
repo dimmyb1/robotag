@@ -164,9 +164,63 @@ class line_follower(Node):
                 return ["Pch1", "Phh1", "Pgh1"]
                 #this is not a mistake.
 
+        def returnNodeFromEdge(self, fromE):
+            x1 = 'Z'
+            x2 = 'X'
+            if fromE in ["Pab1", "Pab2", "Paf1", "Pae1"]:
+                if(x1 == 'Z'):
+                    x1 = 'A'
+                else:
+                    x2 = 'A'
+            elif fromE in ["Pab1", "Pab2", "Pbd1", "Pbc1"]:
+                if(x1 == 'Z'):
+                    x1 = 'B'
+                else:
+                    x2 = 'B'
+            elif fromE in ["Pcd1", "Pcd2", "Pch1", "Pbc1"]:
+                if(x1 == 'Z'):
+                    x1 = 'C'
+                else:
+                    x2 = 'C'
+            elif fromE in ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]:
+                if(x1 == 'Z'):
+                    x1 = 'D'
+                else:
+                    x2 = 'D'
+            elif fromE in ["Peg1", "Peg2", "Pae1", "Pef1"]:
+                if(x1 == 'Z'):
+                    x1 = 'E'
+                else:
+                    x2 = 'E'
+            elif fromE in ["Pef1", "Paf1", "Pfg1", "Pfd1"]:
+                if(x1 == 'Z'):
+                    x1 = 'F'
+                else:
+                    x2 = 'F'
+            elif fromE in ["Peg1", "Peg2", "Pfg1", "Pgh1"]:
+                if(x1 == 'Z'):
+                    x1 = 'G'
+                else:
+                    x2 = 'G'
+            elif fromE in ["Pch1", "Phh1", "Pgh1"]:
+                #this is not a mistake. H only has 3 unique edge transitions.
+                if(x1 == 'Z'):
+                    x1 = 'H'
+                else:
+                    x2 = 'H'
+
+            return x1, x2
+
         def getNeighbourEdgesOf(self, fromK):
-            dummy = 1
-            return dummy
+            n1, n2 = self.returnNodeFromEdge(fromK)
+            a1 = self.returnNodeEdges(n1)
+            a2 = self.returnNodeEdges(n2)
+
+            a1.remove(fromK)
+            a2.remove(fromK)
+            a3 = a1 + a2
+
+            return a3
 
         # self.P["Pab1"] = 0.0
         # self.P["Pab2"] = 0.0
