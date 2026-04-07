@@ -399,7 +399,7 @@ class line_follower(Node):
             #i think the probabilities should be a dictionary i wont lie
             #IDK HOW IM GONNA DO THIS.
 
-    """ 
+    
 
 
 
@@ -414,6 +414,8 @@ class line_follower(Node):
         if lowx < 0:
             lowx = 0
         return lowx
+
+    """ 
     
     #Graph Functions
     def calculateProbabilities(self):
@@ -424,7 +426,9 @@ class line_follower(Node):
         #and servo was the angle at which we go tthe reading, +- the known margin of error
         #and that BOXMEAS is the l / w of the boxes in the grid in euclidean metric
         BOXMEAS = 2
-
+        PERSISTENCE = 0.7
+        CONTAMINATION = 0.3
+        
         #and let's say we have estimated our current coordinates to be x and y
         x = 2
         y = 3
@@ -773,10 +777,6 @@ class line_follower(Node):
                     cells.remove(c)
                         
 
-                        
-
-
-        
         #now we have a pretty small set of cells which the opponent can be in
 
 
@@ -924,8 +924,7 @@ class line_follower(Node):
         #we have a temp dict called Px:
         Px = {}
         #we will apply some blurring effect and forgetfulness to Po
-        PERSISTENCE = 0.7
-        CONTAMINATION = 0.3
+        
         for k,v in self.Po.items():
             #reduce the weight of the old info by 1-PERSISTENCE
             Px[k] = PERSISTENCE * v
