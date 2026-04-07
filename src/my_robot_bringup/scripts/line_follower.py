@@ -960,14 +960,16 @@ class line_follower(Node):
         self.Po = self.P.copy()
 
 
+        #now we take top X probable options and return them
+        #e.g. top 4 or all above 50%  
+        #tbf, i think we're done here, then actual selection is done by the individual strategy.
 
 
 
 
 
 
-
-
+        """
         #first, let us normalise all the probabilities so that they are comparable
         #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
         #check the short edges first:
@@ -1108,6 +1110,7 @@ class line_follower(Node):
             #ez
             #just pop a node and assume that to be the location
             #dummy = nConsider.pop()
+        """
 
 
 
