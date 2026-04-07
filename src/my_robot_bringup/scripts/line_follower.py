@@ -800,6 +800,7 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
+        #these will likely go unused, for now they remain here
         self.PA = 0.0
         self.PB = 0.0
         self.PC = 0.0
@@ -1111,7 +1112,9 @@ class line_follower(Node):
             #dummy = nConsider.pop()
         """
 
-
+    def generatePathFromNToE(self, e):
+        #self.current_node to edge maxK
+        dummy = 1
 
     def planDestination(self):
         choice = -1
@@ -1161,7 +1164,7 @@ class line_follower(Node):
                     maxK = k
 
             #then we want to generate a path from our current node to that edge (maxK)
-
+            self.generatePathFromNToE(maxK)
             
             return
         elif self.behaviourMode == 4:
