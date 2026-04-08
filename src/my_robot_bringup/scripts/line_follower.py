@@ -1267,6 +1267,9 @@ class line_follower(Node):
                         #p is a char: 'A', or 'B', etc - 'H'
                         parentsDict[p] +=1
 
+                #dont allow yourself to pathfind to where you're currently standing
+                parentsDict[self.current_node] = 0
+
                 #now we have the most common parent
                 #find central node
                 nfound = False
@@ -1278,27 +1281,30 @@ class line_follower(Node):
                         nfound=True
                         break #stop iterating
                 
-                #(IMPLEMENT)
                 #if not nfound:
                 if not nfound:
                     #go backwards from CERTAINTY to 2
                     for cert in range(CERTAINTY-1, 1, -1):
                         #until you find the max valued parent node
                         #if you found, do nfound yes
-                        if v == cert:
-                            #yes -> generatepathfromNtoN
-                            self.generatePathFromNToN(toK)
-                            nfound=True
-                            break #stop iterating
+
+                        for toK,v in parentsDict.items():
+                        #is there a node?
+                            if v == cert:
+                                #yes -> generatepathfromNtoN
+                                self.generatePathFromNToN(toK)
+                                nfound=True
+                                break #stop iterating
                 
-
-
                 #otherwise:
-                
                 if not nfound:
+                    #so parentsDict only continas values of 0 or 1, so
                     #just traverse parentsDict for the non-0, ==1 parents
-                    #make sure it isnt the same node we are currently at (cus that wouldnt make sense)
-                    #and then just find the closest next node and generate path towards it
+                    singleParents = [k for k,v in parentsDict.items() if v==1]
+
+                    #and then just find the closest next node 
+                    
+                    # and generate path towards it
                     self.generatePathFromNToN(dummy)
                 #no -> try the closest one (if greedy search, then we try closest one and try again)
                 #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
