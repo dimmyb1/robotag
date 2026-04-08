@@ -1276,18 +1276,26 @@ class line_follower(Node):
                         #yes -> generatepathfromNtoN
                         self.generatePathFromNToN(toK)
                         nfound=True
-                        break
+                        break #stop iterating
                 
                 #(IMPLEMENT)
                 #if not nfound:
-                #go backwards from CERTAINTY to 2
-                #until you find the max valued parent node
-                #if you found, do nfound yes
+                if not nfound:
+                    #go backwards from CERTAINTY to 2
+                    for cert in range(CERTAINTY-1, 1, -1):
+                        #until you find the max valued parent node
+                        #if you found, do nfound yes
+                        if v == cert:
+                            #yes -> generatepathfromNtoN
+                            self.generatePathFromNToN(toK)
+                            nfound=True
+                            break #stop iterating
+                
 
 
                 #otherwise:
                 
-                if(not nfound):
+                if not nfound:
                     #just traverse parentsDict for the non-0, ==1 parents
                     #make sure it isnt the same node we are currently at (cus that wouldnt make sense)
                     #and then just find the closest next node and generate path towards it
