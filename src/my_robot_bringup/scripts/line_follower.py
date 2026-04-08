@@ -1268,12 +1268,30 @@ class line_follower(Node):
                         parentsDict[p] +=1
 
                 #now we have the most common parent
-                
-                
                 #find central node
+                nfound = False
+                for toK,v in parentsDict.items():
+                    #is there a node?
+                    if v == CERTAINTY:
+                        #yes -> generatepathfromNtoN
+                        self.generatePathFromNToN(toK)
+                        nfound=True
+                        break
+                
+                #(IMPLEMENT)
+                #if not nfound:
+                #go backwards from CERTAINTY to 2
+                #until you find the max valued parent node
+                #if you found, do nfound yes
 
-                #is there a node?
-                #yes -> generatepathfromNtoN
+
+                #otherwise:
+                
+                if(not nfound):
+                    #just traverse parentsDict for the non-0, ==1 parents
+                    #make sure it isnt the same node we are currently at (cus that wouldnt make sense)
+                    #and then just find the closest next node and generate path towards it
+                    self.generatePathFromNToN(dummy)
                 #no -> try the closest one (if greedy search, then we try closest one and try again)
                 #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
                 dummy=2
