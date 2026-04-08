@@ -1248,9 +1248,28 @@ class line_follower(Node):
                 topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
                 #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
 
-                for k,v in topProb:
-                    dummy = 1
+                
+                parentsDict = {
+                    'A' : 0,
+                    'B' : 0,
+                    'C' : 0,
+                    'D' : 0,
+                    'E' : 0,
+                    'F' : 0,
+                    'G' : 0,
+                    'H' : 0
+                }
 
+                for k,v in topProb:
+                    parentsList = self.getNodesFromEdge(k)
+
+                    for p in parentsList:
+                        #p is a char: 'A', or 'B', etc - 'H'
+                        parentsDict[p] +=1
+
+                #now we have the most common parent
+                
+                
                 #find central node
 
                 #is there a node?
