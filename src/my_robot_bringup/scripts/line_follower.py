@@ -108,7 +108,6 @@ class line_follower(Node):
         # 4 - Avoidant
         # 5 - Interceptive
         # 6 - Trap Layer
-        # 7 - Epsilon-Greedy
 
         #start off at 1/16
         #(we have 16 edges)
@@ -150,7 +149,73 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
-        
+        def getNodesFromEdge(self, fromE):
+            A = ["Pab1", "Pab2", "Paf1", "Pae1"]
+            B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
+            C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+            D = ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+            E = ["Peg1", "Peg2", "Pae1", "Pef1"]
+            F = ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+            G = ["Peg1", "Peg2", "Pfg1", "Pgh1"]
+            H = ["Pch1", "Phh1", "Pgh1"]
+            #this is not a mistake. H only has 3 unique edge transitions.
+            
+            toReturn = []
+
+            if fromE in A:
+                if(toReturn):
+                    toReturn.append('A')
+                    return toReturn
+                else:
+                    toReturn.append('A')
+
+            if fromE in B:
+                if(toReturn):
+                    toReturn.append('B')
+                    return toReturn
+                else:
+                    toReturn.append('B')
+            if fromE in C:
+                if(toReturn):
+                    toReturn.append('C')
+                    return toReturn
+                else:
+                    toReturn.append('C')
+            if fromE in D:
+                if(toReturn):
+                    toReturn.append('D')
+                    return toReturn
+                else:
+                    toReturn.append('D')
+            if fromE in E:
+                if(toReturn):
+                    toReturn.append('E')
+                    return toReturn
+                else:
+                    toReturn.append('E')
+            if fromE in F:
+                if(toReturn):
+                    toReturn.append('F')
+                    return toReturn
+                else:
+                    toReturn.append('F')
+            if fromE in G:
+                if(toReturn):
+                    toReturn.append('G')
+                    return toReturn
+                else:
+                    toReturn.append('G')
+            if fromE in H:
+                if(toReturn):
+                    toReturn.append('H')
+                    return toReturn
+                else:
+                    toReturn.append('H')
+
+            return toReturn
+
+
+
         
         def getNeighbourEdgesOf(self, fromE):
             A = ["Pab1", "Pab2", "Paf1", "Pae1"]
@@ -172,43 +237,43 @@ class line_follower(Node):
                 else:
                     toReturn = A
 
-            elif fromE in B:
+            if fromE in B:
                 if(toReturn):
                     toReturn.extend(B)
                     return toReturn
                 else:
                     toReturn = B
-            elif fromE in C:
+            if fromE in C:
                 if(toReturn):
                     toReturn.extend(C)
                     return toReturn
                 else:
                     toReturn = C
-            elif fromE in D:
+            if fromE in D:
                 if(toReturn):
                     toReturn.extend(D)
                     return toReturn
                 else:
                     toReturn = D
-            elif fromE in E:
+            if fromE in E:
                 if(toReturn):
                     toReturn.extend(E)
                     return toReturn
                 else:
                     toReturn = E
-            elif fromE in F:
+            if fromE in F:
                 if(toReturn):
                     toReturn.extend(F)
                     return toReturn
                 else:
                     toReturn = F
-            elif fromE in G:
+            if fromE in G:
                 if(toReturn):
                     toReturn.extend(G)
                     return toReturn
                 else:
                     toReturn = G
-            elif fromE in H:
+            if fromE in H:
                 if(toReturn):
                     toReturn.extend(H)
                     return toReturn
@@ -1123,7 +1188,11 @@ class line_follower(Node):
         #(implement)
 
     def planDestination(self):
+        CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
+        CONSIDER_NODES = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
+
         choice = -1
+        
         #define some preference algorithm.
         #use distances if you want (Nd, Ed, Sd, Wd)
         # behaviourMode settings:
@@ -1169,9 +1238,26 @@ class line_follower(Node):
                     maxV = v
                     maxK = k
 
-            #then we want to generate a path from our current node to that edge (maxK)
-            self.generatePathFromNToE(maxK)
             
+
+            if(maxV >= CERTAINTY):
+                #then we want to generate a path from our current node to that edge (maxK)
+                self.generatePathFromNToE(maxK)
+            else:
+                #find top CONSIDER_NODES (int) max valued edge-probabilities
+                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
+                #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
+
+                for k,v in topProb:
+                    dummy = 1
+
+                #find central node
+
+                #is there a node?
+                #yes -> generatepathfromNtoN
+                #no -> try the closest one (if greedy search, then we try closest one and try again)
+                #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
+                dummy=2
             return
         elif self.behaviourMode == 4:
             # 4 - Avoidant
@@ -1181,9 +1267,6 @@ class line_follower(Node):
             return
         elif self.behaviourMode == 6:
             # 6 - Trap Layer
-            return
-        elif self.behaviourMode ==7:
-            # 7 - Epsilon Greedy
             return
         else:
             # 0 - not set (no behaviour)
