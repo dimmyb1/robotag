@@ -1181,11 +1181,21 @@ class line_follower(Node):
             #dummy = nConsider.pop()
         """
 
+    #(IMPLEMENT *3)
     def generatePathFromNToE(self, e):
         #self.current_node to edge maxK
         dummy = 1
         #generate the shortest path from N to one of the nodes of the edge.
         #(implement)
+    
+    def generatePathFromNToN(self, n):
+        dummy = 1
+
+    def generateShortestPathFromNToListOption(self, listOfSingleParents):
+        dummy = 1
+
+
+        
 
     def planDestination(self):
         CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
@@ -1297,19 +1307,16 @@ class line_follower(Node):
                                 break #stop iterating
                 
                 #otherwise:
+                #no -> try the closest one (if greedy search, then we try closest one and try again)
+                #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
                 if not nfound:
                     #so parentsDict only continas values of 0 or 1, so
                     #just traverse parentsDict for the non-0, ==1 parents
                     singleParents = [k for k,v in parentsDict.items() if v==1]
 
-                    #and then just find the closest next node 
+                    #and then just find the closest next node and generate path towards it
+                    self.generateShortestPathFromNToListOption(singleParents)
                     
-                    # and generate path towards it
-                    self.generatePathFromNToN(dummy)
-                #no -> try the closest one (if greedy search, then we try closest one and try again)
-                #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
-                dummy=2
-            return
         elif self.behaviourMode == 4:
             # 4 - Avoidant
             return
