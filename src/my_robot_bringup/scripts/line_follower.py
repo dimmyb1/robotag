@@ -1256,10 +1256,14 @@ class line_follower(Node):
         #if no path exists, will return None, float('inf')
         return path, distances.get(goal_char, float('inf'))
 
+    def generatePathFromNToN(self, n):
+        #generate the shortest path from current_node to n
+        path, dist = self.dijkstra(self.current_node, n)
+        return path
 
     def generatePathFromNToE(self, e):
         #self.current_node to edge maxK
-        dummy = 1
+
         #generate the shortest path from N to one of the nodes of the edge.
         parentsList = self.getNodesFromEdge(e)
 
@@ -1273,15 +1277,28 @@ class line_follower(Node):
         for p,d in pathDistanceTuples:
             if d < min:
                 min = d
-                p = minPath.copy()
+                minPath = p
 
-        #(implement)
+        return minPath
+
     
-    def generatePathFromNToN(self, n):
-        dummy = 1
-
     def generateShortestPathFromNToListOption(self, listOfSingleParents):
-        dummy = 1
+        #generate the shortest path from N to one of the nodes of the edge.
+        #listOfSingleParents is a list of char node names
+        
+        pathDistanceTuples = []
+        for p in listOfSingleParents:
+            path, dist = self.dijkstra(self.current_node, p)
+            pathDistanceTuples.append((path,dist))
+
+        min = 10000
+        minPath = []
+        for p,d in pathDistanceTuples:
+            if d < min:
+                min = d
+                minPath = p
+
+        return minPath
 
 
         
@@ -1402,6 +1419,7 @@ class line_follower(Node):
                     #so parentsDict only continas values of 0 or 1, so
                     #just traverse parentsDict for the non-0, ==1 parents
                     singleParents = [k for k,v in parentsDict.items() if v==1]
+                    #singleParents contains a list of chars e.g. 'A' - 'H'
 
                     #and then just find the closest next node and generate path towards it
                     self.generateShortestPathFromNToListOption(singleParents)
