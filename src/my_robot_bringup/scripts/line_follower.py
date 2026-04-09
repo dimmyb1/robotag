@@ -18,29 +18,23 @@ import subprocess
 import time
 import random
 
+#for dijkstra
+import heapq
+
 class Noden():
     def __init__(self, nd, nc, ed, ec, sd,sc, wd, wc, n, t):
-        self.Nd = nd
+        #dir_c -> where dir can be N, E, S, W and c just means 'char' so you would have 'A', 'B' .. etc 'A' - 'H' representing the node name
         self.Nc = nc
-        self.Ed = ed
         self.Ec = ec
-        self.Sd = sd
         self.Sc = sc
-        self.Wd = wd
         self.Wc = wc
+
+        #.name -> the name of this node as a char : 'A' - 'H'
         self.name = n
+
+        #.Times -> [1.0, 23.0, 14.5, 16.8]  where Times[0] -> North transition time cost = 1.0
         self.Times = t
 
-class Location():
-    def __init__(self, node1, node2, variation):
-        #arbitrarily numbered
-
-        #node 1
-        self.n1 = node1
-        #node 2
-        self.n2 = node2
-        #variational number
-        self.vr = variation
      
 class Cell():
     def __init__(self, xx, yy):
@@ -150,6 +144,7 @@ class line_follower(Node):
         }
 
         def getNodesFromEdge(self, fromE):
+            #returns the parent node/s of an edge
             A = ["Pab1", "Pab2", "Paf1", "Pae1"]
             B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
             C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
@@ -502,6 +497,10 @@ class line_follower(Node):
         y = 3
         # so minimum (2,3), maximum (3,4) starts
         #these need to be estimated by timing how long we're following a black line for against our pretimed table
+        
+        #get current cardinal direction we're facing (implement)
+        #check if not detected at all! or if you only have 1 reading! (implement)
+
 
         #then we can calculate our minimum and maximums for manhattan distance
         #MAKE A CIRCLE
@@ -523,8 +522,8 @@ class line_follower(Node):
         biggerServo = max(self.entry_angle, self.exit_angle)
         #for now i assume these to be in euclidean 
 
-        #get current cardinal direction we're facing (implement)
-        #check if not detected at all! or if you only have 1 reading! (implement)
+        
+
         if(lesserServo < 90 and biggerServo > 90):
             #if current cardinal direction we're facing is North or South
             for c in cells:
@@ -1182,10 +1181,91 @@ class line_follower(Node):
         """
 
     #(IMPLEMENT *3)
+
+    #dijkstra function written by ChatGPT-5.3 on 9/04/2026
+    #in this conversation: https://chatgpt.com/share/69d7f982-5b6c-8330-bd3b-779f35e3c7ed 
+    def dijkstra(start_node, goal_char):
+        #usage: result = dijkstra(adj, src)
+        """
+        start_node: actual node object (e.g., self.A)
+        goal_char: target node name (e.g., 'H')
+        """
+
+        # Priority queue: (cost, node)
+        pq = []
+        heapq.heappush(pq, (0, start_node))
+
+        # Distance dictionary
+        distances = {start_node.name: 0}
+
+        # Previous node tracker (for path reconstruction)
+        previous = {start_node.name: None}
+
+        visited = set()
+
+        while pq:
+            current_cost, current_node = heapq.heappop(pq)
+
+            if current_node.name in visited:
+                continue
+            visited.add(current_node.name)
+
+            # Goal check
+            if current_node.name == goal_char:
+                break
+
+            # Explore neighbors (N, E, S, W)
+            neighbors = [
+                (current_node.Nc, current_node.Times[0]),
+                (current_node.Ec, current_node.Times[1]),
+                (current_node.Sc, current_node.Times[2]),
+                (current_node.Wc, current_node.Times[3]),
+            ]
+
+            for neighbor_char, cost in neighbors:
+                if neighbor_char is None:
+                    continue
+
+                neighbor_node = self.returnNode(neighbor_char)
+                if neighbor_node is None:
+                    continue
+
+                new_cost = current_cost + cost
+
+                if (neighbor_char not in distances or 
+                    new_cost < distances[neighbor_char]):
+
+                    distances[neighbor_char] = new_cost
+                    previous[neighbor_char] = current_node.name
+                    heapq.heappush(pq, (new_cost, neighbor_node))
+
+        #Reconstruct path
+        path = []
+        current = goal_char
+
+        if current not in previous and current != start_node.name:
+            return None, float('inf')  # No path
+
+        while current is not None:
+            path.append(current)
+            current = previous.get(current)
+
+        path.reverse()
+
+        return path, distances.get(goal_char, float('inf'))
+
+
     def generatePathFromNToE(self, e):
         #self.current_node to edge maxK
         dummy = 1
         #generate the shortest path from N to one of the nodes of the edge.
+        parentsList = self.getNodesFromEdge(e)
+
+        pathDistanceTuples = []
+        for p in parentsList:
+            (path, dist) = self.dijkstra(self.current_node, p)
+            pathDistanceTuples.append((path,dist))
+
         #(implement)
     
     def generatePathFromNToN(self, n):
