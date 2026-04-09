@@ -1185,7 +1185,6 @@ class line_follower(Node):
     #dijkstra function written by ChatGPT-5.3 on 9/04/2026
     #in this conversation: https://chatgpt.com/share/69d7f982-5b6c-8330-bd3b-779f35e3c7ed 
     def dijkstra(start_node, goal_char):
-        #usage: result = dijkstra(adj, src)
         """
         start_node: actual node object (e.g., self.A)
         goal_char: target node name (e.g., 'H')
@@ -1252,6 +1251,9 @@ class line_follower(Node):
 
         path.reverse()
 
+        #where path is a list of node names (chars)
+        #, cost - total cost of the path
+        #if no path exists, will return None, float('inf')
         return path, distances.get(goal_char, float('inf'))
 
 
@@ -1263,8 +1265,15 @@ class line_follower(Node):
 
         pathDistanceTuples = []
         for p in parentsList:
-            (path, dist) = self.dijkstra(self.current_node, p)
+            path, dist = self.dijkstra(self.current_node, p)
             pathDistanceTuples.append((path,dist))
+
+        min = 10000
+        minPath = []
+        for p,d in pathDistanceTuples:
+            if d < min:
+                min = d
+                p = minPath.copy()
 
         #(implement)
     
@@ -1430,10 +1439,11 @@ class line_follower(Node):
         self.planDestination()
 
         #update sweeping setting
-        if (self.current_node == 'A' and self.current_destination == self.A.Nc) or (self.current_node == 'B' and self.current_destination == self.B.Nc) or (self.current_node == 'C' and self.current_destination == self.C.Ec) or (self.current_node == 'E' and self.current_destination == self.E.Nc):
+        #RE-CHECK IF WE NEED TO DO SKIP ZEROES BASED ON THE DIAGRAM (IMPLEMENT , dummy)
+        if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc):
             #special case
             self.skipZero = True
-        elif(self.current_node in ['F', 'G']):
+        elif(self.current_node.name in ['F', 'G']):
             self.skipZero = True
         else:
             self.skipZero = False
