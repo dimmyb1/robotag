@@ -1285,7 +1285,7 @@ class line_follower(Node):
     def generateShortestPathFromNToListOption(self, listOfSingleParents):
         #generate the shortest path from N to one of the nodes of the edge.
         #listOfSingleParents is a list of char node names
-        
+
         pathDistanceTuples = []
         for p in listOfSingleParents:
             path, dist = self.dijkstra(self.current_node, p)
@@ -1358,7 +1358,7 @@ class line_follower(Node):
 
             if(maxV >= CERTAINTY):
                 #then we want to generate a path from our current node to that edge (maxK)
-                self.generatePathFromNToE(maxK)
+                self.current_destination = self.generatePathFromNToE(maxK)
             else:
                 #find top CONSIDER_NODES (int) max valued edge-probabilities
                 topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
@@ -1393,7 +1393,7 @@ class line_follower(Node):
                     #is there a node?
                     if v == CERTAINTY:
                         #yes -> generatepathfromNtoN
-                        self.generatePathFromNToN(toK)
+                        self.current_destination = self.generatePathFromNToN(toK)
                         nfound=True
                         break #stop iterating
                 
@@ -1408,7 +1408,7 @@ class line_follower(Node):
                         #is there a node?
                             if v == cert:
                                 #yes -> generatepathfromNtoN
-                                self.generatePathFromNToN(toK)
+                                self.current_destination = self.generatePathFromNToN(toK)
                                 nfound=True
                                 break #stop iterating
                 
@@ -1422,7 +1422,7 @@ class line_follower(Node):
                     #singleParents contains a list of chars e.g. 'A' - 'H'
 
                     #and then just find the closest next node and generate path towards it
-                    self.generateShortestPathFromNToListOption(singleParents)
+                    self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
                     
         elif self.behaviourMode == 4:
             # 4 - Avoidant
@@ -1455,6 +1455,11 @@ class line_follower(Node):
                     self.current_node = n
         #   self.current_destination = self. Function to Calculate Next Destination.
         self.planDestination()
+
+        #self.current_destination has been set to either a node character OR a LIST of node characters. 
+        #Check which one, if it is a list, we must iterate over it as it is a PATH.
+        #if it is a single node character, then it is an immediate neighbour 
+        #(Implement.)
 
         #update sweeping setting
         #RE-CHECK IF WE NEED TO DO SKIP ZEROES BASED ON THE DIAGRAM (IMPLEMENT , dummy)
