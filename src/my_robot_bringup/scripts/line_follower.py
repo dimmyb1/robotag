@@ -1430,22 +1430,7 @@ class line_follower(Node):
         #otherwise, we know for a fact that we are not in a safe node
 
         #NOW WE NEED TO FIND THE NODES WHICH ARE THE SAFEST TO GET TO
-        #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
-        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
-        # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
-        # unsafeEdges.append(enemyE)
-
-        # for n in safeNodes:
-        #     thisNode = self.returnNode(n)
-        #     #check all of its neighbour nodes and add them to the list
-        #     for safeE in self.getEdgesFromNode(thisNode):
-        #         if safeE in unsafeEdges:
-        #             unsafeEdges.remove(safeE)
-
         
-        # safeEdges = allEdges - unsafeEdges
-
-        #myEdges = self.getEdgesFromNode(self.current_node)
         
         if self.current_node.Nc in safeNodes:
             return [0]
@@ -1476,6 +1461,25 @@ class line_follower(Node):
         
         self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
         return None
+    
+        #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
+        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
+        # unsafeEdges.append(enemyE)
+
+        # for n in safeNodes:
+        #     thisNode = self.returnNode(n)
+        #     #check all of its neighbour nodes and add them to the list
+        #     for safeE in self.getEdgesFromNode(thisNode):
+        #         if safeE in unsafeEdges:
+        #             unsafeEdges.remove(safeE)
+
+        
+        # safeEdges = allEdges - unsafeEdges
+
+        #myEdges = self.getEdgesFromNode(self.current_node)
+    
+
 
     def planDestination(self):
         CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
