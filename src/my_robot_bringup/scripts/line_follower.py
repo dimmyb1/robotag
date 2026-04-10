@@ -1308,7 +1308,7 @@ class line_follower(Node):
 
         return minPath
 
-    def getSafeNodes(self, enemyE):
+    def generateSafePath(self, enemyE):
         #safe means not reachable by 1 node
         #so a safe node is 2+ nodes away
         #and there needs to be a valid path between me and the safe node 
@@ -1338,9 +1338,18 @@ class line_follower(Node):
         allNodes = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H']
         safeNodes = allNodes - unsafeNodes
 
-        #NOW WE NEED TO FIND THE NODES WHICH ARE EASIEST TO GET TO
+        #are we safe? then just wait here until the situation changes.
+        if self.current_node in safeNodes:
+            return []
+            #IMPLEMENT a wait before next check on the receiving side of this function
+            #to check for an empty path
+        
+        #otherwise, we know for a fact that we are not in a safe node
+
+        #NOW WE NEED TO FIND THE NODES WHICH ARE THE SAFEST TO GET TO
         allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
         safeEdges = allEdges - unsafeEdges
+
 
         
 
