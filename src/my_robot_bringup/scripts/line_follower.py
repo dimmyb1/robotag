@@ -1184,7 +1184,7 @@ class line_follower(Node):
 
     #dijkstra function written by ChatGPT-5.3 on 9/04/2026
     #in this conversation: https://chatgpt.com/share/69d7f982-5b6c-8330-bd3b-779f35e3c7ed 
-    def dijkstra(start_node, goal_char):
+    def dijkstra(self, start_node, goal_char):
         """
         start_node: actual node object (e.g., self.A)
         goal_char: target node name (e.g., 'H')
