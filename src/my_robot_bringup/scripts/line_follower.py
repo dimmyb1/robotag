@@ -226,6 +226,7 @@ class line_follower(Node):
             toReturn = []
 
             if fromE in A:
+                A.remove(fromE)
                 if(toReturn):
                     toReturn.extend(A)
                     return toReturn
@@ -233,42 +234,49 @@ class line_follower(Node):
                     toReturn = A
 
             if fromE in B:
+                B.remove(fromE)
                 if(toReturn):
                     toReturn.extend(B)
                     return toReturn
                 else:
                     toReturn = B
             if fromE in C:
+                C.remove(fromE)
                 if(toReturn):
                     toReturn.extend(C)
                     return toReturn
                 else:
                     toReturn = C
             if fromE in D:
+                D.remove(fromE)
                 if(toReturn):
                     toReturn.extend(D)
                     return toReturn
                 else:
                     toReturn = D
             if fromE in E:
+                E.remove(fromE)
                 if(toReturn):
                     toReturn.extend(E)
                     return toReturn
                 else:
                     toReturn = E
             if fromE in F:
+                F.remove(fromE)
                 if(toReturn):
                     toReturn.extend(F)
                     return toReturn
                 else:
                     toReturn = F
             if fromE in G:
+                G.remove(fromE)
                 if(toReturn):
                     toReturn.extend(G)
                     return toReturn
                 else:
                     toReturn = G
             if fromE in H:
+                H.remove(fromE)
                 if(toReturn):
                     toReturn.extend(H)
                     return toReturn
