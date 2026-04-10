@@ -1308,13 +1308,37 @@ class line_follower(Node):
 
         return minPath
 
-    def getSafeNodes(self, enemyN):
+    def getSafeNodes(self, enemyE):
         #safe means not reachable by 1 node
         #so a safe node is 2+ nodes away
         #and there needs to be a valid path between me and the safe node 
         #that i can pass through so that i dont navigate through the enemy
         #so i cannot pass through the enemy's edge
         #and i need to avoid going to neighbouring edges of the enemy's edge
+        unsafeEdges = self.getNeighbourEdgesOf(enemyE)
+        unsafeEdges.append(enemyE)
+
+        unsafeNodes = []
+        #list of chars
+
+        p = self.getNodesFromEdge(enemyE)
+        #p is a list of chars: 'A', or 'B', etc - 'H'
+        for n in p:
+            thisNode = self.returnNode(n)
+            #check all of its neighbour nodes and add them to the list
+            if thisNode.Nc not in unsafeNodes:
+                unsafeNodes.append(thisNode.Nc)
+            if thisNode.Ec not in unsafeNodes:
+                unsafeNodes.append(thisNode.Ec)
+            if thisNode.Sc not in unsafeNodes:
+                unsafeNodes.append(thisNode.Sc)
+            if thisNode.Wc not in unsafeNodes:
+                unsafeNodes.append(thisNode.Wc)
+
+        allNodes = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H']
+        safeNodes = allNodes - unsafeNodes
+
+        #NOW WE NEED TO FIND THE NODES WHICH ARE EASIEST TO GET TO
 
         dummy = 1
 
