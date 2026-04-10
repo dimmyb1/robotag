@@ -153,7 +153,7 @@ class line_follower(Node):
             if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
             if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
             if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
-            
+
             else: 
                 self.get_logger().info(f"From getEdgesFromNode ERR: Can't return nonexistent node's edges")
                 return []
@@ -1393,15 +1393,13 @@ class line_follower(Node):
 
         return path, distances[goal]
     
-    def generateSafePath(self, enemyE):
+    def generateSafePathFromEnemyEdge(self, enemyE):
         #safe means not reachable by 1 node
         #so a safe node is 2+ nodes away
         #and there needs to be a valid path between me and the safe node 
         #that i can pass through so that i dont navigate through the enemy
         #so i cannot pass through the enemy's edge
         #and i need to avoid going to neighbouring edges of the enemy's edge
-        #unsafeEdges = self.getNeighbourEdgesOf(enemyE)
-        #unsafeEdges.append(enemyE)
 
         unsafeNodes = []
         #list of chars
@@ -1432,8 +1430,20 @@ class line_follower(Node):
         #otherwise, we know for a fact that we are not in a safe node
 
         #NOW WE NEED TO FIND THE NODES WHICH ARE THE SAFEST TO GET TO
-        #allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
+        allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        unsafeEdges = self.getNeighbourEdgesOf(enemyE)
+        unsafeEdges.append(enemyE)
+
+        for n in safeNodes:
+            thisNode = self.returnNode(n)
+            #check all of its neighbour nodes and add them to the list
+            for safeE in self.getEdgesFromNode(thisNode):
+                dummy = 1
+
         #safeEdges = allEdges - unsafeEdges
+
+        myEdges = self.getEdgesFromNode(self.current_node)
 
 
         path, dist = self.dijkstra_safe_nodes(safeNodes)
@@ -1443,14 +1453,7 @@ class line_follower(Node):
             #we should take the shortest path out of here to the closest safe node.
             shortestE = 100
 
-            if self.current_node.Nc not in unsafeNodes:
-                unsafeNodes.append(thisNode.Nc)
-            if self.current_node.Ec not in unsafeNodes:
-                unsafeNodes.append(thisNode.Ec)
-            if self.current_node.Sc not in unsafeNodes:
-                unsafeNodes.append(thisNode.Sc)
-            if self.current_node.Wc not in unsafeNodes:
-                unsafeNodes.append(thisNode.Wc)
+            
 
         dummy = 1
 
