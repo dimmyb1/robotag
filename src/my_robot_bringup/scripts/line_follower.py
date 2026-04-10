@@ -1339,6 +1339,10 @@ class line_follower(Node):
         safeNodes = allNodes - unsafeNodes
 
         #NOW WE NEED TO FIND THE NODES WHICH ARE EASIEST TO GET TO
+        allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        safeEdges = allEdges - unsafeEdges
+
+        
 
         dummy = 1
 
