@@ -1431,31 +1431,51 @@ class line_follower(Node):
 
         #NOW WE NEED TO FIND THE NODES WHICH ARE THE SAFEST TO GET TO
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
-        allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
-        unsafeEdges = self.getNeighbourEdgesOf(enemyE)
-        unsafeEdges.append(enemyE)
+        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
+        # unsafeEdges.append(enemyE)
 
-        for n in safeNodes:
-            thisNode = self.returnNode(n)
-            #check all of its neighbour nodes and add them to the list
-            for safeE in self.getEdgesFromNode(thisNode):
-                dummy = 1
+        # for n in safeNodes:
+        #     thisNode = self.returnNode(n)
+        #     #check all of its neighbour nodes and add them to the list
+        #     for safeE in self.getEdgesFromNode(thisNode):
+        #         if safeE in unsafeEdges:
+        #             unsafeEdges.remove(safeE)
 
-        #safeEdges = allEdges - unsafeEdges
+        
+        # safeEdges = allEdges - unsafeEdges
 
-        myEdges = self.getEdgesFromNode(self.current_node)
+        #myEdges = self.getEdgesFromNode(self.current_node)
+        
+        if self.current_node.Nc in safeNodes:
+            return [0]
+        elif self.current_node.Ec in safeNodes:
+            return [1]
+        elif self.current_node.Sc in safeNodes:
+            return [2]
+        elif self.current_node.Wc in safeNodes:
+            return [3]
+        
+        #at this point, if you have a safeNode neighbour, you've left for it.
 
+        #otherwise, you're in a tight spot, but for sure there is 1 path at least which is not touching enemy parent nodes.
+        #so lets find that 1 / one of those paths
 
-        path, dist = self.dijkstra_safe_nodes(safeNodes)
-
-        if self.current_node in unsafeNodes:
-            #we are in an unsafe node
-            #we should take the shortest path out of here to the closest safe node.
-            shortestE = 100
-
+        #as long as we are not going to an enemy parent node, we are probably going in a good direction.
+        #remember p are the parent nodes of the enemy
+        if self.current_node.Nc not in p:
+            return [0]
+        elif self.current_node.Ec not in p:
+            return [1]
+        elif self.current_node.Sc not in p:
+            return [2]
+        elif self.current_node.Wc not in p:
+            return [3]
             
-
-        dummy = 1
+        #if None is returned, everything has failed somehow, must be an error
+        
+        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
+        return None
 
     def planDestination(self):
         CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
