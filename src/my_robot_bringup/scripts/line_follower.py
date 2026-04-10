@@ -143,20 +143,20 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
-        def getEdgesFromNode(self, fromNCHAR):
-            #ONLY ACCEPTS CHARS
-            if fromNCHAR == 'A': return ["Pab1", "Pab2", "Paf1", "Pae1"]
-            if fromNCHAR == 'B': return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
-            if fromNCHAR == 'C': return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-            if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
-            if fromNCHAR == 'E': return ["Peg1", "Peg2", "Pae1", "Pef1"]
-            if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
-            if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
-            if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
+        # def getEdgesFromNode(self, fromNCHAR):
+        #     #ONLY ACCEPTS CHARS
+        #     if fromNCHAR == 'A': return ["Pab1", "Pab2", "Paf1", "Pae1"]
+        #     if fromNCHAR == 'B': return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
+        #     if fromNCHAR == 'C': return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+        #     if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+        #     if fromNCHAR == 'E': return ["Peg1", "Peg2", "Pae1", "Pef1"]
+        #     if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+        #     if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
+        #     if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
 
-            else: 
-                self.get_logger().info(f"From getEdgesFromNode ERR: Can't return nonexistent node's edges")
-                return []
+        #     else: 
+        #         self.get_logger().info(f"From getEdgesFromNode ERR: Can't return nonexistent node's edges")
+        #         return []
 
 
         def getNodesFromEdge(self, fromE):
@@ -1324,74 +1324,6 @@ class line_follower(Node):
 
         return minPath
 
-    #the following function was generated using ChatGPT-5.3 on 10/04/2026
-    #in this conversation: https://chatgpt.com/share/69d7f982-5b6c-8330-bd3b-779f35e3c7ed 
-    def dijkstra_safe_nodes(self, safe_nodes):
-        """
-        safe_nodes: set like {'A','B','C'}
-        """
-
-        pq = []
-        heapq.heappush(pq, (0, self.current_node))
-
-        distances = {self.current_node.name: 0}
-        previous = {self.current_node.name: None}
-        visited = set()
-
-        while pq:
-            current_cost, current_node = heapq.heappop(pq)
-
-            if current_node.name in visited:
-                continue
-            visited.add(current_node.name)
-
-            # 🎯 Stop when we hit ANY safe goal node
-            if current_node.name in safe_nodes:
-                goal = current_node.name
-                break
-
-            neighbors = [
-                (current_node.Nc, current_node.Times[0]),
-                (current_node.Ec, current_node.Times[1]),
-                (current_node.Sc, current_node.Times[2]),
-                (current_node.Wc, current_node.Times[3]),
-            ]
-
-            for neighbor_char, cost in neighbors:
-                if neighbor_char is None:
-                    continue
-
-                # 🚫 Skip unsafe nodes
-                if neighbor_char not in safe_nodes:
-                    continue
-
-                neighbor_node = self.returnNode(neighbor_char)
-                if neighbor_node is None:
-                    continue
-
-                new_cost = current_cost + cost
-
-                if (neighbor_char not in distances or 
-                    new_cost < distances[neighbor_char]):
-
-                    distances[neighbor_char] = new_cost
-                    previous[neighbor_char] = current_node.name
-                    heapq.heappush(pq, (new_cost, neighbor_node))
-
-        else:
-            return None, float('inf')  # No safe path found
-
-        # 🔁 Reconstruct path
-        path = []
-        current = goal
-
-        while current is not None:
-            path.append(current)
-            current = previous.get(current)
-
-        path.reverse()
-
-        return path, distances[goal]
     
     def generateSafePathFromEnemyEdge(self, enemyE):
         #safe means not reachable by 1 node
@@ -1457,11 +1389,7 @@ class line_follower(Node):
         elif self.current_node.Wc not in p:
             return [3]
             
-        #if None is returned, everything has failed somehow, must be an error
-        
-        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
-        return None
-    
+
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
         # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
         # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
@@ -1478,6 +1406,14 @@ class line_follower(Node):
         # safeEdges = allEdges - unsafeEdges
 
         #myEdges = self.getEdgesFromNode(self.current_node)
+
+
+        #if None is returned, everything has failed somehow, must be an error
+        
+        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
+        return None
+    
+        
     
 
 
