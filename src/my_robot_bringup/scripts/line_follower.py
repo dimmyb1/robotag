@@ -1609,7 +1609,7 @@ class line_follower(Node):
         #if None is returned, everything has failed somehow, must be an error
         
         self.get_logger().info(f"ERR: GenerateSafePathFromEnemyNode has failed. No path generated. Are all paths blocked?")
-        return []
+        return [] 
 
 
     def planDestination(self):
