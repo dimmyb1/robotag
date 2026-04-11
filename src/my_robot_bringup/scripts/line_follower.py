@@ -1389,7 +1389,9 @@ class line_follower(Node):
         elif self.current_node.Wc not in p:
             return [3]
             
+        #we should make the above random fro any of the choices
 
+        
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
         # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
         # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
@@ -1413,7 +1415,7 @@ class line_follower(Node):
         self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
         return None
     
-    def generateSafePathFromEnemyNode(self, enemyNCHAR):
+    def generateSafePathFromListOfEnemyNodes(self, enemyNCHARList):
         
         #safe means not reachable by 1 node
         #so a safe node is 2+ nodes away
@@ -1500,7 +1502,91 @@ class line_follower(Node):
         return None
     
         
-    
+    def generateSafePathFromEnemyNode(self, enemyNCHAR):
+        
+        #safe means not reachable by 1 node
+        #so a safe node is 2+ nodes away
+        #and there needs to be a valid path between me and the safe node 
+        #that i can pass through so that i dont navigate through the enemy
+        #so i cannot pass through the enemy's edge
+        #and i need to avoid going to neighbouring edges of the enemy's edge
+
+        unsafeNodes = []
+        #list of chars
+
+        
+        thisNode = self.returnNode(enemyNCHAR)
+        #check all of its neighbour nodes and add them to the list
+        if thisNode.Nc not in unsafeNodes:
+            unsafeNodes.append(thisNode.Nc)
+        if thisNode.Ec not in unsafeNodes:
+            unsafeNodes.append(thisNode.Ec)
+        if thisNode.Sc not in unsafeNodes:
+            unsafeNodes.append(thisNode.Sc)
+        if thisNode.Wc not in unsafeNodes:
+            unsafeNodes.append(thisNode.Wc)
+
+        allNodes = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H']
+        safeNodes = allNodes - unsafeNodes
+
+        #are we safe? then just wait here until the situation changes.
+        if self.current_node in safeNodes:
+            return []
+            #IMPLEMENT a wait before next check on the receiving side of this function
+            #to check for an empty path
+        
+        #otherwise, we know for a fact that we are not in a safe node
+
+        #NOW WE NEED TO FIND THE NODES WHICH ARE THE SAFEST TO GET TO
+        
+        
+        if self.current_node.Nc in safeNodes:
+            return [0]
+        elif self.current_node.Ec in safeNodes:
+            return [1]
+        elif self.current_node.Sc in safeNodes:
+            return [2]
+        elif self.current_node.Wc in safeNodes:
+            return [3]
+        
+        #at this point, if you have a safeNode neighbour, you've left for it.
+
+        #otherwise, you're in a tight spot, but for sure there is 1 path at least which is not touching enemy parent nodes.
+        #so lets find that 1 / one of those paths
+
+        #as long as we are not going to THE enemy node, we might have a chance to survive.
+        if self.current_node.Nc != enemyNCHAR:
+            return [0]
+        elif self.current_node.Ec != enemyNCHAR:
+            return [1]
+        elif self.current_node.Sc != enemyNCHAR:
+            return [2]
+        elif self.current_node.Wc != enemyNCHAR:
+            return [3]
+            
+
+        #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
+        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
+        # unsafeEdges.append(enemyE)
+
+        # for n in safeNodes:
+        #     thisNode = self.returnNode(n)
+        #     #check all of its neighbour nodes and add them to the list
+        #     for safeE in self.getEdgesFromNode(thisNode):
+        #         if safeE in unsafeEdges:
+        #             unsafeEdges.remove(safeE)
+
+        
+        # safeEdges = allEdges - unsafeEdges
+
+        #myEdges = self.getEdgesFromNode(self.current_node)
+
+
+        #if None is returned, everything has failed somehow, must be an error
+        
+        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
+        return None
 
 
     def planDestination(self):
@@ -1641,7 +1727,7 @@ class line_follower(Node):
 
             if(maxV >= CERTAINTY):
                 #then we want to generate a path from our current node to that edge (maxK)
-                self.current_destination = self.generatePathFromNToE(maxK)
+                self.current_destination = self.generateSafePathFromEnemyEdge(maxK)
             else:
                 #find top CONSIDER_NODES (int) max valued edge-probabilities
                 topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
@@ -1676,7 +1762,7 @@ class line_follower(Node):
                     #is there a node?
                     if v == CERTAINTY:
                         #yes -> generatepathfromNtoN
-                        self.current_destination = self.generatePathFromNToN(toK)
+                        self.current_destination = self.generateSafePathFromEnemyNode(toK)
                         nfound=True
                         break #stop iterating
                 
@@ -1691,7 +1777,7 @@ class line_follower(Node):
                         #is there a node?
                             if v == cert:
                                 #yes -> generatepathfromNtoN
-                                self.current_destination = self.generatePathFromNToN(toK)
+                                self.current_destination = self.generateSafePathFromEnemyNode(toK)
                                 nfound=True
                                 break #stop iterating
                 
