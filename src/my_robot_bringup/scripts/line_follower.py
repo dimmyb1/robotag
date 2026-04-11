@@ -1380,18 +1380,30 @@ class line_follower(Node):
 
         #as long as we are not going to an enemy parent node, we are probably going in a good direction.
         #remember p are the parent nodes of the enemy
+        #we should make the above random from any of the choices - adding some stochasticity
+        #instead of making this true random, you could also, like, take from the prob distribution we have
+        #and see which one you should take
+        #but i think in this scenario they should be an equal distribution kind of, or so similar that in reality it wouldnt really make much of a diff
+        #well i guess unless you're going into a cornered node.
+        #then i guess smarter evasion would be taking from the prob distribution... hm... (implement)
+        options = []
         if self.current_node.Nc not in p:
-            return [0]
-        elif self.current_node.Ec not in p:
-            return [1]
-        elif self.current_node.Sc not in p:
-            return [2]
-        elif self.current_node.Wc not in p:
-            return [3]
-            
-        #we should make the above random fro any of the choices
+            options.append(0)
+        if self.current_node.Ec not in p:
+            options.append(1)
+        if self.current_node.Sc not in p:
+            options.append(2)
+        if self.current_node.Wc not in p:
+            options.append(3)
 
+        if options:
+            #choose random option and return that
+            ranNum = random.randint(0,len(options) -1)
+            return [options[ranNum]]
+            
         
+
+
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
         # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
         # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
