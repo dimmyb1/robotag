@@ -1422,10 +1422,9 @@ class line_follower(Node):
         #myEdges = self.getEdgesFromNode(self.current_node)
 
 
-        #if None is returned, everything has failed somehow, must be an error
         
-        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
-        return None
+        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated. Are all paths blocked?")
+        return []
     
     def generateSafePathFromListOfEnemyNodes(self, enemyNCHARList):
         
@@ -1439,17 +1438,17 @@ class line_follower(Node):
         unsafeNodes = []
         #list of chars
 
-        
-        thisNode = self.returnNode(enemyNCHAR)
-        #check all of its neighbour nodes and add them to the list
-        if thisNode.Nc not in unsafeNodes:
-            unsafeNodes.append(thisNode.Nc)
-        if thisNode.Ec not in unsafeNodes:
-            unsafeNodes.append(thisNode.Ec)
-        if thisNode.Sc not in unsafeNodes:
-            unsafeNodes.append(thisNode.Sc)
-        if thisNode.Wc not in unsafeNodes:
-            unsafeNodes.append(thisNode.Wc)
+        for enemyNCHAR in enemyNCHARList:
+            thisNode = self.returnNode(enemyNCHAR)
+            #check all of its neighbour nodes and add them to the list
+            if thisNode.Nc not in unsafeNodes:
+                unsafeNodes.append(thisNode.Nc)
+            if thisNode.Ec not in unsafeNodes:
+                unsafeNodes.append(thisNode.Ec)
+            if thisNode.Sc not in unsafeNodes:
+                unsafeNodes.append(thisNode.Sc)
+            if thisNode.Wc not in unsafeNodes:
+                unsafeNodes.append(thisNode.Wc)
 
         allNodes = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H']
         safeNodes = allNodes - unsafeNodes
@@ -1464,31 +1463,43 @@ class line_follower(Node):
 
         #NOW WE NEED TO FIND THE NODES WHICH ARE THE SAFEST TO GET TO
         
-        
+        options = []
         if self.current_node.Nc in safeNodes:
-            return [0]
+            options.append(0)
         elif self.current_node.Ec in safeNodes:
-            return [1]
+            options.append(1)
         elif self.current_node.Sc in safeNodes:
-            return [2]
+            options.append(2)
         elif self.current_node.Wc in safeNodes:
-            return [3]
+            options.append(3)
+        
+
+        if options:
+            #choose random option and return that
+            ranNum = random.randint(0,len(options) -1)
+            return [options[ranNum]]
+        
+        #otherwise, options is still empty
         
         #at this point, if you have a safeNode neighbour, you've left for it.
 
         #otherwise, you're in a tight spot, but for sure there is 1 path at least which is not touching enemy parent nodes.
         #so lets find that 1 / one of those paths
 
-        #as long as we are not going to THE enemy node, we might have a chance to survive.
+        #as long as we are not going to an enemy node (WHICH WE THINK CONTAINS THE ENEMY DIRECTLY), we might have a chance to survive.
         if self.current_node.Nc != enemyNCHAR:
-            return [0]
+            options.append(0)
         elif self.current_node.Ec != enemyNCHAR:
-            return [1]
+            options.append(1)
         elif self.current_node.Sc != enemyNCHAR:
-            return [2]
+            options.append(2)
         elif self.current_node.Wc != enemyNCHAR:
-            return [3]
+            options.append(3)
             
+        if options:
+            #choose random option and return that
+            ranNum = random.randint(0,len(options) -1)
+            return [options[ranNum]]
 
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
         # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
@@ -1508,10 +1519,10 @@ class line_follower(Node):
         #myEdges = self.getEdgesFromNode(self.current_node)
 
 
-        #if None is returned, everything has failed somehow, must be an error
+        #we could also just return an empty list and say stay there and accept your doom, cus it prob means that we did not find a safe path out
         
-        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
-        return None
+        self.get_logger().info(f"ERR / FAILURE : GenerateSafePathFromListOfEnemyNodes has failed. No path generated. Are all paths blocked?")
+        return []
     
         
     def generateSafePathFromEnemyNode(self, enemyNCHAR):
@@ -1597,8 +1608,8 @@ class line_follower(Node):
 
         #if None is returned, everything has failed somehow, must be an error
         
-        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyEdge has failed. No path generated.")
-        return None
+        self.get_logger().info(f"ERR: GenerateSafePathFromEnemyNode has failed. No path generated. Are all paths blocked?")
+        return []
 
 
     def planDestination(self):
