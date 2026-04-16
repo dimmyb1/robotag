@@ -1204,8 +1204,6 @@ class line_follower(Node):
             #dummy = nConsider.pop()
         """
 
-    #(IMPLEMENT *3)
-
     #dijkstra function written by ChatGPT-5.3 on 9/04/2026
     #in this conversation: https://chatgpt.com/share/69d7f982-5b6c-8330-bd3b-779f35e3c7ed 
     def dijkstra(self, start_node, goal_char):
@@ -1814,7 +1812,7 @@ class line_follower(Node):
                     #singleParents contains a list of chars e.g. 'A' - 'H'
 
                     #and then just find the closest next node and generate path towards it
-                    self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
+                    self.current_destination = self.generateSafePathFromListOfEnemyNodes(singleParents)
             return
         elif self.behaviourMode == 5:
             # 5 - Interceptive
