@@ -22,7 +22,7 @@ import random
 import heapq
 
 class Noden():
-    def __init__(self, nd, nc, ed, ec, sd,sc, wd, wc, n, t):
+    def __init__(self, nc, ec, sc, wc, n, t):
         #dir_c -> where dir can be N, E, S, W and c just means 'char' so you would have 'A', 'B' .. etc 'A' - 'H' representing the node name
         self.Nc = nc
         self.Ec = ec
@@ -75,14 +75,14 @@ class line_follower(Node):
         self.ultrasonic_distance = 0.0
 
         # Graph
-        self.A = Noden(78, 11, 61, 140, 'B', 'B', 'F', 'E', 'A', [78, 11, 60, 140])
-        self.B = Noden(106, 14, 29, 11, 'A', 'C', 'D', 'A', 'B', [106, 13, 29, 11])
-        self.C = Noden(155, 49, 10, 15, 'H', 'D', 'D', 'B', 'C', [155, 49, 10, 15])
-        self.D = Noden(13, 59, 40, 46, 'C', 'C', 'F', 'B', 'D',  [13,  59, 40, 46])
-        self.E =Noden(128, 12, 49, 90, 'A', 'F', 'G', 'G', 'E',  [128, 12, 49, 90])
-        self.F =Noden(111, 70, 11, 34, 'A', 'D', 'G', 'E', 'F',  [111, 41, 10, 34])
-        self.G =Noden(9, 12, 109, 34, 'F', 'H', 'E','E', 'G',    [9,  12, 109, 34])
-        self.H =Noden(130, 85, 89, 14, 'C', 'H', 'H', 'G', 'H',  [130, 85, 89, 14])
+        self.A = Noden('B', 'B', 'F', 'E', 'A', [78, 11, 60, 140])
+        self.B = Noden('A', 'C', 'D', 'A', 'B', [106, 13, 29, 11])
+        self.C = Noden('H', 'D', 'D', 'B', 'C', [155, 49, 10, 15])
+        self.D = Noden('C', 'C', 'F', 'B', 'D',  [13,  59, 40, 46])
+        self.E = Noden('A', 'F', 'G', 'G', 'E',  [128, 12, 49, 90])
+        self.F = Noden('A', 'D', 'G', 'E', 'F',  [111, 41, 10, 34])
+        self.G = Noden('F', 'H', 'E', 'E', 'G',   [9,  12, 109,34])
+        self.H = Noden('C', 'H', 'H', 'G', 'H',  [130, 85, 89, 14])
 
         self.myNodes = [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]
 
