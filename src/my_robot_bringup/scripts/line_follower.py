@@ -20,6 +20,15 @@ import random
 
 import heapq #for dijkstra
 
+#list of constants and hyperparameters
+#BOXMEAS - measurable
+#PERSISTENCE - tunable
+#CONTAMINATION - tunable
+#CERTAINTY - tunable
+#CONSIDER_NODES - tunable, partly measurable
+#GRAY_COOLDOWN - measurable
+#SENSE_COOLDOWN - measurable, partly tunable
+
 class Noden():
     def __init__(self, nc, ec, sc, wc, n, t):
         #dir_c -> where dir can be N, E, S, W and c just means 'char' so you would have 'A', 'B' .. etc 'A' - 'H' representing the node name
