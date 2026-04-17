@@ -538,8 +538,8 @@ class line_follower(Node):
         #these need to be estimated by timing how long we're following a black line for against our pretimed table
         
         #get current cardinal direction we're facing 
-        #check if not detected at all! or if you only have 1 reading! (implement)
-
+        #check if not detected at all! or if you only have 1 reading i.e. 1 reading before the line of detection (implement)
+        #so we only see start and not end i.e. somewhere along our 90 degree sides.
 
         #then we can calculate our minimum and maximums for manhattan distance
         #MAKE A CIRCLE
@@ -1400,7 +1400,7 @@ class line_follower(Node):
         #well i guess unless you're going into a cornered node.
         #then i guess smarter evasion would be taking from the prob distribution... hm... (implemen/t)
         #they probably have an equal distribution, not doing that.
-        
+
         options = []
         if self.current_node.Nc not in p:
             options.append(0)
