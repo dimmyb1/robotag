@@ -1994,38 +1994,40 @@ class line_follower(Node):
                 if type(self.current_destination) == list:
 
                     #populate our planned path if we don't already have a plan
-                    #is it empty? => stay here.
-                    if not self.current_destination and self.senseEntryTime < now - self.SENSE_COOLDOWN:
+                    #is it empty? => stay here and wait until our sensing cooldown has gone out.
+                    if (not self.current_destination and self.senseEntryTime < now - self.SENSE_COOLDOWN) or (self.current_destination):
+                        #when sensing cooldown expires, look again.
                         self.senseEntryTime = now
                         self.current_destination = self.planDestination()
 
 
+                        #we have directions to go somewhere
                         #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
                         #Check which one, if it is a list, we must iterate over it as it is a long path.
-                    elif(self.current_destination):
-                        if type(self.current_destination[0]) == int:
-                            #if it is a single number from 0 to 3, then it is an immediate neighbour 
-                            #e.g. path = [2] i.e. go south
-                            self.imu_target = self.current_destination.pop(0)
-                            self.imu_turning = True
-                            self.startTurnBasedOnFacing()
+                        if(self.current_destination):
+                            if type(self.current_destination[0]) == int:
+                                #if it is a single number from 0 to 3, then it is an immediate neighbour 
+                                #e.g. path = [2] i.e. go south
+                                self.imu_target = self.current_destination.pop(0)
+                                self.imu_turning = True
+                                self.startTurnBasedOnFacing()
 
-                        elif type(self.current_destination[0]) == str:
-                            #if it is a char from A to H, then it is an immediate neighbour 
-                            #e.g. path = ['A', 'B'] 
-                            neigh_name = self.current_destination.pop(0)
-                            if n.Nc == neigh_name:
-                                self.imu_target = 0
-                            elif n.Ec == neigh_name:
-                                self.imu_target = 1
-                            elif n.Sc == neigh_name:
-                                self.imu_target = 2
-                            elif n.Wc == neigh_name:
-                                self.imu_target = 3
+                            elif type(self.current_destination[0]) == str:
+                                #if it is a char from A to H, then it is an immediate neighbour 
+                                #e.g. path = ['A', 'B'] 
+                                neigh_name = self.current_destination.pop(0)
+                                if n.Nc == neigh_name:
+                                    self.imu_target = 0
+                                elif n.Ec == neigh_name:
+                                    self.imu_target = 1
+                                elif n.Sc == neigh_name:
+                                    self.imu_target = 2
+                                elif n.Wc == neigh_name:
+                                    self.imu_target = 3
 
-                            
-                            self.imu_turning = True
-                            self.startTurnBasedOnFacing()
+                                
+                                self.imu_turning = True
+                                self.startTurnBasedOnFacing()
 
                 else : #not list
                     #if it is a char from A to H, then it is an immediate neighbour 
