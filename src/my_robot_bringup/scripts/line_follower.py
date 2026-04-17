@@ -1979,25 +1979,27 @@ class line_follower(Node):
                 if n.name == self.current_destination:
                     self.current_node = n
         #   self.current_destination = self. Function to Calculate Next Destination.
-        path = self.planDestination()
+
+        #populate our planned path if we don't already have a plan
+        if not self.longPath:
+            self.longPath = self.planDestination()
 
         #implement
         #1. is it empty? => stay here.
-        if not path:
+        if not self.longPath:
             #setup some timer or just keep observing
             dummy = 1
 
             #self.current_destination has been set to either a node character OR a LIST of node characters. 
-        elif(len(path)==1):
+            #Check which one, if it is a list, we must iterate over it as it is a PATH.
+        elif(len(self.longPath)>=1):
             #if it is a single number from 0 to 3, then it is an immediate neighbour 
             #e.g. path = [2] i.e. go south
-            self.imu_target = path[0]
+            self.imu_target = self.longPath.pop(0)
             self.imu_turning = True
             self.startTurnBasedOnFacing()
         
-        else:
-            #Check which one, if it is a list, we must iterate over it as it is a PATH.
-            dummy = 1
+
 
         #update sweeping setting
         #RE-CHECK IF WE NEED TO DO SKIP ZEROES BASED ON THE DIAGRAM (IMPLEMENT , dummy)
