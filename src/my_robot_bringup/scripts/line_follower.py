@@ -2035,6 +2035,13 @@ class line_follower(Node):
                                     self.imu_turning = True
                                     self.startTurnBasedOnFacing()
 
+                                    #update sweeping setting
+                                    if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
+                                        #when left first is better than right first
+                                        self.skipZero = True
+                                    else:
+                                        self.skipZero = False
+
                                 elif type(self.current_destination[0]) == str:
                                     #if it is a char from A to H, then it is an immediate neighbour 
                                     #e.g. path = ['A', 'B'] 
