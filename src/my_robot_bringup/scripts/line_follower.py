@@ -100,12 +100,15 @@ class line_follower(Node):
         self.myNodes = [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]
 
         self.current_node = self.A
+        self.last_node = self.A #for localisation
         self.current_destination = 'F'
         self.skipZero = False
+        self.facing = 2 #start facing south?
+
         self.behaviourMode = 0
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
         self.i_patrol = 0
-        self.facing = 2 #start facing south?
+        
 
         # behaviourMode settings:
         # 0 - not set (no behaviour)
@@ -1983,11 +1986,17 @@ class line_follower(Node):
                 self.get_logger().info("Intersection detected!")
 
 
-                #self.current_node = self.current_destination
+                
                 if type(self.current_destination) == list:
-
                     
+                    #Update last node + current node
+                    #self.current_node = self.current_destination
                     if(self.current_destination):
+
+                        #last node
+                        self.last_node = self.current_node
+
+                        #current node
                         if type(self.current_destination[0]) == int:
                             if self.current_destination[0] == 0:
                                 self.current_node = self.returnNode(self.current_node.Nc)
@@ -1998,13 +2007,12 @@ class line_follower(Node):
                             elif self.current_destination[0] == 3:
                                 self.current_node = self.returnNode(self.current_node.Wc)
 
-
                         if type(self.current_destination[0]) == str:
                             self.current_node = self.returnNode(self.current_destination[0])
                     
                     #otherwise, do not update current_node as we are still where we were.
                     
-
+                    #Update destionation
                     #self.current_destination = self. Function to Calculate Next Destination.
 
                     #populate our planned path if we don't already have a plan
@@ -2044,8 +2052,7 @@ class line_follower(Node):
                                     self.imu_turning = True
                                     self.startTurnBasedOnFacing()
                         else : #not list
-                            #update current_node
-                            self.current_node = self.returnNode(self.current_destination)
+                            
 
                             #then it is a char from A to H, and it is an immediate neighbour 
                             #e.g. path = 'A'
@@ -2059,6 +2066,10 @@ class line_follower(Node):
                                 self.imu_target = 3
 
                 else : #not list
+                    #update current_node and last_node
+                    self.last_node = self.current_node
+                    self.current_node = self.returnNode(self.current_destination)
+
                     #then it is a char from A to H, and it is an immediate neighbour 
                     #e.g. path = 'A'
                     if self.current_node.Nc == self.current_destination:
