@@ -2052,6 +2052,14 @@ class line_follower(Node):
                                     self.imu_turning = True
                                     self.startTurnBasedOnFacing()
 
+                                    #update sweeping setting
+                                    if (self.current_node.name == 'A' and self.current_destination[0] == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination[0] == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination[0] == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination[0] == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination[0] == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Wc) :
+                                        #when left first is better than right first
+                                        self.skipZero = True
+                                    else:
+                                        self.skipZero = False
+
+
                         else : #not list
                             
                             #then it is a char from A to H, and it is an immediate neighbour 
@@ -2064,6 +2072,16 @@ class line_follower(Node):
                                 self.imu_target = 2
                             elif self.current_node.Wc == self.current_destination:
                                 self.imu_target = 3
+
+                            self.imu_turning = True
+                            self.startTurnBasedOnFacing()
+
+                            #update sweeping setting
+                            if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
+                                #when left first is better than right first
+                                self.skipZero = True
+                            else:
+                                self.skipZero = False
 
                 else : #not list
                     #update current_node and last_node
@@ -2084,15 +2102,17 @@ class line_follower(Node):
                             
                     self.imu_turning = True
                     self.startTurnBasedOnFacing()
+
+                    #update sweeping setting
+                    if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
+                        #when left first is better than right first
+                        self.skipZero = True
+                    else:
+                        self.skipZero = False
         
 
 
-        #update sweeping setting
-        if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
-            #when left first is better than right first
-            self.skipZero = True
-        else:
-            self.skipZero = False
+        
 
 
     #MPU5060 / IMU callback
