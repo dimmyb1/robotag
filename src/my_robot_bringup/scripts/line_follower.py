@@ -1973,6 +1973,9 @@ class line_follower(Node):
         if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
             #do some check to ensure we aren't being triggered by the last gray section we saw (IMPLEMENT)
 
+
+            
+
             self.get_logger().info("Intersection detected!")
             #self.current_node = self.current_destination
             for n  in [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]:
@@ -1984,11 +1987,12 @@ class line_follower(Node):
         if not self.longPath:
             self.longPath = self.planDestination()
 
-        #implement
+        
         #1. is it empty? => stay here.
         if not self.longPath:
             #setup some timer or just keep observing
             dummy = 1
+            #implement
 
             #self.current_destination has been set to either a node character OR a LIST of node characters. 
             #Check which one, if it is a list, we must iterate over it as it is a PATH.
