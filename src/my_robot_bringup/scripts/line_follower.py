@@ -67,6 +67,10 @@ class line_follower(Node):
         self.completeTurn = False
         self.imu_turning = False
         self.imu_target = -1
+        self.grayEntryTime = -1
+        self.GRAY_COOLDOWN = 8
+        self.senseEntryTime = -1
+        self.SENSE_COOLDOWN = 5
 
         # ints that will be used throughout
         self.realDelay = 150
@@ -1968,40 +1972,41 @@ class line_follower(Node):
 
 
     def updatePos(self):
+        now = time.time()
         #update current variables
-        #if gray detected:
-        if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
-            #do some check to ensure we aren't being triggered by the last gray section we saw (IMPLEMENT)
+         #do some check to ensure we aren't being triggered by the last gray section we saw
+        if self.grayEntryTime < now - self.GRAY_COOLDOWN:
+            #if gray detected:
+            if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
+                
+                self.grayEntryTime = now
+                self.get_logger().info("Intersection detected!")
 
 
-            
+                #self.current_node = self.current_destination
+                #implement update here for diff types of curr_dest
+                for n  in [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]:
+                    if n.name == self.current_destination:
+                        self.current_node = n
 
-            self.get_logger().info("Intersection detected!")
-            #self.current_node = self.current_destination
-            for n  in [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]:
-                if n.name == self.current_destination:
-                    self.current_node = n
-        #   self.current_destination = self. Function to Calculate Next Destination.
 
-        #populate our planned path if we don't already have a plan
-        if not self.longPath:
-            self.longPath = self.planDestination()
+                #   self.current_destination = self. Function to Calculate Next Destination.
 
-        
-        #1. is it empty? => stay here.
-        if not self.longPath:
-            #setup some timer or just keep observing
-            dummy = 1
-            #implement
+                #populate our planned path if we don't already have a plan
+                #is it empty? => stay here.
+                if not self.longPath and self.senseEntryTime < now - self.SENSE_COOLDOWN:
+                    self.senseEntryTime = now
+                    self.longPath = self.planDestination()
 
-            #self.current_destination has been set to either a node character OR a LIST of node characters. 
-            #Check which one, if it is a list, we must iterate over it as it is a PATH.
-        elif(len(self.longPath)>=1):
-            #if it is a single number from 0 to 3, then it is an immediate neighbour 
-            #e.g. path = [2] i.e. go south
-            self.imu_target = self.longPath.pop(0)
-            self.imu_turning = True
-            self.startTurnBasedOnFacing()
+
+                    #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
+                    #Check which one, if it is a list, we must iterate over it as it is a long path.
+                elif(len(self.longPath)>=1):
+                    #if it is a single number from 0 to 3, then it is an immediate neighbour 
+                    #e.g. path = [2] i.e. go south
+                    self.imu_target = self.longPath.pop(0)
+                    self.imu_turning = True
+                    self.startTurnBasedOnFacing()
         
 
 
