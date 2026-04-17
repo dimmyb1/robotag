@@ -63,6 +63,11 @@ class line_follower(Node):
         self.searching = False
         self.minPixels = 20
 
+        #junction turning vars
+        self.completeTurn = False
+        self.imu_turning = False
+        self.imu_target = -1
+
         # ints that will be used throughout
         self.realDelay = 150
 
@@ -105,7 +110,6 @@ class line_follower(Node):
         # 3 - Greedy
         # 4 - Avoidant
         # 5 - Interceptive
-        # 6 - Trap Layer
 
         #start off at 1/16
         #(we have 16 edges)
@@ -1906,6 +1910,60 @@ class line_follower(Node):
 
 
 
+    def startTurnBasedOnFacing(self):
+        if self.facing == 0:
+            if self.imu_target == 0:
+                #no turn
+                self.imu_turning = False
+                self.completeTurn = True
+
+            elif self.imu_target == 1:
+                self.turnRight()
+            elif self.imu_target == 2:
+                self.turnRight()
+            elif self.imu_target == 3:
+                self.turnLeft()
+            
+        elif self.facing == 1:
+            if self.imu_target == 1:
+                #no turn
+                self.imu_turning = False
+                self.completeTurn = True
+
+            elif self.imu_target == 2:
+                self.turnRight()
+            elif self.imu_target == 3:
+                self.turnRight()
+            elif self.imu_target == 0:
+                self.turnLeft()
+
+        elif self.facing == 2:
+            if self.imu_target == 2:
+                #no turn
+                self.imu_turning = False
+                self.completeTurn = True
+
+            elif self.imu_target == 3:
+                self.turnRight()
+            elif self.imu_target == 0:
+                self.turnRight()
+            elif self.imu_target == 1:
+                self.turnLeft()
+        
+        elif self.facing == 3:
+            if self.imu_target == 3:
+                #no turn
+                self.imu_turning = False
+                self.completeTurn = True
+
+            elif self.imu_target == 0:
+                self.turnRight()
+            elif self.imu_target == 1:
+                self.turnRight()
+            elif self.imu_target == 2:
+                self.turnLeft()
+
+
 
 
 
@@ -1921,12 +1979,25 @@ class line_follower(Node):
                 if n.name == self.current_destination:
                     self.current_node = n
         #   self.current_destination = self. Function to Calculate Next Destination.
-        self.planDestination()
+        path = self.planDestination()
 
-        #self.current_destination has been set to either a node character OR a LIST of node characters. 
-        #Check which one, if it is a list, we must iterate over it as it is a PATH.
-        #if it is a single node character, then it is an immediate neighbour 
-        #(Implement.)
+        #implement
+        #1. is it empty? => stay here.
+        if not path:
+            #setup some timer or just keep observing
+            dummy = 1
+
+            #self.current_destination has been set to either a node character OR a LIST of node characters. 
+        elif(len(path)==1):
+            #if it is a single number from 0 to 3, then it is an immediate neighbour 
+            #e.g. path = [2] i.e. go south
+            self.imu_target = path[0]
+            self.imu_turning = True
+            self.startTurnBasedOnFacing()
+        
+        else:
+            #Check which one, if it is a list, we must iterate over it as it is a PATH.
+            dummy = 1
 
         #update sweeping setting
         #RE-CHECK IF WE NEED TO DO SKIP ZEROES BASED ON THE DIAGRAM (IMPLEMENT , dummy)
@@ -1967,8 +2038,6 @@ class line_follower(Node):
             self.facing = 3
         
         #self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
-
-
 
     #Ultrasonic functions
     def ultrasonic_callback(self, msg):
@@ -2036,6 +2105,14 @@ class line_follower(Node):
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
             self.motion_active = False
+
+        elif self.imu_turning and self.facing == self.imu_target:
+            #we have turned to face the general direction of where we needed to be,
+            #but we may not have necessarily found a line yet
+            #so let's turn on a switch saying keep turning, but once you find a line reset imu_turning.
+            self.completeTurn = True
+            self.imu_turning = False
+
 
     def stopMov(self) :
         self.start_motion()
@@ -2186,6 +2263,10 @@ class line_follower(Node):
             self.searchStep = 0
             self.searching = False
             self.elapsed = 0
+
+            #if we were turning at an intersection and we found the particular line we were looking for, end that search and start following
+            if(self.completeTurn):
+                self.completeTurn = False
 
         elif self.minPixels < L:
             self.turnLeft(self.realDelay)
