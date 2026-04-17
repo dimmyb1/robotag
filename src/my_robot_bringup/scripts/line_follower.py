@@ -18,8 +18,7 @@ import subprocess
 import time
 import random
 
-#for dijkstra
-import heapq
+import heapq #for dijkstra
 
 class Noden():
     def __init__(self, nc, ec, sc, wc, n, t):
@@ -40,6 +39,11 @@ class Cell():
     def __init__(self, xx, yy):
         self.x = xx
         self.y = yy
+
+    def __eq__(self, other):
+        if isinstance(other, Cell):
+            return self.x == other.x and self.y == other.y
+        return False
 
 class line_follower(Node):
     def __init__(self):
