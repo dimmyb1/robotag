@@ -2030,16 +2030,15 @@ class line_follower(Node):
                                 self.startTurnBasedOnFacing()
 
                 else : #not list
-                    #if it is a char from A to H, then it is an immediate neighbour 
-                    #e.g. path = ['A', 'B'] 
-                    neigh_name = self.current_destination.pop(0)
-                    if n.Nc == neigh_name:
+                    #then it is a char from A to H, and it is an immediate neighbour 
+                    #e.g. path = 'A'
+                    if n.Nc == self.current_destination:
                         self.imu_target = 0
-                    elif n.Ec == neigh_name:
+                    elif n.Ec == self.current_destination:
                         self.imu_target = 1
-                    elif n.Sc == neigh_name:
+                    elif n.Sc == self.current_destination:
                         self.imu_target = 2
-                    elif n.Wc == neigh_name:
+                    elif n.Wc == self.current_destination:
                         self.imu_target = 3
 
                             
