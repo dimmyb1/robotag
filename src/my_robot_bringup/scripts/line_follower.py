@@ -1984,14 +1984,28 @@ class line_follower(Node):
 
 
                 #self.current_node = self.current_destination
-                #implement update here for diff types of curr_dest
-                for n  in [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]:
-                    if n.name == self.current_destination:
-                        self.current_node = n
-
-
-                #   self.current_destination = self. Function to Calculate Next Destination.
                 if type(self.current_destination) == list:
+
+                    
+                    if(self.current_destination):
+                        if type(self.current_destination[0]) == int:
+                            if self.current_destination[0] == 0:
+                                self.current_node = self.returnNode(self.current_node.Nc)
+                            elif self.current_destination[0] == 1:
+                                self.current_node = self.returnNode(self.current_node.Ec)
+                            elif self.current_destination[0] == 2:
+                                self.current_node = self.returnNode(self.current_node.Sc)
+                            elif self.current_destination[0] == 3:
+                                self.current_node = self.returnNode(self.current_node.Wc)
+
+
+                        if type(self.current_destination[0]) == str:
+                            self.current_node = self.returnNode(self.current_destination[0])
+                    
+                    #otherwise, do not update current_node as we are still where we were.
+                    
+
+                    #self.current_destination = self. Function to Calculate Next Destination.
 
                     #populate our planned path if we don't already have a plan
                     #is it empty? => stay here and wait until our sensing cooldown has gone out.
@@ -2004,41 +2018,56 @@ class line_follower(Node):
                         #we have directions to go somewhere
                         #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
                         #Check which one, if it is a list, we must iterate over it as it is a long path.
-                        if(self.current_destination):
-                            if type(self.current_destination[0]) == int:
-                                #if it is a single number from 0 to 3, then it is an immediate neighbour 
-                                #e.g. path = [2] i.e. go south
-                                self.imu_target = self.current_destination.pop(0)
-                                self.imu_turning = True
-                                self.startTurnBasedOnFacing()
+                        if type(self.current_destination) == list:
+                            if(self.current_destination):
+                                if type(self.current_destination[0]) == int:
+                                    #if it is a single number from 0 to 3, then it is an immediate neighbour 
+                                    #e.g. path = [2] i.e. go south
+                                    self.imu_target = self.current_destination.pop(0)
+                                    self.imu_turning = True
+                                    self.startTurnBasedOnFacing()
 
-                            elif type(self.current_destination[0]) == str:
-                                #if it is a char from A to H, then it is an immediate neighbour 
-                                #e.g. path = ['A', 'B'] 
-                                neigh_name = self.current_destination.pop(0)
-                                if n.Nc == neigh_name:
-                                    self.imu_target = 0
-                                elif n.Ec == neigh_name:
-                                    self.imu_target = 1
-                                elif n.Sc == neigh_name:
-                                    self.imu_target = 2
-                                elif n.Wc == neigh_name:
-                                    self.imu_target = 3
+                                elif type(self.current_destination[0]) == str:
+                                    #if it is a char from A to H, then it is an immediate neighbour 
+                                    #e.g. path = ['A', 'B'] 
+                                    neigh_name = self.current_destination.pop(0)
+                                    if self.current_node.Nc == neigh_name:
+                                        self.imu_target = 0
+                                    elif self.current_node.Ec == neigh_name:
+                                        self.imu_target = 1
+                                    elif self.current_node.Sc == neigh_name:
+                                        self.imu_target = 2
+                                    elif self.current_node.Wc == neigh_name:
+                                        self.imu_target = 3
 
-                                
-                                self.imu_turning = True
-                                self.startTurnBasedOnFacing()
+                                    
+                                    self.imu_turning = True
+                                    self.startTurnBasedOnFacing()
+                        else : #not list
+                            #update current_node
+                            self.current_node = self.returnNode(self.current_destination)
+
+                            #then it is a char from A to H, and it is an immediate neighbour 
+                            #e.g. path = 'A'
+                            if self.current_node.Nc == self.current_destination:
+                                self.imu_target = 0
+                            elif self.current_node.Ec == self.current_destination:
+                                self.imu_target = 1
+                            elif self.current_node.Sc == self.current_destination:
+                                self.imu_target = 2
+                            elif self.current_node.Wc == self.current_destination:
+                                self.imu_target = 3
 
                 else : #not list
                     #then it is a char from A to H, and it is an immediate neighbour 
                     #e.g. path = 'A'
-                    if n.Nc == self.current_destination:
+                    if self.current_node.Nc == self.current_destination:
                         self.imu_target = 0
-                    elif n.Ec == self.current_destination:
+                    elif self.current_node.Ec == self.current_destination:
                         self.imu_target = 1
-                    elif n.Sc == self.current_destination:
+                    elif self.current_node.Sc == self.current_destination:
                         self.imu_target = 2
-                    elif n.Wc == self.current_destination:
+                    elif self.current_node.Wc == self.current_destination:
                         self.imu_target = 3
 
                             
