@@ -537,7 +537,7 @@ class line_follower(Node):
         # so minimum (2,3), maximum (3,4) starts
         #these need to be estimated by timing how long we're following a black line for against our pretimed table
         
-        #get current cardinal direction we're facing (implement)
+        #get current cardinal direction we're facing 
         #check if not detected at all! or if you only have 1 reading! (implement)
 
 
@@ -554,7 +554,7 @@ class line_follower(Node):
                     cells.append(Cell(ix,iy))
 
         #MAKE A CONE
-        #trim selection by using servo and mpu angle (implement)
+        #trim selection by using servo and mpu angle 
 
         #first we will check if the mark is right in front of us
         lesserServo = min(self.entry_angle, self.exit_angle)
@@ -1173,7 +1173,7 @@ class line_follower(Node):
         # if(consider):
         #     #make sure consider actually has something in it first.
 
-        #     #we need to take the max valued edge (implement)
+        #     #we need to take the max valued edge (implemen/t)
         #     dummy = 3
 
         # if(aNodeFound):
@@ -1181,7 +1181,7 @@ class line_follower(Node):
         #         dummy = 3
         #         #ghandna problema 
         #         #lets find the most common one.
-        #         #(implement)
+        #         #(implemen/t)
         #     else:
         #         #ok, set node to the 1 option available
         #         oppNode = nConsider.pop()
@@ -1189,7 +1189,7 @@ class line_follower(Node):
         # else:
         #     dummy = 2
             #we need to make up the closest node
-            #but we need to set the lookAtNode variable (implement) to be false so that we only look at edge, but keep this as reference
+            #but we need to set the lookAtNode variable (implemen/t) to be false so that we only look at edge, but keep this as reference
 
         #consider now only contains the likeliest options
         #if we are using nodes, then we are dealing with (probably only 1) node in nConsider
@@ -1201,7 +1201,7 @@ class line_follower(Node):
             #self.opponentLast = self.opponentCurrent
             #self.opponentCurrent = consider
 
-            #ok. (implement)
+            #ok. (implemen/t)
             #so we just finished calculating all edge and node probabilities, right? and we normalised 'em.
             #so now, we take all of the top 0.5 from the edge probabilities
             #we also definitely store the most probable edge
@@ -1369,7 +1369,7 @@ class line_follower(Node):
         #are we safe? then just wait here until the situation changes.
         if self.current_node in safeNodes:
             return []
-            #IMPLEMENT a wait before next check on the receiving side of this function
+            # a wait before next check on the receiving side of this function
             #to check for an empty path
         
         #otherwise, we know for a fact that we are not in a safe node
@@ -1398,7 +1398,9 @@ class line_follower(Node):
         #and see which one you should take
         #but i think in this scenario they should be an equal distribution kind of, or so similar that in reality it wouldnt really make much of a diff
         #well i guess unless you're going into a cornered node.
-        #then i guess smarter evasion would be taking from the prob distribution... hm... (implement)
+        #then i guess smarter evasion would be taking from the prob distribution... hm... (implemen/t)
+        #they probably have an equal distribution, not doing that.
+        
         options = []
         if self.current_node.Nc not in p:
             options.append(0)
@@ -1469,7 +1471,7 @@ class line_follower(Node):
         #are we safe? then just wait here until the situation changes.
         if self.current_node in safeNodes:
             return []
-            #IMPLEMENT a wait before next check on the receiving side of this function
+            #a wait before next check on the receiving side of this function
             #to check for an empty path
         
         #otherwise, we know for a fact that we are not in a safe node
@@ -1568,7 +1570,7 @@ class line_follower(Node):
         #are we safe? then just wait here until the situation changes.
         if self.current_node in safeNodes:
             return []
-            #IMPLEMENT a wait before next check on the receiving side of this function
+            #a wait before next check on the receiving side of this function
             #to check for an empty path
         
         #otherwise, we know for a fact that we are not in a safe node
