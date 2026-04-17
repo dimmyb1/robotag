@@ -88,8 +88,8 @@ class line_follower(Node):
         self.ultrasonic_distance = 0.0
 
         # Graph
-        self.A = Noden('B', 'B', 'F', 'E', 'A', [78, 11, 60, 140])
-        self.B = Noden('A', 'C', 'D', 'A', 'B', [106, 13, 29, 11])
+        self.A = Noden('B', 'B', 'F', 'E', 'A', [78, 11, 61, 140])
+        self.B = Noden('A', 'C', 'D', 'A', 'B', [106, 14, 29, 11])
         self.C = Noden('H', 'D', 'D', 'B', 'C', [155, 49, 10, 15])
         self.D = Noden('C', 'C', 'F', 'B', 'D',  [13,  59, 40, 46])
         self.E = Noden('A', 'F', 'G', 'G', 'E',  [128, 12, 49, 90])
@@ -2051,9 +2051,9 @@ class line_follower(Node):
                                     
                                     self.imu_turning = True
                                     self.startTurnBasedOnFacing()
+
                         else : #not list
                             
-
                             #then it is a char from A to H, and it is an immediate neighbour 
                             #e.g. path = 'A'
                             if self.current_node.Nc == self.current_destination:
@@ -2088,19 +2088,11 @@ class line_follower(Node):
 
 
         #update sweeping setting
-        #RE-CHECK IF WE NEED TO DO SKIP ZEROES BASED ON THE DIAGRAM (IMPLEMENT , dummy)
-        if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc):
-            #special case
-            self.skipZero = True
-        elif(self.current_node.name in ['F', 'G']):
+        if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
+            #when left first is better than right first
             self.skipZero = True
         else:
             self.skipZero = False
-
-        #call function to turn towards intended direction by using MPU readings for current facing direction and the intended cardinal direction.(IMPLEMENT)
-        
-
-
 
 
     #MPU5060 / IMU callback
