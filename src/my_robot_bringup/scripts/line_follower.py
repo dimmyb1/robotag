@@ -1843,6 +1843,7 @@ class line_follower(Node):
         elif self.behaviourMode == 5:
             # 5 - Interceptive
             last_pos = "?" #implement
+            be_greedy = False
             self.calculateProbabilities()
 
 
@@ -1864,8 +1865,7 @@ class line_follower(Node):
             
 
             if(maxV >= CERTAINTY):
-                #then we want to generate a path from our current node to that edge (max K)
-                self.current_destination = self.generatePathFromNToE(maxK)
+                
                 #opponent is at an edge
                 #so C=E
                 #check what O is
@@ -1873,7 +1873,24 @@ class line_follower(Node):
 
                 if type(self.opp_old_loc) == str:
                     #then it is an edge
-                    dummmy = 1
+                    par_o = self.getNodesFromEdge(self.opp_old_loc)
+                    par_c = self.getNodesFromEdge(maxK)
+
+                    be_greedy = True
+
+                    for no in par_o:
+                        for n in par_c:
+                            if no == n:
+                                #we found a common parent
+                                par_c.remove(n)
+                                self.current_destination = self.generatePathFromNToE(par_c[0])
+                                be_greedy = False
+                                break
+
+                    if(be_greedy):
+                        #then we want to generate a path from our current node to that edge (max K)
+                        self.current_destination = self.generatePathFromNToE(maxK)
+
                     
                 else:
                     #then it is a node
