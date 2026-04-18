@@ -1977,7 +1977,34 @@ class line_follower(Node):
                                 
                         else:
                             #O=N, C=N
-                            dummy = 1
+                            eo = self.getEdgesFromNode(self.opp_old_loc)
+                            ec = self.getEdgesFromNode(toK)
+
+                            be_greedy = True
+                            for e in eo:
+                                for ec1 in ec:
+                                    if e == ec1:
+                                        be_greedy = False
+                                        #take the first edge we find <BIAS> / <OPTIMISATION>
+                                        #and follow it to the next node
+
+
+                                        po = self.returnNode(self.opp_old_loc)
+                                        if po.Nc == toK:
+                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
+                                        elif po.Ec == toK:
+                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Ec)
+                                        elif po.Sc == toK:
+                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Sc)
+                                        elif po.Wc == toK:
+                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Wc)
+                                        
+
+                            if be_greedy:
+                                #greedy
+                                self.current_destination = self.generatePathFromNToN(toK)
+                                nfound=True
+                                break #stop iterating
 
 
                         #greedy
