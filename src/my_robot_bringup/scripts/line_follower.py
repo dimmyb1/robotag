@@ -1900,7 +1900,7 @@ class line_follower(Node):
                     if maxK in self.getEdgesFromNode(self.opp_old_loc):
                         d = self.getNodesFromEdge(maxK)
                         d.remove(self.opp_old_loc)
-                        self.current_destination = d
+                        self.current_destination = self.generatePathFromNtoN(d[0])
                         
                     else:
                         #greedy:
@@ -1959,13 +1959,13 @@ class line_follower(Node):
 
                                 pc = self.returnNode(toK)
                                 if pc.Nc == po[0]:
-                                    self.current_destination = pc.Sc
+                                    self.current_destination = self.generatePathFromNToN(pc.Sc)
                                 elif pc.Ec == po[0]:
-                                    self.current_destination = pc.Wc
+                                    self.current_destination = self.generatePathFromNToN(pc.Wc)
                                 elif pc.Sc == po[0]:
-                                    self.current_destination = pc.Nc
+                                    self.current_destination = self.generatePathFromNToN(pc.Nc)
                                 elif pc.Wc == po[0]:
-                                    self.current_destination = pc.Ec
+                                    self.current_destination = self.generatePathFromNToN(pc.Ec)
 
                                 nfound = True
                                 break
