@@ -1941,6 +1941,24 @@ class line_follower(Node):
                     #is there a node?
                     if v == CERTAINTY:
                         #yes -> generatepathfromNtoN
+                        #try interceptive:
+                        #is O =N? or =E?
+                        if type(self.opp_old_loc) == str:
+                            #O=E
+                            po = self.getNodesFromEdge(self.opp_old_loc)
+                            if toK in po:
+
+                                dummy = 1
+                                #see which of the node's edges this is e.g. North
+                                #and then flip it to get our new direction e.g. South
+                                #then current_destination is the node.Sc node!
+                                
+                        else:
+                            #O=N
+                            dummy = 1
+
+
+                        #greedy
                         self.current_destination = self.generatePathFromNToN(toK)
                         nfound=True
                         break #stop iterating
