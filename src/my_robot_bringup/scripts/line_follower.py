@@ -1948,13 +1948,35 @@ class line_follower(Node):
                             po = self.getNodesFromEdge(self.opp_old_loc)
                             if toK in po:
 
-                                dummy = 1
                                 #see which of the node's edges this is e.g. North
                                 #and then flip it to get our new direction e.g. South
                                 #then current_destination is the node.Sc node!
+
+                                po.remove(toK)
+                                #po[0] is other parent
+                                #so we want all the edges which connect toK and po[0]
+                                #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
+
+                                pc = self.returnNode(toK)
+                                if pc.Nc == po[0]:
+                                    self.current_destination = pc.Sc
+                                elif pc.Ec == po[0]:
+                                    self.current_destination = pc.Wc
+                                elif pc.Sc == po[0]:
+                                    self.current_destination = pc.Nc
+                                elif pc.Wc == po[0]:
+                                    self.current_destination = pc.Ec
+
+                                nfound = True
+                                break
+                            else:
+
+                                #greedy
+                                self.current_destination = self.generatePathFromNToN(toK)
+                                break
                                 
                         else:
-                            #O=N
+                            #O=N, C=N
                             dummy = 1
 
 
