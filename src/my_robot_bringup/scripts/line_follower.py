@@ -1866,6 +1866,18 @@ class line_follower(Node):
             if(maxV >= CERTAINTY):
                 #then we want to generate a path from our current node to that edge (max K)
                 self.current_destination = self.generatePathFromNToE(maxK)
+                #opponent is at an edge
+                #so C=E
+                #check what O is
+                #maxK is the edge we are using to represent the opponent's current edge
+
+                if type(self.opp_old_loc) == str:
+                    #then it is an edge
+                    dummmy = 1
+                    
+                else:
+                    #then it is a node
+                    dummy = 1
             else:
                 #find top CONSIDER_NODES (int) max valued edge-probabilities
                 topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
