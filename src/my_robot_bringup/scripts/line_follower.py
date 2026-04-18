@@ -1845,6 +1845,14 @@ class line_follower(Node):
             last_pos = "?" #implement
             self.calculateProbabilities()
 
+
+            #interceptive takes the straight path
+            #taking targets past loc, Curr loc, and assumes straight to future loc
+
+            #1. assuming both last and current location are nodes
+            #find edge connecting these nodes if one exists.
+            #if one does not exist, then assume the direction that faces a 
+            
             #take max likely edge
             maxV = -1
             maxK = ""
@@ -1856,7 +1864,7 @@ class line_follower(Node):
             
 
             if(maxV >= CERTAINTY):
-                #then we want to generate a path from our current node to that edge (maxK)
+                #then we want to generate a path from our current node to that edge (max K)
                 self.current_destination = self.generatePathFromNToE(maxK)
             else:
                 #find top CONSIDER_NODES (int) max valued edge-probabilities
