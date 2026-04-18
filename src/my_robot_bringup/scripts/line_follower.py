@@ -167,20 +167,20 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
-        # def getEdgesFromNode(self, fromNCHAR):
-        #     #ONLY ACCEPTS CHARS
-        #     if fromNCHAR == 'A': return ["Pab1", "Pab2", "Paf1", "Pae1"]
-        #     if fromNCHAR == 'B': return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
-        #     if fromNCHAR == 'C': return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-        #     if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
-        #     if fromNCHAR == 'E': return ["Peg1", "Peg2", "Pae1", "Pef1"]
-        #     if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
-        #     if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
-        #     if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
+        def getEdgesFromNode(self, fromNCHAR):
+            #ONLY ACCEPTS CHARS
+            if fromNCHAR == 'A': return ["Pab1", "Pab2", "Paf1", "Pae1"]
+            if fromNCHAR == 'B': return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
+            if fromNCHAR == 'C': return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+            if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+            if fromNCHAR == 'E': return ["Peg1", "Peg2", "Pae1", "Pef1"]
+            if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+            if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
+            if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
 
-        #     else: 
-        #         self.get_logger().info(f"From getEdgesFromNode ERR: Can't return nonexistent node's edges")
-        #         return []
+            else: 
+                self.get_logger().info(f"From getEdgesFromNode ERR: Can't return nonexistent node's edges")
+                return []
 
 
         def getNodesFromEdge(self, fromE):
@@ -1894,7 +1894,19 @@ class line_follower(Node):
                     
                 else:
                     #then it is a node
-                    dummy = 1
+                    #O=N, C=E
+
+                    #is C connected to O?
+                    if maxK in self.getEdgesFromNode(self.opp_old_loc):
+                        d = self.getNodesFromEdge(maxK)
+                        d.remove(self.opp_old_loc)
+                        self.current_destination = d
+                        
+                    else:
+                        #greedy:
+                        #then we want to generate a path from our current node to that edge (max K)
+                        self.current_destination = self.generatePathFromNToE(maxK)
+
             else:
                 #find top CONSIDER_NODES (int) max valued edge-probabilities
                 topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
