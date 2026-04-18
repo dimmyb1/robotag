@@ -1983,7 +1983,7 @@ class line_follower(Node):
                             be_greedy = True
                             for e in eo:
                                 for ec1 in ec:
-                                    if e == ec1:
+                                    if e == ec1 and not nfound:
                                         be_greedy = False
                                         #take the first edge we find <BIAS> / <OPTIMISATION>
                                         #and follow it to the next node
@@ -1998,6 +1998,9 @@ class line_follower(Node):
                                             self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Sc)
                                         elif po.Wc == toK:
                                             self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Wc)
+
+                                        nfound=True
+                                        break #stop iterating
                                         
 
                             if be_greedy:
