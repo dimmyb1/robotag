@@ -439,8 +439,8 @@ class line_follower(Node):
     
     def detect_gray(self, img):
         # returns a mask of black pixels in the image
-        lower_gray = np.array([85, 85, 85])
-        upper_gray = np.array([128, 128, 128])
+        lower_gray = np.array([20, 20, 20])
+        upper_gray = np.array([85, 85, 85])
         mask = cv2.inRange(img, lower_gray, upper_gray)
         return cv2.countNonZero(mask) #(int) num of gray pixels in img
     
