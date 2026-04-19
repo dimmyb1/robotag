@@ -845,14 +845,17 @@ class line_follower(Node):
 
         if(lesserServo < 90 and biggerServo > 90):
             #if current cardinal direction we're facing is North or South
-            for c in cells:
-                if(c.x != x):
-                    cells.remove(c)
+            # for c in cells:
+            #     if(c.x != x):
+            #         cells.remove(c)
+
+            cells = [c for c in cells if c.x == x]
+            cells = [c for c in cells if c.y == y]
 
             #if current cardinal is East or West:
-            for c in cells:
-                if(c.y != y):
-                    cells.remove(c)
+            # for c in cells:
+            #     if(c.y != y):
+            #         cells.remove(c)
 
         else:
             #it isnt directly in front of us.
@@ -1159,11 +1162,11 @@ class line_follower(Node):
                         iy-=1
                 
             #now find INTERSECTION with radius cells
-            for c in cells:
-                if c not in servoCells:
-                    cells.remove(c)
+            # for c in cells:
+            #     if c not in servoCells:
+            #         cells.remove(c)
                         
-
+            cells = [c for c in cells if c in servoCells]
         #now we have a pretty small set of cells which the opponent can be in
 
 
