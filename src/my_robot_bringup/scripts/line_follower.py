@@ -392,6 +392,276 @@ class line_follower(Node):
 
         self.timer = self.create_timer(0.05, self.loop)
 
+    #MPU5060 / IMU callback
+    def imu_callback(self, msg: Imu):
+        # The IMU gives us a quaternion (x, y, z, w)
+        q = msg.orientation
+        
+        # Convert the quaternion to Yaw (Rotation around the Z axis) in radians
+        siny_cosp = 2 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
+        yaw_rad = math.atan2(siny_cosp, cosy_cosp)
+
+        # Optional: Convert to degrees for easier human reading
+        yaw_deg = math.degrees(yaw_rad)
+
+        if 0.0 <= yaw_deg < 45.0:
+            self.facing = 0
+        elif 45.0 <= yaw_deg < 135.0 :
+            self.facing = 1
+        elif 135.0 <= yaw_deg < 225.0 :
+            self.facing = 2
+        elif 225.0 <= yaw_deg < 360.0 :
+            self.facing = 3
+        
+        #self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
+
+    #Ultrasonic functions
+    def ultrasonic_callback(self, msg):
+        # Unpack the array based on the order you published it
+        #ANGLES ARE IN RADIANS (but i can do math.degrees(v) to convert to normal degrees if i need to)
+        self.entry_angle = msg.data[0]
+        self.exit_angle = msg.data[1]
+        self.ultrasonic_distance = msg.data[2]
+        
+        # Now you have exactly what you care about to use in this script
+        #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
+
+
+
+    #Line Following Functions
+    def detect_black(self, img):
+        # returns a mask of black pixels in the image
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([26, 26, 26])
+        mask = cv2.inRange(img, lower_black, upper_black)
+        return cv2.countNonZero(mask) #(int) num of black pixels in img
+    
+    def detect_gray(self, img):
+        # returns a mask of black pixels in the image
+        lower_gray = np.array([85, 85, 85])
+        upper_gray = np.array([128, 128, 128])
+        mask = cv2.inRange(img, lower_gray, upper_gray)
+        return cv2.countNonZero(mask) #(int) num of gray pixels in img
+    
+    def ir_L_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        self.colours[0] = self.detect_black(img)
+        self.isGray[0] = self.detect_gray(img)
+
+    def ir_M_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        self.colours[1] = self.detect_black(img)
+        self.isGray[1] = self.detect_gray(img)
+
+    def ir_R_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        self.colours[2] = self.detect_black(img)
+        self.isGray[2] = self.detect_gray(img)
+
+    # --------------------------
+    # Motor Control Functions
+    # --------------------------
+    def start_motion(self, linear=0.0, angular=0.0, duration_ms=0):
+        self.cmd.linear.x = linear
+        self.cmd.angular.z = angular
+        self.publisher.publish(self.cmd)
+
+        if duration_ms > 0:
+            self.motion_active = True
+            self.motion_end_time = time.time() + (duration_ms / 1000.0)
+        else:
+            self.motion_active = False #it will run continuously
+
+    def update_motion(self):
+        if self.motion_active and time.time() >= self.motion_end_time:
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = 0.0
+            self.publisher.publish(self.cmd)
+            self.motion_active = False
+
+        elif self.imu_turning and self.facing == self.imu_target:
+            #we have turned to face the general direction of where we needed to be,
+            #but we may not have necessarily found a line yet
+            #so let's turn on a switch saying keep turning, but once you find a line reset imu_turning.
+            self.completeTurn = True
+            self.imu_turning = False
+
+
+    def stopMov(self) :
+        self.start_motion()
+        
+    # --------------------------
+    # Basic Turning Functions
+    # --------------------------
+
+    def turnRight(self, duration):
+        self.start_motion(angular=-0.75, duration_ms=duration)
+
+    def turnLeft(self, duration) :
+        self.start_motion(angular=0.75, duration_ms=duration)
+
+
+    #---------------------
+    # Searching for Line
+    #---------------------
+
+    def smartTurnRight(self, totalDuration,stepDelay = 50) :
+        # While the angle is less then the expected turn
+        if (self.elapsed < totalDuration):
+            # Check if there is a black line in one of the sensors if so return to continue executing
+            if (self.minPixels < self.colours[1]) or  (self.minPixels < self.colours[0]) or (self.minPixels < self.colours[2]) :
+                
+                self.get_logger().info("Line found during right turn!")
+                self.stopMov()
+                self.searchRight = False
+                
+                return True
+            
+            # Continue turning right
+            self.turnRight(0)
+            
+            # Increment the steps
+            self.elapsed += stepDelay
+            return False # exit and wait for next tick
+            
+        return False # finished full arc
+
+
+    def smartTurnLeft(self, totalDuration,stepDelay = 50) :
+        # While the angle is less then the expected turn
+        if (self.elapsed < totalDuration):
+            
+            # Check if there is a black line in one of the sensors if so return to continue executing
+            if (self.minPixels < self.colours[1]) or (self.minPixels < self.colours[0]) or (self.minPixels < self.colours[2]):
+                self.get_logger().info("Line found during left turn!")
+                self.stopMov()
+                self.searchLeft = False
+                return True
+            
+            # otherwise continue turning left
+            self.turnLeft(0)
+
+            # Increment the steps
+            self.elapsed += stepDelay
+            return False
+        
+        return False
+        
+
+    def search(self):
+        #start condition
+        if not self.searching:
+            self.elapsed = 0
+            self.found = False
+            self.searchLeft = False
+            self.searchRight = False
+
+            if self.searchStep == 0:
+                self.searchLeft = True
+                self.dur = self.thirty
+
+            elif self.searchStep == 1:
+                self.searchRight = True
+                if self.skipZero:
+                    self.dur = self.thirty *2
+                else:
+                    self.dur = self.thirty *3
+
+            elif self.searchStep == 2:
+                self.searchLeft = True
+                self.dur = self.thirty * 4
+
+            elif self.searchStep == 3:
+                self.searchRight = True
+                self.dur = self.thirty *6
+
+            elif self.searchStep == 4:
+                self.searchLeft = True
+                self.dur = self.thirty * 7
+
+            elif self.searchStep == 5:
+                self.searchLeft = True
+                self.dur = self.thirty * 3
+
+            elif self.searchStep ==6:
+                self.searchLeft = True
+                self.dur = self.thirty * 6
+
+            else:
+                #reverse and restart search
+                self.start_motion(linear=-0.25, duration_ms=self.realDelay)
+                self.searchStep = 0
+                self.searching = False
+                return
+            
+            self.searching = True
+            self.get_logger().info(f"STEP {self.searchStep}")
+
+        self.handleSearchLoop()
+
+        
+
+    def handleSearchLoop(self):
+        #carry out turn
+        if self.searchLeft:
+            self.found = self.smartTurnLeft(self.dur)
+        
+        elif self.searchRight:
+            self.found = self.smartTurnRight(self.dur)
+
+        #end conditions
+        if(self.found):
+            self.searchStep = 0
+            self.searching = False
+            self.elapsed = 0
+        elif(self.elapsed>=self.dur):
+            self.stopMov()
+            self.searchStep+=1
+            self.searching = False
+            self.elapsed = 0
+
+    #------------------------
+    # Normal Line Following
+    #------------------------
+
+    def followLine(self):
+
+        L = self.colours[0]
+        M = self.colours[1]
+        R = self.colours[2]
+
+        if self.minPixels < M :
+            self.start_motion(linear=0.15)
+
+            self.searchStep = 0
+            self.searching = False
+            self.elapsed = 0
+
+            #if we were turning at an intersection and we found the particular line we were looking for, end that search and start following
+            if(self.completeTurn):
+                self.completeTurn = False
+
+        elif self.minPixels < L:
+            self.turnLeft(self.realDelay)
+
+            self.searchStep = 0
+            self.searching = False
+            self.elapsed = 0
+
+        elif self.minPixels < R:
+            self.turnRight(self.realDelay)
+
+            self.searchStep = 0
+            self.searching = False
+            self.elapsed = 0
+
+        else:
+            self.search()
+
     def returnNode(self, c):
         if c == 'A':
             return self.A
@@ -2320,282 +2590,11 @@ class line_follower(Node):
         
 
 
-        
-
-
-    #MPU5060 / IMU callback
-    def imu_callback(self, msg: Imu):
-        # The IMU gives us a quaternion (x, y, z, w)
-        q = msg.orientation
-        
-        # Convert the quaternion to Yaw (Rotation around the Z axis) in radians
-        siny_cosp = 2 * (q.w * q.z + q.x * q.y)
-        cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
-        yaw_rad = math.atan2(siny_cosp, cosy_cosp)
-
-        # Optional: Convert to degrees for easier human reading
-        yaw_deg = math.degrees(yaw_rad)
-
-        if 0.0 <= yaw_deg < 45.0:
-            self.facing = 0
-        elif 45.0 <= yaw_deg < 135.0 :
-            self.facing = 1
-        elif 135.0 <= yaw_deg < 225.0 :
-            self.facing = 2
-        elif 225.0 <= yaw_deg < 360.0 :
-            self.facing = 3
-        
-        #self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
-
-    #Ultrasonic functions
-    def ultrasonic_callback(self, msg):
-        # Unpack the array based on the order you published it
-        #ANGLES ARE IN RADIANS (but i can do math.degrees(v) to convert to normal degrees if i need to)
-        self.entry_angle = msg.data[0]
-        self.exit_angle = msg.data[1]
-        self.ultrasonic_distance = msg.data[2]
-        
-        # Now you have exactly what you care about to use in this script
-        #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
-
-
-
-    #Line Following Functions
-    def detect_black(self, img):
-        # returns a mask of black pixels in the image
-        lower_black = np.array([0, 0, 0])
-        upper_black = np.array([26, 26, 26])
-        mask = cv2.inRange(img, lower_black, upper_black)
-        return cv2.countNonZero(mask) #(int) num of black pixels in img
-    
-    def detect_gray(self, img):
-        # returns a mask of black pixels in the image
-        lower_gray = np.array([85, 85, 85])
-        upper_gray = np.array([128, 128, 128])
-        mask = cv2.inRange(img, lower_gray, upper_gray)
-        return cv2.countNonZero(mask) #(int) num of gray pixels in img
-    
-    def ir_L_callback(self, msg):
-        h, w = msg.height, msg.width
-        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        self.colours[0] = self.detect_black(img)
-        self.isGray[0] = self.detect_gray(img)
-
-    def ir_M_callback(self, msg):
-        h, w = msg.height, msg.width
-        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        self.colours[1] = self.detect_black(img)
-        self.isGray[1] = self.detect_gray(img)
-
-    def ir_R_callback(self, msg):
-        h, w = msg.height, msg.width
-        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
-        self.colours[2] = self.detect_black(img)
-        self.isGray[2] = self.detect_gray(img)
-
-    # --------------------------
-    # Motor Control Functions
-    # --------------------------
-    def start_motion(self, linear=0.0, angular=0.0, duration_ms=0):
-        self.cmd.linear.x = linear
-        self.cmd.angular.z = angular
-        self.publisher.publish(self.cmd)
-
-        if duration_ms > 0:
-            self.motion_active = True
-            self.motion_end_time = time.time() + (duration_ms / 1000.0)
-        else:
-            self.motion_active = False #it will run continuously
-
-    def update_motion(self):
-        if self.motion_active and time.time() >= self.motion_end_time:
-            self.cmd.linear.x = 0.0
-            self.cmd.angular.z = 0.0
-            self.publisher.publish(self.cmd)
-            self.motion_active = False
-
-        elif self.imu_turning and self.facing == self.imu_target:
-            #we have turned to face the general direction of where we needed to be,
-            #but we may not have necessarily found a line yet
-            #so let's turn on a switch saying keep turning, but once you find a line reset imu_turning.
-            self.completeTurn = True
-            self.imu_turning = False
-
-
-    def stopMov(self) :
-        self.start_motion()
-        
-    # --------------------------
-    # Basic Turning Functions
-    # --------------------------
-
-    def turnRight(self, duration):
-        self.start_motion(angular=-0.75, duration_ms=duration)
-
-    def turnLeft(self, duration) :
-        self.start_motion(angular=0.75, duration_ms=duration)
-
-
-    #---------------------
-    # Searching for Line
-    #---------------------
-
-    def smartTurnRight(self, totalDuration,stepDelay = 50) :
-        # While the angle is less then the expected turn
-        if (self.elapsed < totalDuration):
-            # Check if there is a black line in one of the sensors if so return to continue executing
-            if (self.minPixels < self.colours[1]) or  (self.minPixels < self.colours[0]) or (self.minPixels < self.colours[2]) :
-                
-                self.get_logger().info("Line found during right turn!")
-                self.stopMov()
-                self.searchRight = False
-                
-                return True
-            
-            # Continue turning right
-            self.turnRight(0)
-            
-            # Increment the steps
-            self.elapsed += stepDelay
-            return False # exit and wait for next tick
-            
-        return False # finished full arc
-
-
-    def smartTurnLeft(self, totalDuration,stepDelay = 50) :
-        # While the angle is less then the expected turn
-        if (self.elapsed < totalDuration):
-            
-            # Check if there is a black line in one of the sensors if so return to continue executing
-            if (self.minPixels < self.colours[1]) or (self.minPixels < self.colours[0]) or (self.minPixels < self.colours[2]):
-                self.get_logger().info("Line found during left turn!")
-                self.stopMov()
-                self.searchLeft = False
-                return True
-            
-            # otherwise continue turning left
-            self.turnLeft(0)
-
-            # Increment the steps
-            self.elapsed += stepDelay
-            return False
-        
-        return False
-        
-
-    def search(self):
-        #start condition
-        if not self.searching:
-            self.elapsed = 0
-            self.found = False
-            self.searchLeft = False
-            self.searchRight = False
-
-            if self.searchStep == 0:
-                self.searchLeft = True
-                self.dur = self.thirty
-
-            elif self.searchStep == 1:
-                self.searchRight = True
-                if self.skipZero:
-                    self.dur = self.thirty *2
-                else:
-                    self.dur = self.thirty *3
-
-            elif self.searchStep == 2:
-                self.searchLeft = True
-                self.dur = self.thirty * 4
-
-            elif self.searchStep == 3:
-                self.searchRight = True
-                self.dur = self.thirty *6
-
-            elif self.searchStep == 4:
-                self.searchLeft = True
-                self.dur = self.thirty * 7
-
-            elif self.searchStep == 5:
-                self.searchLeft = True
-                self.dur = self.thirty * 3
-
-            elif self.searchStep ==6:
-                self.searchLeft = True
-                self.dur = self.thirty * 6
-
-            else:
-                #reverse and restart search
-                self.start_motion(linear=-0.25, duration_ms=self.realDelay)
-                self.searchStep = 0
-                self.searching = False
-                return
-            
-            self.searching = True
-            self.get_logger().info(f"STEP {self.searchStep}")
-
-        self.handleSearchLoop()
-
-        
-
-    def handleSearchLoop(self):
-        #carry out turn
-        if self.searchLeft:
-            self.found = self.smartTurnLeft(self.dur)
-        
-        elif self.searchRight:
-            self.found = self.smartTurnRight(self.dur)
-
-        #end conditions
-        if(self.found):
-            self.searchStep = 0
-            self.searching = False
-            self.elapsed = 0
-        elif(self.elapsed>=self.dur):
-            self.stopMov()
-            self.searchStep+=1
-            self.searching = False
-            self.elapsed = 0
-
-    #------------------------
-    # Normal Line Following
-    #------------------------
-
-    def followLine(self):
-
-        L = self.colours[0]
-        M = self.colours[1]
-        R = self.colours[2]
-
-        if self.minPixels < M :
-            self.start_motion(linear=0.15)
-
-            self.searchStep = 0
-            self.searching = False
-            self.elapsed = 0
-
-            #if we were turning at an intersection and we found the particular line we were looking for, end that search and start following
-            if(self.completeTurn):
-                self.completeTurn = False
-
-        elif self.minPixels < L:
-            self.turnLeft(self.realDelay)
-
-            self.searchStep = 0
-            self.searching = False
-            self.elapsed = 0
-
-        elif self.minPixels < R:
-            self.turnRight(self.realDelay)
-
-            self.searchStep = 0
-            self.searching = False
-            self.elapsed = 0
-
-        else:
-            self.search()
 
       
     def loop(self):
         self.update_motion()
+        self.updatePos()
 
         if not self.motion_active:
             self.followLine() 
