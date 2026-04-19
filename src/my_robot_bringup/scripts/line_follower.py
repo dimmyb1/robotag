@@ -117,6 +117,7 @@ class line_follower(Node):
         self.behaviourMode = 0
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
         self.i_patrol = 0
+        self.opp_old_loc = -1
         
 
         # behaviourMode settings:
@@ -1675,7 +1676,7 @@ class line_follower(Node):
                 self.get_logger().info(f"Bad random number generated, no such choice value as {choice}")
                 
             
-        elif self.behaviourMode == 3:
+        elif self.behaviourMode == 3 or (self.behaviourMode == 5 and self.opp_old_loc==-1):
             # 3 - Greedy
             self.calculateProbabilities()
 
