@@ -114,7 +114,7 @@ class line_follower(Node):
         self.skipZero = False
         self.facing = 2 #start facing south?
 
-        self.behaviourMode = 0
+        self.behaviourMode = 2
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
         self.i_patrol = 0
         self.opp_old_loc = -1
@@ -599,7 +599,7 @@ class line_follower(Node):
                 return
             
             self.searching = True
-            self.get_logger().info(f"STEP {self.searchStep}")
+            #self.get_logger().info(f"STEP {self.searchStep}")
 
         self.handleSearchLoop()
 
