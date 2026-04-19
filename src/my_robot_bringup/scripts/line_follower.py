@@ -2027,6 +2027,76 @@ class line_follower(Node):
                         #is there a node?
                             if v == cert:
                                 #yes -> generatepathfromNtoN
+                                #try interceptive:
+                                #is O =N? or =E?
+                                if type(self.opp_old_loc) == str:
+                                    #O=E
+                                    po = self.getNodesFromEdge(self.opp_old_loc)
+                                    if toK in po:
+
+                                        #see which of the node's edges this is e.g. North
+                                        #and then flip it to get our new direction e.g. South
+                                        #then current_destination is the node.Sc node!
+
+                                        po.remove(toK)
+                                        #po[0] is other parent
+                                        #so we want all the edges which connect toK and po[0]
+                                        #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
+
+                                        pc = self.returnNode(toK)
+                                        if pc.Nc == po[0]:
+                                            self.current_destination = self.generatePathFromNToN(pc.Sc)
+                                        elif pc.Ec == po[0]:
+                                            self.current_destination = self.generatePathFromNToN(pc.Wc)
+                                        elif pc.Sc == po[0]:
+                                            self.current_destination = self.generatePathFromNToN(pc.Nc)
+                                        elif pc.Wc == po[0]:
+                                            self.current_destination = self.generatePathFromNToN(pc.Ec)
+
+                                        nfound = True
+                                        break
+                                    else:
+
+                                        #greedy
+                                        self.current_destination = self.generatePathFromNToN(toK)
+                                        break
+                                        
+                                else:
+                                    #O=N, C=N
+                                    eo = self.getEdgesFromNode(self.opp_old_loc)
+                                    ec = self.getEdgesFromNode(toK)
+
+                                    be_greedy = True
+                                    for e in eo:
+                                        for ec1 in ec:
+                                            if e == ec1 and not nfound:
+                                                be_greedy = False
+                                                #take the first edge we find <BIAS> / <OPTIMISATION>
+                                                #and follow it to the next node
+
+
+                                                po = self.returnNode(self.opp_old_loc)
+                                                if po.Nc == toK:
+                                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
+                                                elif po.Ec == toK:
+                                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Ec)
+                                                elif po.Sc == toK:
+                                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Sc)
+                                                elif po.Wc == toK:
+                                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Wc)
+
+                                                nfound=True
+                                                break #stop iterating
+                                                
+
+                                    if be_greedy:
+                                        #greedy
+                                        self.current_destination = self.generatePathFromNToN(toK)
+                                        nfound=True
+                                        break #stop iterating
+
+
+                                #greedy
                                 self.current_destination = self.generatePathFromNToN(toK)
                                 nfound=True
                                 break #stop iterating
