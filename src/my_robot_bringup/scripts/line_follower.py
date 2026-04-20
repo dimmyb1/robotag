@@ -836,12 +836,47 @@ class line_follower(Node):
         #MAKE A CONE
         #trim selection by using servo and mpu angle 
 
+        #let's check if the entry_angle and exit_angle s are float('inf') or not
+        #how entry_angle and exit_angle are returned:
+        #no detection: float('inf')
+        # straight ahead / middle - 0
+        # otherwise returned in RADIANS
+        # +1.57 is left 90
+        # -1.57 is right 90
+
+        #returns from this function:
+        #only 1 detected
+        #-1 means turn 180
+        #-2 means turn left 90
+        #-3 means turn right 90
+        if(self.entry_angle == float('inf')):
+            if self.exit_angle == float('inf'):
+                #no detection
+                return -1
+
+            else:
+
+                if self.exit_angle < 0:
+                    return -3
+                elif self.exit_angle > 0:
+                    return -2
+
+        elif self.exit_angle == float('inf'):
+            #only 1 detected
+            if self.entry_angle < 0:
+                return -3
+            elif self.entry_angle > 0:
+                return -2
+
+        #else, it's safe to continue
         #first we will check if the mark is right in front of us
         lesserServo = min(self.entry_angle, self.exit_angle)
         biggerServo = max(self.entry_angle, self.exit_angle)
         #for now i assume these to be in euclidean 
 
         
+
+
 
         if(lesserServo < 90 and biggerServo > 90):
             #if current cardinal direction we're facing is North or South
@@ -1952,6 +1987,13 @@ class line_follower(Node):
         elif self.behaviourMode == 3 or (self.behaviourMode == 5 and self.opp_old_loc==-1):
             # 3 - Greedy
             self.calculateProbabilities()
+            #returns from this function:
+            #only 1 detected
+            #-1 means turn 180
+            #-2 means turn left 90
+            #-3 means turn right 90
+
+            
 
             #take max likely edge
             maxV = -1
