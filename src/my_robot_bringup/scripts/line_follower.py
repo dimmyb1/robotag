@@ -73,6 +73,7 @@ class line_follower(Node):
         self.minPixels = 20
 
         #junction turning vars
+        self.stateFollow = True
         self.completeTurn = False
         self.imu_turning = False
         self.imu_target = -1
@@ -490,6 +491,7 @@ class line_follower(Node):
             #so let's turn on a switch saying keep turning, but once you find a line reset imu_turning.
             self.completeTurn = True
             self.imu_turning = False
+            self.stateFollow = True
 
 
     def stopMov(self) :
@@ -2451,6 +2453,7 @@ class line_follower(Node):
                 #no turn
                 self.imu_turning = False
                 self.completeTurn = True
+                self.stateFollow = True
 
             elif self.imu_target == 1:
                 self.turnRight()
@@ -2464,6 +2467,7 @@ class line_follower(Node):
                 #no turn
                 self.imu_turning = False
                 self.completeTurn = True
+                self.stateFollow = True
 
             elif self.imu_target == 2:
                 self.turnRight()
@@ -2477,6 +2481,7 @@ class line_follower(Node):
                 #no turn
                 self.imu_turning = False
                 self.completeTurn = True
+                self.stateFollow = True
 
             elif self.imu_target == 3:
                 self.turnRight()
@@ -2490,6 +2495,7 @@ class line_follower(Node):
                 #no turn
                 self.imu_turning = False
                 self.completeTurn = True
+                self.stateFollow = True
 
             elif self.imu_target == 0:
                 self.turnRight()
@@ -2508,12 +2514,13 @@ class line_follower(Node):
          #do some check to ensure we aren't being triggered by the last gray section we saw
         if self.grayEntryTime < now - self.GRAY_COOLDOWN:
             #if gray detected:
+
             if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
                 
                 self.grayEntryTime = now
                 self.get_logger().info("Intersection detected!")
                 self.stopMov()
-
+                self.stateFollow = False
 
                 
                 if type(self.current_destination) == list:
@@ -2564,6 +2571,8 @@ class line_follower(Node):
                                 self.found = self.turnLeft(self.thirty * 3)
 
                             return
+                        else:
+                            self.stateFollow = True
 
                         #we have directions to go somewhere
                         #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
@@ -2669,7 +2678,7 @@ class line_follower(Node):
         self.updatePos()
 
 
-        if not self.motion_active:
+        if not self.motion_active and self.stateFollow:
             self.followLine() 
 
 def main():
