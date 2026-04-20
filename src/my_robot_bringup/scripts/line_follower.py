@@ -78,7 +78,7 @@ class line_follower(Node):
         self.imu_turning = False
         self.imu_target = -1
         self.grayEntryTime = -1
-        self.GRAY_COOLDOWN = 8
+        self.GRAY_COOLDOWN = 5 #tried 8, 8 was too high
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 5
 
@@ -109,6 +109,7 @@ class line_follower(Node):
 
         self.myNodes = [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]
 
+        #implement: initialise current_node and facing to be based on which robot (via namespace) and to represent actual start locations
         self.current_node = self.A
         self.last_node = self.A #for localisation
         self.current_destination = 'F'
