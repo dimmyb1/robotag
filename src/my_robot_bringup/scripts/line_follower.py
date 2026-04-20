@@ -2512,6 +2512,7 @@ class line_follower(Node):
                 
                 self.grayEntryTime = now
                 self.get_logger().info("Intersection detected!")
+                self.stopMov()
 
 
                 
