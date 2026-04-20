@@ -1391,7 +1391,7 @@ class line_follower(Node):
 
 
 
-
+        
 
 
         """
@@ -1536,6 +1536,12 @@ class line_follower(Node):
             #just pop a node and assume that to be the location
             #dummy = nConsider.pop()
         """
+        #returns from this function:
+        #0 nothing went wrong
+        #-1 means turn 180
+        #-2 means turn left 90
+        #-3 means turn right 90
+        return 0
 
     #dijkstra function written by ChatGPT-5.3 on 9/04/2026
     #in this conversation: https://chatgpt.com/share/69d7f982-5b6c-8330-bd3b-779f35e3c7ed 
@@ -1986,14 +1992,20 @@ class line_follower(Node):
             
         elif self.behaviourMode == 3 or (self.behaviourMode == 5 and self.opp_old_loc==-1):
             # 3 - Greedy
-            self.calculateProbabilities()
+            self.retryPlan = self.calculateProbabilities()
             #returns from this function:
-            #only 1 detected
+            #0 nothing went wrong
             #-1 means turn 180
             #-2 means turn left 90
             #-3 means turn right 90
 
-            
+            if self.retryPlan!=0:
+                if self.retryPlan==-1:
+                    dummy = 1
+                elif self.retryPlan==-1:
+                    dummy = 1
+                elif self.retryPlan==-1:
+                    dummy = 1
 
             #take max likely edge
             maxV = -1
