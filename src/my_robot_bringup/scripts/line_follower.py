@@ -697,13 +697,12 @@ class line_follower(Node):
     # Self-Localisation
     #--------------------
 
-    def self_localise(self, edgeTime):
+    def self_localise(self, now, edgeTime):
         #where edge time is the average timing of the edge we took
         #otherwise create a variable stating which direction we took i.e. N = 0
         #so that we can say (last_node.Times[0])
         hyp = []
-        #implement
-        now = time.time()
+
         maxTime = self.departureTime + self.TIME_VARIANCE + edgeTime
         minTime = self.departureTime - self.TIME_VARIANCE + edgeTime
         if (now > maxTime) or (now < minTime):
@@ -2801,7 +2800,7 @@ class line_follower(Node):
 
                     #update departure time
                     self.departureTime = now 
-                    #a value will  be added to departure time to represent turning time needed in startTurnBasedOnFacing (implement)
+                    #a value will  be added to departure time to represent turning time needed in startTurnBasedOnFacing
 
                     self.imu_turning = True
                     self.startTurnBasedOnFacing()
