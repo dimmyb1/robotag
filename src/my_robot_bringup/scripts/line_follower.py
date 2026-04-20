@@ -719,14 +719,18 @@ class line_follower(Node):
                 hyp.append(self.last_node.Wc)
 
             #if not, we either got turned around, or we just struggled / found it easy to get here
-            if hyp:
-                dummy = 2
+            #in case we got turned around copy the node we left from:
+            hyp.append(self.last_node.name)
+            #otherwise if we just deviated slightly, the rest of the map should match up, so either way let's check the next edge we take:
 
             if self.loc_hyp:
                 #if we formed a hypothesis on where we may be at our last node, then we have previously cast doubt on where we are
                 #and if we've gotten to this if statement, that means we have been at two dubious nodes which we are setting to be our limit <BIAS> / <HYPERPARAM?>
                 
-                new_hyp = []
+                #then let's see if one of the old hypothesis nodes could work, and if one of them can,  take the first of which which makes sense, and 
+                #change last and current nodes to reflect that (yes this is a bit fickle, but you can technically keep building this up until you're certain)
+                #but given we only have 8 nodes, about 2-3 rounds of checks should be enough to localise, but 2 is simpler
+                #BIAS
                 for h in self.loc_hyp:
                     hn = self.returnNode(h)
                     if minTime < hn.Times[0] < maxTime:
@@ -749,13 +753,17 @@ class line_follower(Node):
                         self.current_node = hn.Wc
                         self.loc_hyp = []
                         break
-            
 
-        else:
-            #it has taken the expected amount of time
-            #we have no concerns.
-            #can exit
-            dummy = 1
+            #if we found a possible hypothesis (i.e. there was some issue), record it and store it for the next edge check.
+            if hyp:
+                self.loc_hyp = hyp.copy()
+                return
+            
+        #otherwise, it has taken the expected amount of time
+        #we have no concerns.
+        #can exit
+        self.loc_hyp = []
+        return
 
 
     #-------------------------------------
