@@ -113,6 +113,7 @@ class line_follower(Node):
         self.current_destination = 'F'
         self.skipZero = False
         self.facing = 2 #start facing south?
+        self.retryPlan = 0
 
         self.behaviourMode = 2
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
@@ -1995,17 +1996,9 @@ class line_follower(Node):
             self.retryPlan = self.calculateProbabilities()
             #returns from this function:
             #0 nothing went wrong
-            #-1 means turn 180
-            #-2 means turn left 90
-            #-3 means turn right 90
 
             if self.retryPlan!=0:
-                if self.retryPlan==-1:
-                    dummy = 1
-                elif self.retryPlan==-1:
-                    dummy = 1
-                elif self.retryPlan==-1:
-                    dummy = 1
+                return -1
 
             #take max likely edge
             maxV = -1
@@ -2087,8 +2080,12 @@ class line_follower(Node):
                     
         elif self.behaviourMode == 4:
             # 4 - Avoidant
+            self.retryPlan = self.calculateProbabilities()
+            #returns from this function:
+            #0 nothing went wrong
 
-            self.calculateProbabilities()
+            if self.retryPlan!=0:
+                return -1
 
             #take max likely edge
             maxV = -1
@@ -2170,10 +2167,13 @@ class line_follower(Node):
             
         elif self.behaviourMode == 5:
             # 5 - Interceptive
-            last_pos = "?" #implement
             be_greedy = False
-            self.calculateProbabilities()
+            self.retryPlan = self.calculateProbabilities()
+            #returns from this function:
+            #0 nothing went wrong
 
+            if self.retryPlan!=0:
+                return -1
 
             #interceptive takes the straight path
             #taking targets past loc, Curr loc, and assumes straight to future loc
@@ -2551,6 +2551,7 @@ class line_follower(Node):
                         self.current_destination = self.planDestination()
 
                         if self.retryPlan != 0:
+                            self.stopMov()
                             if self.retryPlan == -1:
                                 #180
                                 self.found = self.turnRight(self.thirty * 6)
