@@ -82,6 +82,8 @@ class line_follower(Node):
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 5
 
+        
+
         # ints that will be used throughout
         self.realDelay = 150
 
@@ -111,11 +113,15 @@ class line_follower(Node):
 
         #implement: initialise current_node and facing to be based on which robot (via namespace) and to represent actual start locations
         self.current_node = self.A
+        self.facing = 2 #start facing south?
         self.last_node = self.A #for localisation
         self.current_destination = 'F'
         self.skipZero = False
-        self.facing = 2 #start facing south?
         self.retryPlan = 0
+
+        #localisation
+        self.departureTime = -1
+        self.TIME_VARIANCE = 2
 
         self.behaviourMode = 2
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
@@ -686,6 +692,46 @@ class line_follower(Node):
         else:
             self.get_logger().info(f"Can't return nonexistent char-node value")
             return None
+        
+    #--------------------
+    # Self-Localisation
+    #--------------------
+
+    def self_localise(self, edgeTime):
+        #where edge time is the average timing of the edge we took
+        #otherwise create a variable stating which direction we took i.e. N = 0
+        #so that we can say (last_node.Times[0])
+        hyp = []
+        #implement
+        now = time.time()
+        maxTime = self.departureTime + self.TIME_VARIANCE + edgeTime
+        minTime = self.departureTime - self.TIME_VARIANCE + edgeTime
+        if (now > maxTime) or (now < minTime):
+            #if it has taken longer than or less than the expected time
+            #check if any of the old node's timings match better
+            if minTime < self.last_node.Times[0] < maxTime:
+                hyp.append(self.last_node.Nc)
+            elif minTime < self.last_node.Times[1] < maxTime:
+                hyp.append(self.last_node.Ec)
+            elif minTime < self.last_node.Times[2] < maxTime:
+                hyp.append(self.last_node.Sc)
+            elif minTime < self.last_node.Times[3] < maxTime:
+                hyp.append(self.last_node.Wc)
+
+            #if not, we either got turned around, or we just struggled / found it easy to get here
+            if hyp:
+                dummy = 2
+            
+        else:
+            #it has taken the expected amount of time
+            #we have no concerns.
+            #can exit
+            dummy = 1
+
+
+    #-------------------------------------
+    # Target Tracking and Route Planning
+    #-------------------------------------
         
     """
     #UNUSED :(
