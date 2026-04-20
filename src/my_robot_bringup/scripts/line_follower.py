@@ -721,7 +721,36 @@ class line_follower(Node):
             #if not, we either got turned around, or we just struggled / found it easy to get here
             if hyp:
                 dummy = 2
+
+            if self.loc_hyp:
+                #if we formed a hypothesis on where we may be at our last node, then we have previously cast doubt on where we are
+                #and if we've gotten to this if statement, that means we have been at two dubious nodes which we are setting to be our limit <BIAS> / <HYPERPARAM?>
+                
+                new_hyp = []
+                for h in self.loc_hyp:
+                    hn = self.returnNode(h)
+                    if minTime < hn.Times[0] < maxTime:
+                        self.last_node = h
+                        self.current_node = hn.Nc
+                        self.loc_hyp = []
+                        break
+                    elif minTime < hn.Times[1] < maxTime:
+                        self.last_node = h
+                        self.current_node = hn.Ec
+                        self.loc_hyp = []
+                        break
+                    elif minTime < hn.Times[2] < maxTime:
+                        self.last_node = h
+                        self.current_node = hn.Sc
+                        self.loc_hyp = []
+                        break
+                    elif minTime < hn.Times[3] < maxTime:
+                        self.last_node = h
+                        self.current_node = hn.Wc
+                        self.loc_hyp = []
+                        break
             
+
         else:
             #it has taken the expected amount of time
             #we have no concerns.
