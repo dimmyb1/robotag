@@ -815,8 +815,35 @@ class line_follower(Node):
         CONTAMINATION = 0.3
         
         #and let's say we have estimated our current coordinates to be x and y
-        x = 2
-        y = 3
+        # x = 2
+        # y = 3
+
+        #if we know our current node, we know our current coordinates.
+        if self.current_node.name == 'A':
+            x = 1
+            y = 4
+        elif self.current_node.name == 'B':
+            x = 2
+            y = 4
+        elif self.current_node.name == 'C':
+            x = 3
+            y = 4
+        elif self.current_node.name == 'D': 
+            x = 3
+            y = 3
+        elif self.current_node.name == 'E':
+            x = 1
+            y = 2
+        elif self.current_node.name == 'F':
+            x = 2
+            y = 2
+        elif self.current_node.name == 'G':
+            x = 2
+            y = 1
+        elif self.current_node.name == 'H':
+            x = 3
+            y = 1
+
         # so minimum (2,3), maximum (3,4) starts
         #these need to be estimated by timing how long we're following a black line for against our pretimed table
         
@@ -839,6 +866,7 @@ class line_follower(Node):
         #MAKE A CONE
         #trim selection by using servo and mpu angle 
 
+        #HAVE WE ACTUALLY DETECTED THE OPPONENT?? IF NOT, TURN TO FIND THE OPPONENT.
         #let's check if the entry_angle and exit_angle s are float('inf') or not
         #how entry_angle and exit_angle are returned:
         #no detection: float('inf')
@@ -2669,7 +2697,6 @@ class line_follower(Node):
                     else:
                         self.skipZero = False
         
-
 
 
       
