@@ -2550,6 +2550,18 @@ class line_follower(Node):
                         self.senseEntryTime = now
                         self.current_destination = self.planDestination()
 
+                        if self.retryPlan != 0:
+                            if self.retryPlan == -1:
+                                #180
+                                self.found = self.turnRight(self.thirty * 6)
+                            elif self.retryPlan == -2:
+                                #right
+                                self.found = self.turnRight(self.thirty * 3)
+                            elif self.retryPlan == -3: 
+                                #left
+                                self.found = self.turnLeft(self.thirty * 3)
+
+                            return
 
                         #we have directions to go somewhere
                         #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
@@ -2557,6 +2569,7 @@ class line_follower(Node):
                         if type(self.current_destination) == list:
                             if(self.current_destination):
                                 if type(self.current_destination[0]) == int:
+                                    
                                     #if it is a single number from 0 to 3, then it is an immediate neighbour 
                                     #e.g. path = [2] i.e. go south
                                     self.imu_target = self.current_destination.pop(0)
@@ -2652,6 +2665,7 @@ class line_follower(Node):
     def loop(self):
         self.update_motion()
         self.updatePos()
+
 
         if not self.motion_active:
             self.followLine() 
