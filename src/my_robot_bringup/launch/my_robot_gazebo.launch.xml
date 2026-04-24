@@ -34,7 +34,7 @@
             args="-0.0835 -0.3395 0.0420 0 0 0 world twix_odom" />
 
         <node pkg="ros_gz_sim" exec="create" 
-              args="-topic robot_description -name twix -x -0.06256 -y 2.6251 -z 0.0420 -Y 3.14159" />
+              args="-topic robot_description -name twix -x -0.06287 -y 2.6199 -z 0.0420 -Y 3.14159" />
         
         <node pkg="my_robot_bringup"
           exec="line_follower.py"
