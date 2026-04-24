@@ -28,6 +28,8 @@ import heapq #for dijkstra
 #CONSIDER_NODES - tunable, partly measurable
 #GRAY_COOLDOWN - measurable
 #SENSE_COOLDOWN - measurable, partly tunable
+#TURN_TIME - measurable
+#TIME_VARIANCE - measurable, partly tunable
 
 class Noden():
     def __init__(self, nc, ec, sc, wc, n, t):
