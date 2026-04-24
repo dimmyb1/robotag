@@ -11,7 +11,7 @@ import cv2
 from enum import Enum
 from config import directions
 import math
-from std_msgs.msg import String, Float64, Float64MultiArray
+from std_msgs.msg import String, Float64, Float64MultiArray, Bool
 import json
 from rclpy.qos import QoSProfile, DurabilityPolicy
 import subprocess
@@ -83,6 +83,10 @@ class line_follower(Node):
         self.GRAY_COOLDOWN = 5 #tried 8, 8 was too high
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 5
+        self.CAPTURE_MAX = 0.1
+        self.PAUSE_TIME = 6
+        self.started_pause = -1
+        
 
         
 
@@ -120,6 +124,7 @@ class line_follower(Node):
         self.current_destination = 'F'
         self.skipZero = False
         self.retryPlan = 0
+        self.evading = False #INITIATE THIS BASED ON HOW WE START!!!
 
         #localisation
         self.departureTime = -1
@@ -366,9 +371,11 @@ class line_follower(Node):
         if robot_name == 'twix':
             self.current_node = self.H
             self.get_logger().info("Detected robot: twix. Starting at Node H.")
+            other_robot_name = 'twirl'
         elif robot_name == 'twirl':
             self.current_node = self.A
             self.get_logger().info("Detected robot: twirl. Starting at Node A.")
+            other_robot_name = 'twix'
         else:
             # Fallback in case you run it without a namespace
             self.current_node = self.A 
@@ -406,7 +413,40 @@ class line_follower(Node):
             self.ultrasonic_callback,
             10
         )
+
+
+        self.tag = False
+        self.tag_pub = self.create_publisher(
+            Bool, 
+            f'/{robot_name}/has_tag', 
+            self.publish_tag_status,
+            10
+        )
+
+        self.tag_sub = self.create_subscription(
+            Bool, 
+            f'/{other_robot_name}/has_tag', 
+            self.tag_callback, 
+            10
+        )
+
+        def tag_callback(self, msg):
+            """ This triggers automatically when the OTHER robot updates its tag status. """
+            if self.tag and (msg.data == self.tag):
+                self.tag = False
+            else:
+                self.tag = msg.data
+
+            # Optional: Print to the terminal so you can see it working
+            # self.get_logger().info(f"{self.other_robot} has the tag: {self.opponent_has_tag}")
+
+        def publish_tag_status(self):
+            """ This continuously sends OUR tag status to the network. """
+            msg = Bool()
+            msg.data = self.tag
+            self.tag_pub.publish(msg)
             
+        
         
 
         self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
@@ -944,7 +984,7 @@ class line_follower(Node):
         #these need to be estimated by timing how long we're following a black line for against our pretimed table
         
         #get current cardinal direction we're facing 
-        #check if not detected at all! or if you only have 1 reading i.e. 1 reading before the line of detection (implement)
+        #check if not detected at all! or if you only have 1 reading i.e. 1 reading before the line of detection
         #so we only see start and not end i.e. somewhere along our 90 degree sides.
 
         #then we can calculate our minimum and maximums for manhattan distance
@@ -1619,11 +1659,11 @@ class line_follower(Node):
         #     #make sure consider actually has something in it first.
 
         #     #we need to take the max valued edge (implemen/t)
-        #     dummy = 3
+        #     d/ummy = 3
 
         # if(aNodeFound):
         #     if(manyNodesFound):
-        #         dummy = 3
+        #         d/ummy = 3
         #         #ghandna problema 
         #         #lets find the most common one.
         #         #(implemen/t)
@@ -1632,7 +1672,7 @@ class line_follower(Node):
         #         oppNode = nConsider.pop()
 
         # else:
-        #     dummy = 2
+        #     d/ummy = 2
             #we need to make up the closest node
             #but we need to set the lookAtNode variable (implemen/t) to be false so that we only look at edge, but keep this as reference
 
@@ -1661,7 +1701,7 @@ class line_follower(Node):
             #if we are almost certainly at a node
             #ez
             #just pop a node and assume that to be the location
-            #dummy = nConsider.pop()
+            #d/ummy = nConsider.pop()
         """
         #returns from this function:
         #0 nothing went wrong
@@ -2824,6 +2864,59 @@ class line_follower(Node):
                         self.skipZero = True
                     else:
                         self.skipZero = False
+
+    def surveillCapture(self):
+        #ultrasonic_sweep.py is constantly turning and checking.
+        
+        #ultrasonic is probably measuring in metres (m)
+        #~10cm is the maximum distance for capture in tight spaces of the map
+
+        #TAG
+        if self.ultrasonic_distance < CAPTURE_MAX or self.tag:
+            
+            self.tag = True
+            #switch mode
+            #dummy
+            if self.behaviourMode == 0:
+                self.behaviourMode == 0
+            else:
+                self.behaviourMode = 0
+
+            if self.evading:
+                #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
+                self.started_pause = time.time()
+                self.stateFollow = False
+            else:
+                #resolve destination
+
+                #is path blocked?
+                if min(self.entry_angle, self.exit_angle) < 90 < max(self.entry_angle, self.exit_angle):
+                    #turn 180 and go back to where you were
+                    if self.facing == 0:
+                        self.imu_target = 2
+                    elif self.facing == 2:
+                        self.imu_target = 0
+                    elif self.facing == 1:
+                        self.imu_target = 3
+                    elif self.facing == 1:
+                        self.imu_target = 3
+                    
+                    
+                    self.startTurnBasedOnFacing
+                    self.current_destination = self.current_node
+
+            #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
+            if type(self.current_destination) == list:
+                self.current_destination = self.current_destination[0]
+
+            #flip status
+            self.evading = not self.evading
+
+                
+            
+
+
+
         
                 
 
@@ -2832,9 +2925,12 @@ class line_follower(Node):
         self.update_motion()
         self.updatePos()
 
-
+        if (time.time() > self.started_pause + self.PAUSE_TIME)  and (not self.stateFollow):
+            self.stateFollow = True
+        
         if not self.motion_active and self.stateFollow:
             self.followLine() 
+            self.surveillCapture()
 
 def main():
     rclpy.init()
