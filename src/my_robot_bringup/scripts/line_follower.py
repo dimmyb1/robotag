@@ -2867,7 +2867,7 @@ class line_follower(Node):
 
     def surveillCapture(self):
         #ultrasonic_sweep.py is constantly turning and checking.
-        
+        #self.CAPTURE_MAX =0.1
         #ultrasonic is probably measuring in metres (m)
         #~10cm is the maximum distance for capture in tight spaces of the map
 
