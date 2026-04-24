@@ -362,6 +362,17 @@ class line_follower(Node):
         topic_IMU = f'/{robot_name}/imu'
         topic_object = f"{robot_name}/object_data"
 
+        
+        if robot_name == 'twix':
+            self.current_node = self.H
+            self.get_logger().info("Detected robot: twix. Starting at Node H.")
+        elif robot_name == 'twirl':
+            self.current_node = self.A
+            self.get_logger().info("Detected robot: twirl. Starting at Node A.")
+        else:
+            # Fallback in case you run it without a namespace
+            self.current_node = self.A 
+            self.get_logger().warn(f"Unknown robot name '{robot_name}', defaulting to Node A.")
 
 
         self.ir_L_sub = self.create_subscription(
