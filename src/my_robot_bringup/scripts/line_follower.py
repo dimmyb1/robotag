@@ -2872,7 +2872,7 @@ class line_follower(Node):
         #~10cm is the maximum distance for capture in tight spaces of the map
 
         #TAG
-        if self.ultrasonic_distance < CAPTURE_MAX or self.tag:
+        if self.ultrasonic_distance < self.CAPTURE_MAX or self.tag:
             
             self.tag = True
             #switch mode
