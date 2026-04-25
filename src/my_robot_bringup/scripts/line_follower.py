@@ -2707,10 +2707,32 @@ class line_follower(Node):
 
                 if self.resetBehaviour:
                     # a tag took place, and the behaviour variables need to be reset
-
+                    
+                    #lower flag
+                    self.resetBehaviour = False
                     if self.behaviourMode == 1:
                         #patrol:
+                        #we need to correct the direction we are facing to resume flow and update i_patrol
+                        #find the first instance of our current node in the patrol list
+                        i = self.patrolPath.index(self.current_node.name)
+                        nextDest = self.patrolPath[i+1]
+                        self.i_patrol = i
                         
+                        if self.current_node.Nc == nextDest:
+                            self.imu_target = 0
+                        elif self.current_node.Ec == nextDest:
+                            self.imu_target = 1
+                        elif self.current_node.Sc == nextDest:
+                            self.imu_target = 2
+                        elif self.current_node.Wc == nextDest:
+                            self.imu_target = 3
+                        
+                        #align ourselves properly
+                        self.startTurnBasedOnFacing()
+
+                        
+                    elif self.behaviourMode == 5:
+                        self.opp_old_loc = -1
 
                 if type(self.current_destination) == list:
                     
