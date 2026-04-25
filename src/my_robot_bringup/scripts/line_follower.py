@@ -409,10 +409,10 @@ class line_follower(Node):
     # Basic Turning Functions
     # --------------------------
 
-    def turnRight(self, duration):
+    def turnRight(self, duration=0):
         self.start_motion(angular=-0.75, duration_ms=duration)
 
-    def turnLeft(self, duration) :
+    def turnLeft(self, duration=0) :
         self.start_motion(angular=0.75, duration_ms=duration)
 
 
@@ -956,7 +956,7 @@ class line_follower(Node):
         # the order doesnt make a difference, main thing is that we have the angle, wwe'll just take min or max of the two values.
         #and servo was the angle at which we go tthe reading, +- the known margin of error
         #and that BOXMEAS is the l / w of the boxes in the grid in euclidean metric
-        BOXMEAS = 2
+        BOXMEAS = 1
         PERSISTENCE = 0.7
         CONTAMINATION = 0.3
         
@@ -1562,15 +1562,6 @@ class line_follower(Node):
         self.Po = self.P.copy()
 
 
-        #now we take top X probable options and return them
-        #e.g. top 4 or all above 50%  
-        #tbf, i think we're done here, then actual selection is done by the individual strategy.
-
-
-
-        
-
-
         """
         #first, let us normalise all the probabilities so that they are comparable
         #since currently there would be a bias based on the length of the edge, allowing probabilities to go above 1.0, and others to never get to 1.0
@@ -2174,6 +2165,7 @@ class line_follower(Node):
             #0 nothing went wrong
 
             if self.retryPlan!=0:
+                self.get_logger().info("Didn't find opponent! Retrying...")
                 return -1
 
             #take max likely edge
@@ -2187,6 +2179,7 @@ class line_follower(Node):
             
 
             if(maxV >= CERTAINTY):
+                self.get_logger().info(f"Target location: {maxK}")
                 #then we want to generate a path from our current node to that edge (maxK)
                 self.current_destination = self.generatePathFromNToE(maxK)
             else:
@@ -2223,6 +2216,7 @@ class line_follower(Node):
                     #is there a node?
                     if v == CERTAINTY:
                         #yes -> generatepathfromNtoN
+                        self.get_logger().info(f"Target Location: {toK}")
                         self.current_destination = self.generatePathFromNToN(toK)
                         nfound=True
                         break #stop iterating
@@ -2238,6 +2232,7 @@ class line_follower(Node):
                         #is there a node?
                             if v == cert:
                                 #yes -> generatepathfromNtoN
+                                self.get_logger().info(f"Target Location: {toK}")
                                 self.current_destination = self.generatePathFromNToN(toK)
                                 nfound=True
                                 break #stop iterating
@@ -2253,7 +2248,8 @@ class line_follower(Node):
 
                     #and then just find the closest next node and generate path towards it
                     self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
-                    
+                    self.get_logger().info(f"Target Location In: {singleParents}")
+
         elif self.behaviourMode == 4:
             # 4 - Avoidant
             self.retryPlan = self.calculateProbabilities()
@@ -2261,6 +2257,7 @@ class line_follower(Node):
             #0 nothing went wrong
 
             if self.retryPlan!=0:
+                self.get_logger().info("Could not locate target! Retrying...")
                 return -1
 
             #take max likely edge
@@ -2276,6 +2273,7 @@ class line_follower(Node):
             if(maxV >= CERTAINTY):
                 #then we want to generate a path from our current node to that edge (maxK)
                 self.current_destination = self.generateSafePathFromEnemyEdge(maxK)
+                self.get_logger().info(f"Target Location: {maxK}")
             else:
                 #find top CONSIDER_NODES (int) max valued edge-probabilities
                 topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
@@ -2310,6 +2308,7 @@ class line_follower(Node):
                     #is there a node?
                     if v == CERTAINTY:
                         #yes -> generatepathfromNtoN
+                        self.get_logger().info(f"Target Location: {toK}")
                         self.current_destination = self.generateSafePathFromEnemyNode(toK)
                         nfound=True
                         break #stop iterating
@@ -2325,6 +2324,7 @@ class line_follower(Node):
                         #is there a node?
                             if v == cert:
                                 #yes -> generatepathfromNtoN
+                                self.get_logger().info(f"Target Location: {toK}")
                                 self.current_destination = self.generateSafePathFromEnemyNode(toK)
                                 nfound=True
                                 break #stop iterating
@@ -2340,6 +2340,7 @@ class line_follower(Node):
 
                     #and then just find the closest next node and generate path towards it
                     self.current_destination = self.generateSafePathFromListOfEnemyNodes(singleParents)
+                    self.get_logger().info(f"Target Location in: {singleParents}")
             
         elif self.behaviourMode == 5:
             # 5 - Interceptive
@@ -2349,6 +2350,7 @@ class line_follower(Node):
             #0 nothing went wrong
 
             if self.retryPlan!=0:
+                self.get_logger().info("Could not find target! Retrying...")
                 return -1
 
             #interceptive takes the straight path
@@ -2387,6 +2389,7 @@ class line_follower(Node):
                             if no == n:
                                 #we found a common parent
                                 par_c.remove(n)
+                                self.get_logger().info(f"Target Location: {par_c[0]}")
                                 self.current_destination = self.generatePathFromNToE(par_c[0])
                                 be_greedy = False
                                 break
@@ -2394,6 +2397,7 @@ class line_follower(Node):
                     if(be_greedy):
                         #then we want to generate a path from our current node to that edge (max K)
                         self.current_destination = self.generatePathFromNToE(maxK)
+                        self.get_logger().info(f"Target Location: {maxK}")
 
                     
                 else:
@@ -2405,11 +2409,13 @@ class line_follower(Node):
                         d = self.getNodesFromEdge(maxK)
                         d.remove(self.opp_old_loc)
                         self.current_destination = self.generatePathFromNtoN(d[0])
+                        self.get_logger().info(f"Target Location: {d[0]}")
                         
                     else:
                         #greedy:
                         #then we want to generate a path from our current node to that edge (max K)
                         self.current_destination = self.generatePathFromNToE(maxK)
+                        self.get_logger().info(f"Target Location: {maxK}")
 
             else:
                 #find top CONSIDER_NODES (int) max valued edge-probabilities
@@ -2471,12 +2477,14 @@ class line_follower(Node):
                                 elif pc.Wc == po[0]:
                                     self.current_destination = self.generatePathFromNToN(pc.Ec)
 
+                                self.get_logger().info(f"Target Location: {toK}")
                                 nfound = True
                                 break
                             else:
 
                                 #greedy
                                 self.current_destination = self.generatePathFromNToN(toK)
+                                self.get_logger().info(f"Target Location: {toK}")
                                 break
                                 
                         else:
@@ -2492,7 +2500,7 @@ class line_follower(Node):
                                         #take the first edge we find <BIAS> / <OPTIMISATION>
                                         #and follow it to the next node
 
-
+                                        self.get_logger().info(f"Target Location: {toK}")
                                         po = self.returnNode(self.opp_old_loc)
                                         if po.Nc == toK:
                                             self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
@@ -2510,12 +2518,14 @@ class line_follower(Node):
                             if be_greedy:
                                 #greedy
                                 self.current_destination = self.generatePathFromNToN(toK)
+                                self.get_logger().info(f"Target Location: {toK}")
                                 nfound=True
                                 break #stop iterating
 
 
                         #greedy
                         self.current_destination = self.generatePathFromNToN(toK)
+                        self.get_logger().info(f"Target Location: {toK}")
                         nfound=True
                         break #stop iterating
                 
@@ -2545,7 +2555,7 @@ class line_follower(Node):
                                         #po[0] is other parent
                                         #so we want all the edges which connect toK and po[0]
                                         #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
-
+                                        self.get_logger().info(f"Target Location: {toK}")
                                         pc = self.returnNode(toK)
                                         if pc.Nc == po[0]:
                                             self.current_destination = self.generatePathFromNToN(pc.Sc)
@@ -2562,12 +2572,14 @@ class line_follower(Node):
 
                                         #greedy
                                         self.current_destination = self.generatePathFromNToN(toK)
+                                        self.get_logger().info(f"Target Location: {toK}")
                                         break
                                         
                                 else:
                                     #O=N, C=N
                                     eo = self.getEdgesFromNode(self.opp_old_loc)
                                     ec = self.getEdgesFromNode(toK)
+                                    self.get_logger().info(f"Target Location: {toK}")
 
                                     be_greedy = True
                                     for e in eo:
@@ -2595,12 +2607,14 @@ class line_follower(Node):
                                     if be_greedy:
                                         #greedy
                                         self.current_destination = self.generatePathFromNToN(toK)
+                                        self.get_logger().info(f"Target Location: {toK}")
                                         nfound=True
                                         break #stop iterating
 
 
                                 #greedy
                                 self.current_destination = self.generatePathFromNToN(toK)
+                                self.get_logger().info(f"Target Location: {toK}")
                                 nfound=True
                                 break #stop iterating
                 
@@ -2615,6 +2629,7 @@ class line_follower(Node):
 
                     #and then just find the closest next node and generate path towards it
                     self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
+                    self.get_logger().info(f"Target Location in: {singleParents}")
         else:
             # 0 - not set (no behaviour)
             return
@@ -2623,7 +2638,7 @@ class line_follower(Node):
 
     def startTurnBasedOnFacing(self):
         TURN_TIME = 3
-
+        self.get_logger().info(f"Turning to face {self.imu_target}")
         if self.facing == 0:
             if self.imu_target == 0:
                 #no turn
