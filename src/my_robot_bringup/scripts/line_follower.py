@@ -2923,7 +2923,7 @@ class line_follower(Node):
             #dummy
             if self.behaviourMode == 1:
                 self.behaviourMode = 4
-                self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {self.evading}")
+                self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {not self.evading}")
             else:
                 self.behaviourMode = 1
             
