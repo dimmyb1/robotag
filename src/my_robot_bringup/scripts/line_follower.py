@@ -32,6 +32,7 @@ import heapq #for dijkstra
 #TIME_VARIANCE - measurable, partly tunable
 #PAUSE_TIME - measurable, partly tunable
 #MIN_DIST - measurable
+#TAG_COOLDOWN - measurable, partly tunable
 
 class Noden():
     def __init__(self, nc, ec, sc, wc, n, t):
@@ -85,9 +86,13 @@ class line_follower(Node):
         self.GRAY_COOLDOWN = 5 #tried 8, 8 was too high
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 5
+
+        #tag vars
         self.CAPTURE_MAX = 0.1
         self.PAUSE_TIME = 6
         self.started_pause = -1
+        self.time_of_last_tag = -1
+        self.TAG_COOLDOWN = 6
         
 
         
@@ -269,13 +274,13 @@ class line_follower(Node):
 
         self.tag = False
         self.tag_pub = self.create_publisher(
-            Bool, 
+            String, 
             f'/{robot_name}/esp', 
             10
         )
 
         self.tag_sub = self.create_subscription(
-            Bool, 
+            String, 
             f'/{other_robot_name}/esp', 
             self.tag_callback, 
             10
@@ -288,19 +293,37 @@ class line_follower(Node):
 
     #ESP callback
     def tag_callback(self, msg):
-        """ This triggers automatically when the OTHER robot updates its tag status. """
-        if self.tag and (msg.data == self.tag):
-            self.tag = False
+        #Handshaking
+        data = json.loads(msg.data)
+        self.other_tag = data.get("tag", False)
+        self.other_ack = data.get("ack", False)
+            
+        
+        if self.initiated_tag:
+            self.ack = False
+            if self.other_ack:
+                self.tag = False
         else:
-            self.tag = msg.data
+            if self.other_tag and not self.tag and (time.time() < self.time_of_last_tag + self.TAG_COOLDOWN):
+                self.tag = True
+                self.ack = True
+            elif self.other_tag:
+                self.ack = False
+
+
+        
 
         # Optional: Print to the terminal so you can see it working
         # self.get_logger().info(f"{self.other_robot} has the tag: {self.opponent_has_tag}")
 
     def publish_tag_status(self):
-        """ This continuously sends OUR tag status to the network. """
-        msg = Bool()
-        msg.data = self.tag
+        payload = {
+            "tag": self.tag,
+            "ack": self.ack
+        }
+
+        msg = String()
+        msg.data = json.dumps(payload)
         self.tag_pub.publish(msg)
 
     #MPU5060 / IMU callback
@@ -2931,11 +2954,10 @@ class line_follower(Node):
         #~10cm is the maximum distance for capture in tight spaces of the map
 
         #TAG
-        if self.ultrasonic_distance < self.CAPTURE_MAX or self.tag:
+        if self.ultrasonic_distance < self.CAPTURE_MAX or self.tag and time.time() > self.time_of_last_tag + self.TAG_COOLDOWN:
             
             self.tag = False
             #switch mode
-            #dummy
             if self.behaviourMode == 1:
                 self.behaviourMode = 4
                 
@@ -2992,6 +3014,8 @@ class line_follower(Node):
 
         if (time.time() > self.started_pause + self.PAUSE_TIME)  and (not self.stateFollow):
             self.stateFollow = True
+
+        
         
         if not self.motion_active and self.stateFollow:
             self.followLine() 
