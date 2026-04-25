@@ -62,27 +62,21 @@ class Cell():
 class line_follower(Node):
     def __init__(self):
         super().__init__('line_follower')
-
-        # Array to store the 3 read sensors
-        self.colours = [0,0,0]
-        self.isGray = [0,0,0]
-        # Speed for every movement except right turning 
+        
+        
+        #for motion, turns, and line following
         self.speed = 60
-        # Counter to hold which angles we have searched so that the robot does not move random angles used in the switch case
-        self.searchStep = 0
         self.dur = 0
         self.elapsed = 0
         self.searchLeft = False
         self.searchRight = False
         self.searching = False
-        self.minPixels = 20
-
-        #for turns
         self.thirty = 2933 # Amount to move for angles
         self.realDelay = 150
         self.motion_active = False
         self.motion_end_time = 0
         self.current_motion = None
+        self.searchStep = 0
 
         #junction turning vars
         self.stateFollow = True
@@ -99,17 +93,20 @@ class line_follower(Node):
         self.PAUSE_TIME = 6
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 6
-        
         self.tag = False
         self.ack = False
         self.other_tag = False
         self.other_ack = False
 
-        
-        #ultrasonic sensor related variables
+        #ultrasonic sensor and servo vars
         self.entry_angle = 0.0
         self.exit_angle = 0.0
         self.ultrasonic_distance = 0.0
+
+        #IR sensor vars
+        self.colours = [0,0,0]
+        self.isGray = [0,0,0]
+        self.minPixels = 20
 
         # Graph
         self.A = Noden('B', 'B', 'F', 'E', 'A', [78, 11, 61, 140])
@@ -136,14 +133,13 @@ class line_follower(Node):
         self.TIME_VARIANCE = 2
 
         #pursuit-evasion behaviour
-        self.behaviourMode = 2
+        self.behaviourMode = 0
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
         self.i_patrol = 0
         self.opp_old_loc = -1
         self.resetBehaviour = False
         self.evading = False 
         
-
         # behaviourMode settings:
         # 0 - not set (no behaviour)
         # 1 - Simple Line Follower
@@ -206,7 +202,13 @@ class line_follower(Node):
         topic_IMU = f'/{robot_name}/imu'
         topic_object = f"{robot_name}/object_data"
 
-        
+        # behaviourMode settings:
+        # 0 - not set (no behaviour)
+        # 1 - Simple Line Follower
+        # 2 - Random
+        # 3 - Greedy
+        # 4 - Avoidant
+        # 5 - Interceptive
         if robot_name == 'twix':
             self.current_node = self.H
             self.get_logger().info("Detected robot: twix. Starting at Node H.")
