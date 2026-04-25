@@ -63,6 +63,8 @@ class line_follower(Node):
     def __init__(self):
         super().__init__('line_follower')
         
+        #for time related operations
+        self.now = time.time()
         
         #for motion, turns, and line following
         self.speed = 60
@@ -293,7 +295,7 @@ class line_follower(Node):
             if self.other_ack:
                 self.tag = False
         else:
-            if self.other_tag and not self.tag and (time.time() < self.time_of_last_tag + self.TAG_COOLDOWN):
+            if self.other_tag and not self.tag and (self.now < self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.tag = True
                 self.ack = True
             elif self.other_tag:
@@ -394,12 +396,12 @@ class line_follower(Node):
 
         if duration_ms > 0:
             self.motion_active = True
-            self.motion_end_time = time.time() + (duration_ms / 1000.0)
+            self.motion_end_time = self.now + (duration_ms / 1000.0)
         else:
             self.motion_active = False #it will run continuously
 
     def update_motion(self):
-        if self.motion_active and time.time() >= self.motion_end_time:
+        if self.motion_active and self.now >= self.motion_end_time:
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
@@ -770,7 +772,7 @@ class line_follower(Node):
     # Self-Localisation
     #--------------------
 
-    def self_localise(self, now, edgeTime):
+    def self_localise(self, edgeTime):
         if(self.last_node == 'Z'):
             return
         #where edge time is the average timing of the edge we took
@@ -780,7 +782,7 @@ class line_follower(Node):
 
         maxTime = self.departureTime + self.TIME_VARIANCE + edgeTime
         minTime = self.departureTime - self.TIME_VARIANCE + edgeTime
-        if (now > maxTime) or (now < minTime):
+        if (self.now > maxTime) or (self.now < minTime):
             #if it has taken longer than or less than the expected time
             #check if any of the old node's timings match better
             if minTime < self.last_node.Times[0] < maxTime:
@@ -2708,14 +2710,13 @@ class line_follower(Node):
 
 
     def updatePos(self):
-        now = time.time()
         #update current variables
          #do some check to ensure we aren't being triggered by the last gray section we saw
-        if self.grayEntryTime < now - self.GRAY_COOLDOWN:
+        if self.grayEntryTime < self.now - self.GRAY_COOLDOWN:
             #if gray detected:
 
             if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
-                self.grayEntryTime = now
+                self.grayEntryTime = self.now
                 self.get_logger().info("Intersection detected!")
                 self.stopMov()
                 self.stateFollow = False
@@ -2784,9 +2785,9 @@ class line_follower(Node):
 
                     #populate our planned path if we don't already have a plan
                     #is it empty? => stay here and wait until our sensing cooldown has gone out.
-                    if (not self.current_destination and self.senseEntryTime < now - self.SENSE_COOLDOWN) or (self.current_destination):
+                    if (not self.current_destination and self.senseEntryTime < self.now - self.SENSE_COOLDOWN) or (self.current_destination):
                         #when sensing cooldown expires, look again.
-                        self.senseEntryTime = now
+                        self.senseEntryTime = self.now
                         self.current_destination = self.planDestination()
 
                         if self.retryPlan != 0:
@@ -2815,8 +2816,8 @@ class line_follower(Node):
                                     #if it is a single number from 0 to 3, then it is an immediate neighbour 
                                     #e.g. path = [2] i.e. go south
                                     self.imu_target = self.current_destination.pop(0)
-                                    self.self_localise(now, self.current_node.Times[self.imu_target])
-                                    self.departureTime = now
+                                    self.self_localise(self.now, self.current_node.Times[self.imu_target])
+                                    self.departureTime = self.now
                                     self.imu_turning = True
                                     self.startTurnBasedOnFacing()
 
@@ -2833,18 +2834,18 @@ class line_follower(Node):
                                     neigh_name = self.current_destination.pop(0)
                                     if self.current_node.Nc == neigh_name:
                                         self.imu_target = 0
-                                        self.self_localise(now, self.current_node.Times[0])
+                                        self.self_localise(self.current_node.Times[0])
                                     elif self.current_node.Ec == neigh_name:
                                         self.imu_target = 1
-                                        self.self_localise(now, self.current_node.Times[1])
+                                        self.self_localise(self.current_node.Times[1])
                                     elif self.current_node.Sc == neigh_name:
                                         self.imu_target = 2
-                                        self.self_localise(now, self.current_node.Times[2])
+                                        self.self_localise(self.current_node.Times[2])
                                     elif self.current_node.Wc == neigh_name:
                                         self.imu_target = 3
-                                        self.self_localise(now, self.current_node.Times[3])
+                                        self.self_localise(self.current_node.Times[3])
 
-                                    self.departureTime = now
+                                    self.departureTime = self.now
                                     self.imu_turning = True
                                     self.startTurnBasedOnFacing()
 
@@ -2862,18 +2863,18 @@ class line_follower(Node):
                             #e.g. path = 'A'
                             if self.current_node.Nc == self.current_destination:
                                 self.imu_target = 0
-                                self.self_localise(now, self.current_node.Times[0])
+                                self.self_localise(self.current_node.Times[0])
                             elif self.current_node.Ec == self.current_destination:
                                 self.imu_target = 1
-                                self.self_localise(now, self.current_node.Times[1])
+                                self.self_localise(self.current_node.Times[1])
                             elif self.current_node.Sc == self.current_destination:
                                 self.imu_target = 2
-                                self.self_localise(now, self.current_node.Times[2])
+                                self.self_localise(self.current_node.Times[2])
                             elif self.current_node.Wc == self.current_destination:
                                 self.imu_target = 3
-                                self.self_localise(now, self.current_node.Times[3])
+                                self.self_localise(self.current_node.Times[3])
 
-                            self.departureTime = now
+                            self.departureTime = self.now
                             self.imu_turning = True
                             self.startTurnBasedOnFacing()
 
@@ -2893,19 +2894,19 @@ class line_follower(Node):
                     #e.g. path = 'A'
                     if self.current_node.Nc == self.current_destination:
                         self.imu_target = 0
-                        self.self_localise(now, self.current_node.Times[0])
+                        self.self_localise(self.current_node.Times[0])
                     elif self.current_node.Ec == self.current_destination:
                         self.imu_target = 1
-                        self.self_localise(now, self.current_node.Times[1])
+                        self.self_localise(self.current_node.Times[1])
                     elif self.current_node.Sc == self.current_destination:
                         self.imu_target = 2
-                        self.self_localise(now, self.current_node.Times[2])
+                        self.self_localise(self.current_node.Times[2])
                     elif self.current_node.Wc == self.current_destination:
                         self.imu_target = 3
-                        self.self_localise(now, self.current_node.Times[3])
+                        self.self_localise(self.current_node.Times[3])
 
                     #update departure time
-                    self.departureTime = now 
+                    self.departureTime = self.now 
                     #a value will  be added to departure time to represent turning time needed in startTurnBasedOnFacing
 
                     self.imu_turning = True
@@ -2925,14 +2926,14 @@ class line_follower(Node):
         #self.CAPTURE_MAX =0.1
         #ultrasonic is probably measuring in metres (m)
         #~10cm is the maximum distance for capture in tight spaces of the map
-        now = time.time()
+        
         #TAG
         if self.ultrasonic_distance < self.CAPTURE_MAX :
             self.initiated_tag = True
 
-        if (self.initiated_tag or self.tag ) and now > self.time_of_last_tag + self.TAG_COOLDOWN:
+        if (self.initiated_tag or self.tag ) and self.now > self.time_of_last_tag + self.TAG_COOLDOWN:
             self.tag = True
-            self.time_of_last_tag = now
+            self.time_of_last_tag = self.now
 
             #switch mode
             if self.behaviourMode == 1:
@@ -2944,7 +2945,7 @@ class line_follower(Node):
             
             if self.evading:
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
-                self.time_of_last_tag = now
+                self.time_of_last_tag = self.now
                 self.stateFollow = False
             else:
                 #resolve destination
@@ -2986,10 +2987,11 @@ class line_follower(Node):
 
       
     def loop(self):
+        self.now = time.time()
         self.update_motion()
         self.updatePos()
 
-        if (time.time() > self.time_of_last_tag + self.PAUSE_TIME)  and (not self.stateFollow):
+        if (self.now > self.time_of_last_tag + self.PAUSE_TIME)  and (not self.stateFollow):
             self.stateFollow = True
 
         if not self.motion_active and self.stateFollow:
