@@ -2978,6 +2978,8 @@ class line_follower(Node):
             self.followLine() 
             self.surveillCapture()
 
+        self.publish_tag_status()
+
 def main():
     rclpy.init()
     node = line_follower()
