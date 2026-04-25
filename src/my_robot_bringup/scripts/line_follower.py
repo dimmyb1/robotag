@@ -136,6 +136,7 @@ class line_follower(Node):
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
         self.i_patrol = 0
         self.opp_old_loc = -1
+        self.resetBehaviour = False
         
 
         # behaviourMode settings:
