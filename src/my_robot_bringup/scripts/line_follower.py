@@ -92,7 +92,7 @@ class line_follower(Node):
 
         #tag vars + esp comms
         self.CAPTURE_MAX = 0.1
-        self.CAPTURE_MIN = 0.05
+        #self.CAPTURE_MIN = 0.05
         self.PAUSE_TIME = 6
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 6
@@ -2935,7 +2935,7 @@ class line_follower(Node):
         #~10cm is the maximum distance for capture in tight spaces of the map
         
         #TAG
-        if self.CAPTURE_MIN < self.ultrasonic_distance < self.CAPTURE_MAX :
+        if self.ultrasonic_distance < self.CAPTURE_MAX :
             self.initiated_tag = True
 
         if (self.initiated_tag or self.tag ) and self.now > self.time_of_last_tag + self.TAG_COOLDOWN:
