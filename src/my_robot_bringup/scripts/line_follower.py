@@ -87,13 +87,16 @@ class line_follower(Node):
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 5
 
-        #tag vars
+        #tag vars + esp comms
         self.CAPTURE_MAX = 0.1
-        self.PAUSE_TIME = 6
         self.started_pause = -1
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 6
         
+        self.tag = False
+        self.ack = False
+        self.other_tag = False
+        self.other_ack = False
 
         
 
@@ -272,7 +275,7 @@ class line_follower(Node):
         )
 
 
-        self.tag = False
+        
         self.tag_pub = self.create_publisher(
             String, 
             f'/{robot_name}/esp', 
@@ -2952,11 +2955,15 @@ class line_follower(Node):
         #self.CAPTURE_MAX =0.1
         #ultrasonic is probably measuring in metres (m)
         #~10cm is the maximum distance for capture in tight spaces of the map
-
+        now = time.time()
         #TAG
-        if self.ultrasonic_distance < self.CAPTURE_MAX or self.tag and time.time() > self.time_of_last_tag + self.TAG_COOLDOWN:
+        if self.ultrasonic_distance < self.CAPTURE_MAX :
+            self.initiated_tag = True
+
+        if (self.initiated_tag or self.tag ) and now > self.time_of_last_tag + self.TAG_COOLDOWN:
+            self.tag = True
+            self.time_of_last_tag = now
             
-            self.tag = False
             #switch mode
             if self.behaviourMode == 1:
                 self.behaviourMode = 4
@@ -2967,7 +2974,7 @@ class line_follower(Node):
             
             if self.evading:
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
-                self.started_pause = time.time()
+                self.time_of_last_tag = now
                 self.stateFollow = False
             else:
                 #resolve destination
