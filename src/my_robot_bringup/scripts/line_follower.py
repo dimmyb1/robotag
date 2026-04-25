@@ -380,6 +380,7 @@ class line_follower(Node):
             other_robot_name = 'twix'
             self.behaviourMode = 1
             self.evading = False
+            self.i_patrol = 0
         else:
             # Fallback in case you run it without a namespace
             self.current_node = self.A 
@@ -2704,7 +2705,13 @@ class line_follower(Node):
                 self.stopMov()
                 self.stateFollow = False
 
-                
+                if self.resetBehaviour:
+                    # a tag took place, and the behaviour variables need to be reset
+
+                    if self.behaviourMode == 1:
+                        #patrol:
+                        
+
                 if type(self.current_destination) == list:
                     
                     #Update last node + current node
@@ -2885,7 +2892,8 @@ class line_follower(Node):
                 self.behaviourMode = 4
             else:
                 self.behaviourMode = 1
-
+            
+            
             if self.evading:
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
                 self.started_pause = time.time()
@@ -2912,6 +2920,8 @@ class line_follower(Node):
             #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
             if type(self.current_destination) == list:
                 self.current_destination = self.current_destination[0]
+
+            self.resetBehaviour = True
 
             #flip status
             self.evading = not self.evading
