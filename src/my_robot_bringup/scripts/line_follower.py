@@ -335,7 +335,6 @@ class line_follower(Node):
         self.exit_angle = msg.data[1]
         self.ultrasonic_distance = msg.data[2]
         
-        # Now you have exactly what you care about to use in this script
         #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
 
 
@@ -2705,14 +2704,13 @@ class line_follower(Node):
             #if gray detected:
 
             if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
-                
                 self.grayEntryTime = now
                 self.get_logger().info("Intersection detected!")
                 self.stopMov()
                 self.stateFollow = False
-
+                
                 if self.resetBehaviour:
-                    
+                    self.get_logger().info(f"Resetting Behaviour Variables")
                     #lower flag
                     self.resetBehaviour = False
 
@@ -2908,6 +2906,8 @@ class line_follower(Node):
                         self.skipZero = True
                     else:
                         self.skipZero = False
+        
+                self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
     def surveillCapture(self):
         #ultrasonic_sweep.py is constantly turning and checking.
@@ -2923,6 +2923,7 @@ class line_follower(Node):
             #dummy
             if self.behaviourMode == 1:
                 self.behaviourMode = 4
+                self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {self.evading}")
             else:
                 self.behaviourMode = 1
             
