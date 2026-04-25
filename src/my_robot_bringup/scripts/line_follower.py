@@ -2918,12 +2918,12 @@ class line_follower(Node):
         #TAG
         if self.ultrasonic_distance < self.CAPTURE_MAX or self.tag:
             
-            self.tag = True
+            self.tag = False
             #switch mode
             #dummy
             if self.behaviourMode == 1:
                 self.behaviourMode = 4
-                self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {not self.evading}")
+                
             else:
                 self.behaviourMode = 1
             
@@ -2959,6 +2959,8 @@ class line_follower(Node):
 
             #flip status
             self.evading = not self.evading
+
+            self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {self.evading}")
 
                 
             
