@@ -372,10 +372,14 @@ class line_follower(Node):
             self.current_node = self.H
             self.get_logger().info("Detected robot: twix. Starting at Node H.")
             other_robot_name = 'twirl'
+            self.behaviourMode = 4
+            self.evading = True
         elif robot_name == 'twirl':
             self.current_node = self.A
             self.get_logger().info("Detected robot: twirl. Starting at Node A.")
             other_robot_name = 'twix'
+            self.behaviourMode = 1
+            self.evading = False
         else:
             # Fallback in case you run it without a namespace
             self.current_node = self.A 
@@ -2877,10 +2881,10 @@ class line_follower(Node):
             self.tag = True
             #switch mode
             #dummy
-            if self.behaviourMode == 0:
-                self.behaviourMode == 0
+            if self.behaviourMode == 1:
+                self.behaviourMode = 4
             else:
-                self.behaviourMode = 0
+                self.behaviourMode = 1
 
             if self.evading:
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
