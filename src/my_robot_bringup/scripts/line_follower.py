@@ -186,163 +186,7 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
-        def getEdgesFromNode(self, fromNCHAR):
-            #ONLY ACCEPTS CHARS
-            if fromNCHAR == 'A': return ["Pab1", "Pab2", "Paf1", "Pae1"]
-            if fromNCHAR == 'B': return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
-            if fromNCHAR == 'C': return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-            if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
-            if fromNCHAR == 'E': return ["Peg1", "Peg2", "Pae1", "Pef1"]
-            if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
-            if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
-            if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
-
-            else: 
-                self.get_logger().info(f"From getEdgesFromNode ERR: Can't return nonexistent node's edges")
-                return []
-
-
-        def getNodesFromEdge(self, fromE):
-            #returns the parent node/s of an edge
-            A = ["Pab1", "Pab2", "Paf1", "Pae1"]
-            B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
-            C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-            D = ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
-            E = ["Peg1", "Peg2", "Pae1", "Pef1"]
-            F = ["Pef1", "Paf1", "Pfg1", "Pfd1"]
-            G = ["Peg1", "Peg2", "Pfg1", "Pgh1"]
-            H = ["Pch1", "Phh1", "Pgh1"]
-            #this is not a mistake. H only has 3 unique edge transitions.
-            
-            toReturn = []
-
-            if fromE in A:
-                if(toReturn):
-                    toReturn.append('A')
-                    return toReturn
-                else:
-                    toReturn.append('A')
-
-            if fromE in B:
-                if(toReturn):
-                    toReturn.append('B')
-                    return toReturn
-                else:
-                    toReturn.append('B')
-            if fromE in C:
-                if(toReturn):
-                    toReturn.append('C')
-                    return toReturn
-                else:
-                    toReturn.append('C')
-            if fromE in D:
-                if(toReturn):
-                    toReturn.append('D')
-                    return toReturn
-                else:
-                    toReturn.append('D')
-            if fromE in E:
-                if(toReturn):
-                    toReturn.append('E')
-                    return toReturn
-                else:
-                    toReturn.append('E')
-            if fromE in F:
-                if(toReturn):
-                    toReturn.append('F')
-                    return toReturn
-                else:
-                    toReturn.append('F')
-            if fromE in G:
-                if(toReturn):
-                    toReturn.append('G')
-                    return toReturn
-                else:
-                    toReturn.append('G')
-            if fromE in H:
-                if(toReturn):
-                    toReturn.append('H')
-                    return toReturn
-                else:
-                    toReturn.append('H')
-
-            return toReturn
-
-
-
         
-        def getNeighbourEdgesOf(self, fromE):
-            A = ["Pab1", "Pab2", "Paf1", "Pae1"]
-            B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
-            C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-            D = ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
-            E = ["Peg1", "Peg2", "Pae1", "Pef1"]
-            F = ["Pef1", "Paf1", "Pfg1", "Pfd1"]
-            G = ["Peg1", "Peg2", "Pfg1", "Pgh1"]
-            H = ["Pch1", "Phh1", "Pgh1"]
-            #this is not a mistake. H only has 3 unique edge transitions.
-            
-            toReturn = []
-
-            if fromE in A:
-                A.remove(fromE)
-                if(toReturn):
-                    toReturn.extend(A)
-                    return toReturn
-                else:
-                    toReturn = A
-
-            if fromE in B:
-                B.remove(fromE)
-                if(toReturn):
-                    toReturn.extend(B)
-                    return toReturn
-                else:
-                    toReturn = B
-            if fromE in C:
-                C.remove(fromE)
-                if(toReturn):
-                    toReturn.extend(C)
-                    return toReturn
-                else:
-                    toReturn = C
-            if fromE in D:
-                D.remove(fromE)
-                if(toReturn):
-                    toReturn.extend(D)
-                    return toReturn
-                else:
-                    toReturn = D
-            if fromE in E:
-                E.remove(fromE)
-                if(toReturn):
-                    toReturn.extend(E)
-                    return toReturn
-                else:
-                    toReturn = E
-            if fromE in F:
-                F.remove(fromE)
-                if(toReturn):
-                    toReturn.extend(F)
-                    return toReturn
-                else:
-                    toReturn = F
-            if fromE in G:
-                G.remove(fromE)
-                if(toReturn):
-                    toReturn.extend(G)
-                    return toReturn
-                else:
-                    toReturn = G
-            if fromE in H:
-                H.remove(fromE)
-                if(toReturn):
-                    toReturn.extend(H)
-                    return toReturn
-                else:
-                    toReturn = H
-
-            return toReturn
 
 
         self.PA = 0.0
@@ -426,7 +270,6 @@ class line_follower(Node):
         self.tag_pub = self.create_publisher(
             Bool, 
             f'/{robot_name}/esp', 
-            self.publish_tag_status,
             10
         )
 
@@ -751,6 +594,166 @@ class line_follower(Node):
             self.get_logger().info(f"Can't return nonexistent char-node value")
             return None
         
+    #-----------------------
+    # Node Helper Functions
+    #-----------------------
+    def getEdgesFromNode(self, fromNCHAR):
+        #ONLY ACCEPTS CHARS
+        if fromNCHAR == 'A': return ["Pab1", "Pab2", "Paf1", "Pae1"]
+        if fromNCHAR == 'B': return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
+        if fromNCHAR == 'C': return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+        if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+        if fromNCHAR == 'E': return ["Peg1", "Peg2", "Pae1", "Pef1"]
+        if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+        if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
+        if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
+
+        else: 
+            self.get_logger().info(f"From getEdgesFromNode ERR: Can't return nonexistent node's edges")
+            return []
+
+
+    def getNodesFromEdge(self, fromE):
+        #returns the parent node/s of an edge
+        A = ["Pab1", "Pab2", "Paf1", "Pae1"]
+        B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
+        C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+        D = ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+        E = ["Peg1", "Peg2", "Pae1", "Pef1"]
+        F = ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+        G = ["Peg1", "Peg2", "Pfg1", "Pgh1"]
+        H = ["Pch1", "Phh1", "Pgh1"]
+        #this is not a mistake. H only has 3 unique edge transitions.
+            
+        toReturn = []
+
+        if fromE in A:
+            if(toReturn):
+                toReturn.append('A')
+                return toReturn
+            else:
+                toReturn.append('A')
+
+        if fromE in B:
+            if(toReturn):
+                toReturn.append('B')
+                return toReturn
+            else:
+                toReturn.append('B')
+        if fromE in C:
+            if(toReturn):
+                toReturn.append('C')
+                return toReturn
+            else:
+                toReturn.append('C')
+        if fromE in D:
+            if(toReturn):
+                toReturn.append('D')
+                return toReturn
+            else:
+                toReturn.append('D')
+        if fromE in E:
+            if(toReturn):
+                toReturn.append('E')
+                return toReturn
+            else:
+                toReturn.append('E')
+        if fromE in F:
+            if(toReturn):
+                toReturn.append('F')
+                return toReturn
+            else:
+                toReturn.append('F')
+        if fromE in G:
+            if(toReturn):
+                toReturn.append('G')
+                return toReturn
+            else:
+                toReturn.append('G')
+        if fromE in H:
+            if(toReturn):
+                toReturn.append('H')
+                return toReturn
+            else:
+                toReturn.append('H')
+
+        return toReturn
+
+
+
+        
+    def getNeighbourEdgesOf(self, fromE):
+        A = ["Pab1", "Pab2", "Paf1", "Pae1"]
+        B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
+        C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+        D = ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+        E = ["Peg1", "Peg2", "Pae1", "Pef1"]
+        F = ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+        G = ["Peg1", "Peg2", "Pfg1", "Pgh1"]
+        H = ["Pch1", "Phh1", "Pgh1"]
+        #this is not a mistake. H only has 3 unique edge transitions.
+            
+        toReturn = []
+
+        if fromE in A:
+            A.remove(fromE)
+            if(toReturn):
+                toReturn.extend(A)
+                return toReturn
+            else:
+                toReturn = A
+
+        if fromE in B:
+            B.remove(fromE)
+            if(toReturn):
+                toReturn.extend(B)
+                return toReturn
+            else:
+                toReturn = B
+        if fromE in C:
+            C.remove(fromE)
+            if(toReturn):
+                toReturn.extend(C)
+                return toReturn
+            else:
+                toReturn = C
+        if fromE in D:
+            D.remove(fromE)
+            if(toReturn):
+                toReturn.extend(D)
+                return toReturn
+            else:
+                toReturn = D
+        if fromE in E:
+            E.remove(fromE)
+            if(toReturn):
+                toReturn.extend(E)
+                return toReturn
+            else:
+                toReturn = E
+        if fromE in F:
+            F.remove(fromE)
+            if(toReturn):
+                toReturn.extend(F)
+                return toReturn
+            else:
+                toReturn = F
+        if fromE in G:
+            G.remove(fromE)
+            if(toReturn):
+                toReturn.extend(G)
+                return toReturn
+            else:
+                toReturn = G
+        if fromE in H:
+            H.remove(fromE)
+            if(toReturn):
+                toReturn.extend(H)
+                return toReturn
+            else:
+                toReturn = H
+
+        return toReturn
     #--------------------
     # Self-Localisation
     #--------------------
