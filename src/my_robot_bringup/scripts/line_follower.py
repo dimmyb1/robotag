@@ -77,6 +77,13 @@ class line_follower(Node):
         self.searching = False
         self.minPixels = 20
 
+        #for turns
+        self.thirty = 2933 # Amount to move for angles
+        self.realDelay = 150
+        self.motion_active = False
+        self.motion_end_time = 0
+        self.current_motion = None
+
         #junction turning vars
         self.stateFollow = True
         self.completeTurn = False
@@ -99,17 +106,6 @@ class line_follower(Node):
         self.other_ack = False
 
         
-
-        # ints that will be used throughout
-        self.realDelay = 150
-
-        # Amount to move for angles
-        self.thirty = 2933
-
-        self.motion_active = False
-        self.motion_end_time = 0
-        self.current_motion = None
-
         #ultrasonic sensor related variables
         self.entry_angle = 0.0
         self.exit_angle = 0.0
@@ -127,24 +123,25 @@ class line_follower(Node):
 
         self.myNodes = [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]
 
-        #implement: initialise current_node and facing to be based on which robot (via namespace) and to represent actual start locations
+        #relating to state and location
         self.current_node = self.A
         self.facing = 2 #start facing south?
         self.last_node = 'Z' #for localisation, this is NODE, 'Z' is a placeholder for (re)starting
         self.current_destination = 'F'
         self.skipZero = False
         self.retryPlan = 0
-        self.evading = False #INITIATE THIS BASED ON HOW WE START!!!
 
         #localisation
         self.departureTime = -1
         self.TIME_VARIANCE = 2
 
+        #pursuit-evasion behaviour
         self.behaviourMode = 2
         self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
         self.i_patrol = 0
         self.opp_old_loc = -1
         self.resetBehaviour = False
+        self.evading = False 
         
 
         # behaviourMode settings:
@@ -196,19 +193,6 @@ class line_follower(Node):
         }
 
         
-
-
-        self.PA = 0.0
-        self.PB = 0.0
-        self.PC = 0.0
-        self.PD = 0.0
-        self.PE = 0.0
-        self.PF = 0.0
-        self.PG = 0.0
-        self.PH = 0.0
-
-
-
         # Subscriptions
 
         robot_name = self.get_namespace().strip('/')
@@ -1428,15 +1412,7 @@ class line_follower(Node):
             "Pch1": 0.0
         }
 
-        #these will likely go unused, for now they remain here
-        self.PA = 0.0
-        self.PB = 0.0
-        self.PC = 0.0
-        self.PD = 0.0
-        self.PE = 0.0
-        self.PF = 0.0
-        self.PG = 0.0
-        self.PH = 0.0
+        
 
 
         for c in cells:
@@ -1461,7 +1437,6 @@ class line_follower(Node):
                     self.P["Peg2"] +=0.156
                     self.P["Peg1"] +=0.844
                 elif c.y == 2:
-                    self.PE = 1
                     self.P["Peg1"]+= 0.25
                     self.P["Peg2"]+= 0.25
                     self.P["Pef1"]+= 0.25
@@ -1470,7 +1445,6 @@ class line_follower(Node):
                     self.P["Pae1"] += 0.293
                     self.P["Paf1"] += 0.707
                 elif c.y == 4:
-                    self.PA = 1
                     self.P["Pab1"]+= 0.25
                     self.P["Pab2"]+= 0.25
                     self.P["Paf1"]+= 0.25
@@ -1481,13 +1455,11 @@ class line_follower(Node):
                 if c.y == 0:
                     self.P["Peg2"] +=1
                 elif c.y == 1:
-                    self.PG = 1
                     self.P["Pgh1"]+= 0.25
                     self.P["Pfg1"]+= 0.25
                     self.P["Peg1"]+= 0.25
                     self.P["Peg2"]+= 0.25
                 elif c.y == 2:
-                    self.PF = 1
                     self.P["Pef1"]+= 0.25
                     self.P["Pfg1"]+= 0.25
                     self.P["Paf1"]+= 0.25
@@ -1497,7 +1469,6 @@ class line_follower(Node):
                     self.P["Paf1"] += 0.498
                     self.P["Pfd1"] += 0.004
                 elif c.y == 4:
-                    self.PB = 1
                     self.P["Pab1"]+= 0.25
                     self.P["Pab2"]+= 0.25
                     self.P["Pbc1"]+= 0.25
@@ -1508,7 +1479,6 @@ class line_follower(Node):
                 if c.y == 0:
                     self.P["Phh1"] +=1
                 elif c.y == 1:
-                    self.PH = 1
                     self.P["Pgh1"]+= 0.25
                     self.P["Pch1"]+= 0.25
                     self.P["Phh1"]+= 0.25
@@ -1516,13 +1486,11 @@ class line_follower(Node):
                     self.P["Pfd1"] += 0.477
                     self.P["Pch1"] += 0.523
                 elif c.y == 3:
-                    self.PD = 1
                     self.P["Pfd1"]+= 0.25
                     self.P["Pcd1"]+= 0.25
                     self.P["Pcd2"]+= 0.25
                     self.P["Pbd1"]+= 0.25
                 elif c.y == 4:
-                    self.PC = 1
                     self.P["Pcd1"]+= 0.25
                     self.P["Pcd2"]+= 0.25
                     self.P["Pbc1"]+= 0.25
