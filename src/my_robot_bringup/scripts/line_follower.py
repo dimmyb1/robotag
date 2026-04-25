@@ -30,6 +30,8 @@ import heapq #for dijkstra
 #SENSE_COOLDOWN - measurable, partly tunable
 #TURN_TIME - measurable
 #TIME_VARIANCE - measurable, partly tunable
+#PAUSE_TIME - measurable, partly tunable
+#MIN_DIST - measurable
 
 class Noden():
     def __init__(self, nc, ec, sc, wc, n, t):
@@ -423,41 +425,39 @@ class line_follower(Node):
         self.tag = False
         self.tag_pub = self.create_publisher(
             Bool, 
-            f'/{robot_name}/has_tag', 
+            f'/{robot_name}/esp', 
             self.publish_tag_status,
             10
         )
 
         self.tag_sub = self.create_subscription(
             Bool, 
-            f'/{other_robot_name}/has_tag', 
+            f'/{other_robot_name}/esp', 
             self.tag_callback, 
             10
         )
-
-        def tag_callback(self, msg):
-            """ This triggers automatically when the OTHER robot updates its tag status. """
-            if self.tag and (msg.data == self.tag):
-                self.tag = False
-            else:
-                self.tag = msg.data
-
-            # Optional: Print to the terminal so you can see it working
-            # self.get_logger().info(f"{self.other_robot} has the tag: {self.opponent_has_tag}")
-
-        def publish_tag_status(self):
-            """ This continuously sends OUR tag status to the network. """
-            msg = Bool()
-            msg.data = self.tag
-            self.tag_pub.publish(msg)
-            
-        
-        
 
         self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
         self.cmd = Twist()
 
         self.timer = self.create_timer(0.05, self.loop)
+
+    #ESP callback
+    def tag_callback(self, msg):
+        """ This triggers automatically when the OTHER robot updates its tag status. """
+        if self.tag and (msg.data == self.tag):
+            self.tag = False
+        else:
+            self.tag = msg.data
+
+        # Optional: Print to the terminal so you can see it working
+        # self.get_logger().info(f"{self.other_robot} has the tag: {self.opponent_has_tag}")
+
+    def publish_tag_status(self):
+        """ This continuously sends OUR tag status to the network. """
+        msg = Bool()
+        msg.data = self.tag
+        self.tag_pub.publish(msg)
 
     #MPU5060 / IMU callback
     def imu_callback(self, msg: Imu):
@@ -2717,7 +2717,7 @@ class line_follower(Node):
                         i = self.patrolPath.index(self.current_node.name)
                         nextDest = self.patrolPath[i+1]
                         self.i_patrol = i
-                        
+
                         if self.current_node.Nc == nextDest:
                             self.imu_target = 0
                         elif self.current_node.Ec == nextDest:
