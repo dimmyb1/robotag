@@ -99,6 +99,7 @@ class line_follower(Node):
         self.ack = False
         self.other_tag = False
         self.other_ack = False
+        self.initiated_tag = False
 
         #ultrasonic sensor and servo vars
         self.entry_angle = 0.0
@@ -294,6 +295,7 @@ class line_follower(Node):
             self.ack = False
             if self.other_ack:
                 self.tag = False
+                self.initiated_tag = False
         else:
             if self.other_tag and not self.tag and (self.now < self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.tag = True
