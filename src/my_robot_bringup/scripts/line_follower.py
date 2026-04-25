@@ -104,7 +104,7 @@ class line_follower(Node):
         #ultrasonic sensor and servo vars
         self.entry_angle = 0.0
         self.exit_angle = 0.0
-        self.ultrasonic_distance = 0.0
+        self.ultrasonic_distance = 100.0
 
         #IR sensor vars
         self.colours = [0,0,0]
