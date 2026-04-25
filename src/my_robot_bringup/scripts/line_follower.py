@@ -92,6 +92,7 @@ class line_follower(Node):
 
         #tag vars + esp comms
         self.CAPTURE_MAX = 0.1
+        self.CAPTURE_MIN = 0.05
         self.PAUSE_TIME = 6
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 6
@@ -292,16 +293,20 @@ class line_follower(Node):
             
         
         if self.initiated_tag:
-            self.ack = False
-            if self.other_ack:
-                self.tag = False
+            
+            if self.ack and not self.other_ack:
                 self.initiated_tag = False
+                self.ack = False
+            elif self.other_ack:
+                self.tag = False
+                self.ack = True
         else:
-            if self.other_tag and not self.tag and (self.now < self.time_of_last_tag + self.TAG_COOLDOWN):
+            if self.other_tag and not self.tag and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.tag = True
                 self.ack = True
-            elif self.other_tag:
+            elif self.other_ack:
                 self.ack = False
+                self.tag = False
 
 
         
@@ -2930,7 +2935,7 @@ class line_follower(Node):
         #~10cm is the maximum distance for capture in tight spaces of the map
         
         #TAG
-        if self.ultrasonic_distance < self.CAPTURE_MAX :
+        if self.CAPTURE_MIN < self.ultrasonic_distance < self.CAPTURE_MAX :
             self.initiated_tag = True
 
         if (self.initiated_tag or self.tag ) and self.now > self.time_of_last_tag + self.TAG_COOLDOWN:
@@ -2947,7 +2952,6 @@ class line_follower(Node):
             
             if self.evading:
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
-                self.time_of_last_tag = self.now
                 self.stateFollow = False
             else:
                 #resolve destination
