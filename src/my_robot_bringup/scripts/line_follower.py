@@ -89,7 +89,7 @@ class line_follower(Node):
 
         #tag vars + esp comms
         self.CAPTURE_MAX = 0.1
-        self.started_pause = -1
+        self.PAUSE_TIME = 6
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 6
         
@@ -2963,7 +2963,7 @@ class line_follower(Node):
         if (self.initiated_tag or self.tag ) and now > self.time_of_last_tag + self.TAG_COOLDOWN:
             self.tag = True
             self.time_of_last_tag = now
-            
+
             #switch mode
             if self.behaviourMode == 1:
                 self.behaviourMode = 4
@@ -3019,11 +3019,9 @@ class line_follower(Node):
         self.update_motion()
         self.updatePos()
 
-        if (time.time() > self.started_pause + self.PAUSE_TIME)  and (not self.stateFollow):
+        if (time.time() > self.time_of_last_tag + self.PAUSE_TIME)  and (not self.stateFollow):
             self.stateFollow = True
 
-        
-        
         if not self.motion_active and self.stateFollow:
             self.followLine() 
             self.surveillCapture()
