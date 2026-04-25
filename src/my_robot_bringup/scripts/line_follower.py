@@ -122,7 +122,7 @@ class line_follower(Node):
         #implement: initialise current_node and facing to be based on which robot (via namespace) and to represent actual start locations
         self.current_node = self.A
         self.facing = 2 #start facing south?
-        self.last_node = self.A #for localisation
+        self.last_node = 'Z' #for localisation, this is NODE, 'Z' is a placeholder for (re)starting
         self.current_destination = 'F'
         self.skipZero = False
         self.retryPlan = 0
@@ -756,6 +756,8 @@ class line_follower(Node):
     #--------------------
 
     def self_localise(self, now, edgeTime):
+        if(self.last_node == 'Z'):
+            return
         #where edge time is the average timing of the edge we took
         #otherwise create a variable stating which direction we took i.e. N = 0
         #so that we can say (last_node.Times[0])
@@ -2706,10 +2708,15 @@ class line_follower(Node):
                 self.stateFollow = False
 
                 if self.resetBehaviour:
-                    # a tag took place, and the behaviour variables need to be reset
                     
                     #lower flag
                     self.resetBehaviour = False
+
+                    #reset localisation
+                    self.last_node = 'Z'
+
+                    # a tag took place, and the behaviour variables need to be reset
+                    
                     if self.behaviourMode == 1:
                         #patrol:
                         #we need to correct the direction we are facing to resume flow and update i_patrol
