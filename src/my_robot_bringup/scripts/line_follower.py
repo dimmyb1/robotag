@@ -2636,74 +2636,80 @@ class line_follower(Node):
 
     def startTurnBasedOnFacing(self):
         TURN_TIME = 3
-        self.get_logger().info(f"Turning to face {self.imu_target}")
-        if self.facing == 0:
-            if self.imu_target == 0:
-                #no turn
-                self.imu_turning = False
-                self.completeTurn = True
-                self.stateFollow = True
+        if self.imu_target == -1:
+            #no turn
+            self.imu_turning = False
+            self.completeTurn = True
+            self.stateFollow = True
+        else:
+            self.get_logger().info(f"Turning to face {self.imu_target}")
+            if self.facing == 0:
+                if self.imu_target == 0:
+                    #no turn
+                    self.imu_turning = False
+                    self.completeTurn = True
+                    self.stateFollow = True
 
-            elif self.imu_target == 1:
-                self.turnRight()
-                self.departureTime += TURN_TIME
-            elif self.imu_target == 2:
-                self.turnRight()
-                self.departureTime += TURN_TIME * 2
-            elif self.imu_target == 3:
-                self.turnLeft()
-                self.departureTime += TURN_TIME
+                elif self.imu_target == 1:
+                    self.turnRight()
+                    self.departureTime += TURN_TIME
+                elif self.imu_target == 2:
+                    self.turnRight()
+                    self.departureTime += TURN_TIME * 2
+                elif self.imu_target == 3:
+                    self.turnLeft()
+                    self.departureTime += TURN_TIME
+                
+            elif self.facing == 1:
+                if self.imu_target == 1:
+                    #no turn
+                    self.imu_turning = False
+                    self.completeTurn = True
+                    self.stateFollow = True
+
+                elif self.imu_target == 2:
+                    self.turnRight()
+                    self.departureTime += TURN_TIME
+                elif self.imu_target == 3:
+                    self.turnRight()
+                    self.departureTime += TURN_TIME * 2
+                elif self.imu_target == 0:
+                    self.turnLeft()
+                    self.departureTime += TURN_TIME
+
+            elif self.facing == 2:
+                if self.imu_target == 2:
+                    #no turn
+                    self.imu_turning = False
+                    self.completeTurn = True
+                    self.stateFollow = True
+
+                elif self.imu_target == 3:
+                    self.turnRight()
+                    self.departureTime += TURN_TIME
+                elif self.imu_target == 0:
+                    self.turnRight()
+                    self.departureTime += TURN_TIME * 2
+                elif self.imu_target == 1:
+                    self.turnLeft()
+                    self.departureTime += TURN_TIME
             
-        elif self.facing == 1:
-            if self.imu_target == 1:
-                #no turn
-                self.imu_turning = False
-                self.completeTurn = True
-                self.stateFollow = True
+            elif self.facing == 3:
+                if self.imu_target == 3:
+                    #no turn
+                    self.imu_turning = False
+                    self.completeTurn = True
+                    self.stateFollow = True
 
-            elif self.imu_target == 2:
-                self.turnRight()
-                self.departureTime += TURN_TIME
-            elif self.imu_target == 3:
-                self.turnRight()
-                self.departureTime += TURN_TIME * 2
-            elif self.imu_target == 0:
-                self.turnLeft()
-                self.departureTime += TURN_TIME
-
-        elif self.facing == 2:
-            if self.imu_target == 2:
-                #no turn
-                self.imu_turning = False
-                self.completeTurn = True
-                self.stateFollow = True
-
-            elif self.imu_target == 3:
-                self.turnRight()
-                self.departureTime += TURN_TIME
-            elif self.imu_target == 0:
-                self.turnRight()
-                self.departureTime += TURN_TIME * 2
-            elif self.imu_target == 1:
-                self.turnLeft()
-                self.departureTime += TURN_TIME
-        
-        elif self.facing == 3:
-            if self.imu_target == 3:
-                #no turn
-                self.imu_turning = False
-                self.completeTurn = True
-                self.stateFollow = True
-
-            elif self.imu_target == 0:
-                self.turnRight()
-                self.departureTime += TURN_TIME
-            elif self.imu_target == 1:
-                self.turnRight()
-                self.departureTime += TURN_TIME * 2
-            elif self.imu_target == 2:
-                self.turnLeft()
-                self.departureTime += TURN_TIME
+                elif self.imu_target == 0:
+                    self.turnRight()
+                    self.departureTime += TURN_TIME
+                elif self.imu_target == 1:
+                    self.turnRight()
+                    self.departureTime += TURN_TIME * 2
+                elif self.imu_target == 2:
+                    self.turnLeft()
+                    self.departureTime += TURN_TIME
 
 
 
@@ -2788,7 +2794,7 @@ class line_follower(Node):
                     if (not self.current_destination and self.senseEntryTime < self.now - self.SENSE_COOLDOWN) or (self.current_destination):
                         #when sensing cooldown expires, look again.
                         self.senseEntryTime = self.now
-                        self.current_destination = self.planDestination()
+                        self.retryPlan = self.planDestination()
 
                         if self.retryPlan != 0:
                             self.stopMov()
@@ -2889,7 +2895,7 @@ class line_follower(Node):
                     #update current_node and last_node
                     self.last_node = self.current_node
                     self.current_node = self.returnNode(self.current_destination)
-                    self.current_destination = self.planDestination()
+                    self.retryPlan = self.planDestination()
 
                     #then it is a char from A to H, and it is an immediate neighbour 
                     #e.g. path = 'A'
