@@ -2800,6 +2800,7 @@ class line_follower(Node):
                     if (not self.current_destination and self.senseEntryTime < self.now - self.SENSE_COOLDOWN) or (self.current_destination):
                         #when sensing cooldown expires, look again.
                         self.senseEntryTime = self.now
+                        self.stateFollow = False
                         self.retryPlan = self.planDestination()
 
                         if self.retryPlan != 0:
@@ -3021,7 +3022,7 @@ class line_follower(Node):
         self.update_motion()
         self.updatePos()
 
-        if (self.now > self.time_of_last_tag + self.PAUSE_TIME)  and (not self.stateFollow):
+        if (self.now > self.time_of_last_tag + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN):
             self.stateFollow = True
 
         if not self.motion_active and self.stateFollow and not self.imu_turning:
