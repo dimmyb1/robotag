@@ -83,6 +83,7 @@ class line_follower(Node):
         #junction turning vars
         self.stateFollow = True
         self.completeTurn = False
+        self.wasLeft = False
         self.imu_turning = False
         self.imu_target = -1
         self.grayEntryTime = -1
@@ -425,6 +426,11 @@ class line_follower(Node):
             self.imu_turning = False
             self.stateFollow = True
 
+            if self.wasLeft:
+                self.smartTurnLeft(self.thirty * 2)
+            else:
+                self.smartTurnRight(self.thirty * 2)
+
 
     def stopMov(self) :
         self.start_motion()
@@ -453,6 +459,7 @@ class line_follower(Node):
                 self.get_logger().info("Line found during right turn!")
                 self.stopMov()
                 self.searchRight = False
+                self.completeTurn = False
                 
                 return True
             
@@ -475,6 +482,8 @@ class line_follower(Node):
                 self.get_logger().info("Line found during left turn!")
                 self.stopMov()
                 self.searchLeft = False
+                self.completeTurn = False
+
                 return True
             
             # otherwise continue turning left
@@ -576,9 +585,7 @@ class line_follower(Node):
             self.searching = False
             self.elapsed = 0
 
-            #if we were turning at an intersection and we found the particular line we were looking for, end that search and start following
-            if(self.completeTurn):
-                self.completeTurn = False
+            
 
         elif self.minPixels < L:
             self.turnLeft(self.realDelay)
@@ -2656,12 +2663,15 @@ class line_follower(Node):
                     self.stateFollow = True
 
                 elif self.imu_target == 1:
+                    self.wasLeft = False
                     self.turnRight(self.thirty *3)
                     self.departureTime += TURN_TIME
                 elif self.imu_target == 2:
+                    self.wasLeft = False
                     self.turnRight(self.thirty *6)
                     self.departureTime += TURN_TIME * 2
                 elif self.imu_target == 3:
+                    self.wasLeft = True
                     self.turnLeft(self.thirty *3)
                     self.departureTime += TURN_TIME
                 
@@ -2673,12 +2683,15 @@ class line_follower(Node):
                     self.stateFollow = True
 
                 elif self.imu_target == 2:
+                    self.wasLeft = False
                     self.turnRight(self.thirty *3)
                     self.departureTime += TURN_TIME
                 elif self.imu_target == 3:
+                    self.wasLeft = False
                     self.turnRight(self.thirty *6)
                     self.departureTime += TURN_TIME * 2
                 elif self.imu_target == 0:
+                    self.wasLeft = True
                     self.turnLeft(self.thirty *3)
                     self.departureTime += TURN_TIME
 
@@ -2690,12 +2703,15 @@ class line_follower(Node):
                     self.stateFollow = True
 
                 elif self.imu_target == 3:
+                    self.wasLeft = False
                     self.turnRight(self.thirty *3)
                     self.departureTime += TURN_TIME
                 elif self.imu_target == 0:
+                    self.wasLeft = False
                     self.turnRight(self.thirty *6)
                     self.departureTime += TURN_TIME * 2
                 elif self.imu_target == 1:
+                    self.wasLeft = True
                     self.turnLeft(self.thirty *3)
                     self.departureTime += TURN_TIME
             
@@ -2707,12 +2723,15 @@ class line_follower(Node):
                     self.stateFollow = True
 
                 elif self.imu_target == 0:
+                    self.wasLeft = False
                     self.turnRight(self.thirty *3)
                     self.departureTime += TURN_TIME
                 elif self.imu_target == 1:
+                    self.wasLeft = False
                     self.turnRight(self.thirty *6)
                     self.departureTime += TURN_TIME * 2
                 elif self.imu_target == 2:
+                    self.wasLeft = True
                     self.turnLeft(self.thirty *3)
                     self.departureTime += TURN_TIME
 
