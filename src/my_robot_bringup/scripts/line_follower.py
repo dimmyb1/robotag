@@ -229,7 +229,7 @@ class line_follower(Node):
         else:
             # Fallback in case you run it without a namespace
             self.current_node = self.A 
-            self.get_logger().warn(f"Unknown robot name '{robot_name}', defaulting to Node A.")
+            self.get_logger().info(f"Unknown robot name '{robot_name}', defaulting to Node A.")
 
 
         self.ir_L_sub = self.create_subscription(
