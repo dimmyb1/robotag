@@ -2629,9 +2629,11 @@ class line_follower(Node):
                     #and then just find the closest next node and generate path towards it
                     self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
                     self.get_logger().info(f"Target Location in: {singleParents}")
-        else:
+        #else:
             # 0 - not set (no behaviour)
-            return
+            
+        
+        return 0
 
 
 
@@ -2652,13 +2654,13 @@ class line_follower(Node):
                     self.stateFollow = True
 
                 elif self.imu_target == 1:
-                    self.turnRight()
+                    self.turnRight(self.thirty *3)
                     self.departureTime += TURN_TIME
                 elif self.imu_target == 2:
-                    self.turnRight()
+                    self.turnRight(self.thirty *6)
                     self.departureTime += TURN_TIME * 2
                 elif self.imu_target == 3:
-                    self.turnLeft()
+                    self.turnLeft(self.thirty *3)
                     self.departureTime += TURN_TIME
                 
             elif self.facing == 1:
@@ -2669,13 +2671,13 @@ class line_follower(Node):
                     self.stateFollow = True
 
                 elif self.imu_target == 2:
-                    self.turnRight()
+                    self.turnRight(self.thirty *3)
                     self.departureTime += TURN_TIME
                 elif self.imu_target == 3:
-                    self.turnRight()
+                    self.turnRight(self.thirty *6)
                     self.departureTime += TURN_TIME * 2
                 elif self.imu_target == 0:
-                    self.turnLeft()
+                    self.turnLeft(self.thirty *3)
                     self.departureTime += TURN_TIME
 
             elif self.facing == 2:
@@ -2686,13 +2688,13 @@ class line_follower(Node):
                     self.stateFollow = True
 
                 elif self.imu_target == 3:
-                    self.turnRight()
+                    self.turnRight(self.thirty *3)
                     self.departureTime += TURN_TIME
                 elif self.imu_target == 0:
-                    self.turnRight()
+                    self.turnRight(self.thirty *6)
                     self.departureTime += TURN_TIME * 2
                 elif self.imu_target == 1:
-                    self.turnLeft()
+                    self.turnLeft(self.thirty *3)
                     self.departureTime += TURN_TIME
             
             elif self.facing == 3:
@@ -2703,13 +2705,13 @@ class line_follower(Node):
                     self.stateFollow = True
 
                 elif self.imu_target == 0:
-                    self.turnRight()
+                    self.turnRight(self.thirty *3)
                     self.departureTime += TURN_TIME
                 elif self.imu_target == 1:
-                    self.turnRight()
+                    self.turnRight(self.thirty *6)
                     self.departureTime += TURN_TIME * 2
                 elif self.imu_target == 2:
-                    self.turnLeft()
+                    self.turnLeft(self.thirty *3)
                     self.departureTime += TURN_TIME
 
 
@@ -2809,6 +2811,7 @@ class line_follower(Node):
                                 #left
                                 self.found = self.turnLeft(self.thirty * 3)
 
+        
                             return
                         else:
                             self.stateFollow = True
