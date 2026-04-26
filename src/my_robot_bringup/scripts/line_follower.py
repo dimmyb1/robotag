@@ -2228,8 +2228,8 @@ class line_follower(Node):
                 
                 #if not nfound:
                 if not nfound:
-                    #go backwards from CERTAINTY to 2
-                    for cert in range(CERTAINTY-1, 1, -1):
+                    #go backwards from CONSIDER_NODES to 2
+                    for cert in range(CONSIDER_NODES-1, 1, -1): 
                         #until you find the max valued parent node
                         #if you found, do nfound yes
 
@@ -2320,8 +2320,8 @@ class line_follower(Node):
                 
                 #if not nfound:
                 if not nfound:
-                    #go backwards from CERTAINTY to 2
-                    for cert in range(CERTAINTY-1, 1, -1):
+                    #go backwards from CONSIDER_NODES to 2
+                    for cert in range(CONSIDER_NODES-1, 1, -1):
                         #until you find the max valued parent node
                         #if you found, do nfound yes
 
@@ -2536,8 +2536,8 @@ class line_follower(Node):
                 
                 #if not nfound:
                 if not nfound:
-                    #go backwards from CERTAINTY to 2
-                    for cert in range(CERTAINTY-1, 1, -1):
+                    #go backwards from CONSIDER_NODES to 2
+                    for cert in range(CONSIDER_NODES-1, 1, -1):
                         #until you find the max valued parent node
                         #if you found, do nfound yes
 
@@ -2897,7 +2897,7 @@ class line_follower(Node):
                     self.last_node = self.current_node
                     self.current_node = self.returnNode(self.current_destination)
                     self.current_destination = self.planDestination()
-                    
+
                     #then it is a char from A to H, and it is an immediate neighbour 
                     #e.g. path = 'A'
                     if self.current_node.Nc == self.current_destination:
