@@ -613,7 +613,7 @@ class line_follower(Node):
         elif c == 'H':
             return self.H
         else:
-            self.get_logger().info(f"Can't return nonexistent char-node value")
+            self.get_logger().info(f"Can't return nonexistent char-node value for {c}. returning None")
             return None
         
     #-----------------------
