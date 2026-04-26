@@ -2896,7 +2896,8 @@ class line_follower(Node):
                     #update current_node and last_node
                     self.last_node = self.current_node
                     self.current_node = self.returnNode(self.current_destination)
-
+                    self.current_destination = self.planDestination()
+                    
                     #then it is a char from A to H, and it is an immediate neighbour 
                     #e.g. path = 'A'
                     if self.current_node.Nc == self.current_destination:
