@@ -1869,7 +1869,7 @@ class line_follower(Node):
                 safeNodes.remove(s)
 
         #are we safe? then just wait here until the situation changes.
-        if self.current_node in safeNodes:
+        if self.current_node.name in safeNodes:
             return []
             # a wait before next check on the receiving side of this function
             #to check for an empty path
@@ -1975,7 +1975,7 @@ class line_follower(Node):
                 safeNodes.remove(s)
 
         #are we safe? then just wait here until the situation changes.
-        if self.current_node in safeNodes:
+        if self.current_node.name in safeNodes:
             return []
             #a wait before next check on the receiving side of this function
             #to check for an empty path
@@ -2078,7 +2078,7 @@ class line_follower(Node):
                 safeNodes.remove(s)
 
         #are we safe? then just wait here until the situation changes.
-        if self.current_node in safeNodes:
+        if self.current_node.name in safeNodes:
             return []
             #a wait before next check on the receiving side of this function
             #to check for an empty path
@@ -2131,7 +2131,7 @@ class line_follower(Node):
         #myEdges = self.getEdgesFromNode(self.current_node)
 
 
-        #if None is returned, everything has failed somehow, must be an error
+        #if [] is returned, everything has failed somehow, must be an error
         
         self.get_logger().info(f"ERR: GenerateSafePathFromEnemyNode has failed. No path generated. Are all paths blocked?")
         return [] 
@@ -2225,14 +2225,14 @@ class line_follower(Node):
                         parentsDict[p] +=1
 
                 #dont allow yourself to pathfind to where you're currently standing
-                parentsDict[self.current_node] = 0
+                parentsDict[self.current_node.name] = 0
 
                 #now we have the most common parent
                 #find central node
                 nfound = False
                 for toK,v in parentsDict.items():
                     #is there a node?
-                    if v == CERTAINTY:
+                    if v == CONSIDER_NODES:
                         #yes -> generatepathfromNtoN
                         self.get_logger().info(f"Target Location: {toK}")
                         self.current_destination = self.generatePathFromNToN(toK)
@@ -2317,14 +2317,14 @@ class line_follower(Node):
                         parentsDict[p] +=1
 
                 #dont allow yourself to pathfind to where you're currently standing
-                parentsDict[self.current_node] = 0
+                parentsDict[self.current_node.name] = 0
 
                 #now we have the most common parent
                 #find central node
                 nfound = False
                 for toK,v in parentsDict.items():
                     #is there a node?
-                    if v == CERTAINTY:
+                    if v == CONSIDER_NODES:
                         #yes -> generatepathfromNtoN
                         self.get_logger().info(f"Target Location: {toK}")
                         self.current_destination = self.generateSafePathFromEnemyNode(toK)
@@ -2460,14 +2460,14 @@ class line_follower(Node):
                         parentsDict[p] +=1
 
                 #dont allow yourself to pathfind to where you're currently standing
-                parentsDict[self.current_node] = 0
+                parentsDict[self.current_node.name] = 0
 
                 #now we have the most common parent
                 #find central node
                 nfound = False
                 for toK,v in parentsDict.items():
                     #is there a node?
-                    if v == CERTAINTY:
+                    if v == CONSIDER_NODES:
                         #yes -> generatepathfromNtoN
                         #try interceptive:
                         #is O =N? or =E?
