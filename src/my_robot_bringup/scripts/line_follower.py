@@ -2151,7 +2151,8 @@ class line_follower(Node):
         if self.behaviourMode == 1:
             # 1 - Simple Line Follower (using pink path)
 
-            #self.patrolPath = ['F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B', 'A']
+            #self.patrolPath = ['A', 'F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B']
+            
             self.i_patrol+=1
             if self.i_patrol >= 16:
                 self.i_patrol = 0
