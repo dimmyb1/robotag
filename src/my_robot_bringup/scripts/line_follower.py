@@ -89,6 +89,7 @@ class line_follower(Node):
         self.GRAY_COOLDOWN = 5 #tried 8, 8 was too high
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 5
+        self.firstNode = True
 
         #tag vars + esp comms
         self.CAPTURE_MAX = 0.1
@@ -2141,7 +2142,7 @@ class line_follower(Node):
     def planDestination(self):
         CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
         CONSIDER_NODES = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
-
+        self.retryPlan = 0
         choice = -1
         
         #define some preference algorithm.
@@ -2731,6 +2732,7 @@ class line_follower(Node):
                 self.stateFollow = False
                 
                 if self.resetBehaviour:
+                    self.firstNode = True
                     self.get_logger().info(f"Resetting Behaviour Variables")
                     #lower flag
                     self.resetBehaviour = False
@@ -2813,8 +2815,8 @@ class line_follower(Node):
 
         
                             return
-                        else:
-                            self.stateFollow = True
+                        #else:
+                        #    self.stateFollow = True
 
                         #we have directions to go somewhere
                         #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
@@ -2897,10 +2899,27 @@ class line_follower(Node):
 
                 else : #not list
                     #update current_node and last_node
-                    self.last_node = self.current_node
-                    self.current_node = self.returnNode(self.current_destination)
+                    if not self.firstNode:
+                        self.last_node = self.current_node
+                        self.current_node = self.returnNode(self.current_destination)
+                    else:
+                        self.firstNode = False
                     self.retryPlan = self.planDestination()
 
+                    if self.retryPlan != 0:
+                        self.stopMov()
+                        if self.retryPlan == -1:
+                            #180
+                            self.found = self.turnRight(self.thirty * 6)
+                        elif self.retryPlan == -2:
+                            #right
+                            self.found = self.turnRight(self.thirty * 3)
+                        elif self.retryPlan == -3: 
+                            #left
+                            self.found = self.turnLeft(self.thirty * 3)
+
+                        return
+                    
                     #then it is a char from A to H, and it is an immediate neighbour 
                     #e.g. path = 'A'
                     if self.current_node.Nc == self.current_destination:
@@ -3004,7 +3023,7 @@ class line_follower(Node):
         if (self.now > self.time_of_last_tag + self.PAUSE_TIME)  and (not self.stateFollow):
             self.stateFollow = True
 
-        if not self.motion_active and self.stateFollow:
+        if not self.motion_active and self.stateFollow and not self.imu_turning:
             self.followLine() 
             self.surveillCapture()
 
