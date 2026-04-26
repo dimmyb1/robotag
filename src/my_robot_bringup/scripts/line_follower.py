@@ -337,14 +337,15 @@ class line_follower(Node):
         # Optional: Convert to degrees for easier human reading
         yaw_deg = math.degrees(yaw_rad)
 
-        if 0.0 <= yaw_deg < 45.0:
-            self.facing = 0
-        elif 45.0 <= yaw_deg < 135.0 :
-            self.facing = 1
-        elif 135.0 <= yaw_deg < 225.0 :
+        #given that we start facing south
+        if 0.0 <= yaw_deg < 45.0 or 315.0 <= yaw_deg < 360.0:
             self.facing = 2
-        elif 225.0 <= yaw_deg < 360.0 :
+        elif 45.0 <= yaw_deg < 135.0 :
             self.facing = 3
+        elif 135.0 <= yaw_deg < 225.0 :
+            self.facing = 0
+        elif 225.0 <= yaw_deg < 315.0 :
+            self.facing = 1
         
         #self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
 
