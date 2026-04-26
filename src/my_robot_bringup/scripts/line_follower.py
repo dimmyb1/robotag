@@ -2230,30 +2230,20 @@ class line_follower(Node):
                 #now we have the most common parent
                 #find central node
                 nfound = False
-                for toK,v in parentsDict.items():
-                    #is there a node?
-                    if v == CONSIDER_NODES:
-                        #yes -> generatepathfromNtoN
-                        self.get_logger().info(f"Target Location: {toK}")
-                        self.current_destination = self.generatePathFromNToN(toK)
-                        nfound=True
-                        break #stop iterating
                 
-                #if not nfound:
-                if not nfound:
-                    #go backwards from CONSIDER_NODES to 2
-                    for cert in range(CONSIDER_NODES-1, 1, -1): 
-                        #until you find the max valued parent node
-                        #if you found, do nfound yes
+                #go backwards from CONSIDER_NODES-1 (don't count yourself) to 2
+                for cert in range(CONSIDER_NODES-1, 1, -1): 
+                    #until you find the max valued parent node
+                    #if you found, do nfound yes
 
-                        for toK,v in parentsDict.items():
-                        #is there a node?
-                            if v == cert:
-                                #yes -> generatepathfromNtoN
-                                self.get_logger().info(f"Target Location: {toK}")
-                                self.current_destination = self.generatePathFromNToN(toK)
-                                nfound=True
-                                break #stop iterating
+                    for toK,v in parentsDict.items():
+                    #is there a node?
+                        if v == cert:
+                            #yes -> generatepathfromNtoN
+                            self.get_logger().info(f"Target Location: {toK}")
+                            self.current_destination = self.generatePathFromNToN(toK)
+                            nfound=True
+                            break #stop iterating
                 
                 #otherwise:
                 #no -> try the closest one (if greedy search, then we try closest one and try again)
@@ -2322,30 +2312,20 @@ class line_follower(Node):
                 #now we have the most common parent
                 #find central node
                 nfound = False
-                for toK,v in parentsDict.items():
-                    #is there a node?
-                    if v == CONSIDER_NODES:
-                        #yes -> generatepathfromNtoN
-                        self.get_logger().info(f"Target Location: {toK}")
-                        self.current_destination = self.generateSafePathFromEnemyNode(toK)
-                        nfound=True
-                        break #stop iterating
                 
-                #if not nfound:
-                if not nfound:
-                    #go backwards from CONSIDER_NODES to 2
-                    for cert in range(CONSIDER_NODES-1, 1, -1):
-                        #until you find the max valued parent node
-                        #if you found, do nfound yes
+                #go backwards from CONSIDER_NODES to 2
+                for cert in range(CONSIDER_NODES-1, 1, -1):
+                    #until you find the max valued parent node
+                    #if you found, do nfound yes
 
-                        for toK,v in parentsDict.items():
-                        #is there a node?
-                            if v == cert:
-                                #yes -> generatepathfromNtoN
-                                self.get_logger().info(f"Target Location: {toK}")
-                                self.current_destination = self.generateSafePathFromEnemyNode(toK)
-                                nfound=True
-                                break #stop iterating
+                    for toK,v in parentsDict.items():
+                    #is there a node?
+                        if v == cert:
+                            #yes -> generatepathfromNtoN
+                            self.get_logger().info(f"Target Location: {toK}")
+                            self.current_destination = self.generateSafePathFromEnemyNode(toK)
+                            nfound=True
+                            break #stop iterating
                 
                 #otherwise:
                 #no -> try the closest one (if greedy search, then we try closest one and try again)
