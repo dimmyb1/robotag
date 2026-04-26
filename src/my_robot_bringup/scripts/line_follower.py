@@ -135,6 +135,7 @@ class line_follower(Node):
         #localisation
         self.departureTime = -1
         self.TIME_VARIANCE = 2
+        self.loc_hyp = []
 
         #pursuit-evasion behaviour
         self.behaviourMode = 0
