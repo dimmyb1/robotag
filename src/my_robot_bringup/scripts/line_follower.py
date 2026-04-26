@@ -424,8 +424,9 @@ class line_follower(Node):
             #so let's turn on a switch saying keep turning, but once you find a line reset imu_turning.
             self.completeTurn = True
             self.imu_turning = False
-            self.stateFollow = True
+            
 
+            self.elapsed =0
             if self.wasLeft:
                 self.smartTurnLeft(self.thirty * 2)
             else:
@@ -460,6 +461,7 @@ class line_follower(Node):
                 self.stopMov()
                 self.searchRight = False
                 self.completeTurn = False
+                self.stateFollow = True
                 
                 return True
             
@@ -483,6 +485,7 @@ class line_follower(Node):
                 self.stopMov()
                 self.searchLeft = False
                 self.completeTurn = False
+                self.stateFollow = True
 
                 return True
             
