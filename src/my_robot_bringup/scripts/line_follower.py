@@ -89,13 +89,13 @@ class line_follower(Node):
         self.grayEntryTime = -1
         self.GRAY_COOLDOWN = 5 #tried 8, 8 was too high
         self.senseEntryTime = -1
-        self.SENSE_COOLDOWN = 5
+        self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
         self.firstNode = True
 
         #tag vars + esp comms
         self.CAPTURE_MAX = 0.1
         #self.CAPTURE_MIN = 0.05
-        self.PAUSE_TIME = 6
+        self.PAUSE_TIME = 7 #was 6, but seemed low
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 6
         self.tag = False
