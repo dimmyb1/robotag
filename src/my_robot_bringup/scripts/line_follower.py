@@ -3057,6 +3057,7 @@ class line_follower(Node):
             self.get_logger().info("Initiating tag...")
 
         if (self.initiated_tag or self.tag ) and self.now > self.time_of_last_tag + self.TAG_COOLDOWN:
+            self.initiated_tag = False
             self.tag = True
             self.time_of_last_tag = self.now
 
@@ -3123,8 +3124,9 @@ class line_follower(Node):
 
         if not self.motion_active and self.stateFollow and not self.imu_turning:
             self.followLine() 
-            self.surveillCapture()
 
+        
+        self.surveillCapture()
         self.publish_tag_status()
 
 def main():
