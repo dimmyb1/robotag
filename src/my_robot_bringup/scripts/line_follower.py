@@ -3112,7 +3112,7 @@ class line_follower(Node):
         self.now = time.time()
         self.update_motion()
 
-        if self.retryPlan== 0 or not self.imu_turning:
+        if self.retryPlan== 0 and not self.imu_turning:
             self.updatePos()
 
         if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
