@@ -427,6 +427,7 @@ class line_follower(Node):
             #so let's turn on a switch saying keep turning, but once you find a line reset imu_turning.
             self.completeTurn = True
             self.imu_turning = False
+            self.motion_active = False
             
 
             self.elapsed =0
