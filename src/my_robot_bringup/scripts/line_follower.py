@@ -421,8 +421,6 @@ class line_follower(Node):
             self.publisher.publish(self.cmd)
             self.motion_active = False 
 
-            if self.retryPlan != 0:
-                self.stateFollow = False
 
         elif self.imu_turning and self.facing == self.imu_target:
             #we have turned to face the general direction of where we needed to be,
@@ -2207,7 +2205,7 @@ class line_follower(Node):
 
             if self.retryPlan!=0:
                 self.get_logger().info("Didn't find opponent! Retrying...")
-                return -1
+                return self.retryPlan
 
             #take max likely edge
             maxV = -1
@@ -2289,7 +2287,7 @@ class line_follower(Node):
 
             if self.retryPlan!=0:
                 self.get_logger().info("Could not locate target! Retrying...")
-                return -1
+                return self.retryPlan
 
             #take max likely edge
             maxV = -1
@@ -2372,7 +2370,7 @@ class line_follower(Node):
 
             if self.retryPlan!=0:
                 self.get_logger().info("Could not find target! Retrying...")
-                return -1
+                return self.retryPlan
 
             #interceptive takes the straight path
             #taking targets past loc, Curr loc, and assumes straight to future loc
@@ -2841,13 +2839,41 @@ class line_follower(Node):
                                 self.stopMov()
                                 if self.retryPlan == -1:
                                     #180
-                                    self.found = self.turnRight(self.thirty * 6)
+                                    #self.turnRight(self.thirty * 6)
+                                    if self.facing == 0:
+                                        self.imu_target = 2
+                                    elif self.facing == 2:
+                                        self.imu_target = 0
+                                    elif self.facing == 1:
+                                        self.imu_target = 3
+                                    elif self.facing == 3:
+                                        self.imu_target = 1
+                                    
                                 elif self.retryPlan == -2:
                                     #right
-                                    self.found = self.turnRight(self.thirty * 3)
+                                    #self.turnRight(self.thirty * 3)
+                                    if self.facing == 0:
+                                        self.imu_target = 1
+                                    elif self.facing == 2:
+                                        self.imu_target = 3
+                                    elif self.facing == 1:
+                                        self.imu_target = 2
+                                    elif self.facing == 3:
+                                        self.imu_target = 0
+
                                 elif self.retryPlan == -3: 
                                     #left
-                                    self.found = self.turnLeft(self.thirty * 3)
+                                    #self.turnLeft(self.thirty * 3)
+                                    if self.facing == 0:
+                                        self.imu_target = 3
+                                    elif self.facing == 2:
+                                        self.imu_target = 1
+                                    elif self.facing == 1:
+                                        self.imu_target = 0
+                                    elif self.facing == 3:
+                                        self.imu_target = 2
+
+                                self.startTurnBasedOnFacing()
                                 return
                         else:
                             #cooldown has not expired yet. stay stopped and wait
@@ -3028,11 +3054,11 @@ class line_follower(Node):
                         self.imu_target = 0
                     elif self.facing == 1:
                         self.imu_target = 3
-                    elif self.facing == 1:
-                        self.imu_target = 3
+                    elif self.facing == 3:
+                        self.imu_target = 1
                     
                     
-                    self.startTurnBasedOnFacing
+                    self.startTurnBasedOnFacing()
                     self.current_destination = self.current_node
 
             #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
