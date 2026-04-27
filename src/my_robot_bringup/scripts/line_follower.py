@@ -108,8 +108,8 @@ class line_follower(Node):
         self.initiated_tag = False
 
         #ultrasonic sensor and servo vars
-        self.entry_angle = 0.0
-        self.exit_angle = 0.0
+        self.entry_angle = float('inf')
+        self.exit_angle = float('inf')
         self.ultrasonic_distance = 100.0
 
         #IR sensor vars
