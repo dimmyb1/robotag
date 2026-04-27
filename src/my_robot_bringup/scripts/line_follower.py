@@ -419,7 +419,10 @@ class line_follower(Node):
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
-            self.motion_active = False
+            self.motion_active = False 
+
+            if self.retryPlan != 0:
+                self.stateFollow = False
 
         elif self.imu_turning and self.facing == self.imu_target:
             #we have turned to face the general direction of where we needed to be,
