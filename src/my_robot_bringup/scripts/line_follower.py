@@ -2974,14 +2974,41 @@ class line_follower(Node):
                         self.stopMov()
                         if self.retryPlan == -1:
                             #180
-                            self.found = self.turnRight(self.thirty * 6)
+                            #self.turnRight(self.thirty * 6)
+                            if self.facing == 0:
+                                self.imu_target = 2
+                            elif self.facing == 2:
+                                self.imu_target = 0
+                            elif self.facing == 1:
+                                self.imu_target = 3
+                            elif self.facing == 3:
+                                self.imu_target = 1
+                                    
                         elif self.retryPlan == -2:
                             #right
-                            self.found = self.turnRight(self.thirty * 3)
+                            #self.turnRight(self.thirty * 3)
+                            if self.facing == 0:
+                                self.imu_target = 1
+                            elif self.facing == 2:
+                                self.imu_target = 3
+                            elif self.facing == 1:
+                                self.imu_target = 2
+                            elif self.facing == 3:
+                                self.imu_target = 0
+
                         elif self.retryPlan == -3: 
                             #left
-                            self.found = self.turnLeft(self.thirty * 3)
+                            #self.turnLeft(self.thirty * 3)
+                            if self.facing == 0:
+                                self.imu_target = 3
+                            elif self.facing == 2:
+                                self.imu_target = 1
+                            elif self.facing == 1:
+                                self.imu_target = 0
+                            elif self.facing == 3:
+                                self.imu_target = 2
 
+                        self.startTurnBasedOnFacing()
                         return
                     
                     #then it is a char from A to H, and it is an immediate neighbour 
