@@ -2990,6 +2990,7 @@ class line_follower(Node):
         #TAG
         if self.ultrasonic_distance < self.CAPTURE_MAX :
             self.initiated_tag = True
+            self.get_logger().info("Initiating tag...")
 
         if (self.initiated_tag or self.tag ) and self.now > self.time_of_last_tag + self.TAG_COOLDOWN:
             self.tag = True
