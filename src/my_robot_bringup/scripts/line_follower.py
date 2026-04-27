@@ -2895,7 +2895,7 @@ class line_follower(Node):
                                     #if it is a single number from 0 to 3, then it is an immediate neighbour 
                                     #e.g. path = [2] i.e. go south
                                     self.imu_target = self.current_destination.pop(0)
-                                    self.self_localise(self.now, self.current_node.Times[self.imu_target])
+                                    self.self_localise(self.current_node.Times[self.imu_target])
                                     self.departureTime = self.now
                                     self.imu_turning = True
                                     self.startTurnBasedOnFacing()
