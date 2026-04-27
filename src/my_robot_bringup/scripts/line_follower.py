@@ -2827,28 +2827,31 @@ class line_follower(Node):
 
                     #populate our planned path if we don't already have a plan
                     #is it empty? => stay here and wait until our sensing cooldown has gone out.
-                    if (not self.current_destination and self.senseEntryTime < self.now - self.SENSE_COOLDOWN) or (self.current_destination):
+                    if not self.current_destination:
                         #when sensing cooldown expires, look again.
-                        self.senseEntryTime = self.now
-                        self.stateFollow = False
-                        self.retryPlan = self.planDestination()
+                        if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
+                            self.senseEntryTime = self.now
+                            self.stateFollow = False
+                            self.retryPlan = self.planDestination()
 
-                        if self.retryPlan != 0:
-                            self.stopMov()
-                            if self.retryPlan == -1:
-                                #180
-                                self.found = self.turnRight(self.thirty * 6)
-                            elif self.retryPlan == -2:
-                                #right
-                                self.found = self.turnRight(self.thirty * 3)
-                            elif self.retryPlan == -3: 
-                                #left
-                                self.found = self.turnLeft(self.thirty * 3)
-
-        
+                            if self.retryPlan != 0:
+                                self.stopMov()
+                                if self.retryPlan == -1:
+                                    #180
+                                    self.found = self.turnRight(self.thirty * 6)
+                                elif self.retryPlan == -2:
+                                    #right
+                                    self.found = self.turnRight(self.thirty * 3)
+                                elif self.retryPlan == -3: 
+                                    #left
+                                    self.found = self.turnLeft(self.thirty * 3)
+                                return
+                        else:
+                            #cooldown has not expired yet. stay stopped and wait
+                            self.stateFollow = False
                             return
-                        #else:
-                        #    self.stateFollow = True
+                    #else:
+                    #    self.stateFollow = True
 
                         #we have directions to go somewhere
                         #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
