@@ -3057,7 +3057,7 @@ class line_follower(Node):
         self.update_motion()
         self.updatePos()
 
-        if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN):
+        if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
             self.stateFollow = True
 
         if not self.motion_active and self.stateFollow and not self.imu_turning:
