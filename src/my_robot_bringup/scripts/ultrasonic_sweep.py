@@ -39,7 +39,7 @@ class SweepingUltrasonicNode(Node):
         # State variables for sweeping
         self.target_angle = 0.0
         self.sweep_direction = 1  # 1 for increasing angle, -1 for decreasing
-        self.sweep_speed = math.pi / 4    # Radians per second
+        self.sweep_speed = 1.0   # Radians per second
         self.timer_period = 0.05  # 20 Hz update rate
         
         # Create a timer to constantly publish movement commands
