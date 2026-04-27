@@ -98,6 +98,7 @@ class line_follower(Node):
         self.CAPTURE_MAX = 0.1
         #self.CAPTURE_MIN = 0.05
         self.PAUSE_TIME = 7 #was 6, but seemed low
+        self.startPauseTime = -1
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 6
         self.tag = False
@@ -3007,6 +3008,7 @@ class line_follower(Node):
             if self.evading:
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
                 self.stateFollow = False
+                self.startPauseTime = self.now
             else:
                 #resolve destination
 
@@ -3051,7 +3053,7 @@ class line_follower(Node):
         self.update_motion()
         self.updatePos()
 
-        if (self.now > self.time_of_last_tag + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN):
+        if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN):
             self.stateFollow = True
 
         if not self.motion_active and self.stateFollow and not self.imu_turning:
