@@ -339,9 +339,10 @@ class line_follower(Node):
         siny_cosp = 2 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
         yaw_rad = math.atan2(siny_cosp, cosy_cosp)
-
-        # Optional: Convert to degrees for easier human reading
         yaw_deg = math.degrees(yaw_rad)
+
+        #normalise to [0, 360)
+        yaw_deg = yaw_deg % 360.0
 
         #given that we start facing south
         if 0.0 <= yaw_deg < 45.0 or 315.0 <= yaw_deg < 360.0:
