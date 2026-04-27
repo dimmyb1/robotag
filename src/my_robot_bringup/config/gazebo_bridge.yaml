@@ -179,4 +179,15 @@
   gz_type_name: "gz.msgs.Twist"
   direction: ROS_TO_GZ
 
-#ESPs ?
+#Servos
+- ros_topic_name: "/twix/servo_cmd"
+  gz_topic_name: "/twix/servo_cmd"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/twirl/servo_cmd"
+  gz_topic_name: "/twirl/servo_cmd"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
