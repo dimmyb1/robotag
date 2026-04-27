@@ -463,8 +463,8 @@ class line_follower(Node):
                 self.stopMov()
                 self.searchRight = False
                 self.completeTurn = False
-                self.stateFollow = True
                 
+                self.stateFollow = True
                 return True
             
             # Continue turning right
@@ -474,6 +474,8 @@ class line_follower(Node):
             self.elapsed += stepDelay
             return False # exit and wait for next tick
             
+        
+        self.stateFollow = True
         return False # finished full arc
 
 
@@ -498,6 +500,7 @@ class line_follower(Node):
             self.elapsed += stepDelay
             return False
         
+        self.stateFollow = True
         return False
         
 
