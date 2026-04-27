@@ -2793,6 +2793,7 @@ class line_follower(Node):
                         
                         #align ourselves properly
                         self.startTurnBasedOnFacing()
+                        
 
                         
                     elif self.behaviourMode == 5:
@@ -2874,6 +2875,7 @@ class line_follower(Node):
                                         self.imu_target = 2
 
                                 self.startTurnBasedOnFacing()
+                                self.retryPlan = 0
                                 return
                         else:
                             #cooldown has not expired yet. stay stopped and wait
@@ -3009,6 +3011,7 @@ class line_follower(Node):
                                 self.imu_target = 2
 
                         self.startTurnBasedOnFacing()
+                        self.retryPlan = 0
                         return
                     
                     #then it is a char from A to H, and it is an immediate neighbour 
@@ -3112,7 +3115,7 @@ class line_follower(Node):
         self.now = time.time()
         self.update_motion()
 
-        if self.retryPlan== 0 and not self.imu_turning:
+        if self.retryPlan== 0 and not self.imu_turning and not self.completeTurn:
             self.updatePos()
 
         if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
