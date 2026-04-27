@@ -87,7 +87,9 @@ class line_follower(Node):
         self.imu_turning = False
         self.imu_target = -1
         self.grayEntryTime = -1
-        self.GRAY_COOLDOWN = 5 #tried 8, 8 was too high
+        self.GRAY_COOLDOWN = 5 #tried 8, 8 was too high, 
+        #but 5 is too high when turning, so maybe we can make this variable with turning time
+        #instead, i blocked intersection detection completely when imu_turning at an intersection
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
         self.firstNode = True
@@ -2745,7 +2747,8 @@ class line_follower(Node):
     def updatePos(self):
         #update current variables
          #do some check to ensure we aren't being triggered by the last gray section we saw
-        if self.grayEntryTime < self.now - self.GRAY_COOLDOWN:
+        #blocked if we are turning while currently at an intersection.
+        if (not self.imu_turning and self.grayEntryTime < self.now - self.GRAY_COOLDOWN) :
             #if gray detected:
 
             if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
