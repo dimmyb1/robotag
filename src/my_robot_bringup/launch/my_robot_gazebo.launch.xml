@@ -40,6 +40,11 @@
           exec="line_follower.py"
           name="line_follower"
           output="screen"/>
+
+        <node pkg="my_robot_bringup"
+          exec="ultrasonic_sweep.py"
+          name="sweeping_ultrasonic_node"
+          output="screen"/>
     </group>
 
 
@@ -74,6 +79,11 @@
         <node pkg="my_robot_bringup"
           exec="line_follower.py"
           name="line_follower"
+          output="screen"/>
+
+        <node pkg="my_robot_bringup"
+          exec="ultrasonic_sweep.py"
+          name="sweeping_ultrasonic_node"
           output="screen"/>
     </group>
 

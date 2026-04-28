@@ -210,7 +210,7 @@ class line_follower(Node):
         topic_M = f'/{robot_name}_ir_M/image_raw'
         topic_R = f'/{robot_name}_ir_R/image_raw'
         topic_IMU = f'/{robot_name}/imu'
-        topic_object = f"{robot_name}/object_data"
+        topic_object = f"/{robot_name}/object_data"
 
         # behaviourMode settings:
         # 0 - not set (no behaviour)
