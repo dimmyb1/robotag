@@ -33,7 +33,7 @@ class SweepingUltrasonicNode(Node):
         # State variables for detection
         self.current_servo_angle = 0.0
         self.is_detecting = False
-        self.entry_angle = None
+        self.entry_angle = float('inf')
         self.min_distance = float('inf')
         
         # State variables for sweeping
