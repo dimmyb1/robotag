@@ -67,8 +67,10 @@ class SweepingUltrasonicNode(Node):
         self.cmd_pub.publish(cmd_msg)
 
     def joint_callback(self, msg):
+        robot_name = self.get_namespace().strip('/')
+        joint_name = f'{robot_name}_servo_joint' if robot_name else 'servo_joint'
         try:
-            joint_index = msg.name.index('servo_joint')
+            joint_index = msg.name.index(joint_name)
             self.current_servo_angle = msg.position[joint_index]
         except ValueError:
             pass
