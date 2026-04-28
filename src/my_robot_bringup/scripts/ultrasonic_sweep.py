@@ -101,7 +101,7 @@ class SweepingUltrasonicNode(Node):
                 
                 self.get_logger().info(f"Object data published to {self.object_pub.topic_name}!")
                 
-                self.entry_angle = None
+                self.entry_angle = float('inf')
                 self.min_distance = float('inf')
 
 
