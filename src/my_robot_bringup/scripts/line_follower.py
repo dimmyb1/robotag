@@ -3120,11 +3120,11 @@ class line_follower(Node):
         if self.retryPlan== 0 and not self.imu_turning and not self.completeTurn:
             self.updatePos()
 
-        if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
-            self.stateFollow = True
+            if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
+                self.stateFollow = True
 
-        if not self.motion_active and self.stateFollow and not self.imu_turning:
-            self.followLine() 
+            if not self.motion_active and self.stateFollow and not self.imu_turning:
+                self.followLine() 
 
         
         self.surveillCapture()
