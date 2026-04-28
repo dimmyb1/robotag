@@ -2668,6 +2668,8 @@ class line_follower(Node):
             self.completeTurn = True
             self.stateFollow = True
         else:
+            self.imu_turning = True
+            self.completeTurn = False
             self.get_logger().info(f"Turning to face {self.imu_target}")
             if self.facing == 0:
                 if self.imu_target == 0:
