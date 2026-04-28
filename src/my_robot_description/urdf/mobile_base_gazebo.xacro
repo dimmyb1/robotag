@@ -61,15 +61,15 @@
         </gazebo>
 
         <!-- Servo Position Controller -->
-        <gazebo>
+        <gazebo reference="${bot_name}_base_link">
             <plugin
                 filename="gz-sim-joint-position-controller-system"
                 name="gz::sim::systems::JointPositionController">
                 <joint_name>${bot_name}_servo_joint</joint_name>
-                <topic>/${bot_name}/servo_cmd</topic>
-                <p_gain>20</p_gain>
+                <topic>${bot_name}/servo_cmd</topic>
+                <p_gain>10</p_gain>
                 <i_gain>0.0</i_gain>
-                <d_gain>0.5</d_gain>
+                <d_gain>0.1</d_gain>
                 <i_max>1</i_max>
                 <i_min>-1</i_min>
                 <cmd_max>10</cmd_max>
