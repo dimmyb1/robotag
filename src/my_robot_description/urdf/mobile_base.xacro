@@ -21,6 +21,9 @@
             <child link="${bot_name}_base_link"/>
             <origin xyz="0 0 0.02"/>
         </joint>
+        <gazebo reference="${bot_name}_base_joint">
+            <preserveFixedJoint>true</preserveFixedJoint>
+        </gazebo>
 
         <!-- =============== -->
         <!-- Base link body  -->
