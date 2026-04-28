@@ -61,7 +61,7 @@
         </gazebo>
 
         <!-- Servo Position Controller -->
-        <gazebo reference="${bot_name}_base_link">
+        <gazebo>
             <plugin
                 filename="gz-sim-joint-position-controller-system"
                 name="gz::sim::systems::JointPositionController">
