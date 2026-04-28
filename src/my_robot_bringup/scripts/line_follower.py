@@ -434,9 +434,9 @@ class line_follower(Node):
 
             self.elapsed =0
             if self.wasLeft:
-                self.smartTurnLeft(self.thirty * 2)
+                self.smartTurnLeft(self.thirty)
             else:
-                self.smartTurnRight(self.thirty * 2)
+                self.smartTurnRight(self.thirty)
 
 
     def stopMov(self) :
@@ -467,7 +467,7 @@ class line_follower(Node):
                 self.stopMov()
                 self.searchRight = False
                 self.completeTurn = False
-                
+                self.retryPlan = 0
                 self.stateFollow = True
                 return True
             
@@ -478,7 +478,7 @@ class line_follower(Node):
             self.elapsed += stepDelay
             return False # exit and wait for next tick
             
-        
+        self.retryPlan = 0
         self.stateFollow = True
         return False # finished full arc
 
@@ -493,6 +493,7 @@ class line_follower(Node):
                 self.stopMov()
                 self.searchLeft = False
                 self.completeTurn = False
+                self.retryPlan = 0
                 self.stateFollow = True
 
                 return True
@@ -504,6 +505,7 @@ class line_follower(Node):
             self.elapsed += stepDelay
             return False
         
+        self.retryPlan = 0
         self.stateFollow = True
         return False
         
