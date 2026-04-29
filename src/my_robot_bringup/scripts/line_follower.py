@@ -430,6 +430,7 @@ class line_follower(Node):
             self.completeTurn = True
             self.imu_turning = False
             self.motion_active = False
+            self.stopMov()
             
 
             self.elapsed =0
@@ -478,6 +479,10 @@ class line_follower(Node):
             self.elapsed += stepDelay
             return False # exit and wait for next tick
             
+        self.get_logger().info("No line found during smart right turn")
+        self.stopMov()
+        self.searchRight = False
+        self.completeTurn = False
         self.retryPlan = 0
         self.stateFollow = True
         return False # finished full arc
@@ -505,6 +510,10 @@ class line_follower(Node):
             self.elapsed += stepDelay
             return False
         
+        self.get_logger().info("No line found during smart left turn")
+        self.stopMov()
+        self.searchLeft = False
+        self.completeTurn = False
         self.retryPlan = 0
         self.stateFollow = True
         return False
