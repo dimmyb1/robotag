@@ -3,43 +3,43 @@
     <xacro:macro name="extension" params="bot_name base_width">
 
         <!-- Useful constants -->
-        <xacro:property name="length" value="0.15"/>
+        <xacro:property name="length" value="0.14"/>
         <xacro:property name="height" value="0.132"/>
         <xacro:property name="tilt" value="${10 * pi / 180.0}"/>
         <xacro:property name="offset_x" value="-0.05"/>
-        <xacro:property name="width" value="0.05"/>
+        <xacro:property name="width" value="0.04"/>
 
         <!-- Link -->
         <link name="${bot_name}_extension_link">
 
             <!-- LEFT PANEL -->
             <visual>
-            <origin xyz="0 ${base_width/4} ${height/2}" rpy="0 0 ${-tilt}"/>
-            <geometry>
-                <box size="${length} ${width/2} ${height}"/>
-            </geometry>
+                <origin xyz="0 ${base_width/4} ${height/2}" rpy="${-tilt} 0 0"/>
+                <geometry>
+                    <box size="${length} ${width/2} ${height}"/>
+                </geometry>
             </visual>
 
             <collision>
-            <origin xyz="0 ${base_width/4} ${height/2}" rpy="0 0 ${-tilt}"/>
-            <geometry>
-                <box size="${length} ${width/2} ${height}"/>
-            </geometry>
+                <origin xyz="0 ${base_width/4} ${height/2}" rpy="${-tilt} 0 0"/>
+                <geometry>
+                    <box size="${length} ${width/2} ${height}"/>
+                </geometry>
             </collision>
 
             <!-- RIGHT PANEL -->
             <visual>
-            <origin xyz="0 ${-base_width/4} ${height/2}" rpy="0 0 ${tilt}"/>
-            <geometry>
-                <box size="${length} ${width/2} ${height}"/>
-            </geometry>
+                <origin xyz="0 ${-base_width/4} ${height/2}" rpy="${tilt} 0 0"/>
+                <geometry>
+                    <box size="${length} ${width/2} ${height}"/>
+                </geometry>
             </visual>
 
             <collision>
-            <origin xyz="0 ${-base_width/4} ${height/2}" rpy="0 0 ${tilt}"/>
-            <geometry>
-                <box size="${length} ${width/2} ${height}"/>
-            </geometry>
+                <origin xyz="0 ${-base_width/4} ${height/2}" rpy="${tilt} 0 0"/>
+                <geometry>
+                    <box size="${length} ${width/2} ${height}"/>
+                </geometry>
             </collision>
 
         </link>
@@ -48,7 +48,7 @@
         <joint name="${bot_name}_extension_joint" type="fixed">
             <parent link="${bot_name}_base_link"/>
             <child link="${bot_name}_extension_link"/>
-            <origin xyz="${offset_x} 0 ${height/2}" rpy="0 0 0"/>
+            <origin xyz="${offset_x} 0 0" rpy="0 0 0"/>
         </joint>
 
     </xacro:macro>
