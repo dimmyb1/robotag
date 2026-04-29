@@ -423,18 +423,7 @@ class line_follower(Node):
             self.motion_active = False 
             self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
-            if self.imu_turning and self.facing != self.imu_target:
-                self.completeTurn = True
-                self.imu_turning = False
-                self.motion_active = False
-                self.stopMov()
-                
-
-                self.elapsed =0
-                if self.wasLeft:
-                    self.smartTurnLeft(self.thirty)
-                else:
-                    self.smartTurnRight(self.thirty)
+            self.imu_turning = False
 
         elif self.imu_turning and self.facing == self.imu_target:
             #we have turned to face the general direction of where we needed to be,
