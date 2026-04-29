@@ -3047,8 +3047,10 @@ class line_follower(Node):
                     self.departureTime = self.now 
                     #a value will  be added to departure time to represent turning time needed in startTurnBasedOnFacing
 
-                    self.imu_turning = True
-                    self.startTurnBasedOnFacing()
+                    if self.behaviourMode != 1:
+                        #skip this when patrolling as we are most probably already aligned
+                        self.imu_turning = True
+                        self.startTurnBasedOnFacing()
 
                     #update sweeping setting
                     if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
