@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="extension" params="bot_name base_width">
+
+        <!-- Useful constants -->
+        <xacro:property name="length" value="0.15"/>
+        <xacro:property name="height" value="0.132"/>
+        <xacro:property name="tilt" value="${10 * pi / 180.0}"/>
+        <xacro:property name="offset_x" value="-0.06"/>
+
+        <!-- Link -->
+        <link name="${bot_name}_extension_link">
+
+            <!-- LEFT PANEL -->
+            <visual>
+            <origin xyz="0 ${base_width/4} ${height/2}" rpy="0 ${-tilt} 0"/>
+            <geometry>
+                <box size="${length} ${base_width/2} ${height}"/>
+            </geometry>
+            </visual>
+
+            <collision>
+            <origin xyz="0 ${base_width/4} ${height/2}" rpy="0 ${-tilt} 0"/>
+            <geometry>
+                <box size="${length} ${base_width/2} ${height}"/>
+            </geometry>
+            </collision>
+
+            <!-- RIGHT PANEL -->
+            <visual>
+            <origin xyz="0 ${-base_width/4} ${height/2}" rpy="0 ${tilt} 0"/>
+            <geometry>
+                <box size="${length} ${base_width/2} ${height}"/>
+            </geometry>
+            </visual>
+
+            <collision>
+            <origin xyz="0 ${-base_width/4} ${height/2}" rpy="0 ${tilt} 0"/>
+            <geometry>
+                <box size="${length} ${base_width/2} ${height}"/>
+            </geometry>
+            </collision>
+
+        </link>
+
+        <!-- Fixed joint to robot base -->
+        <joint name="${bot_name}_extension_joint" type="fixed">
+            <parent link="${bot_name}_base_link"/>
+            <child link="${bot_name}_extension_link"/>
+            <origin xyz="${offset_x} 0 ${height/2}" rpy="0 0 0"/>
+        </joint>
+
+    </xacro:macro>
+</robot>

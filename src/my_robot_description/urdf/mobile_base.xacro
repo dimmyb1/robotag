@@ -89,6 +89,10 @@
         <xacro:ir_sensor bot_name="${bot_name}" position_name="R" />
         <xacro:ultrasonic_sensor bot_name="${bot_name}"/>
         <xacro:mpu_sensor bot_name="${bot_name}"/>
+
+        <!--visual-->
+        <xacro:extension bot_name="${bot_name}" base_width="${base_width}"/>
+
         <!-- gazebo -->
         <xacro:gazebo_file bot_name="${bot_name}"/>
     </xacro:macro>
