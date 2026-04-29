@@ -421,6 +421,8 @@ class line_follower(Node):
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
             self.motion_active = False 
+            self.get_logger().info(f"stopped moving because time expired")
+
 
 
         elif self.imu_turning and self.facing == self.imu_target:
