@@ -14,14 +14,14 @@
 
             <!-- LEFT PANEL -->
             <visual>
-                <origin xyz="0 ${base_width/4} ${height/2}" rpy="${-tilt} 0 0"/>
+                <origin xyz="0 ${base_width/4} ${height/2}" rpy="${tilt} 0 0"/>
                 <geometry>
                     <box size="${length} ${width/2} ${height}"/>
                 </geometry>
             </visual>
 
             <collision>
-                <origin xyz="0 ${base_width/4} ${height/2}" rpy="${-tilt} 0 0"/>
+                <origin xyz="0 ${base_width/4} ${height/2}" rpy="${tilt} 0 0"/>
                 <geometry>
                     <box size="${length} ${width/2} ${height}"/>
                 </geometry>
@@ -29,14 +29,14 @@
 
             <!-- RIGHT PANEL -->
             <visual>
-                <origin xyz="0 ${-base_width/4} ${height/2}" rpy="${tilt} 0 0"/>
+                <origin xyz="0 ${-base_width/4} ${height/2}" rpy="${-tilt} 0 0"/>
                 <geometry>
                     <box size="${length} ${width/2} ${height}"/>
                 </geometry>
             </visual>
 
             <collision>
-                <origin xyz="0 ${-base_width/4} ${height/2}" rpy="${tilt} 0 0"/>
+                <origin xyz="0 ${-base_width/4} ${height/2}" rpy="${-tilt} 0 0"/>
                 <geometry>
                     <box size="${length} ${width/2} ${height}"/>
                 </geometry>
