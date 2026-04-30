@@ -2736,7 +2736,8 @@ class line_follower(Node):
         else:
             self.imu_turning = True
             self.get_logger().info(f"Turning to face {self.imu_target}")
-            if (self.facing < self.imu_target) and (self.imu_target != 3 and self.facing != 0) or (self.facing == 3 and self.imu_target == 0):
+
+            if ((self.facing < self.imu_target) or (self.facing == 3 and self.imu_target == 0)) and ((self.imu_target != 3 and self.facing != 0) or (self.facing == 3 and self.imu_target == 0)):
                 self.turnRight(0)
             else:
                 self.turnLeft(0)
