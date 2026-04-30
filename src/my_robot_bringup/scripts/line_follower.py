@@ -79,6 +79,7 @@ class line_follower(Node):
         self.motion_end_time = 0
         self.current_motion = None
         self.searchStep = 0
+        self.yaw_deg = 0 #IMU
 
         #junction turning vars
         self.stateFollow = True
@@ -145,6 +146,7 @@ class line_follower(Node):
         self.departureTime = -1
         self.TIME_VARIANCE = 2
         self.loc_hyp = []
+        self.toDepart = False
 
         #pursuit-evasion behaviour
         self.behaviourMode = 0
@@ -356,7 +358,7 @@ class line_follower(Node):
         yaw_deg = math.degrees(yaw_rad)
 
         #normalise to [0, 360)
-        yaw_deg = yaw_deg % 360.0
+        self.yaw_deg = yaw_deg % 360.0
 
         #given that we start facing south
         if 0.0 <= yaw_deg < 45.0 or 315.0 <= yaw_deg < 360.0:
@@ -441,6 +443,7 @@ class line_follower(Node):
             self.motion_active = False #it will run continuously
 
     def update_motion(self):
+        STARTED_FACING = 2
         if self.motion_active and self.now >= self.motion_end_time:
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.0
@@ -448,22 +451,34 @@ class line_follower(Node):
             self.motion_active = False 
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
+        else:
+            target = (self.facing - STARTED_FACING) * 90
+            if target -4 <= self.yaw_deg <= target +4:
+                #we have completed our turn.
+                self.imu_turning = False
+                self.imu_target = -1
+                self.stopMov()
 
-        elif self.imu_turning and self.facing == self.imu_target:
-            #we have turned to face the general direction of where we needed to be,
-            #but we may not have necessarily found a line yet
-            #so let's turn on a switch saying keep turning, but once you find a line reset imu_turning.
-            self.completeTurn = True
-            self.imu_turning = False
-            self.motion_active = False
-            self.stopMov()
+                if self.toDepart:
+                    self.toDepart = False #consume
+                    self.departureTime = self.now
+                
+
+        # elif self.imu_turning and self.facing == self.imu_target:
+        #     #we have turned to face the general direction of where we needed to be,
+        #     #but we may not have necessarily found a line yet
+        #     #so let's turn on a switch saying keep turning, but once you find a line reset imu_turning.
+        #     self.completeTurn = True
+        #     self.imu_turning = False
+        #     self.motion_active = False
+        #     self.stopMov()
             
 
-            self.elapsed =0
-            if self.wasLeft:
-                self.smartTurnLeft(self.thirty)
-            else:
-                self.smartTurnRight(self.thirty)
+        #     self.elapsed =0
+        #     if self.wasLeft:
+        #         self.smartTurnLeft(self.thirty)
+        #     else:
+        #         self.smartTurnRight(self.thirty)
 
 
     def stopMov(self) :
@@ -493,7 +508,7 @@ class line_follower(Node):
                 self.get_logger().info("Line found during right turn!")
                 self.stopMov()
                 self.searchRight = False
-                self.completeTurn = False
+                #self.completeTurn = False
                 self.retryPlan = 0
                 self.stateFollow = True
                 return True
@@ -508,7 +523,7 @@ class line_follower(Node):
         self.get_logger().info("No line found during smart right turn")
         self.stopMov()
         self.searchRight = False
-        self.completeTurn = False
+        #self.completeTurn = False
         self.retryPlan = 0
         self.stateFollow = True
         return False # finished full arc
@@ -523,7 +538,7 @@ class line_follower(Node):
                 self.get_logger().info("Line found during left turn!")
                 self.stopMov()
                 self.searchLeft = False
-                self.completeTurn = False
+                #self.completeTurn = False
                 self.retryPlan = 0
                 self.stateFollow = True
 
@@ -539,7 +554,7 @@ class line_follower(Node):
         self.get_logger().info("No line found during smart left turn")
         self.stopMov()
         self.searchLeft = False
-        self.completeTurn = False
+        #self.completeTurn = False
         self.retryPlan = 0
         self.stateFollow = True
         return False
@@ -2694,6 +2709,22 @@ class line_follower(Node):
             
         
         return 0
+    
+    def startTurnBasedOnIMU(self):
+        self.completeTurn = False
+
+        if self.imu_target == -1 or self.imu_target == self.facing:
+            #no turn
+            self.imu_turning = False
+            #self.completeTurn = True
+            self.stateFollow = True
+        else:
+            self.imu_turning = True
+            self.get_logger().info(f"Turning to face {self.imu_target}")
+            if (self.facing < self.imu_target) and (self.imu_target != 3 and self.facing != 0) or (self.facing == 3 and self.imu_target == 0):
+                self.turnRight(0)
+            else:
+                self.turnLeft(0)
 
 
 
@@ -2834,7 +2865,8 @@ class line_follower(Node):
                             self.imu_target = 3
                         
                         #align ourselves properly
-                        self.startTurnBasedOnFacing()
+                        #self.startTurnBasedOnFacing()
+                        self.startTurnBasedOnIMU()
                         
 
                         
@@ -2916,7 +2948,8 @@ class line_follower(Node):
                                     elif self.facing == 3:
                                         self.imu_target = 2
 
-                                self.startTurnBasedOnFacing()
+                                #self.startTurnBasedOnFacing()
+                                self.startTurnBasedOnIMU()
                                 self.retryPlan = 0
                                 return
                         else:
@@ -2937,9 +2970,11 @@ class line_follower(Node):
                                     #e.g. path = [2] i.e. go south
                                     self.imu_target = self.current_destination.pop(0)
                                     self.self_localise(self.current_node.Times[self.imu_target])
-                                    self.departureTime = self.now
+                                    #self.departureTime = self.now
+                                    self.toDepart = True
                                     self.imu_turning = True
-                                    self.startTurnBasedOnFacing()
+                                    #self.startTurnBasedOnFacing()
+                                    self.startTurnBasedOnIMU()
 
                                     #update sweeping setting
                                     if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
@@ -2965,9 +3000,11 @@ class line_follower(Node):
                                         self.imu_target = 3
                                         self.self_localise(self.current_node.Times[3])
 
-                                    self.departureTime = self.now
+                                    #self.departureTime = self.now
+                                    self.toDepart = True
                                     self.imu_turning = True
-                                    self.startTurnBasedOnFacing()
+                                    #self.startTurnBasedOnFacing()
+                                    self.startTurnBasedOnIMU()
 
                                     #update sweeping setting
                                     if (self.current_node.name == 'A' and self.current_destination[0] == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination[0] == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination[0] == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination[0] == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination[0] == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Wc) :
@@ -2994,9 +3031,11 @@ class line_follower(Node):
                                 self.imu_target = 3
                                 self.self_localise(self.current_node.Times[3])
 
-                            self.departureTime = self.now
+                            #self.departureTime = self.now
+                            self.toDepart = True
                             self.imu_turning = True
-                            self.startTurnBasedOnFacing()
+                            #self.startTurnBasedOnFacing()
+                            self.startTurnBasedOnIMU()
 
                             #update sweeping setting
                             if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
@@ -3052,7 +3091,8 @@ class line_follower(Node):
                             elif self.facing == 3:
                                 self.imu_target = 2
 
-                        self.startTurnBasedOnFacing()
+                        #self.startTurnBasedOnFacing()
+                        self.startTurnBasedOnIMU()
                         self.retryPlan = 0
                         return
                     
@@ -3072,13 +3112,15 @@ class line_follower(Node):
                         self.self_localise(self.current_node.Times[3])
 
                     #update departure time
-                    self.departureTime = self.now 
+                    #self.departureTime = self.now 
+                    self.toDepart = True
                     #a value will  be added to departure time to represent turning time needed in startTurnBasedOnFacing
 
                     if self.behaviourMode != 1:
                         #skip this when patrolling as we are most probably already aligned
                         self.imu_turning = True
-                        self.startTurnBasedOnFacing()
+                        #self.startTurnBasedOnFacing()
+                        self.startTurnBasedOnIMU()
 
                     #update sweeping setting
                     if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
@@ -3132,7 +3174,8 @@ class line_follower(Node):
                         self.imu_target = 1
                     
                     
-                    self.startTurnBasedOnFacing()
+                    #self.startTurnBasedOnFacing()
+                    self.startTurnBasedOnIMU()
                     self.current_destination = self.current_node
 
             #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
