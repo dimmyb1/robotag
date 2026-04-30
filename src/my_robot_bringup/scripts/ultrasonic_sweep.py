@@ -53,26 +53,54 @@ class SweepingUltrasonicNode(Node):
         # Create a timer to constantly publish movement commands
         self.timer = self.create_timer(self.timer_period, self.sweep_timer_callback)
 
+    def sweep_callback(self, msg):
+        data = json.loads(msg.data)
+        self.sweep = data.get("sweep", False)
+        self.multiple = data.get("multiple", False)
+
     def sweep_timer_callback(self):
-        # Calculate how much to move this cycle
-        step = self.sweep_speed * self.timer_period
-        
-        # Update target angle
-        self.target_angle += (self.sweep_direction * step)
-        
-        # Reverse direction if we hit the -90 or +90 degree limits (approx 1.57 radians)
-        limit = math.pi / 2.0
-        if self.target_angle >= limit:
-            self.target_angle = limit
-            self.sweep_direction = -1
-        elif self.target_angle <= -limit:
-            self.target_angle = -limit
-            self.sweep_direction = 1
-            
+       
+        if self.sweep:
+             # Calculate how much to move this cycle
+            step = self.sweep_speed * self.timer_period
+            limit = math.pi / 2.0
+
+            if self.multiple: #keep sweeping until sweep is false
+                # Update target angle
+                self.target_angle += (self.sweep_direction * step)
+                
+                # Reverse direction if we hit the -90 or +90 degree limits (approx 1.57 radians)
+                if self.target_angle >= limit:
+                    self.target_angle = limit
+                    self.sweep_direction = -1
+                elif self.target_angle <= -limit:
+                    self.target_angle = -limit
+                    self.sweep_direction = 1
+
+            else: #do a single sweep
+                if self.single_sweep_phase == 0:
+                    self.target_angle = -limit  # command it to go to -90
+                    # wait until it's actually there before sweeping
+                    if abs(self.current_servo_angle - (-limit)) < 0.05:  # 0.05 rad tolerance ~3 degrees
+                        self.single_sweep_phase = 1
+
+                elif self.single_sweep_phase == 1:
+                    self.target_angle += step
+                    if self.target_angle >= limit:
+                        self.target_angle = limit
+                        self.single_sweep_phase = 0
+                        self.sweep = False
+
+        else:
+            #set to 90 (head on and dont sweep)
+            self.target_angle = 0
+
         # Publish the command to the servo
         cmd_msg = Float64()
         cmd_msg.data = self.target_angle
         self.cmd_pub.publish(cmd_msg)
+
+
 
     def joint_callback(self, msg):
         robot_name = self.get_namespace().strip('/')
@@ -84,51 +112,39 @@ class SweepingUltrasonicNode(Node):
             pass
 
     def scan_callback(self, msg):
-        valid_ranges = [r for r in msg.ranges if msg.range_min < r < msg.range_max]
-        
-        if valid_ranges:
-            current_distance = min(valid_ranges)
+        if not self.sweep:
+            self.entry_angle = float('inf')
+            self.min_distance = float('inf')
+
+        else:    
+            valid_ranges = [r for r in msg.ranges if msg.range_min < r < msg.range_max]
             
-            if not self.is_detecting:
-                self.is_detecting = True
-                self.entry_angle = self.current_servo_angle
-                self.min_distance = current_distance
-            else:
-                if current_distance < self.min_distance:
+            if valid_ranges:
+                current_distance = min(valid_ranges)
+                
+                if not self.is_detecting:
+                    self.is_detecting = True
+                    self.entry_angle = self.current_servo_angle
                     self.min_distance = current_distance
-                    
-        else:
-            if self.is_detecting:
-                self.is_detecting = False
-                exit_angle = self.current_servo_angle
-                
-                # Pack the three values into a Float64MultiArray and publish it
-                result_msg = Float64MultiArray()
-                result_msg.data = [self.entry_angle, exit_angle, self.min_distance]
-                self.object_pub.publish(result_msg)
-                
-                #self.get_logger().info(f"Object data published to {self.object_pub.topic_name}!")
-                
-                self.entry_angle = float('inf')
-                self.min_distance = float('inf')
-
-    def sweep_callback(self, msg):
-        
-        data = json.loads(msg.data)
-        self.sweep = data.get("sweep", False)
-        self.multiple = data.get("multiple", False)
-
-        if self.sweep:
-            if self.multiple:
-                #keep sweeping until sweep is false
-                dummy = 1
+                else:
+                    if current_distance < self.min_distance:
+                        self.min_distance = current_distance
+                        
             else:
-                #do a single sweep
-                dummy = 2
+                if self.is_detecting:
+                    self.is_detecting = False
+                    exit_angle = self.current_servo_angle
+                    
+                    # Pack the three values into a Float64MultiArray and publish it
+                    result_msg = Float64MultiArray()
+                    result_msg.data = [self.entry_angle, exit_angle, self.min_distance]
+                    self.object_pub.publish(result_msg)
+                    
+                    #self.get_logger().info(f"Object data published to {self.object_pub.topic_name}!")
+                    
+                    self.entry_angle = float('inf')
+                    self.min_distance = float('inf')
 
-        else:
-            #set to 90 (head on and dont sweep)
-            dummy = 3
 
 
 
