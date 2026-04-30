@@ -111,6 +111,8 @@ class line_follower(Node):
         self.entry_angle = float('inf')
         self.exit_angle = float('inf')
         self.ultrasonic_distance = 100.0
+        self.sweep = False
+        self.multiple = False
 
         #IR sensor vars
         self.colours = [0,0,0]
@@ -263,10 +265,18 @@ class line_follower(Node):
             self.imu_callback,
             10)
         
+
+        
         self.data_sub = self.create_subscription(
             Float64MultiArray,
             topic_object,
             self.ultrasonic_callback,
+            10
+        )
+
+        self.sweep_pub = self.create_publisher(
+            String,
+            f'/{robot_name}/sweep',
             10
         )
 
@@ -366,7 +376,15 @@ class line_follower(Node):
         
         #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
 
+    def publish_sweep_command(self):
+        payload = {
+            "sweep": self.sweep,
+            "multiple": self.multiple
+        }
 
+        msg = String()
+        msg.data = json.dumps(payload)
+        self.sweep_pub.publish(msg)
 
     #Line Following Functions
     def detect_black(self, img):
@@ -3145,6 +3163,7 @@ class line_follower(Node):
 
         
         self.surveillCapture()
+        self.publish_sweep_command()
         self.publish_tag_status()
 
 def main():

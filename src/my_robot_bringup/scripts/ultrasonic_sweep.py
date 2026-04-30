@@ -3,7 +3,8 @@ import rclpy
 import math
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan, JointState
-from std_msgs.msg import Float64MultiArray, Float64 # <-- Added Float64 for servo commands
+from std_msgs.msg import Float64MultiArray, Float64, String # <-- Added Float64 for servo commands
+import json
 
 class SweepingUltrasonicNode(Node):
     def __init__(self):
@@ -17,6 +18,7 @@ class SweepingUltrasonicNode(Node):
         topic_joint = f"{topic_prefix}/joint_states"
         topic_LIDAR = f"{topic_prefix}/scan"
         topic_object = f"{topic_prefix}/object_data"
+        topic_sweep = f"{topic_prefix}/sweep"
         
         # NOTE: Change this topic to match whatever your ros2_control or servo plugin uses!
         topic_servo_cmd = f"{topic_prefix}/servo_cmd" 
@@ -24,6 +26,7 @@ class SweepingUltrasonicNode(Node):
         # Subscribers
         self.joint_sub = self.create_subscription(JointState, topic_joint, self.joint_callback, 10)
         self.scan_sub = self.create_subscription(LaserScan, topic_LIDAR, self.scan_callback, 10)
+        self.sweep_sub = self.create_subscription(String, topic_sweep, self.sweep_callback, 10)
         
         # Publishers
         self.object_pub = self.create_publisher(Float64MultiArray, topic_object, 10)
@@ -42,6 +45,10 @@ class SweepingUltrasonicNode(Node):
         self.sweep_direction = 1  # 1 for increasing angle, -1 for decreasing
         self.sweep_speed = 1.0   # Radians per second
         self.timer_period = 0.05  # 20 Hz update rate
+
+        #functionality
+        self.sweep = False
+        self.multiple = False
         
         # Create a timer to constantly publish movement commands
         self.timer = self.create_timer(self.timer_period, self.sweep_timer_callback)
@@ -104,6 +111,25 @@ class SweepingUltrasonicNode(Node):
                 
                 self.entry_angle = float('inf')
                 self.min_distance = float('inf')
+
+    def sweep_callback(self, msg):
+        
+        data = json.loads(msg.data)
+        self.sweep = data.get("sweep", False)
+        self.multiple = data.get("multiple", False)
+
+        if self.sweep:
+            if self.multiple:
+                #keep sweeping until sweep is false
+                dummy = 1
+            else:
+                #do a single sweep
+                dummy = 2
+
+        else:
+            #set to 90 (head on and dont sweep)
+            dummy = 3
+
 
 
 def main(args=None):
