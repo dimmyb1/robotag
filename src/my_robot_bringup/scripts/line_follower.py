@@ -361,16 +361,16 @@ class line_follower(Node):
         self.yaw_deg = yaw_deg % 360.0
 
         #given that we start facing south
-        if 0.0 <= yaw_deg < 45.0 or 315.0 <= yaw_deg < 360.0:
+        if 0.0 <= self.yaw_deg < 45.0 or 315.0 <= self.yaw_deg < 360.0:
             self.facing = 2
-        elif 45.0 <= yaw_deg < 135.0 :
+        elif 45.0 <= self.yaw_deg < 135.0 :
             self.facing = 3
-        elif 135.0 <= yaw_deg < 225.0 :
+        elif 135.0 <= self.yaw_deg < 225.0 :
             self.facing = 0
-        elif 225.0 <= yaw_deg < 315.0 :
+        elif 225.0 <= self.yaw_deg < 315.0 :
             self.facing = 1
         
-        #self.get_logger().info(f'Current Z Rotation (Yaw): {yaw_deg:.2f}°')
+        #self.get_logger().info(f'Current Z Rotation (Yaw): {self.yaw_deg:.2f}°')
 
     #Ultrasonic functions
     def ultrasonic_callback(self, msg):
@@ -444,6 +444,7 @@ class line_follower(Node):
 
     def update_motion(self):
         STARTED_FACING = 2
+        ANGLE_TOLERANCE = 4
         if self.motion_active and self.now >= self.motion_end_time:
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.0
@@ -451,17 +452,31 @@ class line_follower(Node):
             self.motion_active = False 
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
-        else:
-            target = abs((self.imu_target - STARTED_FACING) * 90)
-            if target -4 <= self.yaw_deg <= target +4:
-                #we have completed our turn.
-                self.imu_turning = False
-                self.imu_target = -1
-                self.stopMov()
+        elif(self.imu_turning):
+            target = ((self.imu_target - STARTED_FACING) * 90)
+            if target < 0:
+                target+=360
 
-                if self.toDepart:
-                    self.toDepart = False #consume
-                    self.departureTime = self.now
+            if target < ANGLE_TOLERANCE:
+                if (360+target) - ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + ANGLE_TOLERANCE:
+                    #we have completed our turn.
+                    self.imu_turning = False
+                    self.imu_target = -1
+                    self.stopMov()
+
+                    if self.toDepart:
+                        self.toDepart = False #consume
+                        self.departureTime = self.now
+            else:
+                if target - ANGLE_TOLERANCE <= self.yaw_deg <= target + ANGLE_TOLERANCE:
+                    #we have completed our turn.
+                    self.imu_turning = False
+                    self.imu_target = -1
+                    self.stopMov()
+
+                    if self.toDepart:
+                        self.toDepart = False #consume
+                        self.departureTime = self.now
                 
 
         # elif self.imu_turning and self.facing == self.imu_target:
