@@ -452,7 +452,7 @@ class line_follower(Node):
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
         else:
-            target = (self.facing - STARTED_FACING) * 90
+            target = (self.imu_target - STARTED_FACING) * 90
             if target -4 <= self.yaw_deg <= target +4:
                 #we have completed our turn.
                 self.imu_turning = False
