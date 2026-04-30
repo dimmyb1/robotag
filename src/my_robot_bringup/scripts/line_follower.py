@@ -116,6 +116,7 @@ class line_follower(Node):
         self.sweep = False
         self.multiple = False
         self.locateTarget = False
+        self.initial_reading_taken = False
 
         #IR sensor vars
         self.colours = [0,0,0]
@@ -380,6 +381,8 @@ class line_follower(Node):
         self.exit_angle = msg.data[1]
         self.ultrasonic_distance = msg.data[2]
 
+        if not self.initial_reading_taken:
+            self.initial_reading_taken = True #consume
         if self.locateTarget:
             self.locateTarget = False
         
@@ -3219,41 +3222,42 @@ class line_follower(Node):
         #put a skip here / wait for gazebo to stabilize (implement)
         dummy  =1
 
-
-        self.now = time.time()
-        self.update_motion()
-
-        
-
-        if self.retryPlan== 0 and not self.imu_turning and not self.completeTurn:
-            #do a single scan for opponent
-            if self.behaviourMode in [3,4,5] and self.locateTarget:
-                #finish the retryPlan with this step
-                self.sweep = True
-                self.multiple = False
-            
-            else:
-
-                self.updatePos()
-
-                if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
-                    self.stateFollow = True
-
-                if not self.motion_active and self.stateFollow and not self.imu_turning:
-                    self.followLine() 
-                    self.sweep = True
-                    self.multiple = True
-
-        else:
-            #reset ultrasonic sweep vars
-            # self.entry_angle = 0.0
-            # self.exit_angle = 0.0
-            # self.ultrasonic_distance = float('inf')
-            self.sweep = False
+        if not self.initial_reading_taken and self.behaviourMode in [3,4,5]:
+            #stop everything. don't even start doing anything until we have a reading.
+            self.sweep = True
             self.multiple = False
 
+        else:
 
-        
+            self.now = time.time()
+            self.update_motion()
+
+            
+
+            if self.retryPlan== 0 and not self.imu_turning and not self.completeTurn:
+                #do a single scan for opponent
+                if self.behaviourMode in [3,4,5] and self.locateTarget:
+                    #finish the retryPlan with this step
+                    self.sweep = True
+                    self.multiple = False
+                
+                else:
+
+                    self.updatePos()
+
+                    if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
+                        self.stateFollow = True
+
+                    if not self.motion_active and self.stateFollow and not self.imu_turning:
+                        self.followLine() 
+                        self.sweep = True
+                        self.multiple = True
+
+            else:
+                #reset ultrasonic sweep vars
+                self.sweep = False
+                self.multiple = False
+
         self.surveillCapture() #for tag
         self.publish_sweep_command() #for moving servo
         self.publish_tag_status()
