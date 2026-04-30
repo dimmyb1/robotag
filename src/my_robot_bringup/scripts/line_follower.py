@@ -448,7 +448,7 @@ class line_follower(Node):
     def update_motion(self):
         STARTED_FACING = 2
         ANGLE_TOLERANCE = 4
-        self.get_logger().info(f"Turning... yaw={self.yaw_deg:.1f}, target={self.imu_target}")
+        #self.get_logger().info(f"Turning... yaw={self.yaw_deg:.1f}, target={self.imu_target}")
         if self.motion_active and self.now >= self.motion_end_time:
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.0
