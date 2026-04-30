@@ -49,6 +49,7 @@ class SweepingUltrasonicNode(Node):
         #functionality
         self.sweep = False
         self.multiple = False
+        self.single_sweep_phase = 0
         
         # Create a timer to constantly publish movement commands
         self.timer = self.create_timer(self.timer_period, self.sweep_timer_callback)
