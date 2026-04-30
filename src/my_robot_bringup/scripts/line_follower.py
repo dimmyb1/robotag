@@ -113,6 +113,7 @@ class line_follower(Node):
         self.ultrasonic_distance = 100.0
         self.sweep = False
         self.multiple = False
+        self.locateTarget = False
 
         #IR sensor vars
         self.colours = [0,0,0]
@@ -373,6 +374,9 @@ class line_follower(Node):
         self.entry_angle = msg.data[0]
         self.exit_angle = msg.data[1]
         self.ultrasonic_distance = msg.data[2]
+
+        if self.locateTarget:
+            self.locateTarget = False
         
         #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
 
@@ -439,9 +443,8 @@ class line_follower(Node):
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
             self.motion_active = False 
-            self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
+            #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
-            self.imu_turning = False
 
         elif self.imu_turning and self.facing == self.imu_target:
             #we have turned to face the general direction of where we needed to be,
@@ -1101,6 +1104,7 @@ class line_follower(Node):
         #-2 means turn left 90
         #-3 means turn right 90
         if(self.entry_angle == float('inf')):
+            self.locateTarget = True
             if self.exit_angle == float('inf'):
                 #no detection
                 return -1
@@ -1113,6 +1117,7 @@ class line_follower(Node):
                     return -2
 
         elif self.exit_angle == float('inf'):
+            self.locateTarget = True
             #only 1 detected
             if self.entry_angle < 0:
                 return -3
@@ -3149,21 +3154,46 @@ class line_follower(Node):
 
       
     def loop(self):
+        #put a skip here / wait for gazebo to stabilize (implement)
+        dummy  =1
+
+
         self.now = time.time()
         self.update_motion()
 
+        
+
         if self.retryPlan== 0 and not self.imu_turning and not self.completeTurn:
-            self.updatePos()
+            #do a single scan for opponent
+            if self.behaviourMode in [3,4,5] and self.locateTarget:
+                #finish the retryPlan with this step
+                self.sweep = True
+                self.multiple = False
+            
+            else:
 
-            if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
-                self.stateFollow = True
+                self.updatePos()
 
-            if not self.motion_active and self.stateFollow and not self.imu_turning:
-                self.followLine() 
+                if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
+                    self.stateFollow = True
+
+                if not self.motion_active and self.stateFollow and not self.imu_turning:
+                    self.followLine() 
+                    self.sweep = True
+                    self.multiple = True
+
+        else:
+            #reset ultrasonic sweep vars
+            # self.entry_angle = 0.0
+            # self.exit_angle = 0.0
+            # self.ultrasonic_distance = float('inf')
+            self.sweep = False
+            self.multiple = False
+
 
         
-        self.surveillCapture()
-        self.publish_sweep_command()
+        self.surveillCapture() #for tag
+        self.publish_sweep_command() #for moving servo
         self.publish_tag_status()
 
 def main():
