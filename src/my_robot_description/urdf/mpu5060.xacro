@@ -34,6 +34,11 @@
                 <update_rate>100</update_rate> <visualize>true</visualize>
                 <topic>/${bot_name}/imu</topic>
                 <imu>
+                    <orientation_reference_frame>
+                        <localization>ENU</localization>
+                    </orientation_reference_frame>
+                    <enable_orientation>true</enable_orientation>
+                    
                     <angular_velocity>
                         <x>
                             <noise type="gaussian">
