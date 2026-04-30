@@ -106,6 +106,7 @@ class line_follower(Node):
         self.other_tag = False
         self.other_ack = False
         self.initiated_tag = False
+        self.doTag = False
 
         #ultrasonic sensor and servo vars
         self.entry_angle = float('inf')
@@ -314,6 +315,7 @@ class line_follower(Node):
             if self.ack and not self.other_ack:
                 self.initiated_tag = False
                 self.ack = False
+                self.doTag = True
             elif self.other_ack:
                 self.tag = False
                 self.ack = True
@@ -324,6 +326,7 @@ class line_follower(Node):
             elif self.other_ack:
                 self.ack = False
                 self.tag = False
+                self.doTag = True
 
 
         
@@ -333,7 +336,7 @@ class line_follower(Node):
 
     def publish_tag_status(self):
         payload = {
-            "tag": self.tag,
+            "tag": self.tag or self.initiated_tag,
             "ack": self.ack
         }
 
@@ -3093,13 +3096,12 @@ class line_follower(Node):
         #~10cm is the maximum distance for capture in tight spaces of the map
         
         #TAG
-        if self.ultrasonic_distance < self.CAPTURE_MAX :
+        if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
             self.initiated_tag = True
             self.get_logger().info("Initiating tag...")
 
-        if (self.initiated_tag or self.tag ) and self.now > self.time_of_last_tag + self.TAG_COOLDOWN:
-            self.initiated_tag = False
-            self.tag = True
+        if self.doTag:
+            self.doTag = False #consume command
             self.time_of_last_tag = self.now
 
             #switch mode
