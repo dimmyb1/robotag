@@ -2258,6 +2258,8 @@ class line_follower(Node):
             if self.i_patrol >= 16:
                 self.i_patrol = 0
             self.current_destination = self.patrolPath[self.i_patrol]
+
+            self.stateFollow = True
             
         elif self.behaviourMode == 2:
             # 2 - Random
@@ -2982,6 +2984,9 @@ class line_follower(Node):
                                 self.startTurnBasedOnIMU()
                                 self.retryPlan = 0
                                 return
+                            
+                            if not self.imu_turning:
+                                self.stateFollow = True
                         else:
                             #cooldown has not expired yet. stay stopped and wait
                             self.stateFollow = False
@@ -3130,6 +3135,9 @@ class line_follower(Node):
                         self.startTurnBasedOnIMU()
                         self.retryPlan = 0
                         return
+                    
+                    if not self.imu_turning:
+                        self.stateFollow = True
                     
                     #then it is a char from A to H, and it is an immediate neighbour 
                     #e.g. path = 'A'
