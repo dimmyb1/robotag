@@ -53,6 +53,7 @@ class SweepingUltrasonicNode(Node):
         
         # Create a timer to constantly publish movement commands
         self.timer = self.create_timer(self.timer_period, self.sweep_timer_callback)
+        self.get_logger().info(f"Namespace: '{self.get_namespace()}', robot_name: '{robot_name}', servo topic: '{topic_servo_cmd}'")
 
     def sweep_callback(self, msg):
         data = json.loads(msg.data)
