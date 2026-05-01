@@ -1089,8 +1089,9 @@ class line_follower(Node):
                 return -3
             elif self.entry_angle > 0:
                 return -2
-            
-            
+        
+        #else, it's safe to continue
+
         #let's say radar stores the closest ultrasonic ping in euclidean metric in self.ultrasonic_distance
         #we get two readings: first ping entering reading (self.entry_angle)
         # second ping exiting reading (self.exit_angle)
@@ -1164,7 +1165,6 @@ class line_follower(Node):
 
         
 
-        #else, it's safe to continue
         #first we will check if the mark is right in front of us
         lesserServo = min(self.entry_angle, self.exit_angle)
         biggerServo = max(self.entry_angle, self.exit_angle)
