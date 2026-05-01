@@ -3253,7 +3253,7 @@ class line_follower(Node):
                         self.sweep = True
                         self.multiple = True
 
-            else:
+            elif not self.stateFollow:
                 #reset ultrasonic sweep vars
                 self.sweep = False
                 self.multiple = False

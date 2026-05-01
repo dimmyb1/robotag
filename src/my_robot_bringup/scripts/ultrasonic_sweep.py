@@ -56,8 +56,16 @@ class SweepingUltrasonicNode(Node):
 
     def sweep_callback(self, msg):
         data = json.loads(msg.data)
+        prev_sweep = self.sweep
         self.sweep = data.get("sweep", False)
         self.multiple = data.get("multiple", False)
+
+        # Fresh single sweep starting — reset detection state
+        if self.sweep and not self.multiple and not prev_sweep:
+            self.is_detecting = False
+            self.entry_angle = float('inf')
+            self.min_distance = float('inf')
+            self.single_sweep_phase = 0
 
     def sweep_timer_callback(self):
        
@@ -91,6 +99,20 @@ class SweepingUltrasonicNode(Node):
                         self.target_angle = limit
                         self.single_sweep_phase = 0
                         self.sweep = False
+
+                        # Publish whatever we found (inf = nothing)
+                        result_msg = Float64MultiArray()
+                        result_msg.data = [
+                            self.entry_angle,      # inf if nothing detected
+                            self.current_servo_angle,  # exit angle (or just current pos if nothing)
+                            self.min_distance      # inf if nothing detected
+                        ]
+                        self.object_pub.publish(result_msg)
+
+                        # Reset for next time
+                        self.is_detecting = False
+                        self.entry_angle = float('inf')
+                        self.min_distance = float('inf')
 
         else:
             #set to 90 (head on and dont sweep)
