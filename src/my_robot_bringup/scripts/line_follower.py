@@ -3184,6 +3184,8 @@ class line_follower(Node):
         if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
             self.initiated_tag = True
             self.get_logger().info("Initiating tag...")
+        else:
+            self.initiated_tag = False #don't let it keep going 
 
         if self.doTag:
             self.doTag = False #consume command
