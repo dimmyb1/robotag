@@ -93,6 +93,7 @@ class line_follower(Node):
         #instead, i blocked intersection detection completely when imu_turning at an intersection
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
+        self.dontSense = False
         self.firstNode = True
 
         #tag vars + esp comms
@@ -100,6 +101,7 @@ class line_follower(Node):
         #self.CAPTURE_MIN = 0.05
         self.PAUSE_TIME = 7 #was 6, but seemed low
         self.startPauseTime = -1
+        self.paused = False
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 6
         self.tag = False
@@ -471,6 +473,7 @@ class line_follower(Node):
                     if self.toDepart:
                         self.toDepart = False #consume
                         self.departureTime = self.now
+                        self.stateFollow = True
             else:
                 if target - ANGLE_TOLERANCE <= self.yaw_deg <= target + ANGLE_TOLERANCE:
                     #we have completed our turn.
@@ -481,6 +484,7 @@ class line_follower(Node):
                     if self.toDepart:
                         self.toDepart = False #consume
                         self.departureTime = self.now
+                        self.stateFollow = True
                 
 
         # elif self.imu_turning and self.facing == self.imu_target:
@@ -2739,7 +2743,8 @@ class line_follower(Node):
             #no turn
             self.imu_turning = False
             #self.completeTurn = True
-            self.stateFollow = True
+            #NEEDS FIXING
+            #self.stateFollow = True
         else:
             self.imu_turning = True
             self.get_logger().info(f"Turning to face {self.imu_target}")
@@ -2927,9 +2932,9 @@ class line_follower(Node):
                     #populate our planned path if we don't already have a plan
                     #is it empty? => stay here and wait until our sensing cooldown has gone out.
                     if not self.current_destination:
+                        self.dontSense = True
                         #when sensing cooldown expires, look again.
                         if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
-                            self.senseEntryTime = self.now
                             self.stateFollow = False
                             self.retryPlan = self.planDestination()
 
@@ -2978,11 +2983,12 @@ class line_follower(Node):
                         else:
                             #cooldown has not expired yet. stay stopped and wait
                             self.stateFollow = False
+                            self.dontSense = True
                             return
-                    #else:
-                    #    self.stateFollow = True
+                    
+                        self.dontSense = False
 
-                        #we have directions to go somewhere
+                        #if we got this far, we have directions to go somewhere
                         #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
                         #Check which one, if it is a list, we must iterate over it as it is a long path.
                         if type(self.current_destination) == list:
@@ -3036,6 +3042,10 @@ class line_follower(Node):
                                     else:
                                         self.skipZero = False
 
+                            else: #empty destination
+                                self.senseEntryTime = self.now
+                                self.dontSense = True
+                                self.stateFollow = False
 
                         else : #not list
                             
@@ -3181,6 +3191,7 @@ class line_follower(Node):
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
                 self.stateFollow = False
                 self.startPauseTime = self.now
+                self.paused = True
             else:
                 #resolve destination
 
@@ -3248,8 +3259,17 @@ class line_follower(Node):
 
                     self.updatePos()
 
-                    if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
+                    #(NEEDS FIXING)
+                    #if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
+                    #    self.stateFollow = True
+
+                    if (self.now > self.startPauseTime + self.PAUSE_TIME) and self.paused:
+                        self.paused = False #consume
                         self.stateFollow = True
+
+                    if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense:
+                        self.dontSense = False #consume
+                        self.stateFollow = True #not sure about this
 
                     if not self.motion_active and self.stateFollow and not self.imu_turning:
                         self.followLine() 
