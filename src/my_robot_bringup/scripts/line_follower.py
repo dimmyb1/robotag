@@ -1084,17 +1084,17 @@ class line_follower(Node):
             else:
 
                 if self.exit_angle < 0:
-                    return -3
-                elif self.exit_angle > 0:
                     return -2
+                elif self.exit_angle > 0:
+                    return -3
 
         elif self.exit_angle == float('inf'):
             self.locateTarget = True
             #only 1 detected
             if self.entry_angle < 0:
-                return -3
-            elif self.entry_angle > 0:
                 return -2
+            elif self.entry_angle > 0:
+                return -3
         
         #else, it's safe to continue
 
