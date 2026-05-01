@@ -117,11 +117,11 @@ class SweepingUltrasonicNode(Node):
 
         else:
             #set to 90 (head on and dont sweep)
-            self.target_angle = 0
+            self.target_angle = 0.0
 
         # Publish the command to the servo
         cmd_msg = Float64()
-        cmd_msg.data = self.target_angle
+        cmd_msg.data = float(self.target_angle)
         self.cmd_pub.publish(cmd_msg)
 
 
