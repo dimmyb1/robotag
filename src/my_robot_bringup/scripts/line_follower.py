@@ -2748,7 +2748,7 @@ class line_follower(Node):
             self.imu_turning = False
             #self.completeTurn = True
             #NEEDS FIXING
-            #self.stateFollow = True
+            self.stateFollow = True
         else:
             self.imu_turning = True
             self.get_logger().info(f"Turning to face {self.imu_target}")
