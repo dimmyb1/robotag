@@ -1064,6 +1064,33 @@ class line_follower(Node):
     
     #Graph Functions
     def calculateProbabilities(self):
+        #returns from this function:
+        #only 1 detected
+        #-1 means turn 180
+        #-2 means turn left 90
+        #-3 means turn right 90
+        if(self.entry_angle == float('inf')):
+            self.locateTarget = True
+            if self.exit_angle == float('inf'):
+                #no detection
+                return -1
+
+            else:
+
+                if self.exit_angle < 0:
+                    return -3
+                elif self.exit_angle > 0:
+                    return -2
+
+        elif self.exit_angle == float('inf'):
+            self.locateTarget = True
+            #only 1 detected
+            if self.entry_angle < 0:
+                return -3
+            elif self.entry_angle > 0:
+                return -2
+            
+            
         #let's say radar stores the closest ultrasonic ping in euclidean metric in self.ultrasonic_distance
         #we get two readings: first ping entering reading (self.entry_angle)
         # second ping exiting reading (self.exit_angle)
@@ -1135,31 +1162,7 @@ class line_follower(Node):
         # +1.57 is left 90
         # -1.57 is right 90
 
-        #returns from this function:
-        #only 1 detected
-        #-1 means turn 180
-        #-2 means turn left 90
-        #-3 means turn right 90
-        if(self.entry_angle == float('inf')):
-            self.locateTarget = True
-            if self.exit_angle == float('inf'):
-                #no detection
-                return -1
-
-            else:
-
-                if self.exit_angle < 0:
-                    return -3
-                elif self.exit_angle > 0:
-                    return -2
-
-        elif self.exit_angle == float('inf'):
-            self.locateTarget = True
-            #only 1 detected
-            if self.entry_angle < 0:
-                return -3
-            elif self.entry_angle > 0:
-                return -2
+        
 
         #else, it's safe to continue
         #first we will check if the mark is right in front of us
