@@ -915,22 +915,22 @@ class line_follower(Node):
                     hn = self.returnNode(h)
                     if minTime < hn.Times[0] < maxTime:
                         self.last_node = h
-                        self.current_node = hn.Nc
+                        self.current_node = self.returnNode(hn.Nc)
                         self.loc_hyp = []
                         break
                     elif minTime < hn.Times[1] < maxTime:
                         self.last_node = h
-                        self.current_node = hn.Ec
+                        self.current_node = self.returnNode(hn.Ec)
                         self.loc_hyp = []
                         break
                     elif minTime < hn.Times[2] < maxTime:
                         self.last_node = h
-                        self.current_node = hn.Sc
+                        self.current_node = self.returnNode(hn.Sc)
                         self.loc_hyp = []
                         break
                     elif minTime < hn.Times[3] < maxTime:
                         self.last_node = h
-                        self.current_node = hn.Wc
+                        self.current_node = self.returnNode(hn.Wc)
                         self.loc_hyp = []
                         break
 
