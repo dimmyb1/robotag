@@ -3246,6 +3246,9 @@ class line_follower(Node):
         #put a skip here / wait for gazebo to stabilize (implement)
         dummy  =1
 
+        sweep_was = self.sweep
+        multiple_was = self.multiple
+
         if not self.initial_reading_taken and self.behaviourMode in [3,4,5]:
             #stop everything. don't even start doing anything until we have a reading.
             self.sweep = True
@@ -3291,8 +3294,11 @@ class line_follower(Node):
                 self.sweep = False
                 self.multiple = False
 
+        if sweep_was != self.sweep or multiple_was != self.multiple:
+            self.publish_sweep_command() #for moving servo
+            #only publish if we have something new to talk about
+
         self.surveillCapture() #for tag
-        self.publish_sweep_command() #for moving servo
         self.publish_tag_status()
 
 def main():
