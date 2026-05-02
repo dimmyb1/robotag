@@ -121,6 +121,7 @@ class line_follower(Node):
         self.multiple = False
         self.locateTarget = False
         self.initial_reading_taken = False
+        self.initiated_sweep = False
 
         #IR sensor vars
         self.colours = [0,0,0]
@@ -3230,6 +3231,7 @@ class line_follower(Node):
 
             self.resetBehaviour = True
             self.initial_reading_taken = False
+            self.initiated_sweep = False
 
             #flip status
             self.evading = not self.evading
@@ -3298,8 +3300,9 @@ class line_follower(Node):
                 self.sweep = False
                 self.multiple = False
 
-        
-        self.publish_sweep_command() #for moving servo
+        if sweep_was != self.sweep or multiple_was != self.multiple or not self.initiated_sweep:
+            self.publish_sweep_command() #for moving servo
+            self.initiated_sweep = True
 
         self.surveillCapture() #for tag
         self.publish_tag_status()
