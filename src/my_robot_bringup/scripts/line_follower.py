@@ -3229,6 +3229,7 @@ class line_follower(Node):
                 self.current_destination = self.current_destination[0]
 
             self.resetBehaviour = True
+            self.initial_reading_taken = False
 
             #flip status
             self.evading = not self.evading
@@ -3296,9 +3297,8 @@ class line_follower(Node):
                 self.sweep = False
                 self.multiple = False
 
-        if sweep_was != self.sweep or multiple_was != self.multiple:
-            self.publish_sweep_command() #for moving servo
-            #only publish if we have something new to talk about
+        
+        self.publish_sweep_command() #for moving servo
 
         self.surveillCapture() #for tag
         self.publish_tag_status()
