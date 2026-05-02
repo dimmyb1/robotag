@@ -3270,6 +3270,7 @@ class line_follower(Node):
                     #finish the retryPlan with this step
                     self.sweep = True
                     self.multiple = False
+                    self.retryPlan = 0
                 
                 else:
 
@@ -3292,7 +3293,7 @@ class line_follower(Node):
                         self.sweep = True
                         self.multiple = True
 
-            elif not self.stateFollow:
+            elif not self.stateFollow and not self.locateTarget:
                 #reset ultrasonic sweep vars
                 self.sweep = False
                 self.multiple = False
