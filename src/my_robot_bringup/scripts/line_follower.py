@@ -476,6 +476,7 @@ class line_follower(Node):
                     self.imu_turning = False
                     self.imu_target = -1
                     self.stopMov()
+                    self.retryPlan = 0
 
                     if self.toDepart:
                         self.toDepart = False #consume
@@ -487,6 +488,7 @@ class line_follower(Node):
                     self.imu_turning = False
                     self.imu_target = -1
                     self.stopMov()
+                    self.retryPlan = 0
 
                     if self.toDepart:
                         self.toDepart = False #consume
@@ -2988,7 +2990,7 @@ class line_follower(Node):
 
                                 #self.startTurnBasedOnFacing()
                                 self.startTurnBasedOnIMU()
-                                self.retryPlan = 0
+                                #self.retryPlan = 0
                                 return
                             
                             if not self.imu_turning:
@@ -3139,7 +3141,7 @@ class line_follower(Node):
 
                         #self.startTurnBasedOnFacing()
                         self.startTurnBasedOnIMU()
-                        self.retryPlan = 0
+                        #self.retryPlan = 0
                         return
                     
                     if not self.imu_turning:
