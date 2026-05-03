@@ -83,7 +83,7 @@ class line_follower(Node):
 
         #junction turning vars
         self.stateFollow = True
-        self.completeTurn = False
+        #self.completeTurn = False
         self.wasLeft = False
         self.imu_turning = False
         self.imu_target = -1
@@ -536,7 +536,7 @@ class line_follower(Node):
                 self.stopMov()
                 self.searchRight = False
                 #self.completeTurn = False
-                self.retryPlan = 0
+                #self.retryPlan = 0
                 self.stateFollow = True
                 return True
             
@@ -551,8 +551,8 @@ class line_follower(Node):
         self.stopMov()
         self.searchRight = False
         #self.completeTurn = False
-        self.retryPlan = 0
-        self.stateFollow = True
+        #self.retryPlan = 0
+        #self.stateFollow = True
         return False # finished full arc
 
 
@@ -566,7 +566,7 @@ class line_follower(Node):
                 self.stopMov()
                 self.searchLeft = False
                 #self.completeTurn = False
-                self.retryPlan = 0
+                #self.retryPlan = 0
                 self.stateFollow = True
 
                 return True
@@ -582,8 +582,8 @@ class line_follower(Node):
         self.stopMov()
         self.searchLeft = False
         #self.completeTurn = False
-        self.retryPlan = 0
-        self.stateFollow = True
+        #self.retryPlan = 0
+        #self.stateFollow = True
         return False
         
 
@@ -2743,11 +2743,12 @@ class line_follower(Node):
         return 0
     
     def startTurnBasedOnIMU(self):
-        self.completeTurn = False
+        #self.completeTurn = False
 
         if self.imu_target == -1 or self.imu_target == self.facing:
             #no turn
             self.imu_turning = False
+            self.stopMov()
             #self.completeTurn = True
             #NEEDS FIXING
             self.stateFollow = True
@@ -3269,7 +3270,7 @@ class line_follower(Node):
 
             
 
-            if self.retryPlan== 0 and not self.imu_turning and not self.completeTurn:
+            if self.retryPlan== 0 and not self.imu_turning:
                 #do a single scan for opponent
                 if self.behaviourMode in [3,4,5] and self.locateTarget:
                     #finish the retryPlan with this step
