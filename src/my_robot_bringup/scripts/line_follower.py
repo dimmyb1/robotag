@@ -3306,6 +3306,11 @@ class line_follower(Node):
                         if not sweep_was or not multiple_was:
                             self.publish_sweep_command()
 
+            elif self.imu_turning:
+                if self.sweep or self.multiple:
+                    self.sweep = False
+                    self.multiple = False
+                    self.publish_sweep_command()
             elif not self.stateFollow and not self.locateTarget:
                 #reset ultrasonic sweep vars
                 self.sweep = False
