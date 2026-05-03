@@ -389,8 +389,8 @@ class line_follower(Node):
 
         if not self.initial_reading_taken:
             self.initial_reading_taken = True #consume
-        if self.locateTarget:
-            self.locateTarget = False
+        # if self.locateTarget:
+        #     self.locateTarget = False
         
         #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
 
@@ -460,6 +460,7 @@ class line_follower(Node):
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
             self.motion_active = False 
+            self.imu_turning = False
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
         elif(self.imu_turning):
@@ -3256,6 +3257,9 @@ class line_follower(Node):
         sweep_was = self.sweep
         multiple_was = self.multiple
 
+        self.now = time.time()
+        self.update_motion()
+
         if not self.initial_reading_taken and self.behaviourMode in [3,4,5]:
             #stop everything. don't even start doing anything until we have a reading.
             self.sweep = True
@@ -3264,11 +3268,6 @@ class line_follower(Node):
             self.initial_reading_taken = True
 
         else:
-
-            self.now = time.time()
-            self.update_motion()
-
-            
 
             if self.retryPlan== 0 and not self.imu_turning:
                 #do a single scan for opponent
