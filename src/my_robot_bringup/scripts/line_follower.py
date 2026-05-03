@@ -3258,6 +3258,8 @@ class line_follower(Node):
             #stop everything. don't even start doing anything until we have a reading.
             self.sweep = True
             self.multiple = False
+            self.publish_sweep_command()
+            self.initial_reading_taken = True
 
         else:
 
@@ -3272,6 +3274,8 @@ class line_follower(Node):
                     #finish the retryPlan with this step
                     self.sweep = True
                     self.multiple = False
+                    self.publish_sweep_command()
+                    self.locateTarget = False
                     self.retryPlan = 0
                 
                 else:
@@ -3294,15 +3298,20 @@ class line_follower(Node):
                         self.followLine() 
                         self.sweep = True
                         self.multiple = True
+                        if not sweep_was or not multiple_was:
+                            self.publish_sweep_command()
 
             elif not self.stateFollow and not self.locateTarget:
                 #reset ultrasonic sweep vars
                 self.sweep = False
                 self.multiple = False
 
-        if sweep_was != self.sweep or multiple_was != self.multiple or not self.initiated_sweep:
-            self.publish_sweep_command() #for moving servo
-            self.initiated_sweep = True
+                if sweep_was:
+                    self.publish_sweep_command()
+
+        #if sweep_was != self.sweep or multiple_was != self.multiple or not self.initiated_sweep:
+            #self.publish_sweep_command() #for moving servo
+            #self.initiated_sweep = True
 
         self.surveillCapture() #for tag
         self.publish_tag_status()
