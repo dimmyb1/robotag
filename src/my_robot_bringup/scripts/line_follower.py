@@ -123,6 +123,7 @@ class line_follower(Node):
         self.locateTarget = False
         self.initial_reading_taken = False
         self.initiated_sweep = False
+        self.waitingForUltrasonic = False
 
         #IR sensor vars
         self.colours = [0,0,0]
@@ -389,8 +390,9 @@ class line_follower(Node):
 
         if not self.initial_reading_taken:
             self.initial_reading_taken = True #consume
-        # if self.locateTarget:
-        #     self.locateTarget = False
+        if self.locateTarget and self.waitingForUltrasonic:
+            self.waitingForUltrasonic = False
+            self.locateTarget = False
         
         #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
 
@@ -3260,7 +3262,7 @@ class line_follower(Node):
         self.now = time.time()
         self.update_motion()
 
-        if not self.initial_reading_taken and self.behaviourMode in [3,4,5]:
+        if not self.initial_reading_taken and self.behaviourMode in [3,4,5] and not self.waitingForUltrasonic:
             #stop everything. don't even start doing anything until we have a reading.
             self.sweep = True
             self.multiple = False
@@ -3271,12 +3273,12 @@ class line_follower(Node):
 
             if self.retryPlan== 0 and not self.imu_turning:
                 #do a single scan for opponent
-                if self.behaviourMode in [3,4,5] and self.locateTarget:
+                if self.behaviourMode in [3,4,5] and self.locateTarget and not self.waitingForUltrasonic:
                     #finish the retryPlan with this step
                     self.sweep = True
                     self.multiple = False
                     self.publish_sweep_command()
-                    self.locateTarget = False
+                    self.waitingForUltrasonic = True
                     self.retryPlan = 0
                 
                 else:
