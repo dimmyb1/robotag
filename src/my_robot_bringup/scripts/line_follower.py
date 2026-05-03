@@ -3309,9 +3309,9 @@ class line_follower(Node):
                 if sweep_was:
                     self.publish_sweep_command()
 
-        #if sweep_was != self.sweep or multiple_was != self.multiple or not self.initiated_sweep:
-            #self.publish_sweep_command() #for moving servo
-            #self.initiated_sweep = True
+        if not self.initiated_sweep:
+            self.publish_sweep_command() #for moving servo
+            self.initiated_sweep = True
 
         self.surveillCapture() #for tag
         self.publish_tag_status()
