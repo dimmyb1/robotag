@@ -2762,96 +2762,96 @@ class line_follower(Node):
 
 
 
-    def startTurnBasedOnFacing(self):
-        TURN_TIME = 3
-        if self.imu_target == -1:
-            #no turn
-            self.imu_turning = False
-            self.completeTurn = True
-            self.stateFollow = True
-        else:
-            self.imu_turning = True
-            self.completeTurn = False
-            self.get_logger().info(f"Turning to face {self.imu_target}")
-            if self.facing == 0:
-                if self.imu_target == 0:
-                    #no turn
-                    self.imu_turning = False
-                    self.completeTurn = True
-                    self.stateFollow = True
+    # def startTurnBasedOnFacing(self):
+    #     TURN_TIME = 3
+    #     if self.imu_target == -1:
+    #         #no turn
+    #         self.imu_turning = False
+    #         self.completeTurn = True
+    #         self.stateFollow = True
+    #     else:
+    #         self.imu_turning = True
+    #         self.completeTurn = False
+    #         self.get_logger().info(f"Turning to face {self.imu_target}")
+    #         if self.facing == 0:
+    #             if self.imu_target == 0:
+    #                 #no turn
+    #                 self.imu_turning = False
+    #                 self.completeTurn = True
+    #                 self.stateFollow = True
 
-                elif self.imu_target == 1:
-                    self.wasLeft = False
-                    self.turnRight(self.thirty *3)
-                    self.departureTime += TURN_TIME
-                elif self.imu_target == 2:
-                    self.wasLeft = False
-                    self.turnRight(self.thirty *6)
-                    self.departureTime += TURN_TIME * 2
-                elif self.imu_target == 3:
-                    self.wasLeft = True
-                    self.turnLeft(self.thirty *3)
-                    self.departureTime += TURN_TIME
+    #             elif self.imu_target == 1:
+    #                 self.wasLeft = False
+    #                 self.turnRight(self.thirty *3)
+    #                 self.departureTime += TURN_TIME
+    #             elif self.imu_target == 2:
+    #                 self.wasLeft = False
+    #                 self.turnRight(self.thirty *6)
+    #                 self.departureTime += TURN_TIME * 2
+    #             elif self.imu_target == 3:
+    #                 self.wasLeft = True
+    #                 self.turnLeft(self.thirty *3)
+    #                 self.departureTime += TURN_TIME
                 
-            elif self.facing == 1:
-                if self.imu_target == 1:
-                    #no turn
-                    self.imu_turning = False
-                    self.completeTurn = True
-                    self.stateFollow = True
+    #         elif self.facing == 1:
+    #             if self.imu_target == 1:
+    #                 #no turn
+    #                 self.imu_turning = False
+    #                 self.completeTurn = True
+    #                 self.stateFollow = True
 
-                elif self.imu_target == 2:
-                    self.wasLeft = False
-                    self.turnRight(self.thirty *3)
-                    self.departureTime += TURN_TIME
-                elif self.imu_target == 3:
-                    self.wasLeft = False
-                    self.turnRight(self.thirty *6)
-                    self.departureTime += TURN_TIME * 2
-                elif self.imu_target == 0:
-                    self.wasLeft = True
-                    self.turnLeft(self.thirty *3)
-                    self.departureTime += TURN_TIME
+    #             elif self.imu_target == 2:
+    #                 self.wasLeft = False
+    #                 self.turnRight(self.thirty *3)
+    #                 self.departureTime += TURN_TIME
+    #             elif self.imu_target == 3:
+    #                 self.wasLeft = False
+    #                 self.turnRight(self.thirty *6)
+    #                 self.departureTime += TURN_TIME * 2
+    #             elif self.imu_target == 0:
+    #                 self.wasLeft = True
+    #                 self.turnLeft(self.thirty *3)
+    #                 self.departureTime += TURN_TIME
 
-            elif self.facing == 2:
-                if self.imu_target == 2:
-                    #no turn
-                    self.imu_turning = False
-                    self.completeTurn = True
-                    self.stateFollow = True
+    #         elif self.facing == 2:
+    #             if self.imu_target == 2:
+    #                 #no turn
+    #                 self.imu_turning = False
+    #                 self.completeTurn = True
+    #                 self.stateFollow = True
 
-                elif self.imu_target == 3:
-                    self.wasLeft = False
-                    self.turnRight(self.thirty *3)
-                    self.departureTime += TURN_TIME
-                elif self.imu_target == 0:
-                    self.wasLeft = False
-                    self.turnRight(self.thirty *6)
-                    self.departureTime += TURN_TIME * 2
-                elif self.imu_target == 1:
-                    self.wasLeft = True
-                    self.turnLeft(self.thirty *3)
-                    self.departureTime += TURN_TIME
+    #             elif self.imu_target == 3:
+    #                 self.wasLeft = False
+    #                 self.turnRight(self.thirty *3)
+    #                 self.departureTime += TURN_TIME
+    #             elif self.imu_target == 0:
+    #                 self.wasLeft = False
+    #                 self.turnRight(self.thirty *6)
+    #                 self.departureTime += TURN_TIME * 2
+    #             elif self.imu_target == 1:
+    #                 self.wasLeft = True
+    #                 self.turnLeft(self.thirty *3)
+    #                 self.departureTime += TURN_TIME
             
-            elif self.facing == 3:
-                if self.imu_target == 3:
-                    #no turn
-                    self.imu_turning = False
-                    self.completeTurn = True
-                    self.stateFollow = True
+    #         elif self.facing == 3:
+    #             if self.imu_target == 3:
+    #                 #no turn
+    #                 self.imu_turning = False
+    #                 self.completeTurn = True
+    #                 self.stateFollow = True
 
-                elif self.imu_target == 0:
-                    self.wasLeft = False
-                    self.turnRight(self.thirty *3)
-                    self.departureTime += TURN_TIME
-                elif self.imu_target == 1:
-                    self.wasLeft = False
-                    self.turnRight(self.thirty *6)
-                    self.departureTime += TURN_TIME * 2
-                elif self.imu_target == 2:
-                    self.wasLeft = True
-                    self.turnLeft(self.thirty *3)
-                    self.departureTime += TURN_TIME
+    #             elif self.imu_target == 0:
+    #                 self.wasLeft = False
+    #                 self.turnRight(self.thirty *3)
+    #                 self.departureTime += TURN_TIME
+    #             elif self.imu_target == 1:
+    #                 self.wasLeft = False
+    #                 self.turnRight(self.thirty *6)
+    #                 self.departureTime += TURN_TIME * 2
+    #             elif self.imu_target == 2:
+    #                 self.wasLeft = True
+    #                 self.turnLeft(self.thirty *3)
+    #                 self.departureTime += TURN_TIME
 
 
 
