@@ -3343,7 +3343,7 @@ class line_follower(Node):
         if self.STARTUP_TIME == -1:
             self.STARTUP_TIME = self.now
         
-        if self.now > self.STARTUP_TIME + STARTUP_WAIT:
+        if self.now < self.STARTUP_TIME + STARTUP_WAIT:
             return
 
         self.update_motion() #check for end of turn
