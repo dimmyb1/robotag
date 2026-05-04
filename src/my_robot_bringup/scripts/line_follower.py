@@ -3246,7 +3246,7 @@ class line_follower(Node):
                 
 
       
-    def loop(self):
+    def loop2(self):
         #put a skip here / wait for gazebo to stabilize (implement)
         dummy  =1
 
@@ -3316,7 +3316,7 @@ class line_follower(Node):
 
 
     
-    def loop2(self):
+    def loop(self):
         #can include initial Gazebo wait here
 
         #updates
