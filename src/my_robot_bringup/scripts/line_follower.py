@@ -3308,7 +3308,7 @@ class line_follower(Node):
                         if not sweep_was or not multiple_was:
                             self.publish_sweep_command()
 
-            elif self.imu_turning:
+            elif self.imu_turning and not self.stateFollow:
                 if self.sweep or self.multiple:
                     self.sweep = False
                     self.multiple = False
