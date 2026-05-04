@@ -80,6 +80,7 @@ class line_follower(Node):
         self.current_motion = None
         self.searchStep = 0
         self.yaw_deg = 0 #IMU
+        self.STARTUP_TIME = -1
 
         #junction turning vars
         self.stateFollow = True
@@ -3333,10 +3334,18 @@ class line_follower(Node):
 
     
     def loop(self):
-        #can include initial Gazebo wait here
-
+        STARTUP_WAIT = 7
+        
         #updates
         self.now = time.time() #so that all time variables are up-to-date
+
+        #Wait for everything to settle
+        if self.STARTUP_TIME == -1:
+            self.STARTUP_TIME = self.now
+        
+        if self.now > self.STARTUP_TIME + STARTUP_WAIT:
+            return
+
         self.update_motion() #check for end of turn
 
         #check cooldowns
