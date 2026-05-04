@@ -124,6 +124,7 @@ class line_follower(Node):
         self.initial_reading_taken = False
         self.initiated_sweep = False
         self.waitingForUltrasonic = False
+        self.triggerSweep = False
 
         #IR sensor vars
         self.colours = [0,0,0]
