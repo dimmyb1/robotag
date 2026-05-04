@@ -3337,7 +3337,7 @@ class line_follower(Node):
         self.publish_tag_status()
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or not self.initial_reading_taken) and not self.waitingForUltrasonic:
+        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
