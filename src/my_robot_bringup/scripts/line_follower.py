@@ -3317,16 +3317,54 @@ class line_follower(Node):
 
     
     def loop2(self):
+        #can include initial Gazebo wait here
 
+        #updates
+        self.now = time.time() #so that all time variables are up-to-date
+        self.update_motion() #check for end of turn
+
+        #check cooldowns
+        if (self.now > self.startPauseTime + self.PAUSE_TIME) and self.paused:
+            self.paused = False #consume
+
+        if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense and self.current_destination == []:
+            self.dontSense = False #consume
+            self.triggerSweep = True
+
+        #check for tags and publish status
+        self.surveillCapture()
+        self.publish_tag_status()
+
+        #Ultrasonic Sweep Modes
+        if (self.triggerSweep or self.retryPlan != 0) and not self.waitingForUltrasonic:
+            #trigger single sweep
+            self.sweep = True
+            self.multiple = False
+            self.waitingForUltrasonic = True
+            self.publish_sweep_command()
+
+            #consume
+            self.retryPlan = 0
+            self.triggerSweep = False
+
+        
+
+        
         if self.retryPlan != 0 or self.paused or self.dontSense:
             pass
-        else:
-            self.updatePos()
+        elif not self.waitingForUltrasonic:
+            #check for intersection, reset behaviour from tag, update location and destination and target tracking
+            self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
-        if self.retryPlan != 0 or self.paused or self.current_destination == [] or self.imu_turning:
+
+
+
+
+        if self.retryPlan != 0 or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic:
             self.stateFollow = False
 
         if self.stateFollow:
+            #simple line following
             self.followLine()
 
         
