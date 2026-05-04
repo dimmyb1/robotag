@@ -3332,9 +3332,7 @@ class line_follower(Node):
             self.dontSense = False #consume
             self.triggerSweep = True
 
-        #check for tags and publish status
-        self.surveillCapture()
-        self.publish_tag_status()
+        
 
         #Ultrasonic Sweep Modes
         if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic:
@@ -3349,6 +3347,10 @@ class line_follower(Node):
             self.triggerSweep = False
             self.initial_reading_taken = True
         
+        #check for tags and publish status
+        self.surveillCapture()
+        self.publish_tag_status()
+
         if self.retryPlan != 0 or self.paused or self.dontSense:
             pass
         elif not self.waitingForUltrasonic:
