@@ -370,14 +370,24 @@ class line_follower(Node):
         self.yaw_deg = yaw_deg % 360.0
 
         #given that we start facing south
+        # if 0.0 <= self.yaw_deg < 45.0 or 315.0 <= self.yaw_deg < 360.0:
+        #     self.facing = 2
+        # elif 45.0 <= self.yaw_deg < 135.0 :
+        #     self.facing = 3
+        # elif 135.0 <= self.yaw_deg < 225.0 :
+        #     self.facing = 0
+        # elif 225.0 <= self.yaw_deg < 315.0 :
+        #     self.facing = 1
+
+        #specifically because of the sim, this needs to be written as:
         if 0.0 <= self.yaw_deg < 45.0 or 315.0 <= self.yaw_deg < 360.0:
-            self.facing = 2
-        elif 45.0 <= self.yaw_deg < 135.0 :
-            self.facing = 3
-        elif 135.0 <= self.yaw_deg < 225.0 :
             self.facing = 0
-        elif 225.0 <= self.yaw_deg < 315.0 :
+        elif 45.0 <= self.yaw_deg < 135.0 :
             self.facing = 1
+        elif 135.0 <= self.yaw_deg < 225.0 :
+            self.facing = 2
+        elif 225.0 <= self.yaw_deg < 315.0 :
+            self.facing = 3
         
         self.get_logger().info(f'IMU:: Current Z Rotation (Yaw): {self.yaw_deg:.2f}°, Facing: {self.facing}')
 
