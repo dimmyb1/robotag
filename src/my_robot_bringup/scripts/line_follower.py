@@ -3332,8 +3332,6 @@ class line_follower(Node):
             self.dontSense = False #consume
             self.triggerSweep = True
 
-        
-
         #Ultrasonic Sweep Modes
         if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic:
             #trigger single sweep
@@ -3362,7 +3360,7 @@ class line_follower(Node):
             self.stateFollow = False
 
             #Stop sweep.
-            if self.sweep or self.multiple and not self.waitingForUltrasonic:
+            if (self.sweep or self.multiple) and not self.waitingForUltrasonic:
                 self.sweep = False
                 self.multiple = False
                 self.publish_sweep_command()
