@@ -3346,9 +3346,6 @@ class line_follower(Node):
             #consume
             self.retryPlan = 0
             self.triggerSweep = False
-
-        
-
         
         if self.retryPlan != 0 or self.paused or self.dontSense:
             pass
@@ -3356,16 +3353,26 @@ class line_follower(Node):
             #check for intersection, reset behaviour from tag, update location and destination and target tracking
             self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
-
-
-
-
+        
         if self.retryPlan != 0 or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic:
             self.stateFollow = False
+
+            #Stop sweep.
+            if self.sweep or self.multiple:
+                self.sweep = False
+                self.multiple = False
+                self.publish_sweep_command()
+        
 
         if self.stateFollow:
             #simple line following
             self.followLine()
+
+            #Tag Sweep
+            if not self.sweep or not self.multiple:
+                self.sweep = True
+                self.multiple = True
+                self.publish_sweep_command()
 
         
 
