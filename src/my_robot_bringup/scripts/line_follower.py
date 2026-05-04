@@ -3358,7 +3358,7 @@ class line_follower(Node):
             self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic:
+        if self.retryPlan != 0 or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense:
             self.stateFollow = False
 
             #Stop sweep.
