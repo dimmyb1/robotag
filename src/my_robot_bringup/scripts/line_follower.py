@@ -2766,13 +2766,12 @@ class line_follower(Node):
             # else:
             #     self.turnLeft(0)
 
-            right_steps = (self.imu_target - self.facing) % 4   # clockwise distance
-            left_steps  = (self.facing - self.imu_target) % 4   # counter-clockwise distance
-
-            if right_steps <= left_steps:
-                self.turnRight(0)
-            else:
+            if (self.facing == 0 and self.imu_target == 3) or (self.facing == 1 and self.imu_target == 0) or (self.facing == 2 and self.imu_target == 1) or (self.facing == 3 and self.imu_target == 2):
                 self.turnLeft(0)
+            else:
+                self.turnRight(0)
+
+            
 
 
 
