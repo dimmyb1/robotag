@@ -2749,6 +2749,7 @@ class line_follower(Node):
     
     def startTurnBasedOnIMU(self):
         #self.completeTurn = False
+        self.get_logger().info(f"starting turn based on imu. imu_turning: {self.imu_turning}, facing: {self.facing}")
 
         if self.imu_target == -1 or self.imu_target == self.facing:
             #no turn
