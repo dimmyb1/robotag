@@ -379,7 +379,7 @@ class line_follower(Node):
         elif 225.0 <= self.yaw_deg < 315.0 :
             self.facing = 1
         
-        #self.get_logger().info(f'Current Z Rotation (Yaw): {self.yaw_deg:.2f}°')
+        self.get_logger().info(f'IMU:: Current Z Rotation (Yaw): {self.yaw_deg:.2f}°, Facing: {self.facing}')
 
     #Ultrasonic functions
     def ultrasonic_callback(self, msg):
