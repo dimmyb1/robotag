@@ -390,7 +390,7 @@ class line_follower(Node):
 
         if not self.initial_reading_taken:
             self.initial_reading_taken = True #consume
-        if self.locateTarget and self.waitingForUltrasonic:
+        if  self.waitingForUltrasonic:
             self.waitingForUltrasonic = False
             self.locateTarget = False
         
@@ -1082,7 +1082,7 @@ class line_follower(Node):
         #-2 means turn left 90
         #-3 means turn right 90
         if(self.entry_angle == float('inf')):
-            self.locateTarget = True
+            #self.locateTarget = True
             if self.exit_angle == float('inf'):
                 #no detection
                 return -1
@@ -1095,7 +1095,7 @@ class line_follower(Node):
                     return -3
 
         elif self.exit_angle == float('inf'):
-            self.locateTarget = True
+            #self.locateTarget = True
             #only 1 detected
             if self.entry_angle < 0:
                 return -2
@@ -3336,7 +3336,7 @@ class line_follower(Node):
         self.publish_tag_status()
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0) and not self.waitingForUltrasonic:
+        if (self.triggerSweep or self.retryPlan != 0 or not self.initial_reading_taken) and not self.waitingForUltrasonic:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
@@ -3346,6 +3346,7 @@ class line_follower(Node):
             #consume
             self.retryPlan = 0
             self.triggerSweep = False
+            self.initial_reading_taken = True
         
         if self.retryPlan != 0 or self.paused or self.dontSense:
             pass
