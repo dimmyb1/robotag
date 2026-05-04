@@ -416,6 +416,7 @@ class line_follower(Node):
         msg = String()
         msg.data = json.dumps(payload)
         self.sweep_pub.publish(msg)
+        self.get_logger().info(f"SWEEP PUBLISHED: sweep={self.sweep}, multiple={self.multiple}")
 
     #Line Following Functions
     def detect_black(self, img):
