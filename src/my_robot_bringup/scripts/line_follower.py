@@ -461,8 +461,7 @@ class line_follower(Node):
             self.cmd.linear.x = 0.0
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
-            self.motion_active = False 
-            self.imu_turning = False
+            self.motion_active = False
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
         elif(self.imu_turning):
@@ -2907,7 +2906,6 @@ class line_follower(Node):
                             self.imu_target = 3
                         
                         #align ourselves properly
-                        #self.startTurnBasedOnFacing()
                         self.startTurnBasedOnIMU()
                         
 
@@ -3016,10 +3014,8 @@ class line_follower(Node):
                                     #e.g. path = [2] i.e. go south
                                     self.imu_target = self.current_destination.pop(0)
                                     self.self_localise(self.current_node.Times[self.imu_target])
-                                    #self.departureTime = self.now
+                                    
                                     self.toDepart = True
-                                    self.imu_turning = True
-                                    #self.startTurnBasedOnFacing()
                                     self.startTurnBasedOnIMU()
 
                                     #update sweeping setting
@@ -3048,7 +3044,6 @@ class line_follower(Node):
 
                                     #self.departureTime = self.now
                                     self.toDepart = True
-                                    self.imu_turning = True
                                     #self.startTurnBasedOnFacing()
                                     self.startTurnBasedOnIMU()
 
@@ -3081,10 +3076,7 @@ class line_follower(Node):
                                 self.imu_target = 3
                                 self.self_localise(self.current_node.Times[3])
 
-                            #self.departureTime = self.now
                             self.toDepart = True
-                            self.imu_turning = True
-                            #self.startTurnBasedOnFacing()
                             self.startTurnBasedOnIMU()
 
                             #update sweeping setting
@@ -3171,8 +3163,6 @@ class line_follower(Node):
 
                     if self.behaviourMode != 1:
                         #skip this when patrolling as we are most probably already aligned
-                        self.imu_turning = True
-                        #self.startTurnBasedOnFacing()
                         self.startTurnBasedOnIMU()
 
                     #update sweeping setting
@@ -3289,10 +3279,6 @@ class line_follower(Node):
 
                     self.updatePos()
 
-                    #(NEEDS FIXING)
-                    #if (self.now > self.startPauseTime + self.PAUSE_TIME) and (not self.stateFollow) and (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.current_destination != []:
-                    #    self.stateFollow = True
-
                     if (self.now > self.startPauseTime + self.PAUSE_TIME) and self.paused:
                         self.paused = False #consume
                         self.stateFollow = True
@@ -3308,7 +3294,7 @@ class line_follower(Node):
                         if not sweep_was or not multiple_was:
                             self.publish_sweep_command()
 
-            elif self.imu_turning and not self.stateFollow:
+            elif self.imu_turning:
                 if self.sweep or self.multiple:
                     self.sweep = False
                     self.multiple = False
@@ -3327,6 +3313,23 @@ class line_follower(Node):
 
         self.surveillCapture() #for tag
         self.publish_tag_status()
+
+
+    
+    def loop2(self):
+
+        if self.retryPlan != 0 or self.paused or self.dontSense:
+            pass
+        else:
+            self.updatePos()
+
+        if self.retryPlan != 0 or self.paused or self.current_destination == [] or self.imu_turning:
+            self.stateFollow = False
+
+        if self.stateFollow:
+            self.followLine()
+
+        
 
 def main():
     rclpy.init()
