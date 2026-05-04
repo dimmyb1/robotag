@@ -3333,6 +3333,7 @@ class line_follower(Node):
 
     
     def loop(self):
+        self.get_logger().info("LOOP TICK")
         #can include initial Gazebo wait here
 
         #updates
