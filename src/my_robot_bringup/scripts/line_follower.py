@@ -3378,6 +3378,9 @@ class line_follower(Node):
                 self.sweep = False
                 self.multiple = False
                 self.publish_sweep_command()
+
+        else:
+            self.stateFollow = True
         
 
         if self.stateFollow:
