@@ -387,11 +387,11 @@ class line_follower(Node):
         if 0.0 <= self.yaw_deg < 45.0 or 315.0 <= self.yaw_deg < 360.0:
             self.facing = 0
         elif 45.0 <= self.yaw_deg < 135.0 :
-            self.facing = 1
+            self.facing = 3
         elif 135.0 <= self.yaw_deg < 225.0 :
             self.facing = 2
         elif 225.0 <= self.yaw_deg < 315.0 :
-            self.facing = 3
+            self.facing = 1
         
         #self.get_logger().info(f'IMU:: Current Z Rotation (Yaw): {self.yaw_deg:.2f}°, Facing: {self.facing}')
 
@@ -2870,7 +2870,7 @@ class line_follower(Node):
                 self.stopMov()
 
                 self.retryAttempts +=1
-                if self.retryAttempts >=2:
+                if self.retryAttempts >=3:
                     targets = {0: 1, 2: 3, 1: 2, 3: 0}
                 else:
                     if self.retryPlan == -1:
