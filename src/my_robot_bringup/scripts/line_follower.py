@@ -1186,7 +1186,7 @@ class line_follower(Node):
 
                     iy = y + 1
                     while(iy<6):
-                        if ((iy < (y + math.ceil(diffY / 2))) and y%2!=0) or ((iy <= (y + math.ceil(diffY / 2))) and y%2==0):
+                        if ((iy < (y + math.ceil(diffY / 2))) and (y%2!=0)) or ((iy <= (y + math.ceil(diffY / 2))) and (y%2==0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix > -1):
@@ -1208,7 +1208,7 @@ class line_follower(Node):
 
                     ix = x - 1
                     while(ix>-1):
-                        if((ix >= (x - math.ceil(diffX / 2))) and y%2==0) or ((ix > (x - math.ceil(diffX / 2))) and y%2!=0):
+                        if((ix >= (x - math.ceil(diffX / 2))) and (y%2==0)) or ((ix > (x - math.ceil(diffX / 2))) and (y%2!=0)):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6) and (iy + y > -1):
@@ -1225,7 +1225,7 @@ class line_follower(Node):
 
                     ix = x - 1
                     while(ix>-1):
-                        if((ix >= (x - math.ceil(diffX / 2))) and y%2==0) or ((ix > (x - math.ceil(diffX / 2))) and y%2!=0):
+                        if((ix >= (x - math.ceil(diffX / 2))) and (y%2==0)) or ((ix > (x - math.ceil(diffX / 2))) and (y%2!=0)):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6) and (iy + y > -1):
@@ -1281,7 +1281,7 @@ class line_follower(Node):
 
                     iy = y + 1
                     while(iy<6):
-                        if(iy < (y + math.ceil(diffY / 2))) and (y%2==0) or (iy < (y + math.ceil(diffY / 2))) and (y%2!=0):
+                        if((iy < (y + math.ceil(diffY / 2))) and (y%2==0)) or ((iy < (y + math.ceil(diffY / 2))) and (y%2!=0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x + ix < 5) and (x+ix>-1):
@@ -1298,7 +1298,7 @@ class line_follower(Node):
 
                     iy = y + 1
                     while(iy<6):
-                        if(iy < (y + math.ceil(diffY / 2))) and (y%2==0) or (iy < (y + math.ceil(diffY / 2))) and (y%2!=0):
+                        if((iy < (y + math.ceil(diffY / 2))) and (y%2==0)) or ((iy < (y + math.ceil(diffY / 2))) and (y%2!=0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x + ix < 5) and (x+ix>-1):
@@ -1317,7 +1317,7 @@ class line_follower(Node):
 
                     iy = y - 1
                     while(iy> -1):
-                        if(iy > (y - math.ceil(diffY / 2))) and (y%2!=0) and (iy > (y - math.ceil(diffY / 2))) and (y%2==0):
+                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy > (y - math.ceil(diffY / 2))) and (y%2==0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix > -1) and (x-ix<5):
@@ -1334,7 +1334,7 @@ class line_follower(Node):
 
                     iy = y - 1
                     while(iy> -1):
-                        if(iy > (y - math.ceil(diffY / 2))) and (y%2!=0) and (iy > (y - math.ceil(diffY / 2))) and (y%2==0):
+                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy > (y - math.ceil(diffY / 2))) and (y%2==0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix > -1)and (x-ix<5):
