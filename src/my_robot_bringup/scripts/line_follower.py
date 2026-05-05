@@ -2745,8 +2745,12 @@ class line_follower(Node):
         #-2 means turn left 90
         #-3 means turn right 90
 
-        #only 1 detected
-        if(self.entry_angle == float('inf')):
+        #no detection
+        if self.ultrasonic_distance == float('inf'):
+            self.retryPlan = -1
+
+            #only 1 detected
+        elif(self.entry_angle == float('inf')):
             #self.locateTarget = True
             if self.exit_angle == float('inf'):
                 #no detection
