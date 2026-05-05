@@ -2867,14 +2867,20 @@ class line_follower(Node):
             if self.retryPlan != 0:
                 # Still can't plan — set up another retry turn
                 self.stopMov()
-                if self.retryPlan == -1:
-                    targets = {0: 2, 2: 0, 1: 3, 3: 1}
-                elif self.retryPlan == -2:
+
+                self.retryAttempts +=1
+                if self.retryAttempts <=2:
                     targets = {0: 1, 2: 3, 1: 2, 3: 0}
-                elif self.retryPlan == -3:
-                    targets = {0: 3, 2: 1, 1: 0, 3: 2}
                 else:
-                    targets = {}
+                    if self.retryPlan == -1:
+                        targets = {0: 2, 2: 0, 1: 3, 3: 1}
+                    elif self.retryPlan == -2:
+                        targets = {0: 1, 2: 3, 1: 2, 3: 0}
+                    elif self.retryPlan == -3:
+                        targets = {0: 3, 2: 1, 1: 0, 3: 2}
+                    else:
+                        self.retryAttempts = 0
+                        targets = {}
                 self.imu_target = targets.get(self.facing, -1)
                 self.startTurnBasedOnIMU()
 
