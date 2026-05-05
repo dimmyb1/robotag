@@ -2838,6 +2838,9 @@ class line_follower(Node):
             self.sweep = True
             self.multiple = False
             self.waitingForUltrasonic = True
+            #clear old values before going in to not propogate stale values.
+            self.entry_angle = float('inf')
+            self.exit_angle = float('inf')
             self.publish_sweep_command()
 
             if self.retryPlan != 0:
