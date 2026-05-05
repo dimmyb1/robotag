@@ -101,6 +101,8 @@ class line_follower(Node):
         self.dontSense = False
         self.firstNode = True
         self.haventMovedYet = True
+        self.crawlStartTime = -1
+        self.stationaryStartTime = -1
 
         #tag vars + esp comms
         self.CAPTURE_MAX = 0.1
@@ -525,6 +527,12 @@ class line_follower(Node):
     def turnLeft(self, duration=0) :
         self.start_motion(angular=0.75, duration_ms=duration)
 
+    #--------------------
+    # Searching for Gray
+    #--------------------
+
+    def crawlBack(self):
+        self.start_motion(linear=-0.25, duration_ms=3)
 
     #---------------------
     # Searching for Line
@@ -2459,6 +2467,14 @@ class line_follower(Node):
             #if gray detected:
 
             if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels) or self.haventMovedYet:
+                # Stop crawling the moment gray comes back (checked on next tick via the
+                # if-branch above, but we also guard here in case the scan arrives mid-crawl).
+                # The motion_active flag means crawlBack is still running its short burst;
+                # if gray is now visible, cancel it.
+                if self.motion_active:
+                    self.get_logger().info("Gray re-detected while crawling back — stopping.")
+                    self.stopMov()
+
                 self.haventMovedYet = False
                 self.grayEntryTime = self.now
                 self.get_logger().info("Intersection detected!")
@@ -2678,8 +2694,33 @@ class line_follower(Node):
                 self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
         else:
-            self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
+            #self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
+            #this block was generated using Claude Sonnet 4.6 on 05/05/2026 in this conversation:
+            #https://claude.ai/share/84ca1551-3b2e-403e-b93c-735525589ed6 
+             # --- Crawl-back recovery ---
+            # If the robot has been sitting here without detecting gray, it may have
+            # overshot the intersection spot after turning.  After 5 s of being
+            # stationary (and not waiting on ultrasonic) nudge backwards once so the
+            # IR sensors can re-detect the gray spot.
+
+            # Start (or keep) the stationary clock.
+            if self.stationaryStartTime == -1:
+                self.stationaryStartTime = self.now
+
+            STATIONARY_TIMEOUT = 5.0  # seconds before we try crawling back
+
+            stationary_long_enough = (self.now > self.stationaryStartTime + STATIONARY_TIMEOUT)
+            crawl_allowed          = (self.crawlStartTime == -1)          # haven't crawled yet this wait
+            not_waiting_ultra      = not self.waitingForUltrasonic
+
+            if stationary_long_enough and crawl_allowed and not_waiting_ultra:
+                self.get_logger().info("Stationary >5 s without gray — crawling back to re-detect.")
+                self.crawlStartTime    = self.now   # arm the gate; won't re-trigger until gray resets it
+                self.stationaryStartTime = self.now  # restart the 5-s clock for any future retry
+                self.crawlBack()
+
             
+
     def surveillCapture(self):
         #ultrasonic_sweep.py is constantly turning and checking.
         #self.CAPTURE_MAX =0.1
