@@ -155,6 +155,7 @@ class line_follower(Node):
         self.skipZero = False
         self.retryPlan = 0
         self.postRetry = False
+        self.retryAttempts = 0
 
         #localisation
         self.departureTime = -1
@@ -2869,7 +2870,7 @@ class line_follower(Node):
                 self.stopMov()
 
                 self.retryAttempts +=1
-                if self.retryAttempts <=2:
+                if self.retryAttempts >=2:
                     targets = {0: 1, 2: 3, 1: 2, 3: 0}
                 else:
                     if self.retryPlan == -1:
