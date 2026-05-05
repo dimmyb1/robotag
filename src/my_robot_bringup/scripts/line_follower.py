@@ -383,6 +383,7 @@ class line_follower(Node):
         # elif 225.0 <= self.yaw_deg < 315.0 :
         #     self.facing = 1
 
+        #NORTH IS 0/360, WEST IS 90, SOUTH IS 180, EAST IS 270
         #specifically because of the sim, this needs to be written as:
         if 0.0 <= self.yaw_deg < 45.0 or 315.0 <= self.yaw_deg < 360.0:
             self.facing = 0
@@ -393,7 +394,7 @@ class line_follower(Node):
         elif 225.0 <= self.yaw_deg < 315.0 :
             self.facing = 1
         
-        self.get_logger().info(f'IMU:: Current Z Rotation (Yaw): {self.yaw_deg:.2f}°, Facing: {self.facing}')
+        #self.get_logger().info(f'IMU:: Current Z Rotation (Yaw): {self.yaw_deg:.2f}°, Facing: {self.facing}')
 
     #Ultrasonic functions
     def ultrasonic_callback(self, msg):
@@ -481,8 +482,9 @@ class line_follower(Node):
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
         elif(self.imu_turning):
-            #target = ((self.imu_target - STARTED_FACING) * 90)
-            target = self.imu_target * 90
+            target_yaw = {0: 0, 1: 270, 2: 180, 3: 90}
+            target = target_yaw[self.imu_target]
+            
             if target < 0:
                 target+=360
 
