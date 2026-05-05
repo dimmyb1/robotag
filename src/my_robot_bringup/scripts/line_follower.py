@@ -2767,9 +2767,9 @@ class line_follower(Node):
             #self.locateTarget = True
             #only 1 detected
             if self.entry_angle < 0:
-                self.retryPlan -2
+                self.retryPlan = -2
             elif self.entry_angle > 0:
-                self.retryPlan -3
+                self.retryPlan = -3
             
         #else, it's safe to continue
 
@@ -2806,7 +2806,7 @@ class line_follower(Node):
         #         self.startTurnBasedOnIMU()
 
 
-        
+
     
     def loop(self):
         STARTUP_WAIT = 7
