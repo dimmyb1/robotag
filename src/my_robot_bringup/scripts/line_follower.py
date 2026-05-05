@@ -368,6 +368,7 @@ class line_follower(Node):
         #normalise to [0, 360)
         self.yaw_deg = yaw_deg % 360.0
 
+        #for physical:
         #given that we start facing south
         # if 0.0 <= self.yaw_deg < 45.0 or 315.0 <= self.yaw_deg < 360.0:
         #     self.facing = 2
@@ -2799,7 +2800,7 @@ class line_follower(Node):
             self.triggerSweep = True
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic:
+        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
