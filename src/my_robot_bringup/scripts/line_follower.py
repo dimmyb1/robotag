@@ -2734,7 +2734,76 @@ class line_follower(Node):
 
             self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {self.evading}")
 
-                
+
+    #This segment was generated using Claude Sonnet 4.6 Adaptive on 05/05/2026
+    # https://claude.ai/share/b3ef1b16-b390-47b7-9d8a-b0121ba56ef1 
+    # though it mostly has stripped my own code and regurgitated it to me in a different placement
+    # Post-retry replanning: once the retry turn AND sweep are both done, replan
+    # without advancing current_node (robot never moved — it turned in place)
+    def retry(self):
+        self.postRetry = False
+
+        self.retryPlan = 0
+
+        #retryPlan values:
+        # 0 means we're OK
+        #-1 means turn 180
+        #-2 means turn left 90
+        #-3 means turn right 90
+
+        #only 1 detected
+        if(self.entry_angle == float('inf')):
+            #self.locateTarget = True
+            if self.exit_angle == float('inf'):
+                #no detection
+                self.retryPlan =  -1
+            else:
+                if self.exit_angle < 0:
+                    self.retryPlan = -2
+                elif self.exit_angle > 0:
+                    self.retryPlan = -3
+
+        elif self.exit_angle == float('inf'):
+            #self.locateTarget = True
+            #only 1 detected
+            if self.entry_angle < 0:
+                self.retryPlan -2
+            elif self.entry_angle > 0:
+                self.retryPlan -3
+            
+        #else, it's safe to continue
+
+        if self.retryPlan != 0:
+            # Still can't plan — set up another retry turn
+            self.stopMov()
+            if self.retryPlan == -1:
+                targets = {0: 2, 2: 0, 1: 3, 3: 1}
+            elif self.retryPlan == -2:
+                targets = {0: 1, 2: 3, 1: 2, 3: 0}
+            elif self.retryPlan == -3:
+                targets = {0: 3, 2: 1, 1: 0, 3: 2}
+            else:
+                targets = {}
+            self.imu_target = targets.get(self.facing, -1)
+            self.startTurnBasedOnIMU()
+            # retryPlan != 0 → next loop tick will trigger another sweep
+        # else:
+        #     # planDestination succeeded — apply the new destination
+        #     dest = self.current_destination
+        #     if isinstance(dest, str):
+        #         dirs = [self.current_node.Nc, self.current_node.Ec,
+        #                 self.current_node.Sc, self.current_node.Wc]
+        #         self.imu_target = dirs.index(dest) if dest in dirs else -1
+        #     elif isinstance(dest, list) and dest:
+        #         if isinstance(dest[0], int):
+        #             self.imu_target = dest[0]
+        #         elif isinstance(dest[0], str):
+        #             dirs = [self.current_node.Nc, self.current_node.Ec,
+        #                     self.current_node.Sc, self.current_node.Wc]
+        #             self.imu_target = dirs.index(dest[0]) if dest[0] in dirs else -1
+        #     self.toDepart = True
+        #     if self.behaviourMode != 1:
+        #         self.startTurnBasedOnIMU()
     
     def loop(self):
         STARTUP_WAIT = 7
@@ -2776,74 +2845,9 @@ class line_follower(Node):
             self.initial_reading_taken = True
         
 
-        #This segment was generated using Claude Sonnet 4.6 Adaptive on 05/05/2026
-        # https://claude.ai/share/b3ef1b16-b390-47b7-9d8a-b0121ba56ef1 
-        # though it mostly has stripped my own code and regurgitated it to me in a different placement
-        # Post-retry replanning: once the retry turn AND sweep are both done, replan
-        # without advancing current_node (robot never moved — it turned in place)
+        
         if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic:
-            self.postRetry = False
-
-            self.retryPlan = 0
-            #returns from this function:
-            #only 1 detected
-            #-1 means turn 180
-            #-2 means turn left 90
-            #-3 means turn right 90
-            if(self.entry_angle == float('inf')):
-                #self.locateTarget = True
-                if self.exit_angle == float('inf'):
-                    #no detection
-                    self.retryPlan =  -1
-
-                else:
-
-                    if self.exit_angle < 0:
-                        self.retryPlan -2
-                    elif self.exit_angle > 0:
-                        self.retryPlan -3
-
-            elif self.exit_angle == float('inf'):
-                #self.locateTarget = True
-                #only 1 detected
-                if self.entry_angle < 0:
-                    self.retryPlan -2
-                elif self.entry_angle > 0:
-                    self.retryPlan -3
-            
-            #else, it's safe to continue
-
-            if self.retryPlan != 0:
-                # Still can't plan — set up another retry turn
-                self.stopMov()
-                if self.retryPlan == -1:
-                    targets = {0: 2, 2: 0, 1: 3, 3: 1}
-                elif self.retryPlan == -2:
-                    targets = {0: 1, 2: 3, 1: 2, 3: 0}
-                elif self.retryPlan == -3:
-                    targets = {0: 3, 2: 1, 1: 0, 3: 2}
-                else:
-                    targets = {}
-                self.imu_target = targets.get(self.facing, -1)
-                self.startTurnBasedOnIMU()
-                # retryPlan != 0 → next loop tick will trigger another sweep
-            # else:
-            #     # planDestination succeeded — apply the new destination
-            #     dest = self.current_destination
-            #     if isinstance(dest, str):
-            #         dirs = [self.current_node.Nc, self.current_node.Ec,
-            #                 self.current_node.Sc, self.current_node.Wc]
-            #         self.imu_target = dirs.index(dest) if dest in dirs else -1
-            #     elif isinstance(dest, list) and dest:
-            #         if isinstance(dest[0], int):
-            #             self.imu_target = dest[0]
-            #         elif isinstance(dest[0], str):
-            #             dirs = [self.current_node.Nc, self.current_node.Ec,
-            #                     self.current_node.Sc, self.current_node.Wc]
-            #             self.imu_target = dirs.index(dest[0]) if dest[0] in dirs else -1
-            #     self.toDepart = True
-            #     if self.behaviourMode != 1:
-            #         self.startTurnBasedOnIMU()
+            self.retry()
 
 
         #check for tags and publish status
