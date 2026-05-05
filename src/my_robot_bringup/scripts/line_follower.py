@@ -2774,30 +2774,6 @@ class line_follower(Node):
         #else, it's safe to continue
 
 
-    #This segment was generated using Claude Sonnet 4.6 Adaptive on 05/05/2026
-    # https://claude.ai/share/b3ef1b16-b390-47b7-9d8a-b0121ba56ef1 
-    # though it mostly has stripped my own code and regurgitated it to me in a different placement
-    # Post-retry replanning: once the retry turn AND sweep are both done, replan
-    # without advancing current_node (robot never moved — it turned in place)
-    def retry(self):
-        self.postRetry = False
-        self.checkUltra()
-
-        if self.retryPlan != 0:
-            # Still can't plan — set up another retry turn
-            self.stopMov()
-            if self.retryPlan == -1:
-                targets = {0: 2, 2: 0, 1: 3, 3: 1}
-            elif self.retryPlan == -2:
-                targets = {0: 1, 2: 3, 1: 2, 3: 0}
-            elif self.retryPlan == -3:
-                targets = {0: 3, 2: 1, 1: 0, 3: 2}
-            else:
-                targets = {}
-            self.imu_target = targets.get(self.facing, -1)
-            self.startTurnBasedOnIMU()
-            # retryPlan != 0 → next loop tick will trigger another sweep
-        
     
     def loop(self):
         STARTUP_WAIT = 7
@@ -2840,7 +2816,22 @@ class line_follower(Node):
         
         #specifically when retrying
         if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic:
-            self.retry()
+            self.postRetry = False
+            self.checkUltra()
+
+            if self.retryPlan != 0:
+                # Still can't plan — set up another retry turn
+                self.stopMov()
+                if self.retryPlan == -1:
+                    targets = {0: 2, 2: 0, 1: 3, 3: 1}
+                elif self.retryPlan == -2:
+                    targets = {0: 1, 2: 3, 1: 2, 3: 0}
+                elif self.retryPlan == -3:
+                    targets = {0: 3, 2: 1, 1: 0, 3: 2}
+                else:
+                    targets = {}
+                self.imu_target = targets.get(self.facing, -1)
+                self.startTurnBasedOnIMU()
 
         #check for tags and publish status
         self.surveillCapture()
