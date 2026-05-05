@@ -151,6 +151,7 @@ class line_follower(Node):
         self.current_destination = 'F'
         self.skipZero = False
         self.retryPlan = 0
+        self.postRetry = False
 
         #localisation
         self.departureTime = -1
@@ -2890,11 +2891,56 @@ class line_follower(Node):
             self.waitingForUltrasonic = True
             self.publish_sweep_command()
 
+            if self.retryPlan != 0:
+                self.postRetry = True
+
             #consume
             self.retryPlan = 0
             self.triggerSweep = False
             self.initial_reading_taken = True
         
+
+        #This segment was generated using Claude Sonnet 4.6 Adaptive on 05/05/2026
+        # https://claude.ai/share/b3ef1b16-b390-47b7-9d8a-b0121ba56ef1 
+        # Post-retry replanning: once the retry turn AND sweep are both done, replan
+        # without advancing current_node (robot never moved — it turned in place)
+        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic:
+            self.postRetry = False
+            self.retryPlan = self.planDestination()
+
+            if self.retryPlan != 0:
+                # Still can't plan — set up another retry turn
+                self.stopMov()
+                if self.retryPlan == -1:
+                    targets = {0: 2, 2: 0, 1: 3, 3: 1}
+                elif self.retryPlan == -2:
+                    targets = {0: 1, 2: 3, 1: 2, 3: 0}
+                elif self.retryPlan == -3:
+                    targets = {0: 3, 2: 1, 1: 0, 3: 2}
+                else:
+                    targets = {}
+                self.imu_target = targets.get(self.facing, -1)
+                self.startTurnBasedOnIMU()
+                # retryPlan != 0 → next loop tick will trigger another sweep
+            else:
+                # planDestination succeeded — apply the new destination
+                dest = self.current_destination
+                if isinstance(dest, str):
+                    dirs = [self.current_node.Nc, self.current_node.Ec,
+                            self.current_node.Sc, self.current_node.Wc]
+                    self.imu_target = dirs.index(dest) if dest in dirs else -1
+                elif isinstance(dest, list) and dest:
+                    if isinstance(dest[0], int):
+                        self.imu_target = dest[0]
+                    elif isinstance(dest[0], str):
+                        dirs = [self.current_node.Nc, self.current_node.Ec,
+                                self.current_node.Sc, self.current_node.Wc]
+                        self.imu_target = dirs.index(dest[0]) if dest[0] in dirs else -1
+                self.toDepart = True
+                if self.behaviourMode != 1:
+                    self.startTurnBasedOnIMU()
+
+
         #check for tags and publish status
         self.surveillCapture()
         self.publish_tag_status()
@@ -2906,7 +2952,7 @@ class line_follower(Node):
             self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic:
+        if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic:
             self.stateFollow = False
 
             #Stop sweep.
