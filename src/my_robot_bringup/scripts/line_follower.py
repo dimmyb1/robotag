@@ -99,6 +99,7 @@ class line_follower(Node):
         self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
         self.dontSense = False
         self.firstNode = True
+        self.haventMovedYet = True
 
         #tag vars + esp comms
         self.CAPTURE_MAX = 0.1
@@ -2456,7 +2457,8 @@ class line_follower(Node):
         if (not self.imu_turning and self.grayEntryTime < self.now - self.GRAY_COOLDOWN) :
             #if gray detected:
 
-            if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
+            if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels) or self.haventMovedYet:
+                self.haventMovedYet = False
                 self.grayEntryTime = self.now
                 self.get_logger().info("Intersection detected!")
                 self.stopMov()
