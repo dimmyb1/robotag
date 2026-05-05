@@ -2779,7 +2779,6 @@ class line_follower(Node):
     # without advancing current_node (robot never moved — it turned in place)
     def retry(self):
         self.postRetry = False
-
         self.checkUltra()
 
         if self.retryPlan != 0:
@@ -2798,26 +2797,7 @@ class line_follower(Node):
             self.postRetry = True
             self.retryPlan = 0
             # retryPlan != 0 → next loop tick will trigger another sweep
-        # else:
-        #     # planDestination succeeded — apply the new destination
-        #     dest = self.current_destination
-        #     if isinstance(dest, str):
-        #         dirs = [self.current_node.Nc, self.current_node.Ec,
-        #                 self.current_node.Sc, self.current_node.Wc]
-        #         self.imu_target = dirs.index(dest) if dest in dirs else -1
-        #     elif isinstance(dest, list) and dest:
-        #         if isinstance(dest[0], int):
-        #             self.imu_target = dest[0]
-        #         elif isinstance(dest[0], str):
-        #             dirs = [self.current_node.Nc, self.current_node.Ec,
-        #                     self.current_node.Sc, self.current_node.Wc]
-        #             self.imu_target = dirs.index(dest[0]) if dest[0] in dirs else -1
-        #     self.toDepart = True
-        #     if self.behaviourMode != 1:
-        #         self.startTurnBasedOnIMU()
-
-
-
+        
     
     def loop(self):
         STARTUP_WAIT = 7
@@ -2843,7 +2823,7 @@ class line_follower(Node):
             self.triggerSweep = True
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic:
+        if (self.triggerSweep or self.retryPlan != 0 or self.postRetry or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
