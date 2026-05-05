@@ -553,8 +553,6 @@ class line_follower(Node):
                 self.get_logger().info("Line found during right turn!")
                 self.stopMov()
                 self.searchRight = False
-                #self.completeTurn = False
-                #self.retryPlan = 0
                 self.stateFollow = True
                 return True
             
@@ -568,9 +566,6 @@ class line_follower(Node):
         self.get_logger().info("No line found during smart right turn")
         self.stopMov()
         self.searchRight = False
-        #self.completeTurn = False
-        #self.retryPlan = 0
-        #self.stateFollow = True
         return False # finished full arc
 
 
@@ -583,8 +578,6 @@ class line_follower(Node):
                 self.get_logger().info("Line found during left turn!")
                 self.stopMov()
                 self.searchLeft = False
-                #self.completeTurn = False
-                #self.retryPlan = 0
                 self.stateFollow = True
 
                 return True
@@ -599,9 +592,6 @@ class line_follower(Node):
         self.get_logger().info("No line found during smart left turn")
         self.stopMov()
         self.searchLeft = False
-        #self.completeTurn = False
-        #self.retryPlan = 0
-        #self.stateFollow = True
         return False
         
 
@@ -2263,7 +2253,6 @@ class line_follower(Node):
     def planDestination(self):
         CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
         CONSIDER_NODES = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
-        self.retryPlan = 0
         choice = -1
         
         #define some preference algorithm.
@@ -2972,7 +2961,6 @@ class line_follower(Node):
                                 self.stopMov()
                                 if self.retryPlan == -1:
                                     #180
-                                    #self.turnRight(self.thirty * 6)
                                     if self.facing == 0:
                                         self.imu_target = 2
                                     elif self.facing == 2:
@@ -2984,7 +2972,6 @@ class line_follower(Node):
                                     
                                 elif self.retryPlan == -2:
                                     #right
-                                    #self.turnRight(self.thirty * 3)
                                     if self.facing == 0:
                                         self.imu_target = 1
                                     elif self.facing == 2:
@@ -2996,7 +2983,6 @@ class line_follower(Node):
 
                                 elif self.retryPlan == -3: 
                                     #left
-                                    #self.turnLeft(self.thirty * 3)
                                     if self.facing == 0:
                                         self.imu_target = 3
                                     elif self.facing == 2:
@@ -3006,9 +2992,7 @@ class line_follower(Node):
                                     elif self.facing == 3:
                                         self.imu_target = 2
 
-                                #self.startTurnBasedOnFacing()
                                 self.startTurnBasedOnIMU()
-                                #self.retryPlan = 0
                                 return
                             
                             if not self.imu_turning:
@@ -3117,7 +3101,6 @@ class line_follower(Node):
                         self.stopMov()
                         if self.retryPlan == -1:
                             #180
-                            #self.turnRight(self.thirty * 6)
                             if self.facing == 0:
                                 self.imu_target = 2
                             elif self.facing == 2:
@@ -3129,7 +3112,6 @@ class line_follower(Node):
                                     
                         elif self.retryPlan == -2:
                             #right
-                            #self.turnRight(self.thirty * 3)
                             if self.facing == 0:
                                 self.imu_target = 1
                             elif self.facing == 2:
@@ -3141,7 +3123,6 @@ class line_follower(Node):
 
                         elif self.retryPlan == -3: 
                             #left
-                            #self.turnLeft(self.thirty * 3)
                             if self.facing == 0:
                                 self.imu_target = 3
                             elif self.facing == 2:
@@ -3151,9 +3132,7 @@ class line_follower(Node):
                             elif self.facing == 3:
                                 self.imu_target = 2
 
-                        #self.startTurnBasedOnFacing()
                         self.startTurnBasedOnIMU()
-                        #self.retryPlan = 0
                         return
                     
                     if not self.imu_turning:
@@ -3264,73 +3243,73 @@ class line_follower(Node):
                 
 
       
-    def loop2(self):
-        #put a skip here / wait for gazebo to stabilize (implement)
-        dummy  =1
+    # def loop2(self):
+    #     #put a skip here / wait for gazebo to stabilize (implement)
+    #     dummy  =1
 
-        sweep_was = self.sweep
-        multiple_was = self.multiple
+    #     sweep_was = self.sweep
+    #     multiple_was = self.multiple
 
-        self.now = time.time()
-        self.update_motion()
+    #     self.now = time.time()
+    #     self.update_motion()
 
-        if not self.initial_reading_taken and self.behaviourMode in [3,4,5] and not self.waitingForUltrasonic:
-            #stop everything. don't even start doing anything until we have a reading.
-            self.sweep = True
-            self.multiple = False
-            self.publish_sweep_command()
-            self.initial_reading_taken = True
+    #     if not self.initial_reading_taken and self.behaviourMode in [3,4,5] and not self.waitingForUltrasonic:
+    #         #stop everything. don't even start doing anything until we have a reading.
+    #         self.sweep = True
+    #         self.multiple = False
+    #         self.publish_sweep_command()
+    #         self.initial_reading_taken = True
 
-        else:
+    #     else:
 
-            if self.retryPlan== 0 and not self.imu_turning:
-                #do a single scan for opponent
-                if self.behaviourMode in [3,4,5] and self.locateTarget and not self.waitingForUltrasonic:
-                    #finish the retryPlan with this step
-                    self.sweep = True
-                    self.multiple = False
-                    self.publish_sweep_command()
-                    self.waitingForUltrasonic = True
-                    self.retryPlan = 0
+    #         if self.retryPlan== 0 and not self.imu_turning:
+    #             #do a single scan for opponent
+    #             if self.behaviourMode in [3,4,5] and self.locateTarget and not self.waitingForUltrasonic:
+    #                 #finish the retryPlan with this step
+    #                 self.sweep = True
+    #                 self.multiple = False
+    #                 self.publish_sweep_command()
+    #                 self.waitingForUltrasonic = True
+    #                 self.retryPlan = 0
                 
-                else:
+    #             else:
 
-                    self.updatePos()
+    #                 self.updatePos()
 
-                    if (self.now > self.startPauseTime + self.PAUSE_TIME) and self.paused:
-                        self.paused = False #consume
-                        self.stateFollow = True
+    #                 if (self.now > self.startPauseTime + self.PAUSE_TIME) and self.paused:
+    #                     self.paused = False #consume
+    #                     self.stateFollow = True
 
-                    if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense:
-                        self.dontSense = False #consume
-                        self.stateFollow = True #not sure about this
+    #                 if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense:
+    #                     self.dontSense = False #consume
+    #                     self.stateFollow = True #not sure about this
 
-                    if not self.motion_active and self.stateFollow and not self.imu_turning:
-                        self.followLine() 
-                        self.sweep = True
-                        self.multiple = True
-                        if not sweep_was or not multiple_was:
-                            self.publish_sweep_command()
+    #                 if not self.motion_active and self.stateFollow and not self.imu_turning:
+    #                     self.followLine() 
+    #                     self.sweep = True
+    #                     self.multiple = True
+    #                     if not sweep_was or not multiple_was:
+    #                         self.publish_sweep_command()
 
-            elif self.imu_turning:
-                if self.sweep or self.multiple:
-                    self.sweep = False
-                    self.multiple = False
-                    self.publish_sweep_command()
-            elif not self.stateFollow and not self.locateTarget:
-                #reset ultrasonic sweep vars
-                self.sweep = False
-                self.multiple = False
+    #         elif self.imu_turning:
+    #             if self.sweep or self.multiple:
+    #                 self.sweep = False
+    #                 self.multiple = False
+    #                 self.publish_sweep_command()
+    #         elif not self.stateFollow and not self.locateTarget:
+    #             #reset ultrasonic sweep vars
+    #             self.sweep = False
+    #             self.multiple = False
 
-                if sweep_was:
-                    self.publish_sweep_command()
+    #             if sweep_was:
+    #                 self.publish_sweep_command()
 
-        if not self.initiated_sweep:
-            self.publish_sweep_command() #for moving servo
-            self.initiated_sweep = True
+    #     if not self.initiated_sweep:
+    #         self.publish_sweep_command() #for moving servo
+    #         self.initiated_sweep = True
 
-        self.surveillCapture() #for tag
-        self.publish_tag_status()
+    #     self.surveillCapture() #for tag
+    #     self.publish_tag_status()
 
 
     
