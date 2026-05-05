@@ -532,7 +532,7 @@ class line_follower(Node):
     #--------------------
 
     def crawlBack(self):
-        self.start_motion(linear=-0.25, duration_ms=3000)
+        self.start_motion(linear=-0.25, duration_ms=750)
 
     #---------------------
     # Searching for Line
