@@ -101,7 +101,6 @@ class line_follower(Node):
         self.dontSense = False
         self.firstNode = True
         self.haventMovedYet = True
-        self.crawlStartTime = -1
         self.stationaryStartTime = -1
 
         #tag vars + esp comms
@@ -2478,7 +2477,6 @@ class line_follower(Node):
                 self.haventMovedYet = False
                 self.grayEntryTime = self.now
                 self.stationaryStartTime = -1  # no longer stationary — gray found
-                self.crawlStartTime = -1       # reset crawl gate for next time
                 self.get_logger().info("Intersection detected!")
                 self.stopMov()
                 self.stateFollow = False
@@ -2697,29 +2695,26 @@ class line_follower(Node):
 
         else:
             #self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
-            #this block was generated using Claude Sonnet 4.6 on 05/05/2026 in this conversation:
-            #https://claude.ai/share/84ca1551-3b2e-403e-b93c-735525589ed6 
-             # --- Crawl-back recovery ---
+            # --- Crawl-back recovery ---
             # If the robot has been sitting here without detecting gray, it may have
             # overshot the intersection spot after turning.  After 5 s of being
             # stationary (and not waiting on ultrasonic) nudge backwards once so the
             # IR sensors can re-detect the gray spot.
-
-            # Start (or keep) the stationary clock.
             if self.stationaryStartTime == -1:
                 self.stationaryStartTime = self.now
+            
 
             STATIONARY_TIMEOUT = 5.0  # seconds before we try crawling back
+            if self.now > self.stationaryStartTime + STATIONARY_TIMEOUT:
+                self.get_logger().info("Stationary >5s without gray — crawling back to re-detect.")
+                self.stationaryStartTime = self.now
 
-            stationary_long_enough = (self.now > self.stationaryStartTime + STATIONARY_TIMEOUT)
-            crawl_allowed          = (self.crawlStartTime == -1)          # haven't crawled yet this wait
-            not_waiting_ultra      = not self.waitingForUltrasonic
-
-            if stationary_long_enough and crawl_allowed and not_waiting_ultra:
-                self.get_logger().info("Stationary >5 s without gray — crawling back to re-detect.")
-                self.crawlStartTime    = self.now   # arm the gate; won't re-trigger until gray resets it
-                self.stationaryStartTime = self.now  # restart the 5-s clock for any future retry
+                #we've been stationary for too long.
+                #crawl back
                 self.crawlBack()
+
+
+            
 
             
 
