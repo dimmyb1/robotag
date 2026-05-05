@@ -2477,6 +2477,8 @@ class line_follower(Node):
 
                 self.haventMovedYet = False
                 self.grayEntryTime = self.now
+                self.stationaryStartTime = -1  # no longer stationary — gray found
+                self.crawlStartTime = -1       # reset crawl gate for next time
                 self.get_logger().info("Intersection detected!")
                 self.stopMov()
                 self.stateFollow = False
