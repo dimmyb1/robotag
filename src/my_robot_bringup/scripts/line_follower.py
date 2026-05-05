@@ -484,7 +484,7 @@ class line_follower(Node):
         elif(self.imu_turning):
             target_yaw = {0: 0, 1: 270, 2: 180, 3: 90}
             target = target_yaw[self.imu_target]
-            
+
             if target < 0:
                 target+=360
 
@@ -974,7 +974,7 @@ class line_follower(Node):
         # the order doesnt make a difference, main thing is that we have the angle, wwe'll just take min or max of the two values.
         #and servo was the angle at which we go tthe reading, +- the known margin of error
         #and that BOXMEAS is the l / w of the boxes in the grid in euclidean metric
-        BOXMEAS = 1
+        BOXMEAS = 0.4
         PERSISTENCE = 0.7
         CONTAMINATION = 0.3
         
