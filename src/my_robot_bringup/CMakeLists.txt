@@ -23,29 +23,6 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(PROGRAMS
-  scripts/config.py
-  DESTINATION lib/${PROJECT_NAME}
-)
 
-install(PROGRAMS
-  scripts/tsp_route_calculator.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
-  scripts/tsp_solver_node.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
-  scripts/deliver_robot_tsp_client.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
-  scripts/box_spawner.py
-  DESTINATION lib/${PROJECT_NAME}
-)
 
 ament_package()
