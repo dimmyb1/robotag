@@ -19,8 +19,6 @@ class SweepingUltrasonicNode(Node):
         topic_LIDAR = f"{topic_prefix}/scan"
         topic_object = f"{topic_prefix}/object_data"
         topic_sweep = f"{topic_prefix}/sweep"
-        
-        # NOTE: Change this topic to match whatever your ros2_control or servo plugin uses!
         topic_servo_cmd = f"{topic_prefix}/servo_cmd" 
         
         # Subscribers

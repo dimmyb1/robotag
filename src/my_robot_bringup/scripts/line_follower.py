@@ -1036,25 +1036,11 @@ class line_follower(Node):
         #first we will check if the mark is right in front of us
         lesserServo = min(self.entry_angle, self.exit_angle)
         biggerServo = max(self.entry_angle, self.exit_angle)
-        #for now i assume these to be in euclidean 
 
         
-
-
-
-        if(lesserServo < 90 and biggerServo > 90):
-            #if current cardinal direction we're facing is North or South
-            # for c in cells:
-            #     if(c.x != x):
-            #         cells.remove(c)
-
+        if(lesserServo < math.pi/2) and (biggerServo > math.pi/2):
             cells = [c for c in cells if c.x == x]
             cells = [c for c in cells if c.y == y]
-
-            #if current cardinal is East or West:
-            # for c in cells:
-            #     if(c.y != y):
-            #         cells.remove(c)
 
         else:
             #it isnt directly in front of us.
@@ -1063,7 +1049,7 @@ class line_follower(Node):
 
 
             #on the right side:
-            if(biggerServo <= 90):
+            if(biggerServo <= math.pi/2):
                 #if facing North
                 if(self.facing==0):
                     #take the maximum area
@@ -1218,7 +1204,7 @@ class line_follower(Node):
                 if self.facing==0:
                     #take the maximum area
                     diffX = x
-                    diffY = math.ceil(diffX * math.tan(180 - lesserServo))
+                    diffY = math.ceil(diffX * math.tan(math.pi - lesserServo))
 
                     ix = x - 1
                     while(ix>-1):
@@ -1235,7 +1221,7 @@ class line_follower(Node):
                         ix-=1
                             
                     #now make the smaller triangle
-                    diffY = math.ceil(diffX * math.tan(180 - biggerServo))
+                    diffY = math.ceil(diffX * math.tan(math.pi - biggerServo))
 
                     ix = x - 1
                     while(ix>-1):
@@ -1255,7 +1241,7 @@ class line_follower(Node):
                 elif(self.facing==2):
                     #take the maximum area
                     diffX = 4 - x
-                    diffY = math.ceil(diffX * math.tan(180 - lesserServo))
+                    diffY = math.ceil(diffX * math.tan(math.pi - lesserServo))
 
                     ix = x + 1
                     while(ix<5):
@@ -1272,7 +1258,7 @@ class line_follower(Node):
                         ix+=1
                             
                     #now make the smaller triangle
-                    diffY = math.ceil(diffX * math.tan(180 - biggerServo))
+                    diffY = math.ceil(diffX * math.tan(math.pi - biggerServo))
 
                     ix = x + 1
                     while(ix<5):
@@ -1291,7 +1277,7 @@ class line_follower(Node):
                 elif(self.facing==1):
                     #take the maximum area
                     diffY = 5-y
-                    diffX = math.ceil(diffY * math.tan(180 - lesserServo))
+                    diffX = math.ceil(diffY * math.tan(math.pi - lesserServo))
 
                     iy = y + 1
                     while(iy<6):
@@ -1308,7 +1294,7 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffX = math.ceil(diffY * math.tan(180 - biggerServo))
+                    diffX = math.ceil(diffY * math.tan(math.pi - biggerServo))
 
                     iy = y + 1
                     while(iy<6):
@@ -1327,7 +1313,7 @@ class line_follower(Node):
                 elif(self.facing==3):
                     #west left
                     diffY = y
-                    diffX = math.ceil(diffY * math.tan(180 - lesserServo))
+                    diffX = math.ceil(diffY * math.tan(math.pi - lesserServo))
 
                     iy = y - 1
                     while(iy> -1):
@@ -1344,7 +1330,7 @@ class line_follower(Node):
                         iy-=1
                             
                     #now make the smaller triangle
-                    diffX = math.ceil(diffY * math.tan(180 - biggerServo))
+                    diffX = math.ceil(diffY * math.tan(math.pi - biggerServo))
 
                     iy = y - 1
                     while(iy> -1):
@@ -1360,11 +1346,7 @@ class line_follower(Node):
 
                         iy-=1
                 
-            #now find INTERSECTION with radius cells
-            # for c in cells:
-            #     if c not in servoCells:
-            #         cells.remove(c)
-                        
+            #now find INTERSECTION with radius cells            
             cells = [c for c in cells if c in servoCells]
         #now we have a pretty small set of cells which the opponent can be in
 
@@ -2753,7 +2735,7 @@ class line_follower(Node):
                 #resolve destination
 
                 #is path blocked?
-                if min(self.entry_angle, self.exit_angle) < 90 < max(self.entry_angle, self.exit_angle):
+                if min(self.entry_angle, self.exit_angle) < math.pi /2 < max(self.entry_angle, self.exit_angle):
                     #turn 180 and go back to where you were
                     if self.facing == 0:
                         self.imu_target = 2
