@@ -892,9 +892,11 @@ class line_follower(Node):
         #so that we can say (last_node.Times[0])
         hyp = []
 
-        maxTime = self.departureTime + self.TIME_VARIANCE + edgeTime
-        minTime = self.departureTime - self.TIME_VARIANCE + edgeTime
-        if (self.now > maxTime) or (self.now < minTime):
+        elapsed = self.now - self.departureTime
+        maxTime = edgeTime + self.TIME_VARIANCE
+        minTime = edgeTime - self.TIME_VARIANCE
+
+        if (elapsed > maxTime) or (elapsed < minTime):
             #if it has taken longer than or less than the expected time
             #check if any of the old node's timings match better
             if minTime < self.last_node.Times[0] < maxTime:
@@ -945,6 +947,10 @@ class line_follower(Node):
             #if we found a possible hypothesis (i.e. there was some issue), record it and store it for the next edge check.
             if hyp:
                 self.loc_hyp = hyp.copy()
+                return
+            else:
+                #clear stale value
+                self.loc_hyp = []
                 return
             
         #otherwise, it has taken the expected amount of time
