@@ -1031,8 +1031,6 @@ class line_follower(Node):
         # +1.57 is left 90
         # -1.57 is right 90
 
-        
-
         #first we will check if the mark is right in front of us
         lesserServo = min(self.entry_angle, self.exit_angle)
         biggerServo = max(self.entry_angle, self.exit_angle)
@@ -1125,7 +1123,7 @@ class line_follower(Node):
 
                         ix-=1
 
-                #east?
+                #east
                 elif self.facing==1:
                     #take the maximum area
                     diffY = y
@@ -1162,7 +1160,7 @@ class line_follower(Node):
 
                         iy-=1
 
-                #west?
+                #west
                 elif self.facing==3:
                     diffY = 5-y
                     diffX = math.ceil(diffY * math.tan(biggerServo))
@@ -1281,7 +1279,7 @@ class line_follower(Node):
 
                     iy = y + 1
                     while(iy<6):
-                        if((iy < (y + math.ceil(diffY / 2))) and (y%2==0)) or ((iy < (y + math.ceil(diffY / 2))) and (y%2!=0)):
+                        if((iy < (y + math.ceil(diffY / 2))) and (y%2==0)) or ((iy <= (y + math.ceil(diffY / 2))) and (y%2!=0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x + ix < 5) and (x+ix>-1):
@@ -1298,7 +1296,7 @@ class line_follower(Node):
 
                     iy = y + 1
                     while(iy<6):
-                        if((iy < (y + math.ceil(diffY / 2))) and (y%2==0)) or ((iy < (y + math.ceil(diffY / 2))) and (y%2!=0)):
+                        if((iy < (y + math.ceil(diffY / 2))) and (y%2==0)) or ((iy <= (y + math.ceil(diffY / 2))) and (y%2!=0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x + ix < 5) and (x+ix>-1):
@@ -1317,7 +1315,7 @@ class line_follower(Node):
 
                     iy = y - 1
                     while(iy> -1):
-                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy > (y - math.ceil(diffY / 2))) and (y%2==0)):
+                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy >= (y - math.ceil(diffY / 2))) and (y%2==0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix > -1) and (x-ix<5):
@@ -1334,7 +1332,7 @@ class line_follower(Node):
 
                     iy = y - 1
                     while(iy> -1):
-                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy > (y - math.ceil(diffY / 2))) and (y%2==0)):
+                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy >= (y - math.ceil(diffY / 2))) and (y%2==0)):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix > -1)and (x-ix<5):
