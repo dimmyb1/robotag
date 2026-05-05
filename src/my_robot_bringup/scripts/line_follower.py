@@ -2849,7 +2849,7 @@ class line_follower(Node):
         
 
         
-        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic:
+        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken):
             self.retry()
 
 
