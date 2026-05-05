@@ -2531,45 +2531,6 @@ class line_follower(Node):
                         if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
                             self.stateFollow = False
                             self.planDestination()
-                            # self.retryPlan = self.planDestination()
-
-                            # if self.retryPlan != 0:
-                            #     self.stopMov()
-                            #     if self.retryPlan == -1:
-                            #         #180
-                            #         if self.facing == 0:
-                            #             self.imu_target = 2
-                            #         elif self.facing == 2:
-                            #             self.imu_target = 0
-                            #         elif self.facing == 1:
-                            #             self.imu_target = 3
-                            #         elif self.facing == 3:
-                            #             self.imu_target = 1
-                                    
-                            #     elif self.retryPlan == -2:
-                            #         #right
-                            #         if self.facing == 0:
-                            #             self.imu_target = 1
-                            #         elif self.facing == 2:
-                            #             self.imu_target = 3
-                            #         elif self.facing == 1:
-                            #             self.imu_target = 2
-                            #         elif self.facing == 3:
-                            #             self.imu_target = 0
-
-                            #     elif self.retryPlan == -3: 
-                            #         #left
-                            #         if self.facing == 0:
-                            #             self.imu_target = 3
-                            #         elif self.facing == 2:
-                            #             self.imu_target = 1
-                            #         elif self.facing == 1:
-                            #             self.imu_target = 0
-                            #         elif self.facing == 3:
-                            #             self.imu_target = 2
-
-                            #     self.startTurnBasedOnIMU()
-                            #     return
                             
                             if not self.imu_turning:
                                 self.stateFollow = True
