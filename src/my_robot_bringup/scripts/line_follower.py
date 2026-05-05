@@ -2735,14 +2735,8 @@ class line_follower(Node):
             self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {self.evading}")
 
 
-    #This segment was generated using Claude Sonnet 4.6 Adaptive on 05/05/2026
-    # https://claude.ai/share/b3ef1b16-b390-47b7-9d8a-b0121ba56ef1 
-    # though it mostly has stripped my own code and regurgitated it to me in a different placement
-    # Post-retry replanning: once the retry turn AND sweep are both done, replan
-    # without advancing current_node (robot never moved — it turned in place)
-    def retry(self):
-        self.postRetry = False
 
+    def checkUltra(self):
         self.retryPlan = 0
 
         #retryPlan values:
@@ -2772,6 +2766,17 @@ class line_follower(Node):
                 self.retryPlan = -3
             
         #else, it's safe to continue
+
+
+    #This segment was generated using Claude Sonnet 4.6 Adaptive on 05/05/2026
+    # https://claude.ai/share/b3ef1b16-b390-47b7-9d8a-b0121ba56ef1 
+    # though it mostly has stripped my own code and regurgitated it to me in a different placement
+    # Post-retry replanning: once the retry turn AND sweep are both done, replan
+    # without advancing current_node (robot never moved — it turned in place)
+    def retry(self):
+        self.postRetry = False
+
+        self.checkUltra()
 
         if self.retryPlan != 0:
             # Still can't plan — set up another retry turn
@@ -2848,8 +2853,8 @@ class line_follower(Node):
             self.initial_reading_taken = True
         
 
-        
-        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken):
+        #specifically when retrying
+        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic:
             self.retry()
 
 
@@ -2861,7 +2866,11 @@ class line_follower(Node):
             pass
         elif not self.waitingForUltrasonic:
             #check for intersection, reset behaviour from tag, update location and destination and target tracking
-            self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
+            if self.behaviourMode in [3,4,5]:
+                self.checkUltra()
+
+            if self.retryPlan != 0:
+                self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
         if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic:
