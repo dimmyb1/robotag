@@ -478,7 +478,7 @@ class line_follower(Node):
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
         elif(self.imu_turning):
-            #target = ((STARTED_FACING - self.imu_target) * 90)
+            #target = ((self.imu_target - STARTED_FACING) * 90)
             target = self.imu_target * 90
             if target < 0:
                 target+=360
