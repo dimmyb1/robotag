@@ -865,6 +865,8 @@ class line_follower(Node):
                 toReturn = H
 
         return toReturn
+    
+
     #--------------------
     # Self-Localisation
     #--------------------
@@ -945,34 +947,6 @@ class line_follower(Node):
         
     #Graph Functions
     def calculateProbabilities(self):
-        #returns from this function:
-        #only 1 detected
-        #-1 means turn 180
-        #-2 means turn left 90
-        #-3 means turn right 90
-        if(self.entry_angle == float('inf')):
-            #self.locateTarget = True
-            if self.exit_angle == float('inf'):
-                #no detection
-                return -1
-
-            else:
-
-                if self.exit_angle < 0:
-                    return -2
-                elif self.exit_angle > 0:
-                    return -3
-
-        elif self.exit_angle == float('inf'):
-            #self.locateTarget = True
-            #only 1 detected
-            if self.entry_angle < 0:
-                return -2
-            elif self.entry_angle > 0:
-                return -3
-        
-        #else, it's safe to continue
-
         #let's say radar stores the closest ultrasonic ping in euclidean metric in self.ultrasonic_distance
         #we get two readings: first ping entering reading (self.entry_angle)
         # second ping exiting reading (self.exit_angle)
@@ -1545,12 +1519,7 @@ class line_follower(Node):
         #so all we have to do is save self.Po as self.P for our next run.
         self.Po = self.P.copy()
 
-        #returns from this function:
-        #0 nothing went wrong
-        #-1 means turn 180
-        #-2 means turn left 90
-        #-3 means turn right 90
-        return 0
+        
 
     #dijkstra function written by ChatGPT-5.3 on 9/04/2026
     #in this conversation: https://chatgpt.com/share/69d7f982-5b6c-8330-bd3b-779f35e3c7ed 
@@ -2015,13 +1984,7 @@ class line_follower(Node):
             
         elif self.behaviourMode == 3 or (self.behaviourMode == 5 and self.opp_old_loc==-1):
             # 3 - Greedy
-            self.retryPlan = self.calculateProbabilities()
-            #returns from this function:
-            #0 nothing went wrong
-
-            if self.retryPlan!=0:
-                self.get_logger().info("Didn't find opponent! Retrying...")
-                return self.retryPlan
+            self.calculateProbabilities()
 
             #take max likely edge
             maxV = -1
@@ -2097,13 +2060,7 @@ class line_follower(Node):
 
         elif self.behaviourMode == 4:
             # 4 - Avoidant
-            self.retryPlan = self.calculateProbabilities()
-            #returns from this function:
-            #0 nothing went wrong
-
-            if self.retryPlan!=0:
-                self.get_logger().info("Could not locate target! Retrying...")
-                return self.retryPlan
+            self.calculateProbabilities()
 
             #take max likely edge
             maxV = -1
@@ -2180,13 +2137,8 @@ class line_follower(Node):
         elif self.behaviourMode == 5:
             # 5 - Interceptive
             be_greedy = False
-            self.retryPlan = self.calculateProbabilities()
-            #returns from this function:
-            #0 nothing went wrong
-
-            if self.retryPlan!=0:
-                self.get_logger().info("Could not find target! Retrying...")
-                return self.retryPlan
+            self.calculateProbabilities()
+            
 
             #interceptive takes the straight path
             #taking targets past loc, Curr loc, and assumes straight to future loc
@@ -2469,7 +2421,6 @@ class line_follower(Node):
             # 0 - not set (no behaviour)
             
         
-        return 0
     
     def startTurnBasedOnIMU(self):
         #self.completeTurn = False
@@ -2579,45 +2530,46 @@ class line_follower(Node):
                         #when sensing cooldown expires, look again.
                         if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
                             self.stateFollow = False
-                            self.retryPlan = self.planDestination()
+                            self.planDestination()
+                            # self.retryPlan = self.planDestination()
 
-                            if self.retryPlan != 0:
-                                self.stopMov()
-                                if self.retryPlan == -1:
-                                    #180
-                                    if self.facing == 0:
-                                        self.imu_target = 2
-                                    elif self.facing == 2:
-                                        self.imu_target = 0
-                                    elif self.facing == 1:
-                                        self.imu_target = 3
-                                    elif self.facing == 3:
-                                        self.imu_target = 1
+                            # if self.retryPlan != 0:
+                            #     self.stopMov()
+                            #     if self.retryPlan == -1:
+                            #         #180
+                            #         if self.facing == 0:
+                            #             self.imu_target = 2
+                            #         elif self.facing == 2:
+                            #             self.imu_target = 0
+                            #         elif self.facing == 1:
+                            #             self.imu_target = 3
+                            #         elif self.facing == 3:
+                            #             self.imu_target = 1
                                     
-                                elif self.retryPlan == -2:
-                                    #right
-                                    if self.facing == 0:
-                                        self.imu_target = 1
-                                    elif self.facing == 2:
-                                        self.imu_target = 3
-                                    elif self.facing == 1:
-                                        self.imu_target = 2
-                                    elif self.facing == 3:
-                                        self.imu_target = 0
+                            #     elif self.retryPlan == -2:
+                            #         #right
+                            #         if self.facing == 0:
+                            #             self.imu_target = 1
+                            #         elif self.facing == 2:
+                            #             self.imu_target = 3
+                            #         elif self.facing == 1:
+                            #             self.imu_target = 2
+                            #         elif self.facing == 3:
+                            #             self.imu_target = 0
 
-                                elif self.retryPlan == -3: 
-                                    #left
-                                    if self.facing == 0:
-                                        self.imu_target = 3
-                                    elif self.facing == 2:
-                                        self.imu_target = 1
-                                    elif self.facing == 1:
-                                        self.imu_target = 0
-                                    elif self.facing == 3:
-                                        self.imu_target = 2
+                            #     elif self.retryPlan == -3: 
+                            #         #left
+                            #         if self.facing == 0:
+                            #             self.imu_target = 3
+                            #         elif self.facing == 2:
+                            #             self.imu_target = 1
+                            #         elif self.facing == 1:
+                            #             self.imu_target = 0
+                            #         elif self.facing == 3:
+                            #             self.imu_target = 2
 
-                                self.startTurnBasedOnIMU()
-                                return
+                            #     self.startTurnBasedOnIMU()
+                            #     return
                             
                             if not self.imu_turning:
                                 self.stateFollow = True
@@ -2719,45 +2671,8 @@ class line_follower(Node):
                         self.current_node = self.returnNode(self.current_destination)
                     else:
                         self.firstNode = False
-                    self.retryPlan = self.planDestination()
-
-                    if self.retryPlan != 0:
-                        self.stopMov()
-                        if self.retryPlan == -1:
-                            #180
-                            if self.facing == 0:
-                                self.imu_target = 2
-                            elif self.facing == 2:
-                                self.imu_target = 0
-                            elif self.facing == 1:
-                                self.imu_target = 3
-                            elif self.facing == 3:
-                                self.imu_target = 1
-                                    
-                        elif self.retryPlan == -2:
-                            #right
-                            if self.facing == 0:
-                                self.imu_target = 1
-                            elif self.facing == 2:
-                                self.imu_target = 3
-                            elif self.facing == 1:
-                                self.imu_target = 2
-                            elif self.facing == 3:
-                                self.imu_target = 0
-
-                        elif self.retryPlan == -3: 
-                            #left
-                            if self.facing == 0:
-                                self.imu_target = 3
-                            elif self.facing == 2:
-                                self.imu_target = 1
-                            elif self.facing == 1:
-                                self.imu_target = 0
-                            elif self.facing == 3:
-                                self.imu_target = 2
-
-                        self.startTurnBasedOnIMU()
-                        return
+                    
+                    self.planDestination()
                     
                     if not self.imu_turning:
                         self.stateFollow = True
@@ -2902,11 +2817,40 @@ class line_follower(Node):
 
         #This segment was generated using Claude Sonnet 4.6 Adaptive on 05/05/2026
         # https://claude.ai/share/b3ef1b16-b390-47b7-9d8a-b0121ba56ef1 
+        # though it mostly has stripped my own code and regurgitated it to me in a different placement
         # Post-retry replanning: once the retry turn AND sweep are both done, replan
         # without advancing current_node (robot never moved — it turned in place)
         if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic:
             self.postRetry = False
-            self.retryPlan = self.planDestination()
+
+            self.retryPlan = 0
+            #returns from this function:
+            #only 1 detected
+            #-1 means turn 180
+            #-2 means turn left 90
+            #-3 means turn right 90
+            if(self.entry_angle == float('inf')):
+                #self.locateTarget = True
+                if self.exit_angle == float('inf'):
+                    #no detection
+                    self.retryPlan =  -1
+
+                else:
+
+                    if self.exit_angle < 0:
+                        self.retryPlan -2
+                    elif self.exit_angle > 0:
+                        self.retryPlan -3
+
+            elif self.exit_angle == float('inf'):
+                #self.locateTarget = True
+                #only 1 detected
+                if self.entry_angle < 0:
+                    self.retryPlan -2
+                elif self.entry_angle > 0:
+                    self.retryPlan -3
+            
+            #else, it's safe to continue
 
             if self.retryPlan != 0:
                 # Still can't plan — set up another retry turn
@@ -2922,23 +2866,23 @@ class line_follower(Node):
                 self.imu_target = targets.get(self.facing, -1)
                 self.startTurnBasedOnIMU()
                 # retryPlan != 0 → next loop tick will trigger another sweep
-            else:
-                # planDestination succeeded — apply the new destination
-                dest = self.current_destination
-                if isinstance(dest, str):
-                    dirs = [self.current_node.Nc, self.current_node.Ec,
-                            self.current_node.Sc, self.current_node.Wc]
-                    self.imu_target = dirs.index(dest) if dest in dirs else -1
-                elif isinstance(dest, list) and dest:
-                    if isinstance(dest[0], int):
-                        self.imu_target = dest[0]
-                    elif isinstance(dest[0], str):
-                        dirs = [self.current_node.Nc, self.current_node.Ec,
-                                self.current_node.Sc, self.current_node.Wc]
-                        self.imu_target = dirs.index(dest[0]) if dest[0] in dirs else -1
-                self.toDepart = True
-                if self.behaviourMode != 1:
-                    self.startTurnBasedOnIMU()
+            # else:
+            #     # planDestination succeeded — apply the new destination
+            #     dest = self.current_destination
+            #     if isinstance(dest, str):
+            #         dirs = [self.current_node.Nc, self.current_node.Ec,
+            #                 self.current_node.Sc, self.current_node.Wc]
+            #         self.imu_target = dirs.index(dest) if dest in dirs else -1
+            #     elif isinstance(dest, list) and dest:
+            #         if isinstance(dest[0], int):
+            #             self.imu_target = dest[0]
+            #         elif isinstance(dest[0], str):
+            #             dirs = [self.current_node.Nc, self.current_node.Ec,
+            #                     self.current_node.Sc, self.current_node.Wc]
+            #             self.imu_target = dirs.index(dest[0]) if dest[0] in dirs else -1
+            #     self.toDepart = True
+            #     if self.behaviourMode != 1:
+            #         self.startTurnBasedOnIMU()
 
 
         #check for tags and publish status
