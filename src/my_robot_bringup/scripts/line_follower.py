@@ -1440,7 +1440,7 @@ class line_follower(Node):
                 elif c.y == 1:
                     self.P["Pgh1"]+= 0.25
                     self.P["Pch1"]+= 0.25
-                    self.P["Phh1"]+= 0.25
+                    self.P["Phh1"]+= 0.5
                 elif c.y == 2:
                     self.P["Pfd1"] += 0.477
                     self.P["Pch1"] += 0.523
