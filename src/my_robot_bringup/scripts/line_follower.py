@@ -2873,7 +2873,7 @@ class line_follower(Node):
             if self.behaviourMode in [3,4,5]:
                 self.checkUltra()
 
-            if self.retryPlan != 0:
+            if self.retryPlan == 0:
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
