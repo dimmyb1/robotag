@@ -2795,6 +2795,8 @@ class line_follower(Node):
                 targets = {}
             self.imu_target = targets.get(self.facing, -1)
             self.startTurnBasedOnIMU()
+            self.postRetry = True
+            self.retryPlan = 0
             # retryPlan != 0 → next loop tick will trigger another sweep
         # else:
         #     # planDestination succeeded — apply the new destination
