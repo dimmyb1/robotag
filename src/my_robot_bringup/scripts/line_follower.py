@@ -2677,6 +2677,9 @@ class line_follower(Node):
         
                 self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
+        else:
+            self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
+            
     def surveillCapture(self):
         #ultrasonic_sweep.py is constantly turning and checking.
         #self.CAPTURE_MAX =0.1
