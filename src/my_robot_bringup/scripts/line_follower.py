@@ -11,7 +11,7 @@ import cv2
 from enum import Enum
 from config import directions
 import math
-from std_msgs.msg import String, Float64, Float64MultiArray, Bool
+from std_msgs.msg import String, Float64, Float64MultiArray, Bool,  Float32MultiArray
 import json
 from rclpy.qos import QoSProfile, DurabilityPolicy
 import subprocess
@@ -62,6 +62,7 @@ class Cell():
 class line_follower(Node):
     def __init__(self):
         super().__init__('line_follower')
+        self.debug_pub = self.create_publisher(Float32MultiArray, 'debug_state', 10)
         
         #for time related operations
         self.now = time.time()
@@ -2873,6 +2874,19 @@ class line_follower(Node):
                 self.sweep = True
                 self.multiple = True
                 self.publish_sweep_command()
+
+
+        debug_msg = Float32MultiArray()
+        debug_msg.data = [
+            float(self.imu_turning),
+            float(self.waitingForUltrasonic),
+            float(self.postRetry),
+            float(self.retryPlan),
+            float(self.stateFollow),
+            float(self.facing),
+            float(self.imu_target),
+        ]
+        self.debug_pub.publish(debug_msg)
 
         
 
