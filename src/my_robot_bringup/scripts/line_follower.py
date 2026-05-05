@@ -506,6 +506,8 @@ class line_follower(Node):
                         self.departureTime = self.now
                         self.stateFollow = True
  
+        if self.waitingForUltrasonic:
+            self.stopMov()
 
     def stopMov(self) :
         self.start_motion()
@@ -2794,8 +2796,6 @@ class line_follower(Node):
                 targets = {}
             self.imu_target = targets.get(self.facing, -1)
             self.startTurnBasedOnIMU()
-            self.postRetry = True
-            self.retryPlan = 0
             # retryPlan != 0 → next loop tick will trigger another sweep
         
     
@@ -2823,7 +2823,7 @@ class line_follower(Node):
             self.triggerSweep = True
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or self.postRetry or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic:
+        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
@@ -2838,11 +2838,9 @@ class line_follower(Node):
             self.triggerSweep = False
             self.initial_reading_taken = True
         
-
         #specifically when retrying
         if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic:
             self.retry()
-
 
         #check for tags and publish status
         self.surveillCapture()
