@@ -2886,7 +2886,8 @@ class line_follower(Node):
 
             #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
             if type(self.current_destination) == list:
-                self.current_destination = self.current_destination[0]
+                if self.current_destination:
+                    self.current_destination = self.current_destination[0]
 
             self.resetBehaviour = True
             self.initial_reading_taken = False
