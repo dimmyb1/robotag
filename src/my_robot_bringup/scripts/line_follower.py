@@ -910,10 +910,13 @@ class line_follower(Node):
             elif minTime < self.last_node.Times[3] < maxTime:
                 hyp.append(self.last_node.Wc)
 
+            
             #if not, we either got turned around, or we just struggled / found it easy to get here
             #in case we got turned around copy the node we left from:
-            hyp.append(self.last_node.name)
+            if not hyp:
+                hyp.append(self.last_node.name)
             #otherwise if we just deviated slightly, the rest of the map should match up, so either way let's check the next edge we take:
+            self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hyp}")
 
             if self.loc_hyp:
                 #if we formed a hypothesis on where we may be at our last node, then we have previously cast doubt on where we are
@@ -928,21 +931,25 @@ class line_follower(Node):
                     if minTime < hn.Times[0] < maxTime:
                         self.last_node = h
                         self.current_node = self.returnNode(hn.Nc)
+                        self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
                         break
                     elif minTime < hn.Times[1] < maxTime:
                         self.last_node = h
                         self.current_node = self.returnNode(hn.Ec)
+                        self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
                         break
                     elif minTime < hn.Times[2] < maxTime:
                         self.last_node = h
                         self.current_node = self.returnNode(hn.Sc)
+                        self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
                         break
                     elif minTime < hn.Times[3] < maxTime:
                         self.last_node = h
                         self.current_node = self.returnNode(hn.Wc)
+                        self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
                         break
 
@@ -950,10 +957,11 @@ class line_follower(Node):
             if hyp:
                 self.loc_hyp = hyp.copy()
                 return
-            else:
-                #clear stale value
-                self.loc_hyp = []
-                return
+
+        else:
+            #timing was a-okay!
+            self.get_logger().info(f"SELF_LOC: Discarding hypothesis...")
+               
             
         #otherwise, it has taken the expected amount of time
         #we have no concerns.
@@ -979,9 +987,6 @@ class line_follower(Node):
         CONTAMINATION = 0.3
         
         #and let's say we have estimated our current coordinates to be x and y
-        # x = 2
-        # y = 3
-
         #if we know our current node, we know our current coordinates.
         if self.current_node.name == 'A':
             x = 1
@@ -1008,7 +1013,7 @@ class line_follower(Node):
             x = 3
             y = 1
 
-        # so minimum (2,3), maximum (3,4) starts
+        # so if x=2 and y =3 minimum (2,3), maximum (3,4) starts
         #these need to be estimated by timing how long we're following a black line for against our pretimed table
         
         #get current cardinal direction we're facing 
@@ -1057,7 +1062,6 @@ class line_follower(Node):
             #it isnt directly in front of us.
             #is it on the left or on the right?
             servoCells = []
-
 
             #on the right side:
             if(biggerServo <= math.pi/2):
