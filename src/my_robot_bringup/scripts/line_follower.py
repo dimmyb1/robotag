@@ -2568,15 +2568,22 @@ class line_follower(Node):
 
                 if type(self.current_destination) == list:
                     
+
+                    
                     #Update last node + current node
                     #self.current_node = self.current_destination
                     if(self.current_destination):
 
-                        #last node
-                        self.last_node = self.current_node
 
                         #current node
                         if type(self.current_destination[0]) == int:
+
+                            #localise using old values
+                            self.self_localise(self.current_node.Times[self.current_destination[0]])
+
+                            #last node
+                            self.last_node = self.current_node
+
                             if self.current_destination[0] == 0:
                                 self.current_node = self.returnNode(self.current_node.Nc)
                             elif self.current_destination[0] == 1:
@@ -2587,6 +2594,19 @@ class line_follower(Node):
                                 self.current_node = self.returnNode(self.current_node.Wc)
 
                         if type(self.current_destination[0]) == str:
+                            #localise using old values
+                            if self.current_node.Nc == self.current_destination[0]:
+                                self.self_localise(self.current_node.Times[0])
+                            elif self.current_node.Ec == self.current_destination[0]:
+                                self.self_localise(self.current_node.Times[1])
+                            elif self.current_node.Sc == self.current_destination[0]:
+                                self.self_localise(self.current_node.Times[2])
+                            elif self.current_node.Wc == self.current_destination[0]:
+                                self.self_localise(self.current_node.Times[3])
+
+                            #last node
+                            self.last_node = self.current_node
+
                             self.current_node = self.returnNode(self.current_destination[0])
                     
                     #otherwise, do not update current_node as we are still where we were.
@@ -2690,6 +2710,7 @@ class line_follower(Node):
 
                 else : #not list
 
+                    #localise using old values
                     if self.current_node.Nc == self.current_destination:
                         self.self_localise(self.current_node.Times[0])
                     elif self.current_node.Ec == self.current_destination:
