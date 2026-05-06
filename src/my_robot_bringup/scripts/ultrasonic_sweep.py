@@ -5,6 +5,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import LaserScan, JointState
 from std_msgs.msg import Float64MultiArray, Float64, String # <-- Added Float64 for servo commands
 import json
+import time
 
 class SweepingUltrasonicNode(Node):
     def __init__(self):
@@ -43,6 +44,7 @@ class SweepingUltrasonicNode(Node):
         self.sweep_direction = 1  # 1 for increasing angle, -1 for decreasing
         self.sweep_speed = 1.0   # Radians per second
         self.timer_period = 0.05  # 20 Hz update rate
+        self.settle_time = 1.5
 
         #functionality
         self.sweep = False
@@ -52,6 +54,10 @@ class SweepingUltrasonicNode(Node):
         # Create a timer to constantly publish movement commands
         self.timer = self.create_timer(self.timer_period, self.sweep_timer_callback)
         self.get_logger().info(f"Namespace: '{self.get_namespace()}', robot_name: '{robot_name}', servo topic: '{topic_servo_cmd}'")
+
+        self.stall_start_time = -1
+        self.allow_detection = False
+        self.end_stall = False
 
     def sweep_callback(self, msg):
         data = json.loads(msg.data)
@@ -75,27 +81,51 @@ class SweepingUltrasonicNode(Node):
 
             if self.multiple: #keep sweeping until sweep is false
                 # Update target angle
-                self.target_angle += (self.sweep_direction * step)
+                if time.time() > self.stall_start_time + self.settle_time:
+                    self.target_angle += (self.sweep_direction * step)
+                    self.allow_detection = True
                 
                 # Reverse direction if we hit the -90 or +90 degree limits (approx 1.57 radians)
                 if self.target_angle >= limit:
                     self.target_angle = limit
                     self.sweep_direction = -1
+                    self.allow_detection = False
+                    self.stall_start_time = time.time()
+
                 elif self.target_angle <= -limit:
                     self.target_angle = -limit
                     self.sweep_direction = 1
+                    self.allow_detection = False
+                    self.stall_start_time = time.time()
 
             else: #do a single sweep
                 if self.single_sweep_phase == 0:
                     self.target_angle = -limit  # command it to go to -90
+                    self.allow_detection = False
+
                     # wait until it's actually there before sweeping
                     if abs(self.current_servo_angle - (-limit)) < 0.05:  # 0.05 rad tolerance ~3 degrees
                         self.single_sweep_phase = 1
+                        self.stall_start_time = time.time()
 
                 elif self.single_sweep_phase == 1:
+                    if time.time() > self.stall_start_time + self.settle_time:
+                        self.allow_detection = True
+                        self.single_sweep_phase = 2
+
+                elif self.single_sweep_phase == 2:
+                        
                     self.target_angle += step
                     if self.target_angle >= limit:
                         self.target_angle = limit
+                        self.allow_detection = False
+                        self.stall_start_time = time.time()
+                        self.single_sweep_phase = 3
+
+
+                elif self.single_sweep_phase == 3:
+                    #end stall
+                    if time.time() > self.stall_start_time + self.settle_time:
                         self.single_sweep_phase = 0
                         self.sweep = False
 
@@ -137,8 +167,9 @@ class SweepingUltrasonicNode(Node):
         if not self.sweep:
             self.entry_angle = float('inf')
             self.min_distance = float('inf')
+            self.is_detecting = False
 
-        else:    
+        elif self.allow_detection:    
             valid_ranges = [r for r in msg.ranges if msg.range_min < r < msg.range_max]
             
             if valid_ranges:
