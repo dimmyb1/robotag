@@ -2623,7 +2623,7 @@ class line_follower(Node):
                                     #if it is a single number from 0 to 3, then it is an immediate neighbour 
                                     #e.g. path = [2] i.e. go south
                                     self.imu_target = self.current_destination.pop(0)
-                                    self.self_localise(self.current_node.Times[self.imu_target])
+                                    #self.self_localise(self.current_node.Times[self.imu_target])
                                     
                                     self.toDepart = True
                                     self.startTurnBasedOnIMU()
@@ -2641,16 +2641,16 @@ class line_follower(Node):
                                     neigh_name = self.current_destination.pop(0)
                                     if self.current_node.Nc == neigh_name:
                                         self.imu_target = 0
-                                        self.self_localise(self.current_node.Times[0])
+                                        #self.self_localise(self.current_node.Times[0])
                                     elif self.current_node.Ec == neigh_name:
                                         self.imu_target = 1
-                                        self.self_localise(self.current_node.Times[1])
+                                        #self.self_localise(self.current_node.Times[1])
                                     elif self.current_node.Sc == neigh_name:
                                         self.imu_target = 2
-                                        self.self_localise(self.current_node.Times[2])
+                                        #self.self_localise(self.current_node.Times[2])
                                     elif self.current_node.Wc == neigh_name:
                                         self.imu_target = 3
-                                        self.self_localise(self.current_node.Times[3])
+                                        #self.self_localise(self.current_node.Times[3])
 
                                     #self.departureTime = self.now
                                     self.toDepart = True
@@ -2675,16 +2675,16 @@ class line_follower(Node):
                             #e.g. path = 'A'
                             if self.current_node.Nc == self.current_destination:
                                 self.imu_target = 0
-                                self.self_localise(self.current_node.Times[0])
+                                #self.self_localise(self.current_node.Times[0])
                             elif self.current_node.Ec == self.current_destination:
                                 self.imu_target = 1
-                                self.self_localise(self.current_node.Times[1])
+                                #self.self_localise(self.current_node.Times[1])
                             elif self.current_node.Sc == self.current_destination:
                                 self.imu_target = 2
-                                self.self_localise(self.current_node.Times[2])
+                                #self.self_localise(self.current_node.Times[2])
                             elif self.current_node.Wc == self.current_destination:
                                 self.imu_target = 3
-                                self.self_localise(self.current_node.Times[3])
+                                #self.self_localise(self.current_node.Times[3])
 
                             self.toDepart = True
                             self.startTurnBasedOnIMU()
