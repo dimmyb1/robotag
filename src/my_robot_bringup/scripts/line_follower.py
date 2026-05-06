@@ -410,7 +410,7 @@ class line_follower(Node):
             self.waitingForUltrasonic = False
             self.locateTarget = False
         
-        self.get_logger().info(f"Received Object Data -> Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.distance:.2f}")
+        self.get_logger().info(f"Received Object Data -> Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.ultrasonic_distance:.2f}")
 
     def publish_sweep_command(self):
         payload = {
