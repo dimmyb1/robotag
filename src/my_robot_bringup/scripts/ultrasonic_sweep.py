@@ -81,22 +81,30 @@ class SweepingUltrasonicNode(Node):
 
             if self.multiple: #keep sweeping until sweep is false
                 # Update target angle
-                if time.time() > self.stall_start_time + self.settle_time:
-                    self.target_angle += (self.sweep_direction * step)
-                    self.allow_detection = True
+                if self.end_stall:
+                    if time.time() > self.stall_start_time + self.settle_time:
+                        
+                        self.allow_detection = True
+                        self.end_stall = False
+                    else:
+                        return
                 
+                self.target_angle += (self.sweep_direction * step)
+
                 # Reverse direction if we hit the -90 or +90 degree limits (approx 1.57 radians)
                 if self.target_angle >= limit:
                     self.target_angle = limit
                     self.sweep_direction = -1
                     self.allow_detection = False
                     self.stall_start_time = time.time()
+                    self.end_stall = True
 
                 elif self.target_angle <= -limit:
                     self.target_angle = -limit
                     self.sweep_direction = 1
                     self.allow_detection = False
                     self.stall_start_time = time.time()
+                    self.end_stall = True
 
             else: #do a single sweep
                 if self.single_sweep_phase == 0:

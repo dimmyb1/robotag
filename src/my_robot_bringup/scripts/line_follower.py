@@ -410,7 +410,7 @@ class line_follower(Node):
             self.waitingForUltrasonic = False
             self.locateTarget = False
         
-        #self.get_logger().info(f"Received Object Data -> Entry: {entry_angle:.2f}, Exit: {exit_angle:.2f}, Dist: {distance:.2f}")
+        self.get_logger().info(f"Received Object Data -> Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.distance:.2f}")
 
     def publish_sweep_command(self):
         payload = {
@@ -2875,6 +2875,9 @@ class line_follower(Node):
                         targets = {}
                 self.imu_target = targets.get(self.facing, -1)
                 self.startTurnBasedOnIMU()
+            
+            else:
+                self.retryAttempts = 0
 
         #check for tags and publish status
         self.surveillCapture()
