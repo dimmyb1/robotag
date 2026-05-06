@@ -2641,16 +2641,12 @@ class line_follower(Node):
                                     neigh_name = self.current_destination.pop(0)
                                     if self.current_node.Nc == neigh_name:
                                         self.imu_target = 0
-                                        #self.self_localise(self.current_node.Times[0])
                                     elif self.current_node.Ec == neigh_name:
                                         self.imu_target = 1
-                                        #self.self_localise(self.current_node.Times[1])
                                     elif self.current_node.Sc == neigh_name:
                                         self.imu_target = 2
-                                        #self.self_localise(self.current_node.Times[2])
                                     elif self.current_node.Wc == neigh_name:
                                         self.imu_target = 3
-                                        #self.self_localise(self.current_node.Times[3])
 
                                     #self.departureTime = self.now
                                     self.toDepart = True
@@ -2675,16 +2671,12 @@ class line_follower(Node):
                             #e.g. path = 'A'
                             if self.current_node.Nc == self.current_destination:
                                 self.imu_target = 0
-                                #self.self_localise(self.current_node.Times[0])
                             elif self.current_node.Ec == self.current_destination:
                                 self.imu_target = 1
-                                #self.self_localise(self.current_node.Times[1])
                             elif self.current_node.Sc == self.current_destination:
                                 self.imu_target = 2
-                                #self.self_localise(self.current_node.Times[2])
                             elif self.current_node.Wc == self.current_destination:
                                 self.imu_target = 3
-                                #self.self_localise(self.current_node.Times[3])
 
                             self.toDepart = True
                             self.startTurnBasedOnIMU()
@@ -2697,13 +2689,23 @@ class line_follower(Node):
                                 self.skipZero = False
 
                 else : #not list
+
+                    if self.current_node.Nc == self.current_destination:
+                        self.self_localise(self.current_node.Times[0])
+                    elif self.current_node.Ec == self.current_destination:
+                        self.self_localise(self.current_node.Times[1])
+                    elif self.current_node.Sc == self.current_destination:
+                        self.self_localise(self.current_node.Times[2])
+                    elif self.current_node.Wc == self.current_destination:
+                        self.self_localise(self.current_node.Times[3])
+
                     #update current_node and last_node
                     if not self.firstNode:
                         self.last_node = self.current_node
                         self.current_node = self.returnNode(self.current_destination)
                     else:
                         self.firstNode = False
-                    
+
                     self.planDestination()
                     
                     if not self.imu_turning:
@@ -2713,16 +2715,12 @@ class line_follower(Node):
                     #e.g. path = 'A'
                     if self.current_node.Nc == self.current_destination:
                         self.imu_target = 0
-                        self.self_localise(self.current_node.Times[0])
                     elif self.current_node.Ec == self.current_destination:
                         self.imu_target = 1
-                        self.self_localise(self.current_node.Times[1])
                     elif self.current_node.Sc == self.current_destination:
                         self.imu_target = 2
-                        self.self_localise(self.current_node.Times[2])
                     elif self.current_node.Wc == self.current_destination:
                         self.imu_target = 3
-                        self.self_localise(self.current_node.Times[3])
 
                     #update departure time
                     #self.departureTime = self.now 
