@@ -1438,8 +1438,6 @@ class line_follower(Node):
         }
 
         
-
-
         for c in cells:
             if c.x == 0:
                 if c.y == 0:
