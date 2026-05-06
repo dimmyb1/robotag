@@ -885,6 +885,53 @@ class line_follower(Node):
     #--------------------
     # Self-Localisation
     #--------------------
+    def adjustDestBasedOnBeh(self):
+        # behaviourMode settings:
+        # 0 - not set (no behaviour)
+        # 1 - Simple Line Follower
+        # 2 - Random
+        # 3 - Greedy
+        # 4 - Avoidant
+        # 5 - Interceptive
+
+        if self.behaviourMode == 1:
+            pass
+            #patrol
+            if self.facing == 0:
+                self.current_destination = self.current_node.Nc
+            elif self.facing == 1:
+                self.current_destination = self.current_node.Ec
+            elif self.facing == 2:
+                self.current_destination = self.current_node.Sc
+            elif self.facing == 3:
+                self.current_destination = self.current_node.Wc
+
+            #i_patrol points to the NEXT index (destination index)
+            i1 = self.patrolPath.index(self.current_node.name)
+            i2 = self.patrolPath.index(self.current_node.name, start= i1 +1)
+            try:
+                if self.patrolPath[i1+1] == self.current_destination:
+                    self.i_patrol = i1+1
+                elif self.patrolPath[i2+1] == self.current_destination:
+                    self.i_patrol = i2+1
+            except IndexError:
+                if self.patrolPath[i1+1] == self.current_destination:
+                    self.i_patrol = i1+1
+                elif self.patrolPath[0] == self.current_destination:
+                    self.i_patrol = 0
+
+        elif self.behaviourMode == 2:
+            pass
+        elif self.behaviourMode ==3:
+            pass
+        elif self.behaviourMode ==4:
+            pass
+        elif self.behaviourMode ==5:
+            pass
+        else:
+            self.get_logger().warning(f"adjusting destination based on non-existent behaviour value failed.")
+        
+
 
     def self_localise(self, edgeTime):
         if(self.last_node == 'Z'):
@@ -933,24 +980,28 @@ class line_follower(Node):
                         self.current_node = self.returnNode(hn.Nc)
                         self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
+                        self.adjustDestBasedOnBeh()
                         break
                     elif minTime < hn.Times[1] < maxTime:
                         self.last_node = h
                         self.current_node = self.returnNode(hn.Ec)
                         self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
+                        self.adjustDestBasedOnBeh()
                         break
                     elif minTime < hn.Times[2] < maxTime:
                         self.last_node = h
                         self.current_node = self.returnNode(hn.Sc)
                         self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
+                        self.adjustDestBasedOnBeh()
                         break
                     elif minTime < hn.Times[3] < maxTime:
                         self.last_node = h
                         self.current_node = self.returnNode(hn.Wc)
                         self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
+                        self.adjustDestBasedOnBeh()
                         break
 
             #if we found a possible hypothesis (i.e. there was some issue), record it and store it for the next edge check.
