@@ -976,28 +976,28 @@ class line_follower(Node):
                 for h in self.loc_hyp:
                     hn = self.returnNode(h)
                     if minTime < hn.Times[0] < maxTime:
-                        self.last_node = h
+                        self.last_node = hn
                         self.current_node = self.returnNode(hn.Nc)
                         self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
                         self.adjustDestBasedOnBeh()
                         break
                     elif minTime < hn.Times[1] < maxTime:
-                        self.last_node = h
+                        self.last_node = hn
                         self.current_node = self.returnNode(hn.Ec)
                         self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
                         self.adjustDestBasedOnBeh()
                         break
                     elif minTime < hn.Times[2] < maxTime:
-                        self.last_node = h
+                        self.last_node = hn
                         self.current_node = self.returnNode(hn.Sc)
                         self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
                         self.adjustDestBasedOnBeh()
                         break
                     elif minTime < hn.Times[3] < maxTime:
-                        self.last_node = h
+                        self.last_node = hn
                         self.current_node = self.returnNode(hn.Wc)
                         self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node}")
                         self.loc_hyp = []
