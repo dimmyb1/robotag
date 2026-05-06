@@ -1033,13 +1033,18 @@ class line_follower(Node):
         #HAVE WE ACTUALLY DETECTED THE OPPONENT?? IF NOT, TURN TO FIND THE OPPONENT.
         #let's check if the entry_angle and exit_angle s are float('inf') or not
         #how entry_angle and exit_angle are returned:
-        #no detection: float('inf')
-        # straight ahead / middle - 0
-        # otherwise returned in RADIANS
-        # +1.57 is left 90
-        # -1.57 is right 90
+        #no detection: float('inf') (this is correct)
+        # straight ahead / middle - 0 (this is correct)
+        # otherwise returned in RADIANS (this is correct)
+        # +1.57 is left 90 (this is correct)
+        # -1.57 is right 90 (this is correct)
 
         #first we will check if the mark is right in front of us
+        self.entry_angle += math.pi /2
+        self.exit_angle += math.pi /2
+
+        #this brings all the values to be between 0 and pi
+        
         lesserServo = min(self.entry_angle, self.exit_angle)
         biggerServo = max(self.entry_angle, self.exit_angle)
 
