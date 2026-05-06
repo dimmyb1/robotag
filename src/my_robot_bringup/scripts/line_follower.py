@@ -1165,11 +1165,11 @@ class line_follower(Node):
                         if(ix > (x - math.ceil(diffX / 2))):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
-                                if(y - iy > 0) and (y - iy < 6):
+                                if(y - iy > -1) and (y - iy < 6):
                                     servoCells.append(Cell(ix, y-iy))
                         else:
                             for iy in range(diffY):
-                                if(y - iy > 0) and (y - iy < 6):
+                                if(y - iy > -1) and (y - iy < 6):
                                     servoCells.append(Cell(ix, y-iy))
 
                         ix-=1
@@ -1182,11 +1182,11 @@ class line_follower(Node):
                         if(ix > (x - math.ceil(diffX / 2))):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
-                                if(y - iy > 0) and (y - iy < 6):
+                                if(y - iy > -1) and (y - iy < 6):
                                     servoCells.remove(Cell(ix, y-iy))
                         else:
                             for iy in range(diffY):
-                                if(y - iy > 0) and (y - iy < 6):
+                                if(y - iy > -1) and (y - iy < 6):
                                     servoCells.remove(Cell(ix, y-iy))
 
                         ix-=1
