@@ -42,8 +42,8 @@ class SweepingUltrasonicNode(Node):
         # State variables for sweeping
         self.target_angle = 0.0
         self.sweep_direction = 1  # 1 for increasing angle, -1 for decreasing
-        self.sweep_speed = 1.0   # Radians per second
-        self.timer_period = 0.05  # 20 Hz update rate
+        self.sweep_speed = 0.5   # Radians per second
+        self.timer_period = 0.02  # 20 Hz update rate
         self.settle_time = 1.5
 
         #functionality
