@@ -905,7 +905,7 @@ class line_follower(Node):
 
             #i_patrol points to the NEXT index (destination index)
             i1 = self.patrolPath.index(self.current_node.name)
-            i2 = self.patrolPath.index(self.current_node.name, start= i1 +1)
+            i2 = self.patrolPath.index(self.current_node.name, i1 +1)
             try:
                 if self.patrolPath[i1+1] == self.current_destination:
                     self.i_patrol = i1+1
