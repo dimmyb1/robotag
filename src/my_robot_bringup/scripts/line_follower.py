@@ -2781,35 +2781,37 @@ class line_follower(Node):
 
                     self.planDestination()
                     
-                    if not self.imu_turning:
-                        self.stateFollow = True
-                    
-                    #then it is a char from A to H, and it is an immediate neighbour 
-                    #e.g. path = 'A'
-                    if self.current_node.Nc == self.current_destination:
-                        self.imu_target = 0
-                    elif self.current_node.Ec == self.current_destination:
-                        self.imu_target = 1
-                    elif self.current_node.Sc == self.current_destination:
-                        self.imu_target = 2
-                    elif self.current_node.Wc == self.current_destination:
-                        self.imu_target = 3
+                    if self.current_destination != []:
 
-                    #update departure time
-                    #self.departureTime = self.now 
-                    self.toDepart = True
-                    #a value will  be added to departure time to represent turning time needed in startTurnBasedOnFacing
+                        if not self.imu_turning:
+                            self.stateFollow = True
+                        
+                        #then it is a char from A to H, and it is an immediate neighbour 
+                        #e.g. path = 'A'
+                        if self.current_node.Nc == self.current_destination:
+                            self.imu_target = 0
+                        elif self.current_node.Ec == self.current_destination:
+                            self.imu_target = 1
+                        elif self.current_node.Sc == self.current_destination:
+                            self.imu_target = 2
+                        elif self.current_node.Wc == self.current_destination:
+                            self.imu_target = 3
 
-                    if self.behaviourMode != 1:
-                        #skip this when patrolling as we are most probably already aligned
-                        self.startTurnBasedOnIMU()
+                        #update departure time
+                        #self.departureTime = self.now 
+                        self.toDepart = True
+                        #a value will  be added to departure time to represent turning time needed in startTurnBasedOnFacing
 
-                    #update sweeping setting
-                    if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
-                        #when left first is better than right first
-                        self.skipZero = True
-                    else:
-                        self.skipZero = False
+                        if self.behaviourMode != 1:
+                            #skip this when patrolling as we are most probably already aligned
+                            self.startTurnBasedOnIMU()
+
+                        #update sweeping setting
+                        if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
+                            #when left first is better than right first
+                            self.skipZero = True
+                        else:
+                            self.skipZero = False
         
                 self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
