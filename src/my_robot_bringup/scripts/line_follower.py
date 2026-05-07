@@ -1441,39 +1441,45 @@ class line_follower(Node):
         for c in cells:
             if c.x == 0:
                 if c.y == 0:
-                    self.P["Peg2"] +=1
+                    self.P["Peg2"] += 0.2106
                 elif c.y == 1:
-                    self.P["Peg2"] += 1
+                    self.P["Peg2"] += 0.5466
+                    self.P["Peg1"] += 0.0108
                 elif c.y == 2:
-                    self.P["Pae1"] += 0.25
-                    self.P["Peg2"] += 0.75
+                    self.P["Pae1"] += 0.2005
+                    self.P["Peg2"] += 0.3825
+                    self.P["Peg1"] += 0.0031
                 elif c.y == 3:
-                    self.P["Pae1"] +=1
+                    self.P["Pae1"] += 0.6361
+                    self.P["Paf1"] += 0.0053
                 elif c.y == 4:
-                    self.P["Pae1"] +=1
-                # elif c.y == 5:
-                #     return
+                    self.P["Pae1"] += 0.5522
+                    self.P["Pab2"] += 0.0433
+                    self.P["Paf1"] += 0.0099
+                elif c.y == 5:
+                    self.P["Pab2"] += 0.0293
             elif c.x == 1:
                 if c.y == 0:
-                    self.P["Peg2"] +=1
+                    self.P["Peg2"] += 0.5323
                 elif c.y == 1:
-                    self.P["Peg2"] +=0.156
-                    self.P["Peg1"] +=0.844
+                    self.P["Peg2"] +=0.0268
+                    self.P["Peg1"] +=0.6065
                 elif c.y == 2:
-                    self.P["Peg1"]+= 0.25
-                    self.P["Peg2"]+= 0.25
-                    self.P["Pef1"]+= 0.25
-                    self.P["Pae1"]+= 0.25
+                    self.P["Paf1"]+=0.0249
+                    self.P["Peg1"]+= 0.0917
+                    self.P["Peg2"]+= 0.0322
+                    self.P["Pef1"]+= 0.3172
+                    self.P["Pae1"]+= 0.2603
                 elif c.y == 3:
-                    self.P["Pae1"] += 0.293
-                    self.P["Paf1"] += 0.707
+                    self.P["Pae1"] += 0.0841
+                    self.P["Paf1"] += 0.5752
                 elif c.y == 4:
-                    self.P["Pab1"]+= 0.25
-                    self.P["Pab2"]+= 0.25
-                    self.P["Paf1"]+= 0.25
-                    self.P["Pae1"]+= 0.25
+                    self.P["Pab1"]+= 0.3221
+                    self.P["Pab2"]+= 0.1905
+                    self.P["Paf1"]+= 0.1632
+                    self.P["Pae1"]+= 0.0297
                 elif c.y == 5:
-                    self.P["Pab1"] += 1
+                    self.P["Pab2"] += 0.5855
             elif c.x == 2:
                 if c.y == 0:
                     self.P["Peg2"] +=1
