@@ -2594,15 +2594,12 @@ class line_follower(Node):
                         self.current_node = self.returnNode(self.current_destination)   
 
                 #COMMON
-            #start
+
                 if self.current_destination == []:
                     #when sensing cooldown expires, look again.
                     if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
                         self.stateFollow = False
                         self.planDestination()
-                            
-                        if not self.imu_turning:
-                            self.stateFollow = True
                     else:
                         #cooldown has not expired yet. stay stopped and wait
                         self.stateFollow = False
