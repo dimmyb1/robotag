@@ -1109,6 +1109,8 @@ class line_follower(Node):
             #it isnt directly in front of us.
             #is it on the left or on the right?
             servoCells = []
+            floorCells = []
+            ceilCells = []
 
             #on the right side:
             if(biggerServo <= math.pi/2):
@@ -1141,11 +1143,27 @@ class line_follower(Node):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6) and (iy + y > -1):
-                                    servoCells.remove(Cell(ix, iy+y))
+                                    floorCells.append(Cell(ix, iy+y))
                         else:
                             for iy in range(diffY):
                                 if(iy + y < 6) and (iy + y > -1):
-                                    servoCells.remove(Cell(ix, iy+y))
+                                    floorCells.append(Cell(ix, iy+y))
+
+                        ix+=1
+
+                    diffY = math.ceil(diffX * math.tan(lesserServo))
+
+                    ix = x + 1
+                    while(ix<5):
+                        if(ix <= (x + math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(iy + y < 6) and (iy + y > -1):
+                                    ceilCells.append(Cell(ix, iy+y))
+                        else:
+                            for iy in range(diffY):
+                                if(iy + y < 6) and (iy + y > -1):
+                                    ceilCells.append(Cell(ix, iy+y))
 
                         ix+=1
 
@@ -1179,11 +1197,28 @@ class line_follower(Node):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(y - iy > -1) and (y - iy < 6):
-                                    servoCells.remove(Cell(ix, y-iy))
+                                    floorCells.append(Cell(ix, y-iy))
                         else:
                             for iy in range(diffY):
                                 if(y - iy > -1) and (y - iy < 6):
-                                    servoCells.remove(Cell(ix, y-iy))
+                                    floorCells.append(Cell(ix, y-iy))
+
+                        ix-=1
+
+                    #now make the smaller triangle
+                    diffY = math.ceil(diffX * math.tan(lesserServo))
+
+                    ix = x - 1
+                    while(ix>-1):
+                        if(ix > (x - math.ceil(diffX / 2))):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(y - iy > -1) and (y - iy < 6):
+                                    ceilCells.append(Cell(ix, y-iy))
+                        else:
+                            for iy in range(diffY):
+                                if(y - iy > -1) and (y - iy < 6):
+                                    ceilCells.append(Cell(ix, y-iy))
 
                         ix-=1
 
@@ -1216,11 +1251,27 @@ class line_follower(Node):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x + ix < 5) and (x + ix > -1):
-                                    servoCells.remove(Cell(x + ix, iy))
+                                    floorCells.append(Cell(x + ix, iy))
                         else:
                             for ix in range(diffX):
                                 if(x + ix < 5) and (x + ix > -1):
-                                    servoCells.remove(Cell(x + ix, iy))
+                                    floorCells.append(Cell(x + ix, iy))
+
+                        iy-=1
+
+                    diffX = math.ceil(diffY * math.tan(lesserServo))
+
+                    iy = y - 1
+                    while(iy>-1):
+                        if((iy >= (y - math.ceil(diffY / 2))) and y%2==0) or ((iy > (y - math.ceil(diffY / 2))) and y%2!=0):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x + ix < 5) and (x + ix > -1):
+                                    ceilCells.append(Cell(x + ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x + ix < 5) and (x + ix > -1):
+                                    ceilCells.append(Cell(x + ix, iy))
 
                         iy-=1
 
@@ -1252,11 +1303,27 @@ class line_follower(Node):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix > -1):
-                                    servoCells.remove(Cell(x - ix, iy))
+                                    floorCells.append(Cell(x - ix, iy))
                         else:
                             for ix in range(diffX):
                                 if(x - ix > -1):
-                                    servoCells.remove(Cell(x - ix, iy))
+                                    floorCells.append(Cell(x - ix, iy))
+
+                        iy+=1
+
+                    diffX = math.ceil(diffY * math.tan(lesserServo))
+
+                    iy = y + 1
+                    while(iy<6):
+                        if ((iy < (y + math.ceil(diffY / 2))) and (y%2!=0)) or ((iy <= (y + math.ceil(diffY / 2))) and (y%2==0)):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x - ix > -1):
+                                    ceilCells.append(Cell(x - ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x - ix > -1):
+                                    ceilCells.append(Cell(x - ix, iy))
 
                         iy+=1
 
@@ -1291,11 +1358,27 @@ class line_follower(Node):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(iy + y < 6) and (iy + y > -1):
-                                    servoCells.remove(Cell(ix, iy+y))
+                                    floorCells.append(Cell(ix, iy+y))
                         else:
                             for iy in range(diffY):
                                 if(iy + y < 6) and (iy + y > -1):
-                                    servoCells.remove(Cell(ix, iy+y))
+                                    floorCells.append(Cell(ix, iy+y))
+
+                        ix-=1
+
+                    diffY = math.ceil(-diffX * math.tan(biggerServo))
+
+                    ix = x - 1
+                    while(ix>-1):
+                        if((ix >= (x - math.ceil(diffX / 2))) and (y%2==0)) or ((ix > (x - math.ceil(diffX / 2))) and (y%2!=0)):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(iy + y < 6) and (iy + y > -1):
+                                    ceilCells.append(Cell(ix, iy+y))
+                        else:
+                            for iy in range(diffY):
+                                if(iy + y < 6) and (iy + y > -1):
+                                    ceilCells.append(Cell(ix, iy+y))
 
                         ix-=1
 
@@ -1328,11 +1411,27 @@ class line_follower(Node):
                             #we need to do the diffY/2 ones at this ix value
                             for iy in range(math.ceil(diffY/2)):
                                 if(y - iy > -1) and (y - iy < 6):
-                                    servoCells.remove(Cell(ix, y - iy))
+                                    floorCells.append(Cell(ix, y - iy))
                         else:
                             for iy in range(diffY):
                                 if(y - iy > -1) and (y - iy < 6):
-                                    servoCells.remove(Cell(ix, y - iy))
+                                    floorCells.append(Cell(ix, y - iy))
+
+                        ix+=1
+
+                    diffY = math.ceil(-diffX * math.tan(biggerServo))
+
+                    ix = x + 1
+                    while(ix<5):
+                        if((ix < (x + math.ceil(diffX / 2))) and (x%2!=0)) or ((ix <= (x + math.ceil(diffX / 2))) and (x%2==0)):
+                            #we need to do the diffY/2 ones at this ix value
+                            for iy in range(math.ceil(diffY/2)):
+                                if(y - iy > -1) and (y - iy < 6):
+                                    ceilCells.append(Cell(ix, y - iy))
+                        else:
+                            for iy in range(diffY):
+                                if(y - iy > -1) and (y - iy < 6):
+                                    ceilCells.append(Cell(ix, y - iy))
 
                         ix+=1
                 #EAST
@@ -1364,11 +1463,27 @@ class line_follower(Node):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x + ix < 5) and (x+ix>-1):
-                                    servoCells.remove(Cell(x + ix, iy))
+                                    floorCells.append(Cell(x + ix, iy))
                         else:
                             for ix in range(diffX):
                                 if(x + ix < 5) and (x+ix>-1):
-                                    servoCells.remove(Cell(x + ix, iy))
+                                    floorCells.append(Cell(x + ix, iy))
+
+                        iy+=1
+
+                    diffX = math.ceil(-diffY * math.tan(biggerServo))
+
+                    iy = y + 1
+                    while(iy<6):
+                        if((iy < (y + math.ceil(diffY / 2))) and (y%2==0)) or ((iy <= (y + math.ceil(diffY / 2))) and (y%2!=0)):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x + ix < 5) and (x+ix>-1):
+                                    ceilCells.append(Cell(x + ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x + ix < 5) and (x+ix>-1):
+                                    ceilCells.append(Cell(x + ix, iy))
 
                         iy+=1
 
@@ -1400,14 +1515,43 @@ class line_follower(Node):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
                                 if(x - ix > -1)and (x-ix<5):
-                                    servoCells.remove(Cell(x - ix, iy))
+                                    floorCells.append(Cell(x - ix, iy))
                         else:
                             for ix in range(diffX):
                                 if(x - ix > -1)and (x-ix<5):
-                                    servoCells.remove(Cell(x - ix, iy))
+                                    floorCells.append(Cell(x - ix, iy))
+
+                        iy-=1
+
+                    diffX = math.ceil(-diffY * math.tan(biggerServo))
+
+                    iy = y - 1
+                    while(iy> -1):
+                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy >= (y - math.ceil(diffY / 2))) and (y%2==0)):
+                            #we need to do the diffY/2 ones at this ix value
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x - ix > -1)and (x-ix<5):
+                                    ceilCells.append(Cell(x - ix, iy))
+                        else:
+                            for ix in range(diffX):
+                                if(x - ix > -1)and (x-ix<5):
+                                    ceilCells.append(Cell(x - ix, iy))
 
                         iy-=1
                 
+            
+            #try to get the smallest cone
+            ceilFlag = False
+            for c in servoCells:
+                if c not in ceilCells:
+                    for ce in ceilCells:
+                        servoCells.remove(ce)
+                    ceilFlag = True
+                    break
+            if not ceilFlag:
+                for ce in floorCells:
+                    servoCells.remove(ce)
+
             #now find INTERSECTION with radius cells            
             cells = [c for c in cells if c in servoCells]
         #now we have a pretty small set of cells which the opponent can be in
