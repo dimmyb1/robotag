@@ -2525,7 +2525,6 @@ class line_follower(Node):
                     self.get_logger().info("Gray re-detected while crawling back — stopping.")
                     self.stopMov()
 
-                self.haventMovedYet = False
                 self.grayEntryTime = self.now
                 self.stationaryStartTime = -1  # no longer stationary — gray found
                 self.get_logger().info("Intersection detected!")
@@ -2534,6 +2533,7 @@ class line_follower(Node):
                 
                 if self.resetBehaviour:
                     self.firstNode = True
+                    self.haventMovedYet = True
                     self.get_logger().info(f"Resetting Behaviour Variables")
                     #lower flag
                     self.resetBehaviour = False
@@ -2776,12 +2776,15 @@ class line_follower(Node):
                     if not self.firstNode:
                         self.last_node = self.current_node
                         self.current_node = self.returnNode(self.current_destination)
-                    else:
-                        self.firstNode = False
 
                     self.planDestination()
                     
                     if self.current_destination != []:
+                        if self.firstNode:
+                            self.firstNode = False
+
+                        if self.haventMovedYet:
+                            self.haventMovedYet = False
 
                         if not self.imu_turning:
                             self.stateFollow = True
@@ -2815,25 +2818,25 @@ class line_follower(Node):
         
                 self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
-        else:
-            #self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
-            # --- Crawl-back recovery ---
-            # If the robot has been sitting here without detecting gray, it may have
-            # overshot the intersection spot after turning.  After 5 s of being
-            # stationary (and not waiting on ultrasonic) nudge backwards once so the
-            # IR sensors can re-detect the gray spot.
-            if self.stationaryStartTime == -1:
-                self.stationaryStartTime = self.now
-            
+            else:
+                #self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
+                # --- Crawl-back recovery ---
+                # If the robot has been sitting here without detecting gray, it may have
+                # overshot the intersection spot after turning.  After 5 s of being
+                # stationary (and not waiting on ultrasonic) nudge backwards once so the
+                # IR sensors can re-detect the gray spot.
+                if self.stationaryStartTime == -1:
+                    self.stationaryStartTime = self.now
+                
 
-            STATIONARY_TIMEOUT = 5.0  # seconds before we try crawling back
-            if self.now > self.stationaryStartTime + STATIONARY_TIMEOUT:
-                self.get_logger().info("Stationary >5s without gray — crawling back to re-detect.")
-                self.stationaryStartTime = self.now
+                STATIONARY_TIMEOUT = 5.0  # seconds before we try crawling back
+                if self.now > self.stationaryStartTime + STATIONARY_TIMEOUT:
+                    self.get_logger().info("Stationary >5s without gray — crawling back to re-detect.")
+                    self.stationaryStartTime = self.now
 
-                #we've been stationary for too long.
-                #crawl back
-                self.crawlBack()
+                    #we've been stationary for too long.
+                    #crawl back
+                    self.crawlBack()
 
 
             
