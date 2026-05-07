@@ -192,7 +192,7 @@ class line_follower(Node):
             "Pgh1": 0.0625,
             "Phh1": 0.0625,
             "Pfg1": 0.0625,
-            "Pfd1": 0.0625,
+            "Pdf1": 0.0625,
             "Pbd1": 0.0625,
             "Pbc1": 0.0625,
             "Pcd1": 0.0625,
@@ -211,7 +211,7 @@ class line_follower(Node):
             "Pgh1": 0.0,
             "Phh1": 0.0,
             "Pfg1": 0.0,
-            "Pfd1": 0.0,
+            "Pdf1": 0.0,
             "Pbd1": 0.0,
             "Pbc1": 0.0,
             "Pcd1": 0.0,
@@ -728,9 +728,9 @@ class line_follower(Node):
         if fromNCHAR == 'A': return ["Pab1", "Pab2", "Paf1", "Pae1"]
         if fromNCHAR == 'B': return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
         if fromNCHAR == 'C': return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-        if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+        if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pdf1", "Pbd1"]
         if fromNCHAR == 'E': return ["Peg1", "Peg2", "Pae1", "Pef1"]
-        if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+        if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pdf1"]
         if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
         if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
 
@@ -744,9 +744,9 @@ class line_follower(Node):
         A = ["Pab1", "Pab2", "Paf1", "Pae1"]
         B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
         C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-        D = ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+        D = ["Pcd1", "Pcd2", "Pdf1", "Pbd1"]
         E = ["Peg1", "Peg2", "Pae1", "Pef1"]
-        F = ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+        F = ["Pef1", "Paf1", "Pfg1", "Pdf1"]
         G = ["Peg1", "Peg2", "Pfg1", "Pgh1"]
         H = ["Pch1", "Phh1", "Pgh1"]
         #this is not a mistake. H only has 3 unique edge transitions.
@@ -812,9 +812,9 @@ class line_follower(Node):
         A = ["Pab1", "Pab2", "Paf1", "Pae1"]
         B = ["Pab1", "Pab2", "Pbd1", "Pbc1"]
         C = ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
-        D = ["Pcd1", "Pcd2", "Pfd1", "Pbd1"]
+        D = ["Pcd1", "Pcd2", "Pdf1", "Pbd1"]
         E = ["Peg1", "Peg2", "Pae1", "Pef1"]
-        F = ["Pef1", "Paf1", "Pfg1", "Pfd1"]
+        F = ["Pef1", "Paf1", "Pfg1", "Pdf1"]
         G = ["Peg1", "Peg2", "Pfg1", "Pgh1"]
         H = ["Pch1", "Phh1", "Pgh1"]
         #this is not a mistake. H only has 3 unique edge transitions.
@@ -1429,7 +1429,7 @@ class line_follower(Node):
             "Pgh1": 0.0,
             "Phh1": 0.0,
             "Pfg1": 0.0,
-            "Pfd1": 0.0,
+            "Pdf1": 0.0,
             "Pbd1": 0.0,
             "Pbc1": 0.0,
             "Pcd1": 0.0,
@@ -1482,65 +1482,66 @@ class line_follower(Node):
                     self.P["Pab2"] += 0.5855
             elif c.x == 2:
                 if c.y == 0:
-                    self.P["Peg2"] +=1
+                    self.P["Peg2"] +=0.1621
                 elif c.y == 1:
-                    self.P["Pgh1"]+= 0.25
-                    self.P["Pfg1"]+= 0.25
-                    self.P["Peg1"]+= 0.25
-                    self.P["Peg2"]+= 0.25
+                    self.P["Pgh1"]+= 0.3086
+                    self.P["Pfg1"]+= 0.2170
+                    self.P["Peg1"]+= 0.0647
+                    self.P["Peg2"]+= 0.1755
                 elif c.y == 2:
-                    self.P["Pef1"]+= 0.25
-                    self.P["Pfg1"]+= 0.25
-                    self.P["Paf1"]+= 0.25
-                    self.P["Pfd1"]+= 0.25
+                    self.P["Pef1"]+= 0.0791
+                    self.P["Pfg1"]+= 0.0963
+                    self.P["Paf1"]+= 0.2668
+                    self.P["Pdf1"]+= 0.3226
                 elif c.y == 3:
-                    self.P["Pbd1"] += 0.498
-                    self.P["Paf1"] += 0.498
-                    self.P["Pfd1"] += 0.004
+                    self.P["Pbd1"] += 0.3311
+                    self.P["Paf1"] += 0.1247
+                    self.P["Pdf1"] += 0.0016
                 elif c.y == 4:
-                    self.P["Pab1"]+= 0.25
-                    self.P["Pab2"]+= 0.25
-                    self.P["Pbc1"]+= 0.25
-                    self.P["Pbd1"]+= 0.25
+                    self.P["Pab1"]+= 0.0753
+                    self.P["Pab2"]+= 0.1886
+                    self.P["Pbc1"]+= 0.2815
+                    self.P["Pbd1"]+= 0.1985
                 elif c.y == 5:
-                    self.P["Pab1"] += 1
+                    self.P["Pab2"] += 0.2288
             elif c.x == 3:
                 if c.y == 0:
-                    self.P["Phh1"] +=1
+                    self.P["Phh1"] += 0.3463
                 elif c.y == 1:
-                    self.P["Pgh1"]+= 0.25
-                    self.P["Pch1"]+= 0.25
-                    self.P["Phh1"]+= 0.5
+                    self.P["Pgh1"]+= 0.1191
+                    self.P["Pch1"]+= 0.2218
+                    self.P["Phh1"]+= 0.4263
                 elif c.y == 2:
-                    self.P["Pfd1"] += 0.477
-                    self.P["Pch1"] += 0.523
+                    self.P["Pdf1"] += 0.2206
+                    self.P["Pch1"] += 0.4203
                 elif c.y == 3:
-                    self.P["Pfd1"]+= 0.25
-                    self.P["Pcd1"]+= 0.25
-                    self.P["Pcd2"]+= 0.25
-                    self.P["Pbd1"]+= 0.25
+                    self.P["Pdf1"]+= 0.3213
+                    self.P["Pcd1"]+= 0.0416
+                    self.P["Pcd2"]+= 0.2097
+                    self.P["Pbd1"]+= 0.1095
                 elif c.y == 4:
-                    self.P["Pcd1"]+= 0.25
-                    self.P["Pcd2"]+= 0.25
-                    self.P["Pbc1"]+= 0.25
-                    self.P["Pch1"]+= 0.25
+                    self.P["Pbd1"] += 0.0039
+                    self.P["Pcd1"]+= 0.1546
+                    self.P["Pcd2"]+= 0.3530
+                    self.P["Pbc1"]+= 0.1164
+                    self.P["Pch1"]+= 0.1825
                 elif c.y == 5:
-                    self.P["Pch1"] +=1
+                    self.P["Pch1"] += 0.4471
             elif c.x == 4:
                 if c.y == 0:
-                    self.P["Phh1"] +=1
+                    self.P["Phh1"] += 0.2595
                 elif c.y == 1:
-                    self.P["Phh1"] +=1
+                    self.P["Phh1"] += 0.3974
                 elif c.y == 2:
-                    self.P["Pch1"] +=1
+                    self.P["Pch1"] += 0.5882
                 elif c.y == 3:
-                    self.P["Pch1"] += 0.376
-                    self.P["Pcd2"] += 0.301
+                    self.P["Pch1"] += 0.4595
+                    self.P["Pcd2"] += 0.1255
                 elif c.y == 4:
-                    self.P["Pch1"] +=0.35
-                    self.P["Pcd2"] += 0.65
+                    self.P["Pch1"] +=0.4561
+                    self.P["Pcd2"] += 0.2891
                 elif c.y == 5:
-                    self.P["Pch1"] +=1
+                    self.P["Pch1"] += 0.5771
         
 
 
@@ -1791,7 +1792,7 @@ class line_follower(Node):
 
 
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
-        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pdf1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
         # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
         # unsafeEdges.append(enemyE)
 
@@ -1892,7 +1893,7 @@ class line_follower(Node):
             return [options[ranNum]]
 
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
-        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pdf1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
         # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
         # unsafeEdges.append(enemyE)
 
@@ -1983,7 +1984,7 @@ class line_follower(Node):
             
 
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
-        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pfd1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
+        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pdf1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
         # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
         # unsafeEdges.append(enemyE)
 
