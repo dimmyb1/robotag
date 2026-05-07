@@ -2563,19 +2563,17 @@ class line_follower(Node):
                         #align ourselves properly
                         self.startTurnBasedOnIMU()
                         
-
-                        
                     elif self.behaviourMode == 5:
                         self.opp_old_loc = -1
 
-                if type(self.current_destination) == list:
+
                     
 
+                if type(self.current_destination) == list:
                     
                     #Update last node + current node
                     #self.current_node = self.current_destination
                     if(self.current_destination):
-
 
                         #current node
                         if type(self.current_destination[0]) == int:
@@ -2595,33 +2593,7 @@ class line_follower(Node):
                             elif self.current_destination[0] == 3:
                                 self.current_node = self.returnNode(self.current_node.Wc)
 
-
-                            #Update destionation
-                            self.planDestination()
-
-
-                            #then it is a char from A to H, and it is an immediate neighbour 
-                            #e.g. path = 'A'
-                            if self.current_destination[0] == 0:
-                                self.imu_target = 0
-                            elif self.current_destination[0] == 1:
-                                self.imu_target = 1
-                            elif self.current_destination[0] == 2:
-                                self.imu_target = 2
-                            elif self.current_destination[0] == 3:
-                                self.imu_target = 3
-
-                            self.toDepart = True
-                            self.startTurnBasedOnIMU()
-
-                            #update sweeping setting
-                            if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
-                                #when left first is better than right first
-                                self.skipZero = True
-                            else:
-                                self.skipZero = False
-
-                        if type(self.current_destination[0]) == str:
+                        elif type(self.current_destination[0]) == str:
                             #localise using old values
                             if self.current_node.Nc == self.current_destination[0]:
                                 self.self_localise(self.current_node.Times[0])
@@ -2637,129 +2609,13 @@ class line_follower(Node):
 
                             self.current_node = self.returnNode(self.current_destination[0])
                     
+                    else: #empty list
                     
-                    
-                            #Update destionation
-                            self.planDestination()
-
-
-                            #then it is a char from A to H, and it is an immediate neighbour 
-                            #e.g. path = 'A'
-                            if self.current_node.Nc == self.current_destination[0]:
-                                self.imu_target = 0
-                            elif self.current_node.Ec == self.current_destination[0]:
-                                self.imu_target = 1
-                            elif self.current_node.Sc == self.current_destination[0]:
-                                self.imu_target = 2
-                            elif self.current_node.Wc == self.current_destination[0]:
-                                self.imu_target = 3
-
-                            self.toDepart = True
-                            self.startTurnBasedOnIMU()
-
-                            #update sweeping setting
-                            if (self.current_node.name == 'A' and self.current_destination[0] == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination[0] == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination[0] == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination[0] == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination[0] == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Wc) :
-                                #when left first is better than right first
-                                self.skipZero = True
-                            else:
-                                self.skipZero = False
-
-
-                    #otherwise, do not update current_node as we are still where we were.
-                    #populate our planned path if we don't already have a plan
-                    #is it empty? => stay here and wait until our sensing cooldown has gone out.
-                    elif not self.current_destination:
+                        #otherwise, do not update current_node as we are still where we were.
+                        #populate our planned path if we don't already have a plan
+                        #is it empty? => stay here and wait until our sensing cooldown has gone out.
                         self.dontSense = True
-                        #when sensing cooldown expires, look again.
-                        if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
-                            self.stateFollow = False
-                            self.planDestination()
-                            
-                            if not self.imu_turning:
-                                self.stateFollow = True
-                        else:
-                            #cooldown has not expired yet. stay stopped and wait
-                            self.stateFollow = False
-                            self.dontSense = True
-                            return
-                    
-                        self.dontSense = False
-
-                        #if we got this far, we have directions to go somewhere
-                        #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
-                        #Check which one, if it is a list, we must iterate over it as it is a long path.
-                        if type(self.current_destination) == list:
-                            if(self.current_destination):
-                                if type(self.current_destination[0]) == int:
-                                    
-                                    #if it is a single number from 0 to 3, then it is an immediate neighbour 
-                                    #e.g. path = [2] i.e. go south
-                                    self.imu_target = self.current_destination.pop(0)
-                                    #self.self_localise(self.current_node.Times[self.imu_target])
-                                    
-                                    self.toDepart = True
-                                    self.startTurnBasedOnIMU()
-
-                                    #update sweeping setting
-                                    if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
-                                        #when left first is better than right first
-                                        self.skipZero = True
-                                    else:
-                                        self.skipZero = False
-
-                                elif type(self.current_destination[0]) == str:
-                                    #if it is a char from A to H, then it is an immediate neighbour 
-                                    #e.g. path = ['A', 'B'] 
-                                    neigh_name = self.current_destination.pop(0)
-                                    if self.current_node.Nc == neigh_name:
-                                        self.imu_target = 0
-                                    elif self.current_node.Ec == neigh_name:
-                                        self.imu_target = 1
-                                    elif self.current_node.Sc == neigh_name:
-                                        self.imu_target = 2
-                                    elif self.current_node.Wc == neigh_name:
-                                        self.imu_target = 3
-
-                                    #self.departureTime = self.now
-                                    self.toDepart = True
-                                    #self.startTurnBasedOnFacing()
-                                    self.startTurnBasedOnIMU()
-
-                                    #update sweeping setting
-                                    if (self.current_node.name == 'A' and self.current_destination[0] == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination[0] == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination[0] == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination[0] == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination[0] == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Wc) :
-                                        #when left first is better than right first
-                                        self.skipZero = True
-                                    else:
-                                        self.skipZero = False
-
-                            else: #empty destination
-                                self.senseEntryTime = self.now
-                                self.dontSense = True
-                                self.stateFollow = False
-
-                        else : #not list
-                            
-                            #then it is a char from A to H, and it is an immediate neighbour 
-                            #e.g. path = 'A'
-                            if self.current_node.Nc == self.current_destination:
-                                self.imu_target = 0
-                            elif self.current_node.Ec == self.current_destination:
-                                self.imu_target = 1
-                            elif self.current_node.Sc == self.current_destination:
-                                self.imu_target = 2
-                            elif self.current_node.Wc == self.current_destination:
-                                self.imu_target = 3
-
-                            self.toDepart = True
-                            self.startTurnBasedOnIMU()
-
-                            #update sweeping setting
-                            if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
-                                #when left first is better than right first
-                                self.skipZero = True
-                            else:
-                                self.skipZero = False
-
+                        
                 else : #not list
 
                     #localise using old values
@@ -2775,20 +2631,63 @@ class line_follower(Node):
                     #update current_node and last_node
                     if not self.firstNode:
                         self.last_node = self.current_node
-                        self.current_node = self.returnNode(self.current_destination)
+                        self.current_node = self.returnNode(self.current_destination)   
 
-                    self.planDestination()
-                    
-                    if self.current_destination != []:
-                        if self.firstNode:
-                            self.firstNode = False
-
-                        if self.haventMovedYet:
-                            self.haventMovedYet = False
-
+                #COMMON
+            #start
+                if self.current_destination == []:
+                    #when sensing cooldown expires, look again.
+                    if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
+                        self.stateFollow = False
+                        self.planDestination()
+                            
                         if not self.imu_turning:
                             self.stateFollow = True
-                        
+                    else:
+                        #cooldown has not expired yet. stay stopped and wait
+                        self.stateFollow = False
+                        self.dontSense = True
+                        return
+                    
+                    self.dontSense = False
+
+                    #if we got this far, we have directions to go somewhere
+                    #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
+                    #Check which one, if it is a list, we must iterate over it as it is a long path.
+                else:
+                    #Update destination
+                    self.planDestination()
+
+                #COMMON
+                if self.current_destination != []:
+                    if self.firstNode:
+                        self.firstNode = False
+
+                    if self.haventMovedYet:
+                        self.haventMovedYet = False
+
+                    if type(self.current_destination) == list:
+
+                        if type(self.current_destination[0]) == int:
+                            #if it is a single number from 0 to 3, then it is an immediate neighbour 
+                            #e.g. path = [2] i.e. go south
+                            self.imu_target = self.current_destination.pop(0)
+                            #self.self_localise(self.current_node.Times[self.imu_target])
+
+                        elif type(self.current_destination[0]) == str:
+                            #if it is a char from A to H, then it is an immediate neighbour 
+                            #e.g. path = ['A', 'B'] 
+                            neigh_name = self.current_destination.pop(0)
+                            if self.current_node.Nc == neigh_name:
+                                self.imu_target = 0
+                            elif self.current_node.Ec == neigh_name:
+                                self.imu_target = 1
+                            elif self.current_node.Sc == neigh_name:
+                                self.imu_target = 2
+                            elif self.current_node.Wc == neigh_name:
+                                self.imu_target = 3
+
+                    else:
                         #then it is a char from A to H, and it is an immediate neighbour 
                         #e.g. path = 'A'
                         if self.current_node.Nc == self.current_destination:
@@ -2800,25 +2699,27 @@ class line_follower(Node):
                         elif self.current_node.Wc == self.current_destination:
                             self.imu_target = 3
 
-                        #update departure time
-                        #self.departureTime = self.now 
-                        self.toDepart = True
-                        #a value will  be added to departure time to represent turning time needed in startTurnBasedOnFacing
 
-                        if self.behaviourMode != 1:
-                            #skip this when patrolling as we are most probably already aligned
-                            self.startTurnBasedOnIMU()
+                    #COMMON EXCEPT FOR []
+                    self.toDepart = True
+                    self.startTurnBasedOnIMU()
 
-                        #update sweeping setting
-                        if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
-                            #when left first is better than right first
-                            self.skipZero = True
-                        else:
-                            self.skipZero = False
-        
+                    #update sweeping setting
+                    if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
+                        #when left first is better than right first
+                        self.skipZero = True
+                    else:
+                        self.skipZero = False
+
+                else:
+                   #empty destination
+                    self.senseEntryTime = self.now
+                    self.dontSense = True
+                    self.stateFollow = False
+
                 self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
-            else:
+            else: #no IR detection
                 #self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
                 # --- Crawl-back recovery ---
                 # If the robot has been sitting here without detecting gray, it may have
