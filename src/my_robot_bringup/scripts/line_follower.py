@@ -892,7 +892,6 @@ class line_follower(Node):
         # 5 - Interceptive
 
         if self.behaviourMode == 1:
-            pass
             #patrol
             if self.facing == 0:
                 self.current_destination = self.current_node.Nc
@@ -1825,6 +1824,8 @@ class line_follower(Node):
         for enemyNCHAR in enemyNCHARList:
             thisNode = self.returnNode(enemyNCHAR)
             #check all of its neighbour nodes and add them to the list
+            if enemyNCHAR not in unsafeNodes:
+                unsafeNodes.append(enemyNCHAR)
             if thisNode.Nc not in unsafeNodes:
                 unsafeNodes.append(thisNode.Nc)
             if thisNode.Ec not in unsafeNodes:
@@ -1875,13 +1876,13 @@ class line_follower(Node):
         #so lets find that 1 / one of those paths
 
         #as long as we are not going to an enemy node (WHICH WE THINK CONTAINS THE ENEMY DIRECTLY), we might have a chance to survive.
-        if self.current_node.Nc != enemyNCHAR:
+        if self.current_node.Nc not in enemyNCHARList:
             options.append(0)
-        elif self.current_node.Ec != enemyNCHAR:
+        elif self.current_node.Ec not in enemyNCHARList:
             options.append(1)
-        elif self.current_node.Sc != enemyNCHAR:
+        elif self.current_node.Sc not in enemyNCHARList:
             options.append(2)
-        elif self.current_node.Wc != enemyNCHAR:
+        elif self.current_node.Wc not in enemyNCHARList:
             options.append(3)
             
         if options:
@@ -1889,26 +1890,7 @@ class line_follower(Node):
             ranNum = random.randint(0,len(options) -1)
             return [options[ranNum]]
 
-        #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
-        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pdf1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
-        # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
-        # unsafeEdges.append(enemyE)
-
-        # for n in safeNodes:
-        #     thisNode = self.returnNode(n)
-        #     #check all of its neighbour nodes and add them to the list
-        #     for safeE in self.getEdgesFromNode(thisNode):
-        #         if safeE in unsafeEdges:
-        #             unsafeEdges.remove(safeE)
-
-        
-        # safeEdges = allEdges - unsafeEdges
-
-        #myEdges = self.getEdgesFromNode(self.current_node)
-
-
-        #we could also just return an empty list and say stay there and accept your doom, cus it prob means that we did not find a safe path out
-        
+        #just return an empty list and say stay there and accept your doom, cus it prob means that we did not find a safe path out
         self.get_logger().info(f"ERR / FAILURE : GenerateSafePathFromListOfEnemyNodes has failed. No path generated. Are all paths blocked?")
         return []
     
