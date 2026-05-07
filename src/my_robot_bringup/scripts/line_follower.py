@@ -62,7 +62,6 @@ class Cell():
 class line_follower(Node):
     def __init__(self):
         super().__init__('line_follower')
-        self.debug_pub = self.create_publisher(Float32MultiArray, 'debug_state', 10)
         
         #for time related operations
         self.now = time.time()
@@ -404,11 +403,9 @@ class line_follower(Node):
         self.exit_angle = msg.data[1]
         self.ultrasonic_distance = msg.data[2]
 
-        if not self.initial_reading_taken:
-            self.initial_reading_taken = True #consume
         if  self.waitingForUltrasonic:
             self.waitingForUltrasonic = False
-            self.locateTarget = False
+            #self.locateTarget = False
         
         self.get_logger().info(f"Received Object Data -> Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.ultrasonic_distance:.2f}")
 
@@ -1270,7 +1267,7 @@ class line_follower(Node):
                 if self.facing==0:
                     #take the maximum area
                     diffX = x
-                    diffY = math.ceil(diffX * math.tan(math.pi - lesserServo))
+                    diffY = math.ceil(-diffX * math.tan(lesserServo))
 
                     ix = x - 1
                     while(ix>-1):
@@ -1287,7 +1284,7 @@ class line_follower(Node):
                         ix-=1
                             
                     #now make the smaller triangle
-                    diffY = math.floor(diffX * math.tan(math.pi - biggerServo))
+                    diffY = math.floor(-diffX * math.tan(biggerServo))
 
                     ix = x - 1
                     while(ix>-1):
@@ -1307,7 +1304,7 @@ class line_follower(Node):
                 elif(self.facing==2):
                     #take the maximum area
                     diffX = 4 - x
-                    diffY = math.ceil(diffX * math.tan(math.pi - lesserServo))
+                    diffY = math.ceil(-diffX * math.tan(lesserServo))
 
                     ix = x + 1
                     while(ix<5):
@@ -1324,7 +1321,7 @@ class line_follower(Node):
                         ix+=1
                             
                     #now make the smaller triangle
-                    diffY = math.floor(diffX * math.tan(math.pi - biggerServo))
+                    diffY = math.floor(-diffX * math.tan(biggerServo))
 
                     ix = x + 1
                     while(ix<5):
@@ -1343,7 +1340,7 @@ class line_follower(Node):
                 elif(self.facing==1):
                     #take the maximum area
                     diffY = 5-y
-                    diffX = math.ceil(diffY * math.tan(math.pi - lesserServo))
+                    diffX = math.ceil(-diffY * math.tan(lesserServo))
 
                     iy = y + 1
                     while(iy<6):
@@ -1360,7 +1357,7 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffX = math.floor(diffY * math.tan(math.pi - biggerServo))
+                    diffX = math.floor(-diffY * math.tan(biggerServo))
 
                     iy = y + 1
                     while(iy<6):
@@ -1379,7 +1376,7 @@ class line_follower(Node):
                 elif(self.facing==3):
                     #west left
                     diffY = y
-                    diffX = math.ceil(diffY * math.tan(math.pi - lesserServo))
+                    diffX = math.ceil(-diffY * math.tan(lesserServo))
 
                     iy = y - 1
                     while(iy> -1):
@@ -1396,7 +1393,7 @@ class line_follower(Node):
                         iy-=1
                             
                     #now make the smaller triangle
-                    diffX = math.floor(diffY * math.tan(math.pi - biggerServo))
+                    diffX = math.floor(-diffY * math.tan(biggerServo))
 
                     iy = y - 1
                     while(iy> -1):
@@ -2976,6 +2973,7 @@ class line_follower(Node):
             #clear old values before going in to not propogate stale values.
             self.entry_angle = float('inf')
             self.exit_angle = float('inf')
+            self.ultrasonic_distance = float('inf')
             self.publish_sweep_command()
 
             if self.retryPlan != 0:
@@ -3051,19 +3049,6 @@ class line_follower(Node):
                 self.sweep = True
                 self.multiple = True
                 self.publish_sweep_command()
-
-
-        debug_msg = Float32MultiArray()
-        debug_msg.data = [
-            float(self.imu_turning),
-            float(self.waitingForUltrasonic),
-            float(self.postRetry),
-            float(self.retryPlan),
-            float(self.stateFollow),
-            float(self.facing),
-            float(self.imu_target),
-        ]
-        self.debug_pub.publish(debug_msg)
 
         
 
