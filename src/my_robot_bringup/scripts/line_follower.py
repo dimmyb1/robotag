@@ -2811,7 +2811,9 @@ class line_follower(Node):
 
                     #COMMON EXCEPT FOR []
                     self.toDepart = True
-                    self.startTurnBasedOnIMU()
+
+                    if self.behaviourMode!=1:
+                        self.startTurnBasedOnIMU()
 
                     #update sweeping setting
                     if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
