@@ -538,7 +538,7 @@ class line_follower(Node):
     #--------------------
 
     def crawlBack(self):
-        self.start_motion(linear=-0.25, duration_ms=500)
+        self.start_motion(linear=-0.25, duration_ms=500) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms
 
     #---------------------
     # Searching for Line
