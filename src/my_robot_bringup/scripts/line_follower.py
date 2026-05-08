@@ -948,6 +948,13 @@ class line_follower(Node):
         minTime = edgeTime - self.TIME_VARIANCE
 
         #1. merit hk
+        #for all non-None, non-empty hypotheses hk,
+        #if hk.dir is possible with our elapsed timings, give merit to that hypothesis and move it a time step forward
+        #if hk is empty, then it has lost all of its credibility.
+        #keep track of bc and bcln, the best candidate and their last node from h1
+        bcln = None 
+        bc = None
+        bct = 999
         for hk in [self.h1, self.h2, self.h3]:
             if hk != None and hk != []:
                 new_hk = []
@@ -956,9 +963,19 @@ class line_follower(Node):
                     for t in range(4):
                         if minTime < hn.Times[t] < maxTime:
                             d = {0: hn.Nc, 1: hn.Ec, 2: hn.Sc, 3: hn.Wc}
+                            if [self.h1, self.h2, self.h3].index(hk) == 0:
+                                #if we're in h1
+                                if abs(hn.Times[t] - elapsed) < bct:
+                                    bct = hn.Times[t]
+                                    bcln = hn.name
+                                    bc = d[t]
+                            
                             new_hk.append(d[t])
 
+                hk = new_hk.copy()
+
         #2. create hx
+        #create a new hypothesis, either [] or [...] where we either expected this timing or we didnt
         hx = []
         if (elapsed > maxTime) or (elapsed < minTime):
             if elapsed > maxTime:
@@ -986,6 +1003,8 @@ class line_follower(Node):
 
         #3. enroll hx:
         #where hx is either [] or [...]
+        #save it in our records of 3 placements h1-3
+        #h1 is our oldest possible hyp, h3 is our newest possible hyp
         if self.h1 == None:
             self.h1 = hx.copy()
         elif self.h2 == None:
@@ -995,35 +1014,24 @@ class line_follower(Node):
         else:
             self.get_logger().info("cannot enroll hx, my h1-3 are full.")
 
-        
+        #4. graduate
+        if self.h3 != None:
+            if self.h1 and (self.h2 or self.h3):
+                #there's quite a bit of commotion and noise, h2 and h3 are either both [...], or one of them is [...]
+                #this makes it hard to tell how trustworthy h1 is, so lets let h1 graduate but keep note of h2 and h3
+
+                #update using the best candidate from h1
+                self.last_node = bcln
+                self.current_node = self.returnNode(bc)
+                self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node.name}")
+                self.adjustDestBasedOnBeh()
+
+            #age up
+            self.h1 = self.h2.copy()
+            self.h2 = self.h3.copy()
+            self.h3 = None
 
 
-
-
-        #NEW
-            #our options are:
-                #loc_hyp (last time step hyp)
-                #hyp (current time set hyp of current node)
-                #upd_hyp (current time step of last hyp)
-
-            upd_hyp = []
-            #let's see if any of loc_hyp's children hold any merit.
-            if self.loc_hyp:
-                
-                for h in self.loc_hyp:
-                    hn = self.returnNode(h)
-                    merit = False
-
-                    for k in [0,1,2,3]:
-                        if minTime < hn.Times[k] < maxTime:
-                            merit = True
-                            
-                            upd_hyp.append(1) #dummy
-
-                    if not merit:
-                        self.loc_hyp.remove(h)
-                    
-                #now loc_hyp only contains the nodes which held water
 
 
     def self_localise(self, edgeTime):
