@@ -2853,9 +2853,9 @@ class line_follower(Node):
 
     def surveillCapture(self):
         #ultrasonic_sweep.py is constantly turning and checking.
-        #self.CAPTURE_MAX =0.1
         #ultrasonic is probably measuring in metres (m)
         #~10cm is the maximum distance for capture in tight spaces of the map
+        #check tag dry-run dated 8 may for full discussion
         
         #TAG
         if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
@@ -2884,22 +2884,21 @@ class line_follower(Node):
             else:
                 #resolve destination
 
-                #is path blocked?
-                if min(self.entry_angle + (math.pi/2), self.exit_angle + (math.pi/2)) < math.pi /2 < max(self.entry_angle + (math.pi/2), self.exit_angle + (math.pi/2)):
-                    #turn 180 and go back to where you were
-                    if self.facing == 0:
-                        self.imu_target = 2
-                    elif self.facing == 2:
-                        self.imu_target = 0
-                    elif self.facing == 1:
-                        self.imu_target = 3
-                    elif self.facing == 3:
-                        self.imu_target = 1
+                #is path blocked? - it probably is, so let's assume as much.
+                #turn 180 and go back to where you were
+                if self.facing == 0:
+                    self.imu_target = 2
+                elif self.facing == 2:
+                    self.imu_target = 0
+                elif self.facing == 1:
+                    self.imu_target = 3
+                elif self.facing == 3:
+                    self.imu_target = 1
                     
                     
-                    #self.startTurnBasedOnFacing()
-                    self.startTurnBasedOnIMU()
-                    self.current_destination = self.current_node
+                #self.startTurnBasedOnFacing()
+                self.startTurnBasedOnIMU()
+                self.current_destination = self.current_node
 
             #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
             if type(self.current_destination) == list:
