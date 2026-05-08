@@ -939,7 +939,7 @@ class line_follower(Node):
             self.get_logger().warning(f"adjusting destination based on non-existent behaviour value failed.")
         
 
-    def self_localise_2(self, edgeTime):
+    def self_localise(self, edgeTime):
         if(self.last_node == 'Z'):
             return
         #where edge time is the average timing of the edge we took
@@ -1034,7 +1034,7 @@ class line_follower(Node):
 
 
 
-    def self_localise(self, edgeTime):
+    def self_localise2(self, edgeTime):
         if(self.last_node == 'Z'):
             return
         #where edge time is the average timing of the edge we took
