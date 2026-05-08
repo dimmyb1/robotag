@@ -950,6 +950,10 @@ class line_follower(Node):
         minTime = edgeTime - self.TIME_VARIANCE
 
         if (elapsed > maxTime) or (elapsed < minTime):
+            if elapsed > maxTime:
+                self.get_logger().info("traversal took too long")
+            else:
+                self.get_logger().info("traversal was too fast")
             #if it has taken longer than or less than the expected time
             #check if any of the old node's timings match better
             if minTime < self.last_node.Times[0] < maxTime:
