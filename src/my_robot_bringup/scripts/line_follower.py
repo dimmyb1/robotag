@@ -105,7 +105,7 @@ class line_follower(Node):
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
         self.CAPTURE_MAX = 0.115 #was (10cm, 0.1m), but was changed to 11.5cm to try to prevent any damage as the robots were bumping into each other
-        self.PAUSE_TIME = 7 #was 6, but seemed low so changed to 7.
+        self.PAUSE_TIME = 14 #was 6, but seemed low so changed to 7. 7 seems low, raising to 14 to avoid immediate tag-backs
         self.startPauseTime = -1
         self.paused = False
         self.time_of_last_tag = -1
@@ -2858,7 +2858,7 @@ class line_follower(Node):
         #check tag dry-run dated 8 may for full discussion
         
         #TAG
-        if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
+        if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag:
             self.initiated_tag = True
             self.get_logger().info("Initiating tag...")
         else:
