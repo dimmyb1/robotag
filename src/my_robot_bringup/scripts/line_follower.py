@@ -1016,6 +1016,8 @@ class line_follower(Node):
 
         #4. graduate
         if self.h3 != None:
+            #if h1 is empty, it was discarded
+            #if h2 and h3 are both empty, we haven't run into any issues lately, or have no good hypotheses, so we can safely discard h1.
             if self.h1 and (self.h2 or self.h3):
                 #there's quite a bit of commotion and noise, h2 and h3 are either both [...], or one of them is [...]
                 #this makes it hard to tell how trustworthy h1 is, so lets let h1 graduate but keep note of h2 and h3
