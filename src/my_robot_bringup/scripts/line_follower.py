@@ -1556,8 +1556,10 @@ class line_follower(Node):
                     for ce in ceilCells:
                         servoCells.remove(ce)
                     ceilFlag = True
+                    self.get_logger().info("USING CEIL FOR CALC")
                     break
             if not ceilFlag:
+                self.get_logger().info("USING FLOOR FOR CALC")
                 for ce in floorCells:
                     servoCells.remove(ce)
 
