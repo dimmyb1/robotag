@@ -99,8 +99,9 @@ class line_follower(Node):
         self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
         self.dontSense = False
         self.firstNode = True
-        self.haventMovedYet = True
+        #self.haventMovedYet = True
         self.stationaryStartTime = -1
+        self.allowCrawl = True #make sure we start at an intersection
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
@@ -2625,8 +2626,8 @@ class line_follower(Node):
         #blocked if we are turning while currently at an intersection.
         if (not self.imu_turning and self.grayEntryTime < self.now - self.GRAY_COOLDOWN) :
             #if gray detected:
-
-            if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels) or self.haventMovedYet:
+            # or self.haventMovedYet
+            if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
                 # Stop crawling the moment gray comes back (checked on next tick via the
                 # if-branch above, but we also guard here in case the scan arrives mid-crawl).
                 # The motion_active flag means crawlBack is still running its short burst;
@@ -2634,6 +2635,7 @@ class line_follower(Node):
                 if self.motion_active:
                     self.get_logger().info("Gray re-detected while crawling back — stopping.")
                     self.stopMov()
+                    self.allowCrawl = False
 
                 self.grayEntryTime = self.now
                 self.stationaryStartTime = -1  # no longer stationary — gray found
@@ -2643,7 +2645,7 @@ class line_follower(Node):
                 
                 if self.resetBehaviour:
                     self.firstNode = True
-                    self.haventMovedYet = True
+                    #self.haventMovedYet = True
                     self.get_logger().info(f"Resetting Behaviour Variables")
                     #lower flag
                     self.resetBehaviour = False
@@ -2770,8 +2772,8 @@ class line_follower(Node):
                     if self.firstNode:
                         self.firstNode = False
 
-                    if self.haventMovedYet:
-                        self.haventMovedYet = False
+                    #if self.haventMovedYet:
+                    #    self.haventMovedYet = False
 
                     if type(self.current_destination) == list:
 
@@ -2826,7 +2828,8 @@ class line_follower(Node):
 
                 self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
-            else: #no IR detection
+            elif(self.allowCrawl): 
+                #no IR detection
                 #self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
                 # --- Crawl-back recovery ---
                 # If the robot has been sitting here without detecting gray, it may have
@@ -3028,6 +3031,7 @@ class line_follower(Node):
             
             else:
                 self.retryAttempts = 0
+                self.allowCrawl = True
 
         #check for tags and publish status
         self.surveillCapture()
