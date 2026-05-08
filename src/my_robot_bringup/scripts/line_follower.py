@@ -158,7 +158,7 @@ class line_follower(Node):
 
         #localisation
         self.departureTime = -1
-        self.TIME_VARIANCE = 2
+        self.TIME_VARIANCE = 3 #time variance of 2 was misfiring after about 3-6 intersections. now raising time variance to 3.
         self.loc_hyp = []
         self.toDepart = False
 
