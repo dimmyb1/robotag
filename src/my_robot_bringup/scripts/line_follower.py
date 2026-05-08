@@ -149,6 +149,7 @@ class line_follower(Node):
         #relating to state and location
         self.current_node = self.A
         self.facing = 2 #start facing south?
+        self.E_facing = 2
         self.last_node = 'Z' #for localisation, this is NODE, 'Z' is a placeholder for (re)starting
         self.current_destination = 'F'
         self.skipZero = False
@@ -963,7 +964,8 @@ class line_follower(Node):
             
             #if not, we either got turned around, or we just struggled / found it easy to get here
             #in case we got turned around copy the node we left from:
-            if not hyp:
+
+            if self.facing != self.E_facing:
                 hyp.append(self.last_node.name)
             #otherwise if we just deviated slightly, the rest of the map should match up, so either way let's check the next edge we take:
             self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hyp}")
@@ -2772,16 +2774,15 @@ class line_follower(Node):
                     if self.firstNode:
                         self.firstNode = False
 
-                    #if self.haventMovedYet:
-                    #    self.haventMovedYet = False
-
                     if type(self.current_destination) == list:
 
                         if type(self.current_destination[0]) == int:
                             #if it is a single number from 0 to 3, then it is an immediate neighbour 
                             #e.g. path = [2] i.e. go south
                             self.imu_target = self.current_destination.pop(0)
-                            #self.self_localise(self.current_node.Times[self.imu_target])
+                            t = {0: self.current_node.Nc, 1: self.current_node.Ec, 2: self.current_node.Sc, 3: self.current_node.Wc}
+
+
 
                         elif type(self.current_destination[0]) == str:
                             #if it is a char from A to H, then it is an immediate neighbour 
@@ -2795,6 +2796,8 @@ class line_follower(Node):
                                 self.imu_target = 2
                             elif self.current_node.Wc == neigh_name:
                                 self.imu_target = 3
+                            
+                            t = neigh_name
 
                     else:
                         #then it is a char from A to H, and it is an immediate neighbour 
@@ -2807,6 +2810,52 @@ class line_follower(Node):
                             self.imu_target = 2
                         elif self.current_node.Wc == self.current_destination:
                             self.imu_target = 3
+
+                        t = self.current_destination
+
+                    if (self.current_node.name, t) not in [('A', 'B'), ('B', 'A'), ('C', 'D'), ('D', 'C'), ('E', 'G'), ('G', 'E')]:
+                        if self.returnNode(t).Nc == self.current_node.name:
+                            self.E_facing = 2
+                        elif self.returnNode(t).Ec == self.current_node.name:
+                            self.E_facing = 3
+                        elif self.returnNode(t).Sc == self.current_node.name:
+                            self.E_facing = 0
+                        elif self.returnNode(t).Wc == self.current_node.name:
+                            self.E_facing = 1
+                        
+                    else:
+                        if self.current_node.name == 'A':
+                            if self.imu_target == 0:
+                                self.E_facing = 2
+                            else:
+                                self.E_facing = 1
+                        elif self.current_node.name == 'B':
+                            if self.imu_target == 0:
+                                self.E_facing = 2
+                            else:
+                                self.E_facing = 3
+                        elif self.current_node.name == 'C':
+                            if self.imu_target == 1:
+                                self.E_facing = 3
+                            else:
+                                self.E_facing = 2
+                        elif self.current_node.name == 'D':
+                            if self.imu_target == 1:
+                                self.E_facing = 3
+                            else:
+                                self.E_facing = 0
+                        elif self.current_node.name == 'E':
+                            if self.imu_target == 3:
+                                self.E_facing = 0
+                            else:
+                                self.E_facing = 1
+                        elif self.current_node.name == 'G':
+                            if self.imu_target == 3:
+                                self.E_facing = 0
+                            else:
+                                self.E_facing = 3
+
+                    
 
 
                     #COMMON EXCEPT FOR []
