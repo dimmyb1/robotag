@@ -2881,6 +2881,12 @@ class line_follower(Node):
                 self.stateFollow = False
                 self.startPauseTime = self.now
                 self.paused = True
+
+                #unblock line following
+                self.retryPlan = 0
+                self.postRetry = False
+                self.dontSense = False
+                self.waitingForUltrasonic = False
             else:
                 #resolve destination
 
