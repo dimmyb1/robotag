@@ -2635,8 +2635,8 @@ class line_follower(Node):
                 if self.motion_active:
                     self.get_logger().info("Gray re-detected while crawling back — stopping.")
                     self.stopMov()
-                    self.allowCrawl = False
 
+                self.allowCrawl = False
                 self.grayEntryTime = self.now
                 self.stationaryStartTime = -1  # no longer stationary — gray found
                 self.get_logger().info("Intersection detected!")
@@ -2890,6 +2890,7 @@ class line_follower(Node):
                 self.postRetry = False
                 self.dontSense = False
                 self.waitingForUltrasonic = False
+                self.allowCrawl = True
             else:
                 #resolve destination
 
