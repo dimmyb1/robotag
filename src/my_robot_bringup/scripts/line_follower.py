@@ -103,9 +103,9 @@ class line_follower(Node):
         self.stationaryStartTime = -1
 
         #tag vars + esp comms
-        self.CAPTURE_MAX = 0.1
-        #self.CAPTURE_MIN = 0.05
-        self.PAUSE_TIME = 7 #was 6, but seemed low
+        #look for the paper dated 8 may for a discussion on the tuning of capture_max
+        self.CAPTURE_MAX = 0.115 #was (10cm, 0.1m), but was changed to 11.5cm to try to prevent any damage as the robots were bumping into each other
+        self.PAUSE_TIME = 7 #was 6, but seemed low so changed to 7.
         self.startPauseTime = -1
         self.paused = False
         self.time_of_last_tag = -1
@@ -125,7 +125,6 @@ class line_follower(Node):
         self.multiple = False
         self.locateTarget = False
         self.initial_reading_taken = False
-        self.initiated_sweep = False
         self.waitingForUltrasonic = False
         self.triggerSweep = False
 
@@ -327,7 +326,14 @@ class line_follower(Node):
             
         
         if self.initiated_tag:
-            
+            if not self.ack and not self.other_ack:
+                #deadlock: both trying to initiate. I will back down
+                #copying first case of else
+                if (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
+                    self.initiated_tag = False
+                    self.tag = True
+                    self.ack = True
+
             if self.ack and not self.other_ack:
                 self.initiated_tag = False
                 self.ack = False
@@ -2879,7 +2885,7 @@ class line_follower(Node):
                 #resolve destination
 
                 #is path blocked?
-                if min(self.entry_angle, self.exit_angle) < math.pi /2 < max(self.entry_angle, self.exit_angle):
+                if min(self.entry_angle + (math.pi/2), self.exit_angle + (math.pi/2)) < math.pi /2 < max(self.entry_angle + (math.pi/2), self.exit_angle + (math.pi/2)):
                     #turn 180 and go back to where you were
                     if self.facing == 0:
                         self.imu_target = 2
@@ -2902,7 +2908,6 @@ class line_follower(Node):
 
             self.resetBehaviour = True
             self.initial_reading_taken = False
-            self.initiated_sweep = False
 
             #flip status
             self.evading = not self.evading
