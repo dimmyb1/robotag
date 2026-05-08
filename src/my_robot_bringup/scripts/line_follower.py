@@ -162,6 +162,9 @@ class line_follower(Node):
         self.TIME_VARIANCE = 3 #time variance of 2 was misfiring after about 3-6 intersections. now raising time variance to 3.
         self.loc_hyp = []
         self.toDepart = False
+        self.h1 = None
+        self.h2 = None
+        self.h3 = None
 
         #pursuit-evasion behaviour
         self.behaviourMode = 0
@@ -935,6 +938,92 @@ class line_follower(Node):
         else:
             self.get_logger().warning(f"adjusting destination based on non-existent behaviour value failed.")
         
+
+    def self_localise_2(self, edgeTime):
+        if(self.last_node == 'Z'):
+            return
+        #where edge time is the average timing of the edge we took
+        elapsed = self.now - self.departureTime
+        maxTime = edgeTime + self.TIME_VARIANCE
+        minTime = edgeTime - self.TIME_VARIANCE
+
+        #1. merit hk
+        for hk in [self.h1, self.h2, self.h3]:
+            if hk != None and hk != []:
+                new_hk = []
+                for hh in hk:
+                    hn = self.returnNode(hh)
+                    for t in range(4):
+                        if minTime < hn.Times[t] < maxTime:
+                            d = {0: hn.Nc, 1: hn.Ec, 2: hn.Sc, 3: hn.Wc}
+                            new_hk.append(d[t])
+
+        #2. create hx
+        hx = []
+        if (elapsed > maxTime) or (elapsed < minTime):
+            if elapsed > maxTime:
+                self.get_logger().info("traversal took too long")
+            else:
+                self.get_logger().info("traversal was too fast")
+            #if it has taken longer than or less than the expected time
+            #check if any of the old node's timings match better
+            if minTime < self.last_node.Times[0] < maxTime:
+                hx.append(self.last_node.Nc)
+            elif minTime < self.last_node.Times[1] < maxTime:
+                hx.append(self.last_node.Ec)
+            elif minTime < self.last_node.Times[2] < maxTime:
+                hx.append(self.last_node.Sc)
+            elif minTime < self.last_node.Times[3] < maxTime:
+                hx.append(self.last_node.Wc)
+
+            #if not, we either got turned around, or we just struggled / found it easy to get here
+            #in case we got turned around copy the node we left from:
+
+            if self.facing != self.E_facing:
+                hx.append(self.last_node.name)
+            #otherwise if we just deviated slightly, the rest of the map should match up, so either way let's check the next edge we take:
+            self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hx}")
+
+        #3. enroll hx:
+        #where hx is either [] or [...]
+        if self.h1 == None:
+            self.h1 = hx.copy()
+        elif self.h2 == None:
+            self.h2 = hx.copy()
+        elif self.h3 == None:
+            self.h3 = hx.copy()
+        else:
+            self.get_logger().info("cannot enroll hx, my h1-3 are full.")
+
+        
+
+
+
+
+        #NEW
+            #our options are:
+                #loc_hyp (last time step hyp)
+                #hyp (current time set hyp of current node)
+                #upd_hyp (current time step of last hyp)
+
+            upd_hyp = []
+            #let's see if any of loc_hyp's children hold any merit.
+            if self.loc_hyp:
+                
+                for h in self.loc_hyp:
+                    hn = self.returnNode(h)
+                    merit = False
+
+                    for k in [0,1,2,3]:
+                        if minTime < hn.Times[k] < maxTime:
+                            merit = True
+                            
+                            upd_hyp.append(1) #dummy
+
+                    if not merit:
+                        self.loc_hyp.remove(h)
+                    
+                #now loc_hyp only contains the nodes which held water
 
 
     def self_localise(self, edgeTime):
