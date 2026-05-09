@@ -1214,8 +1214,11 @@ class line_follower(Node):
 
         
         if(lesserServo < math.pi/2) and (biggerServo > math.pi/2):
-            cells = [c for c in cells if c.x == x]
-            cells = [c for c in cells if c.y == y]
+            #cells is a circle  of r=1.18
+            if self.facing in [0,2]:
+                cells = [c for c in cells if c.x == x]
+            else:
+                cells = [c for c in cells if c.y == y]
 
         else:
             #it isnt directly in front of us.
