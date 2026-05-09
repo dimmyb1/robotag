@@ -1490,25 +1490,25 @@ class line_follower(Node):
 
                         iy+=1
 
-                #if facing south
+                #if facing south LEFT
                 elif(self.facing==2):
                     #take the maximum area
-                    diffX = 4 - x
-                    diffY = math.ceil(-diffX * math.tan(lesserServo))
+                    diffX = x
+                    diffY = math.ceil(diffX * math.tan(biggerServo))
 
-                    ix = x + 1
-                    while(ix<5):
-                        if((ix < (x + math.ceil(diffX / 2))) and (x%2!=0)) or ((ix <= (x + math.ceil(diffX / 2))) and (x%2==0)):
+                    iy = y -1
+                    while(y>-1):
+                        if iy >= math.ceil(diffY / 2):
                             #we need to do the diffY/2 ones at this ix value
-                            for iy in range(math.ceil(diffY/2)):
-                                if(y - iy > -1) and (y - iy < 6):
-                                    servoCells.append(Cell(ix, y - iy))
+                            for ix in range(math.ceil(diffX/2)):
+                                if x+ ix < 5:
+                                    servoCells.append(Cell(ix + x, iy))
                         else:
-                            for iy in range(diffY):
-                                if(y - iy > -1) and (y - iy < 6):
-                                    servoCells.append(Cell(ix, y - iy))
+                            for iy in range(diffX):
+                                if x+ ix < 5:
+                                    servoCells.append(Cell(ix + x, iy))
 
-                        ix+=1
+                        iy-=1
                             
                     #now make the smaller triangle
                     diffY = math.floor(-diffX * math.tan(biggerServo))
