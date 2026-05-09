@@ -1210,10 +1210,14 @@ class line_follower(Node):
         #first we will check if the mark is right in front of us
         if(lesserServo <= 0.0) and (biggerServo >= 0.0):
             #cells is a circle  of r=1.18
-            if self.facing in [0,2]: #north and south
-                cells = [c for c in cells if c.x == x]
-            else: # east and west
-                cells = [c for c in cells if c.y == y]
+            if self.facing == 0: #north and south
+                cells = [c for c in cells if ((c.x == x) and (c.y >= y))]
+            elif self.facing == 2:
+                cells = [c for c in cells if ((c.x == x) and (c.y <= y))]
+            elif self.facing == 1: # east and west
+                cells = [c for c in cells if ((c.y == y) and (c.x >= x))]
+            elif self.facing == 3:
+                cells = [c for c in cells if ((c.y == y) and (c.x <= x))]
 
         else:
             #it isnt directly in front of us.
