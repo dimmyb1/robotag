@@ -1388,7 +1388,7 @@ class line_follower(Node):
                 #west
                 elif self.facing==3:
                     diffX = x
-                    diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
+                    diffY = -1 * math.ceil(diffX * math.tan(lesserServo))
 
                     iy = y 
                     while(iy<6) and (iy < y + diffY):
@@ -1405,7 +1405,7 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffY = -1 * math.floor(diffX * math.tan(lesserServo))
+                    diffY = -1 * math.floor(diffX * math.tan(biggerServo))
 
                     iy = y 
                     while(iy<6) and (iy < y + diffY):
@@ -1421,7 +1421,7 @@ class line_follower(Node):
 
                         iy+=1
 
-                    diffY = -1 * math.ceil(diffX * math.tan(lesserServo))
+                    diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
 
                     iy = y 
                     while(iy<6) and (iy < y + diffY):
