@@ -1410,37 +1410,39 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffX = math.floor(diffY * math.tan(lesserServo))
+                    diffY = -1 * math.floor(diffX * math.tan(lesserServo))
 
-                    iy = y + 1
-                    while(iy<6):
-                        if ((iy < (y + math.ceil(diffY / 2))) and (y%2!=0)) or ((iy <= (y + math.ceil(diffY / 2))) and (y%2==0)):
+                    iy = y 
+                    while(iy<6) and (iy < y + diffY):
+                        if  ((iy < (y + math.ceil(diffY / 2))) and y%2!=0) or ((iy <= (y + math.ceil(diffY / 2))) and y%2==0)  :
                             #we need to do the diffY/2 ones at this ix value
-                            for ix in range(math.ceil(diffX/2)):
-                                if(x - ix > -1):
+                            for ix in range(diffX):
+                                if(x - ix < 5):
                                     floorCells.append(Cell(x - ix, iy))
                         else:
-                            for ix in range(diffX):
-                                if(x - ix > -1):
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x - ix < 5) and (x- ix > -1):
                                     floorCells.append(Cell(x - ix, iy))
 
                         iy+=1
 
-                    diffX = math.ceil(diffY * math.tan(lesserServo))
+                    diffY = -1 * math.ceil(diffX * math.tan(lesserServo))
 
-                    iy = y + 1
-                    while(iy<6):
-                        if ((iy < (y + math.ceil(diffY / 2))) and (y%2!=0)) or ((iy <= (y + math.ceil(diffY / 2))) and (y%2==0)):
+                    iy = y 
+                    while(iy<6) and (iy < y + diffY):
+                        if  ((iy < (y + math.ceil(diffY / 2))) and y%2!=0) or ((iy <= (y + math.ceil(diffY / 2))) and y%2==0)  :
                             #we need to do the diffY/2 ones at this ix value
-                            for ix in range(math.ceil(diffX/2)):
-                                if(x - ix > -1):
+                            for ix in range(diffX):
+                                if(x - ix < 5):
                                     ceilCells.append(Cell(x - ix, iy))
                         else:
-                            for ix in range(diffX):
-                                if(x - ix > -1):
+                            for ix in range(math.ceil(diffX/2)):
+                                if(x - ix < 5) and (x- ix > -1):
                                     ceilCells.append(Cell(x - ix, iy))
 
                         iy+=1
+
+                    
 
             else:
                 #on the LHS
