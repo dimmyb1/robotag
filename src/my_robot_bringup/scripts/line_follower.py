@@ -955,7 +955,9 @@ class line_follower(Node):
         bcln = None 
         bc = None
         bct = 999
+        upd = 0
         for hk in [self.h1, self.h2, self.h3]:
+            upd +=1
             if hk != None and hk != []:
                 new_hk = []
                 for hh in hk:
@@ -963,7 +965,7 @@ class line_follower(Node):
                     for t in range(4):
                         if minTime < hn.Times[t] < maxTime:
                             d = {0: hn.Nc, 1: hn.Ec, 2: hn.Sc, 3: hn.Wc}
-                            if [self.h1, self.h2, self.h3].index(hk) == 0:
+                            if upd == 1:
                                 #if we're in h1
                                 if abs(hn.Times[t] - elapsed) < bct:
                                     bct = hn.Times[t]
@@ -1022,11 +1024,14 @@ class line_follower(Node):
                 #there's quite a bit of commotion and noise, h2 and h3 are either both [...], or one of them is [...]
                 #this makes it hard to tell how trustworthy h1 is, so lets let h1 graduate but keep note of h2 and h3
 
-                #update using the best candidate from h1
-                self.last_node = bcln
-                self.current_node = self.returnNode(bc)
-                self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node.name}")
-                self.adjustDestBasedOnBeh()
+                if bc != None:
+                    #update using the best candidate from h1
+                    self.last_node = bcln
+                    self.current_node = self.returnNode(bc)
+                    self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node.name}")
+                    self.adjustDestBasedOnBeh()
+                else:
+                    self.get_logger().info(f"SELF_LOC: tried to graduate hypothesis but best candidate was Nonetype.")
 
             #age up
             self.h1 = self.h2.copy()
