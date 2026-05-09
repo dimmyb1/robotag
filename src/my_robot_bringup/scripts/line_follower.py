@@ -1228,20 +1228,19 @@ class line_follower(Node):
                 #if facing North
                 if(self.facing==0):
                     #take the maximum area
-                    diffX = 4-x
-                    diffY = math.ceil(diffX * math.tan(biggerServo))
+                    diffY = 6 - y
+                    diffX = - math.ceil(diffY * math.tan(lesserServo))
 
-                    ix = x + 1
-                    while(ix<5):
-                        if  (ix <= (x + math.ceil(diffX / 2))):
-                            #we need to do the diffY/2 ones at this ix value
-                            for iy in range(math.ceil(diffY/2)):
+                    iy = y+1
+                    while(iy < 6):
+                        if  (iy > (y + math.ceil(diffY / 2))):
+                            for ix in range(diffX):
                                 if(iy + y < 6) and (iy + y > -1):
-                                    servoCells.append(Cell(ix, iy+y))
+                                    servoCells.append(Cell(x - ix, iy))
                         else:
                             for iy in range(diffY):
                                 if(iy + y < 6) and (iy + y > -1):
-                                    servoCells.append(Cell(ix, iy+y))
+                                    servoCells.append(Cell(x - ix, iy))
 
                         ix+=1
                             
@@ -1391,6 +1390,7 @@ class line_follower(Node):
                     diffX = x
                     diffY = -1 * math.ceil(diffX * math.tan(lesserServo))
 
+                    #dear future me, this would've been simpler to iterate outwardly over ix as x-> 0 (always follow the dir of the cone)
                     iy = y 
                     while(iy<6) and (iy < y + diffY):
                         if  ((iy < (y + math.ceil(diffY / 2))) and y%2!=0) or ((iy <= (y + math.ceil(diffY / 2))) and y%2==0)  :
