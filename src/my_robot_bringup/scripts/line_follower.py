@@ -1208,11 +1208,11 @@ class line_follower(Node):
         biggerServo = max(self.entry_angle, self.exit_angle)
 
         #first we will check if the mark is right in front of us
-        if(lesserServo < 0) and (biggerServo > 0):
+        if(lesserServo <= 0.0) and (biggerServo >= 0.0):
             #cells is a circle  of r=1.18
-            if self.facing in [0,2]:
+            if self.facing in [0,2]: #north and south
                 cells = [c for c in cells if c.x == x]
-            else:
+            else: # east and west
                 cells = [c for c in cells if c.y == y]
 
         else:
@@ -1233,13 +1233,13 @@ class line_follower(Node):
 
                     iy = y+1
                     while(iy < 6):
-                        if  (iy > (y + math.ceil(diffY / 2))):
+                        if iy >= 6 - math.ceil(diffY / 2):
                             for ix in range(diffX):
                                 if x + ix < 5:
                                     servoCells.append(Cell(x + ix, iy))
                         else:
                             for ix in range(math.ceil(diffX / 2)):
-                                if x < ix < 5:
+                                if x + ix < 5:
                                     servoCells.append(Cell(x + ix, iy))
 
                         iy+=1
@@ -1249,13 +1249,13 @@ class line_follower(Node):
 
                     iy = y+1
                     while(iy < 6):
-                        if  (iy > (y + math.ceil(diffY / 2))):
+                        if iy >= 6 - math.ceil(diffY / 2):
                             for ix in range(diffX):
-                                if x < ix < 5:
+                                if x + ix < 5:
                                     floorCells.append(Cell(x + ix, iy))
                         else:
                             for ix in range(math.ceil(diffX / 2)):
-                                if x < ix < 5:
+                                if x + ix < 5:
                                     floorCells.append(Cell(x + ix, iy))
 
                         iy+=1
@@ -1264,13 +1264,13 @@ class line_follower(Node):
 
                     iy = y+1
                     while(iy < 6):
-                        if  (iy > (y + math.ceil(diffY / 2))):
+                        if iy >= 6 - math.ceil(diffY / 2):
                             for ix in range(diffX):
-                                if x < ix < 5:
+                                if x + ix < 5:
                                     ceilCells.append(Cell(x + ix, iy))
                         else:
                             for ix in range(math.ceil(diffX / 2)):
-                                if x < ix < 5:
+                                if x + ix < 5:
                                     ceilCells.append(Cell(x + ix, iy))
 
                         iy+=1
@@ -1297,7 +1297,7 @@ class line_follower(Node):
                         iy-=1
                             
                     #now make the smaller triangle
-                    diffY = math.floor(diffX * math.tan(biggerServo))
+                    diffY = -1 * math.floor(diffX * math.tan(biggerServo))
 
                     iy = y -1
                     while(y>-1):
@@ -1313,7 +1313,7 @@ class line_follower(Node):
 
                         iy-=1
 
-                    diffY = math.ceil(diffX * math.tan(biggerServo))
+                    diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
 
                     iy = y -1
                     while(y>-1):
@@ -1337,7 +1337,7 @@ class line_follower(Node):
 
                     ix = x+1
                     while(ix<5):
-                        if ix < x + math.ceil(diffX/2):
+                        if ix < 5 -  math.ceil(diffX/2):
                             for iy in range(math.ceil(diffY/2)):
                                 if y - iy > -1:
                                     servoCells.append(Cell(ix, y - iy))
@@ -1353,13 +1353,13 @@ class line_follower(Node):
 
                     ix = x+1
                     while(ix<5):
-                        if ix < x + math.ceil(diffX/2):
+                        if ix < 5 -  math.ceil(diffX/2):
                             for iy in range(math.ceil(diffY/2)):
                                 if y - iy > -1:
                                     floorCells.append(Cell(ix, y - iy))
                         else:
                             for ix in range(diffX):
-                                if y + iy < 6:
+                                if y - iy > -1:
                                     floorCells.append(Cell(ix, y - iy))
 
                         ix+=1
@@ -1368,13 +1368,13 @@ class line_follower(Node):
 
                     ix = x+1
                     while(ix<5):
-                        if ix < x + math.ceil(diffX/2):
+                        if ix < 5 -  math.ceil(diffX/2):
                             for iy in range(math.ceil(diffY/2)):
-                                if y + iy < 6:
+                                if y - iy > -1:
                                     ceilCells.append(Cell(ix, y - iy))
                         else:
                             for ix in range(diffX):
-                                if y + iy < 6:
+                                if y - iy > -1:
                                     ceilCells.append(Cell(ix, y - iy))
 
                         ix+=1
