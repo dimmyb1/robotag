@@ -1460,7 +1460,7 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffX = - math.floor(diffY * math.tan(biggerServo))
+                    diffX = math.floor(diffY * math.tan(biggerServo))
 
                     iy = y+1
                     while(iy < 6):
@@ -1475,7 +1475,7 @@ class line_follower(Node):
 
                         iy+=1
 
-                    diffX = - math.ceil(diffY * math.tan(biggerServo))
+                    diffX = math.ceil(diffY * math.tan(biggerServo))
 
                     iy = y+1
                     while(iy < 6):
