@@ -1396,7 +1396,7 @@ class line_follower(Node):
                     diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
 
                     iy = y 
-                    while(iy<6):
+                    while(iy<6) and (iy < y + diffY):
                         if  ((iy < (y + math.ceil(diffY / 2))) and y%2!=0) or ((iy <= (y + math.ceil(diffY / 2))) and y%2==0)  :
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(diffX):
