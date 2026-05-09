@@ -1221,6 +1221,7 @@ class line_follower(Node):
             servoCells = []
             floorCells = []
             ceilCells = []
+            servoCells.append(Cell(x,y))
 
             #on the right side:
             if(biggerServo <= math.pi/2):
