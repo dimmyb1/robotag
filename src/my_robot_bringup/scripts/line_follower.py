@@ -1601,55 +1601,49 @@ class line_follower(Node):
 
                 elif(self.facing==3):
                     #west left
-                    diffY = y
-                    diffX = math.ceil(-diffY * math.tan(lesserServo))
+                    diffX = x
+                    diffY = math.ceil(diffX * math.tan(biggerServo))
 
-                    iy = y - 1
-                    while(iy> -1):
-                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy >= (y - math.ceil(diffY / 2))) and (y%2==0)):
-                            #we need to do the diffY/2 ones at this ix value
-                            for ix in range(math.ceil(diffX/2)):
-                                if(x - ix > -1) and (x-ix<5):
-                                    servoCells.append(Cell(x - ix, iy))
-                        else:
+                    iy = y 
+                    while(iy>=0) and (iy > y - diffY):
+                        if iy > (y - math.ceil(diffY / 2)) :
                             for ix in range(diffX):
-                                if(x - ix > -1)and (x-ix<5):
-                                    servoCells.append(Cell(x - ix, iy))
+                                servoCells.append(Cell(ix, iy))
+                        else:
+                            for ix in range(math.ceil(diffX/2)):
+                                servoCells.append(Cell(ix, iy))
 
                         iy-=1
                             
                     #now make the smaller triangle
-                    diffX = math.floor(-diffY * math.tan(biggerServo))
+                    diffY = math.ceil(diffX * math.tan(lesserServo))
 
-                    iy = y - 1
-                    while(iy> -1):
-                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy >= (y - math.ceil(diffY / 2))) and (y%2==0)):
-                            #we need to do the diffY/2 ones at this ix value
-                            for ix in range(math.ceil(diffX/2)):
-                                if(x - ix > -1)and (x-ix<5):
-                                    floorCells.append(Cell(x - ix, iy))
-                        else:
+                    iy = y 
+                    while(iy>=0) and (iy > y - diffY):
+                        if iy > (y - math.ceil(diffY / 2)) :
                             for ix in range(diffX):
-                                if(x - ix > -1)and (x-ix<5):
-                                    floorCells.append(Cell(x - ix, iy))
+                                ceilCells.append(Cell(ix, iy))
+                        else:
+                            for ix in range(math.ceil(diffX/2)):
+                                ceilCells.append(Cell(ix, iy))
 
                         iy-=1
 
-                    diffX = math.ceil(-diffY * math.tan(biggerServo))
+                    diffY = math.floor(diffX * math.tan(lesserServo))
 
-                    iy = y - 1
-                    while(iy> -1):
-                        if((iy > (y - math.ceil(diffY / 2))) and (y%2!=0)) or ((iy >= (y - math.ceil(diffY / 2))) and (y%2==0)):
-                            #we need to do the diffY/2 ones at this ix value
-                            for ix in range(math.ceil(diffX/2)):
-                                if(x - ix > -1)and (x-ix<5):
-                                    ceilCells.append(Cell(x - ix, iy))
-                        else:
+                    iy = y 
+                    while(iy>=0) and (iy > y - diffY):
+                        if iy > (y - math.ceil(diffY / 2)) :
                             for ix in range(diffX):
-                                if(x - ix > -1)and (x-ix<5):
-                                    ceilCells.append(Cell(x - ix, iy))
+                                floorCells.append(Cell(ix, iy))
+                        else:
+                            for ix in range(math.ceil(diffX/2)):
+                                floorCells.append(Cell(ix, iy))
 
                         iy-=1
+
+                    
+
                 
             
             #try to get the smallest cone
