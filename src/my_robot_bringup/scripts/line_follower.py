@@ -1392,18 +1392,18 @@ class line_follower(Node):
 
                 #west
                 elif self.facing==3:
-                    diffY = 5-y
-                    diffX = math.ceil(diffY * math.tan(biggerServo))
+                    diffX = x
+                    diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
 
-                    iy = y + 1
+                    iy = y 
                     while(iy<6):
                         if  ((iy < (y + math.ceil(diffY / 2))) and y%2!=0) or ((iy <= (y + math.ceil(diffY / 2))) and y%2==0)  :
                             #we need to do the diffY/2 ones at this ix value
-                            for ix in range(math.ceil(diffX/2)):
+                            for ix in range(diffX):
                                 if(x - ix < 5):
                                     servoCells.append(Cell(x - ix, iy))
                         else:
-                            for ix in range(diffX):
+                            for ix in range(math.ceil(diffX/2)):
                                 if(x - ix < 5) and (x- ix > -1):
                                     servoCells.append(Cell(x - ix, iy))
 
