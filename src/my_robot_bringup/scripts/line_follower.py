@@ -1203,17 +1203,12 @@ class line_follower(Node):
         # +1.57 is left 90 (this is correct)
         # -1.57 is right 90 (this is correct)
 
-        #first we will check if the mark is right in front of us
-        self.entry_angle += math.pi /2
-        self.exit_angle += math.pi /2
-
-        #this brings all the values to be between 0 and pi
         
         lesserServo = min(self.entry_angle, self.exit_angle)
         biggerServo = max(self.entry_angle, self.exit_angle)
 
-        
-        if(lesserServo < math.pi/2) and (biggerServo > math.pi/2):
+        #first we will check if the mark is right in front of us
+        if(lesserServo < 0) and (biggerServo > 0):
             #cells is a circle  of r=1.18
             if self.facing in [0,2]:
                 cells = [c for c in cells if c.x == x]
