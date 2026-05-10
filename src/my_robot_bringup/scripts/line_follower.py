@@ -89,13 +89,14 @@ class line_follower(Node):
         self.imu_turning = False
         self.imu_target = -1
         self.grayEntryTime = -1
-        self.GRAY_COOLDOWN = 9 
+        self.GRAY_COOLDOWN = 10
         #   tried 8, 8 was too high, 
         #   but 5 is too high when turning, so maybe we can make this variable with turning time
         #   instead, i blocked intersection detection completely when imu_turning at an intersection
         #   5 is too low when traversing, im setting it to 7.
         #   7 seems really good.
         #   7 too short, sometimes double-triggering setting to 9.
+        #   9 is a lot better, but one double-trigger still occured. raising to 10
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
         self.dontSense = False
@@ -161,7 +162,7 @@ class line_follower(Node):
         #localisation
         self.departureTime = -1
         self.TIME_VARIANCE = 20 #time variance of 2 was misfiring after about 3-6 intersections. now raising time variance to 3. 3 is very strict.
-        #on average, the S.D. of timing tends to be close to 20, so im changing 3 to 20.
+        #on average, the S.D. of timing tends to be close to 20, so im changing 3 to 20. 
         self.loc_hyp = []
         self.toDepart = False
         self.h1 = None
@@ -252,7 +253,7 @@ class line_follower(Node):
             self.behaviourMode = 4
             self.evading = True
         elif robot_name == 'twirl':
-            self.current_node = self.B # should be self.A, but for temporary testing of self_loc it's temporarily different
+            self.current_node = self.A
             self.get_logger().info("Detected robot: twirl. Starting at Node A.")
             other_robot_name = 'twix'
             self.behaviourMode = 1
