@@ -1019,6 +1019,8 @@ class line_follower(Node):
         else:
             self.get_logger().info("cannot enroll hx, my h1-3 are full.")
 
+        self.get_logger().info(f"h1: {self.h1}, h2: {self.h2}, h3: {self.h3}")
+
         #4. graduate
         if self.h3 != None:
             #if h1 is empty, it was discarded
@@ -1029,9 +1031,9 @@ class line_follower(Node):
 
                 if bc != None:
                     #update using the best candidate from h1
-                    self.last_node = bcln
-                    self.current_node = self.returnNode(bc)
-                    self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_node.name}")
+                    self.current_node = self.returnNode(bcln)
+                    self.current_destination = bc
+                    self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_destination}")
                     self.adjustDestBasedOnBeh()
                 else:
                     self.get_logger().info(f"SELF_LOC: tried to graduate hypothesis but best candidate was Nonetype.")
