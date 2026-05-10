@@ -252,7 +252,7 @@ class line_follower(Node):
             self.behaviourMode = 4
             self.evading = True
         elif robot_name == 'twirl':
-            self.current_node = self.A
+            self.current_node = self.B # should be self.A, but for temporary testing of self_loc it's temporarily different
             self.get_logger().info("Detected robot: twirl. Starting at Node A.")
             other_robot_name = 'twix'
             self.behaviourMode = 1
