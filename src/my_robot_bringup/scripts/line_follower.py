@@ -986,22 +986,25 @@ class line_follower(Node):
                 self.get_logger().info("traversal was too fast")
             #if it has taken longer than or less than the expected time
             #check if any of the old node's timings match better
-            if minTime < self.last_node.Times[0] < maxTime:
-                hx.append(self.last_node.Nc)
-            elif minTime < self.last_node.Times[1] < maxTime:
-                hx.append(self.last_node.Ec)
-            elif minTime < self.last_node.Times[2] < maxTime:
-                hx.append(self.last_node.Sc)
-            elif minTime < self.last_node.Times[3] < maxTime:
-                hx.append(self.last_node.Wc)
+            if minTime < self.current_node.Times[0] < maxTime:
+                hx.append(self.current_node.Nc)
+            elif minTime < self.current_node.Times[1] < maxTime:
+                hx.append(self.current_node.Ec)
+            elif minTime < self.current_node.Times[2] < maxTime:
+                hx.append(self.current_node.Sc)
+            elif minTime < self.current_node.Times[3] < maxTime:
+                hx.append(self.current_node.Wc)
 
             #if not, we either got turned around, or we just struggled / found it easy to get here
             #in case we got turned around copy the node we left from:
 
-            if self.facing != self.E_facing:
-                hx.append(self.last_node.name)
+            if self.facing != self.E_facing and self.current_node.name not in hx:
+                hx.append(self.current_node.name)
             #otherwise if we just deviated slightly, the rest of the map should match up, so either way let's check the next edge we take:
             self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hx}")
+
+        else:
+            self.get_logger().info("traversal had expected time")
 
         #3. enroll hx:
         #where hx is either [] or [...]
