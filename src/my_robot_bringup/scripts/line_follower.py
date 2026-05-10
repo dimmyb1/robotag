@@ -948,8 +948,8 @@ class line_follower(Node):
         #if not, look at the neighbouring edges for what may have been the real curr_dest
         #when deploying a hypothesis, we say, well, if we were at bcln (curr_node), then we ended up at bc (curr_dest) based on the closest time bct
         
-        if(self.last_node == 'Z'):
-            self.get_logger().info("SKIPPING COS LAST_NODE IS Z")
+        if(self.firstNode):
+            self.get_logger().info("SKIPPING COS FIRST NODE IS TRUE")
             return
         #where edge time is the average timing of the edge we took
         elapsed = self.now - self.departureTime
