@@ -949,6 +949,7 @@ class line_follower(Node):
         #when deploying a hypothesis, we say, well, if we were at bcln (curr_node), then we ended up at bc (curr_dest) based on the closest time bct
         
         if(self.last_node == 'Z'):
+            self.get_logger().info("SKIPPING COS LAST_NODE IS Z")
             return
         #where edge time is the average timing of the edge we took
         elapsed = self.now - self.departureTime
@@ -2872,6 +2873,9 @@ class line_follower(Node):
 
                     if self.behaviourMode!=1:
                         self.startTurnBasedOnIMU()
+                    else:
+                        self.toDepart = False #consume
+                        self.departureTime = self.now
 
                     #update sweeping setting
                     if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
