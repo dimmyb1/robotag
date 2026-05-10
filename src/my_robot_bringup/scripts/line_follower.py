@@ -974,7 +974,8 @@ class line_follower(Node):
                             
                             new_hk.append(d[t])
 
-                hk = new_hk.copy()
+                hk.clear()
+                hk.extend(new_hk)
 
         #2. create hx
         #create a new hypothesis, either [] or [...] where we either expected this timing or we didnt
