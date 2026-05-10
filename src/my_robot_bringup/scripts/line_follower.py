@@ -1011,7 +1011,7 @@ class line_follower(Node):
             if self.facing != self.E_facing and self.current_node.name not in hx:
                 hx.append(self.current_node.name)
             for x in hx:
-                if x == self.current_destination.name:
+                if x == self.current_destination:
                     hx.remove(x)
             #otherwise if we just deviated slightly, the rest of the map should match up, so either way let's check the next edge we take:
             self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hx}")
