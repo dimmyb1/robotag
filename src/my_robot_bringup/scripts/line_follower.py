@@ -983,7 +983,8 @@ class line_follower(Node):
                                     bcln = hn.name
                                     bc = d[t]
                             
-                            new_hk.append(d[t])
+                            if d[t] != self.current_destination:
+                                new_hk.append(d[t])
 
                 hk.clear()
                 hk.extend(new_hk)
