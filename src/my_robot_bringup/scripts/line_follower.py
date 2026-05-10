@@ -940,6 +940,13 @@ class line_follower(Node):
         
 
     def self_localise(self, edgeTime):
+        #IMPORTANT NOTE FOR FUTURE SELF:
+        #self_localise uses STALE VALUES
+        #we were at curr_node, we wanted to go to curr_dest, we should be at curr_dest, we took 'elapsed' amount of time to get to the next intersection
+        #based on 'elapsed', is it likely that we ended up at curr_dest?
+        #if not, look at the neighbouring edges for what may have been the real curr_dest
+        #when deploying a hypothesis, we say, well, if we were at bcln (curr_node), then we ended up at bc (curr_dest) based on the closest time bct
+        
         if(self.last_node == 'Z'):
             return
         #where edge time is the average timing of the edge we took
