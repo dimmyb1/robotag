@@ -2213,23 +2213,6 @@ class line_follower(Node):
             
 
         #A SAFE EDGE IS ANY EDGE TOUCHING A SAFE NODE, EVEN IF ITS COMING FROM AN UNSAFE NODE.
-        # allEdges = ["Pab1", "Pab2", "Paf1", "Pae1", "Pbd1", "Pbc1", "Pcd1", "Pcd2", "Pch1", "Pdf1", "Peg1", "Peg2", "Pef1", "Pfg1","Pgh1", "Phh1"]
-        # unsafeEdges = self.getNeighbourEdgesOf(enemyE)
-        # unsafeEdges.append(enemyE)
-
-        # for n in safeNodes:
-        #     thisNode = self.returnNode(n)
-        #     #check all of its neighbour nodes and add them to the list
-        #     for safeE in self.getEdgesFromNode(thisNode):
-        #         if safeE in unsafeEdges:
-        #             unsafeEdges.remove(safeE)
-
-        
-        # safeEdges = allEdges - unsafeEdges
-
-        #myEdges = self.getEdgesFromNode(self.current_node)
-
-
         #if [] is returned, everything has failed somehow, must be an error
         
         self.get_logger().info(f"ERR: GenerateSafePathFromEnemyNode has failed. No path generated. Are all paths blocked?")
