@@ -1008,6 +1008,9 @@ class line_follower(Node):
 
             if self.facing != self.E_facing and self.current_node.name not in hx:
                 hx.append(self.current_node.name)
+            for x in hx:
+                if x == self.current_node.name:
+                    hx.remove(x)
             #otherwise if we just deviated slightly, the rest of the map should match up, so either way let's check the next edge we take:
             self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hx}")
 
@@ -2896,7 +2899,8 @@ class line_follower(Node):
                             #if it is a single number from 0 to 3, then it is an immediate neighbour 
                             #e.g. path = [2] i.e. go south
                             self.imu_target = self.current_destination.pop(0)
-                            t = {0: self.current_node.Nc, 1: self.current_node.Ec, 2: self.current_node.Sc, 3: self.current_node.Wc}
+                            tx = {0: self.current_node.Nc, 1: self.current_node.Ec, 2: self.current_node.Sc, 3: self.current_node.Wc}
+                            t = tx[self.imu_target]
 
 
 
