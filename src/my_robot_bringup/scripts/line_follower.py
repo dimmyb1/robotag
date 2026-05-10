@@ -159,7 +159,8 @@ class line_follower(Node):
 
         #localisation
         self.departureTime = -1
-        self.TIME_VARIANCE = 3 #time variance of 2 was misfiring after about 3-6 intersections. now raising time variance to 3.
+        self.TIME_VARIANCE = 20 #time variance of 2 was misfiring after about 3-6 intersections. now raising time variance to 3. 3 is very strict.
+        #on average, the S.D. of timing tends to be close to 20, so im changing 3 to 20.
         self.loc_hyp = []
         self.toDepart = False
         self.h1 = None
@@ -989,9 +990,9 @@ class line_follower(Node):
         hx = []
         if (elapsed > maxTime) or (elapsed < minTime):
             if elapsed > maxTime:
-                self.get_logger().info("traversal took too long")
+                self.get_logger().info(f"traversal took too long. {elapsed}s elapsed but maxTime was {maxTime}s")
             else:
-                self.get_logger().info("traversal was too fast")
+                self.get_logger().info(f"traversal was too fast. {elapsed}s elapsed but minTime was {minTime}s")
             #if it has taken longer than or less than the expected time
             #check if any of the old node's timings match better
             if minTime < self.current_node.Times[0] < maxTime:
