@@ -107,6 +107,7 @@ class line_follower(Node):
         #self.haventMovedYet = True
         self.stationaryStartTime = -1
         self.allowCrawl = True #make sure we start at an intersection
+        self.crawlingForwardBeforeIMUturn = False
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
@@ -495,6 +496,10 @@ class line_follower(Node):
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
             self.motion_active = False
+
+            if self.crawlingForwardBeforeIMUturn:
+                self.crawlingForwardBeforeIMUturn = False
+                self.startTurnBasedOnIMU()
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
         elif(self.imu_turning):
@@ -550,8 +555,11 @@ class line_follower(Node):
     #--------------------
 
     def crawlBack(self):
-        self.start_motion(linear=-0.25, duration_ms=500) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms
+        self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
 
+    def crawlForward(self):
+        self.get_logger().info("STARTING CRAWLING FORWARD")
+        self.start_motion(linear=+0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms
     #---------------------
     # Searching for Line
     #---------------------
@@ -1595,7 +1603,7 @@ class line_follower(Node):
                     for ce in ceilCells:
                         servoCells.remove(ce)
                     ceilFlag = True
-                    self.get_logger().info("USING CEIL FOR CALC")
+                    #self.get_logger().info("USING CEIL FOR CALC")
                     break
             if not ceilFlag:
                 self.get_logger().info("USING FLOOR FOR CALC")
@@ -2898,7 +2906,12 @@ class line_follower(Node):
                     self.toDepart = True
 
                     if self.behaviourMode!=1:
-                        self.startTurnBasedOnIMU()
+                        if abs(self.facing - self.imu_target) in [1,3]:
+                            #90 degree turn (riskiest for losing line)
+                            self.crawlForward()
+                            self.crawlingForwardBeforeIMUturn = True
+                        else:
+                            self.startTurnBasedOnIMU()
                     else:
                         self.toDepart = False #consume
                         self.departureTime = self.now
