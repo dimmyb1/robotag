@@ -108,6 +108,7 @@ class line_follower(Node):
         self.stationaryStartTime = -1
         self.allowCrawl = True #make sure we start at an intersection
         self.crawlingForwardBeforeIMUturn = False
+        self.crawlingBackwards = True
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
@@ -496,6 +497,9 @@ class line_follower(Node):
             self.cmd.angular.z = 0.0
             self.publisher.publish(self.cmd)
             self.motion_active = False
+
+            if self.crawlingBackwards:
+                self.crawlingBackwards = False
 
             if self.crawlingForwardBeforeIMUturn:
                 self.crawlingForwardBeforeIMUturn = False
@@ -2952,6 +2956,7 @@ class line_follower(Node):
                     #crawl back
                     self.crawlBack()
                     self.stateFollow = False
+                    self.crawlingBackwards = True
 
 
             
@@ -3151,7 +3156,7 @@ class line_follower(Node):
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic:
+        if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards:
             self.stateFollow = False
 
             #Stop sweep.
