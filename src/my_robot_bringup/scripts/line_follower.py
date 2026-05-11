@@ -89,7 +89,7 @@ class line_follower(Node):
         self.imu_turning = False
         self.imu_target = -1
         self.grayEntryTime = -1
-        self.GRAY_COOLDOWN = 10
+        self.GRAY_COOLDOWN = 10.1
         #   tried 8, 8 was too high, 
         #   but 5 is too high when turning, so maybe we can make this variable with turning time
         #   instead, i blocked intersection detection completely when imu_turning at an intersection
@@ -97,6 +97,7 @@ class line_follower(Node):
         #   7 seems really good.
         #   7 too short, sometimes double-triggering setting to 9.
         #   9 is a lot better, but one double-trigger still occured. raising to 10
+        #   10 was leaving a 0.0 residual, so i've raised it 10.1
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
         self.dontSense = False
