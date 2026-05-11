@@ -2174,6 +2174,8 @@ class line_follower(Node):
             else:
                 self.get_logger().info(f"Bad random number generated, no such choice value as {choice}")
                 
+            self.get_logger().info(f"Generated direction {choice}")
+
             
         elif self.behaviourMode == 3 or (self.behaviourMode == 5 and self.opp_old_loc==-1):
             # 3 - Greedy
