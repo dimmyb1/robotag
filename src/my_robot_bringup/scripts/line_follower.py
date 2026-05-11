@@ -90,11 +90,13 @@ class line_follower(Node):
         self.imu_target = -1
         self.grayEntryTime = -1
         self.GRAY_COOLDOWN = 10.1
-        #   tried 8, 8 was too high, 
+        #   tried 8, but 8 seems too high for the lengths of the shortest edges
         #   but 5 is too high when turning, so maybe we can make this variable with turning time
         #   instead, i blocked intersection detection completely when imu_turning at an intersection
         #   5 is too low when traversing, im setting it to 7.
         #   7 seems really good.
+        #   it is now clear that the time to handle an intersection has no relation to the length of the shortest edges
+        #   and that the gray_cooldown needs to be how long it takes from entering to exiting an intersection, inclusive of turning time.
         #   7 too short, sometimes double-triggering setting to 9.
         #   9 is a lot better, but one double-trigger still occured. raising to 10
         #   10 was leaving a 0.0 residual, so i've raised it 10.1
