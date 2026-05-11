@@ -3150,7 +3150,7 @@ class line_follower(Node):
                 self.multiple = False
                 self.publish_sweep_command()
 
-        else:
+        elif(not self.firstNode):
             self.stateFollow = True
             self.allowCrawl = False
         
