@@ -1600,25 +1600,19 @@ class line_follower(Node):
 
                 
             
-            #try to get the smallest cone
-            ceilFlag = False
-            for c in servoCells:
-                if c not in ceilCells:
-                    for ce in ceilCells:
-                        servoCells.remove(ce)
-                    ceilFlag = True
-                    #self.get_logger().info("USING CEIL FOR CALC")
-                    break
-            if not ceilFlag:
-                self.get_logger().info("USING FLOOR FOR CALC")
-                for ce in floorCells:
-                    servoCells.remove(ce)
+            #try to get the smallest cone while finding the INTERSECTION with radius cells (circle)
+            ceCel = [c for c in cells if ((c in servoCells) and (c not in ceilCells))] 
+            flCel = [c for c in cells if ((c in servoCells) and (c not in floorCells))] 
+            
+            cells.clear()
+            if ceCel:
+                cells.extend(ceCel)
+            else:
+                cells.extend(flCel)
 
-            #now find INTERSECTION with radius cells            
-            cells = [c for c in cells if c in servoCells]
+
+
         #now we have a pretty small set of cells which the opponent can be in
-
-
         #reset probabilities
         self.P = {
             "Pab1": 0.0,
