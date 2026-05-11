@@ -3173,7 +3173,7 @@ class line_follower(Node):
                 self.multiple = True
                 self.publish_sweep_command()
 
-        self.get_logger().info(f"dontSense: {self.dontSense}, imu_turning: {self.imu_turning}, wait: {self.waitingForUltrasonic}")
+        self.get_logger().info(f"dontSense: {self.dontSense}, imu_turning: {self.imu_turning}, wait: {self.waitingForUltrasonic}, yaw_deg: {self.yaw_deg}")
 
 def main():
     rclpy.init()
