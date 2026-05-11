@@ -2012,10 +2012,7 @@ class line_follower(Node):
 
         allNodes = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H']
         #safeNodes = allNodes - unsafeNodes
-        safeNodes = allNodes.copy()
-        for s in safeNodes:
-            if s in unsafeNodes:
-                safeNodes.remove(s)
+        safeNodes = [s for s in allNodes if s not in unsafeNodes]
 
         #are we safe? then just wait here until the situation changes.
         if self.current_node.name in safeNodes:
@@ -2096,10 +2093,7 @@ class line_follower(Node):
 
         allNodes = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H']
         #safeNodes = allNodes - unsafeNodes
-        safeNodes = allNodes.copy()
-        for s in safeNodes:
-            if s in unsafeNodes:
-                safeNodes.remove(s)
+        safeNodes = [s for s in allNodes if s not in unsafeNodes]
 
         #are we safe? then just wait here until the situation changes.
         if self.current_node.name in safeNodes:
