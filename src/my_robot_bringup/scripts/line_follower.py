@@ -1015,8 +1015,8 @@ class line_follower(Node):
 
             #if not, we either got turned around, or we just struggled / found it easy to get here
             #in case we got turned around copy the node we left from:
-
-            if self.facing != self.E_facing and self.current_node.name not in hx:
+            special_cases = [('A', 'B', 2), ('B', 'A', 2), ('C', 'H', 2), ('H', 'C', 2), ('C', 'D',3), ('D', 'C', 3)]
+            if (self.facing != self.E_facing or (self.facing == self.E_facing and (self.current_node.name, self.current_destination, self.facing) in special_cases)) and self.current_node.name not in hx:
                 hx.append(self.current_node.name)
             for x in hx:
                 if x == self.current_destination:
@@ -2175,7 +2175,7 @@ class line_follower(Node):
                 self.get_logger().info(f"Bad random number generated, no such choice value as {choice}")
                 
             self.get_logger().info(f"Generated direction {choice}")
-
+            self.imu_target = choice
             
         elif self.behaviourMode == 3 or (self.behaviourMode == 5 and self.opp_old_loc==-1):
             # 3 - Greedy
@@ -2819,7 +2819,7 @@ class line_follower(Node):
                             
                             t = neigh_name
 
-                    else:
+                    elif self.behaviourMode != 2:
                         #then it is a char from A to H, and it is an immediate neighbour 
                         #e.g. path = 'A'
                         if self.current_node.Nc == self.current_destination:
@@ -2833,6 +2833,15 @@ class line_follower(Node):
 
                         t = self.current_destination
 
+                    else:
+                        #BEHAVIOURMODE == 2 (RANDOM)
+                        #imu target was already set inside of planDestination
+                        #therefore we just need to set t
+                        t = self.current_destination
+
+
+
+                    #COMMON to all except [] - set Expected facing
                     if (self.current_node.name, t) not in [('A', 'B'), ('B', 'A'), ('C', 'D'), ('D', 'C'), ('E', 'G'), ('G', 'E')]:
                         if self.returnNode(t).Nc == self.current_node.name:
                             self.E_facing = 2
