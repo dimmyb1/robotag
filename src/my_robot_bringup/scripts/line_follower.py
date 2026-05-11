@@ -1002,6 +1002,9 @@ class line_follower(Node):
                 self.get_logger().info(f"traversal took too long. {elapsed}s elapsed but maxTime was {maxTime}s")
             else:
                 self.get_logger().info(f"traversal was too fast. {elapsed}s elapsed but minTime was {minTime}s")
+                #if it was too fast, we may have incorrectly triggered an intersection detection, re-push our previous stats
+                hx.append(self.current_node.name)
+
             #if it has taken longer than or less than the expected time
             #check if any of the old node's timings match better
             if minTime < self.current_node.Times[0] < maxTime:
@@ -1015,7 +1018,11 @@ class line_follower(Node):
 
             #if not, we either got turned around, or we just struggled / found it easy to get here
             #in case we got turned around copy the node we left from:
+
+            #special cases are those edges where you arrive at either node facing the same direction no matter which one you left from, so 
+            #if you got turned around, we cant check it just by seeing expected facing
             special_cases = [('A', 'B', 2), ('B', 'A', 2), ('C', 'H', 2), ('H', 'C', 2), ('C', 'D',3), ('D', 'C', 3)]
+
             if (self.facing != self.E_facing or (self.facing == self.E_facing and (self.current_node.name, self.current_destination, self.facing) in special_cases)) and self.current_node.name not in hx:
                 hx.append(self.current_node.name)
             for x in hx:
