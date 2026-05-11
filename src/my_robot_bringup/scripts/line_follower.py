@@ -2652,7 +2652,7 @@ class line_follower(Node):
         #update current variables
          #do some check to ensure we aren't being triggered by the last gray section we saw
         #blocked if we are turning while currently at an intersection.
-        if (not self.imu_turning and self.grayEntryTime < self.now - self.GRAY_COOLDOWN) :
+        if (not self.toDepart and not self.imu_turning and self.grayEntryTime < self.now - self.GRAY_COOLDOWN):
             #if gray detected:
             # or self.haventMovedYet
             if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
