@@ -3008,8 +3008,6 @@ class line_follower(Node):
                 elif self.facing == 3:
                     self.imu_target = 1
                     
-                    
-                #self.startTurnBasedOnFacing()
                 self.startTurnBasedOnIMU()
                 self.current_destination = self.current_node
 
@@ -3175,7 +3173,7 @@ class line_follower(Node):
                 self.multiple = True
                 self.publish_sweep_command()
 
-        
+        self.get_logger().info(f"dontSense: {self.dontSense}, imu_turning: {self.imu_turning}, wait: {self.waitingForUltrasonic}")
 
 def main():
     rclpy.init()
