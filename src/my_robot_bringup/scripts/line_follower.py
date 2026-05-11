@@ -2951,6 +2951,7 @@ class line_follower(Node):
                     #we've been stationary for too long.
                     #crawl back
                     self.crawlBack()
+                    self.stateFollow = False
 
 
             
