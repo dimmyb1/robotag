@@ -3161,6 +3161,7 @@ class line_follower(Node):
 
         else:
             self.stateFollow = True
+            self.allowCrawl = False
         
 
         if self.stateFollow:
