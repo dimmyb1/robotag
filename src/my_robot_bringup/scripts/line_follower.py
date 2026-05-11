@@ -3098,7 +3098,7 @@ class line_follower(Node):
             self.ultrasonic_distance = float('inf')
             self.publish_sweep_command()
 
-            if self.retryPlan != 0:
+            if self.retryPlan != 0 or self.triggerSweep:
                 self.postRetry = True
 
             #consume
