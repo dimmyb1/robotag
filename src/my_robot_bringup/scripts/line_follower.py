@@ -2794,6 +2794,7 @@ class line_follower(Node):
                     #Update destination
                     self.planDestination()
 
+                self.get_logger().info("exited planDestination function")
                 #COMMON
                 if self.current_destination != []:
                     if self.firstNode:
@@ -3145,6 +3146,7 @@ class line_follower(Node):
 
         
         if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards:
+            self.get_logger().info("Set stateFollow to False in loop()")
             self.stateFollow = False
 
             #Stop sweep.
@@ -3153,7 +3155,7 @@ class line_follower(Node):
                 self.multiple = False
                 self.publish_sweep_command()
 
-        elif(not self.firstNode or not self.current_destination == []):
+        elif(not self.firstNode and self.current_destination != []):
             self.stateFollow = True
             self.allowCrawl = False
         
