@@ -160,10 +160,12 @@ class line_follower(Node):
         self.E_facing = 2
         self.last_node = 'Z' #for localisation, this is NODE, 'Z' is a placeholder for (re)starting
         self.current_destination = 'F'
+        self.destination_id = -1
         self.skipZero = False
         self.retryPlan = 0
         self.postRetry = False
         self.retryAttempts = 0
+        
 
         #localisation
         self.departureTime = -1
@@ -936,6 +938,7 @@ class line_follower(Node):
 
         if self.behaviourMode == 1:
             #patrol
+            self.destination_id = -1
             if self.facing == 0:
                 self.current_destination = self.current_node.Nc
             elif self.facing == 1:
@@ -1091,6 +1094,7 @@ class line_follower(Node):
                     #update using the best candidate from h1
                     self.current_node = self.returnNode(bcln)
                     self.current_destination = bc
+                    self.destination_id = -1
                     self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_destination}")
                     self.adjustDestBasedOnBeh()
                 else:
@@ -2039,7 +2043,7 @@ class line_follower(Node):
             # 1 - Simple Line Follower (using pink path)
 
             #self.patrolPath = ['A', 'F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B']
-            
+            self.destination_id = -1
             self.i_patrol+=1
             if self.i_patrol >= 16:
                 self.i_patrol = 0
@@ -2069,7 +2073,8 @@ class line_follower(Node):
                 
             self.get_logger().info(f"Generated direction {choice}")
             self.imu_target = choice
-            
+            self.destination_id = choice
+
         elif self.behaviourMode == 3 or (self.behaviourMode == 5 and self.opp_old_loc==-1):
             # 3 - Greedy
             self.calculateProbabilities()
@@ -2150,8 +2155,10 @@ class line_follower(Node):
             #FOR DEBUGGING:
             self.get_logger().info(f"DEBUG: SETTING CUR_DEST TO WEST, CUR_LOC IS {self.current_node.name}")
             self.current_destination = self.current_node.Wc
+            self.destination_id = 3
             return
             # 4 - Avoidant
+            self.destination_id = -1 # all generated paths are int lists
             self.calculateProbabilities()
 
             #take max likely edge
@@ -2629,13 +2636,13 @@ class line_follower(Node):
                         elif type(self.current_destination[0]) == str:
                             #localise using old values
 
-                            if self.current_node.Nc == self.current_destination[0]:
+                            if self.current_node.Nc == self.current_destination[0] and self.destination_id in [-1, 0]:
                                 self.self_localise(self.current_node.Times[0])
-                            elif self.current_node.Ec == self.current_destination[0]:
+                            elif self.current_node.Ec == self.current_destination[0] and self.destination_id in [-1, 1]:
                                 self.self_localise(self.current_node.Times[1])
-                            elif self.current_node.Sc == self.current_destination[0]:
+                            elif self.current_node.Sc == self.current_destination[0] and self.destination_id in [-1, 2]:
                                 self.self_localise(self.current_node.Times[2])
-                            elif self.current_node.Wc == self.current_destination[0]:
+                            elif self.current_node.Wc == self.current_destination[0] and self.destination_id in [-1, 3]:
                                 self.self_localise(self.current_node.Times[3])
 
                             if self.dontUpdate:
@@ -2657,13 +2664,13 @@ class line_follower(Node):
                 else : #not list
 
                     #localise using old values
-                    if self.current_node.Nc == self.current_destination:
+                    if self.current_node.Nc == self.current_destination and self.destination_id in [-1, 0]:
                         self.self_localise(self.current_node.Times[0])
-                    elif self.current_node.Ec == self.current_destination:
+                    elif self.current_node.Ec == self.current_destination and self.destination_id in [-1, 1]:
                         self.self_localise(self.current_node.Times[1])
-                    elif self.current_node.Sc == self.current_destination:
+                    elif self.current_node.Sc == self.current_destination and self.destination_id in [-1, 2]:
                         self.self_localise(self.current_node.Times[2])
-                    elif self.current_node.Wc == self.current_destination:
+                    elif self.current_node.Wc == self.current_destination and self.destination_id in [-1, 3]:
                         self.self_localise(self.current_node.Times[3])
 
                     if self.dontUpdate:
@@ -2717,13 +2724,13 @@ class line_follower(Node):
                             #if it is a char from A to H, then it is an immediate neighbour 
                             #e.g. path = ['A', 'B'] 
                             neigh_name = self.current_destination.pop(0)
-                            if self.current_node.Nc == neigh_name:
+                            if self.current_node.Nc == neigh_name and self.destination_id in [-1, 0]:
                                 self.imu_target = 0
-                            elif self.current_node.Ec == neigh_name:
+                            elif self.current_node.Ec == neigh_name and self.destination_id in [-1, 1]:
                                 self.imu_target = 1
-                            elif self.current_node.Sc == neigh_name:
+                            elif self.current_node.Sc == neigh_name and self.destination_id in [-1, 2]:
                                 self.imu_target = 2
-                            elif self.current_node.Wc == neigh_name:
+                            elif self.current_node.Wc == neigh_name and self.destination_id in [-1, 3]:
                                 self.imu_target = 3
                             
                             t = neigh_name
@@ -2731,13 +2738,13 @@ class line_follower(Node):
                     elif self.behaviourMode != 2:
                         #then it is a char from A to H, and it is an immediate neighbour 
                         #e.g. path = 'A'
-                        if self.current_node.Nc == self.current_destination:
+                        if self.current_node.Nc == self.current_destination and self.destination_id in [-1, 0]:
                             self.imu_target = 0
-                        elif self.current_node.Ec == self.current_destination:
+                        elif self.current_node.Ec == self.current_destination and self.destination_id in [-1, 1]:
                             self.imu_target = 1
-                        elif self.current_node.Sc == self.current_destination:
+                        elif self.current_node.Sc == self.current_destination and self.destination_id in [-1, 2]:
                             self.imu_target = 2
-                        elif self.current_node.Wc == self.current_destination:
+                        elif self.current_node.Wc == self.current_destination and self.destination_id in [-1, 3]:
                             self.imu_target = 3
 
                         t = self.current_destination
@@ -2752,13 +2759,13 @@ class line_follower(Node):
 
                     #COMMON to all except [] - set Expected facing
                     if (self.current_node.name, t) not in [('A', 'B'), ('B', 'A'), ('C', 'D'), ('D', 'C'), ('E', 'G'), ('G', 'E')]:
-                        if self.returnNode(t).Nc == self.current_node.name:
+                        if self.returnNode(t).Nc == self.current_node.name and self.destination_id in [-1, 0]:
                             self.E_facing = 2
-                        elif self.returnNode(t).Ec == self.current_node.name:
+                        elif self.returnNode(t).Ec == self.current_node.name and self.destination_id in [-1, 1]:
                             self.E_facing = 3
-                        elif self.returnNode(t).Sc == self.current_node.name:
+                        elif self.returnNode(t).Sc == self.current_node.name and self.destination_id in [-1, 2]:
                             self.E_facing = 0
-                        elif self.returnNode(t).Wc == self.current_node.name:
+                        elif self.returnNode(t).Wc == self.current_node.name and self.destination_id in [-1, 3]:
                             self.E_facing = 1
                         
                     else:
