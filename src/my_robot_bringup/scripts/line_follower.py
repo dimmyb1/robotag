@@ -443,17 +443,20 @@ class line_follower(Node):
 
     #Line Following Functions
     def detect_black(self, img):
+        # Convert BGR (OpenCV default) to HSV
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([26, 26, 26])
-        mask = cv2.inRange(img, lower_black, upper_black)
+        upper_black = np.array([180, 255, 50])
+        mask = cv2.inRange(hsv, lower_black, upper_black)
         return cv2.countNonZero(mask) #(int) num of black pixels in img
     
     def detect_gray(self, img):
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         # returns a mask of black pixels in the image
-        lower_gray = np.array([20, 20, 20])
-        upper_gray = np.array([85, 85, 85])
-        mask = cv2.inRange(img, lower_gray, upper_gray)
+        lower_gray = np.array([0, 0, 50])
+        upper_gray = np.array([180, 50, 200])
+        mask = cv2.inRange(hsv, lower_gray, upper_gray)
         return cv2.countNonZero(mask) #(int) num of gray pixels in img
     
     def ir_L_callback(self, msg):
