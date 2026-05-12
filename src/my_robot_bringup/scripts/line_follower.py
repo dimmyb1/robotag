@@ -1182,7 +1182,6 @@ class line_follower(Node):
             #it isnt directly in front of us.
             #is it on the left or on the right?
             servoCells = []
-            floorCells = []
             ceilCells = []
             servoCells.append(Cell(x,y))
 
@@ -1208,21 +1207,6 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffX = - math.floor(diffY * math.tan(biggerServo))
-
-                    iy = y+1
-                    while(iy < 6):
-                        if iy >= 6 - math.ceil(diffY / 2):
-                            for ix in range(diffX):
-                                if x + ix < 5:
-                                    floorCells.append(Cell(x + ix, iy))
-                        else:
-                            for ix in range(math.ceil(diffX / 2)):
-                                if x + ix < 5:
-                                    floorCells.append(Cell(x + ix, iy))
-
-                        iy+=1
-
                     diffX = - math.ceil(diffY * math.tan(biggerServo))
 
                     iy = y+1
@@ -1260,22 +1244,6 @@ class line_follower(Node):
                         iy-=1
                             
                     #now make the smaller triangle
-                    diffY = -1 * math.floor(diffX * math.tan(biggerServo))
-
-                    iy = y -1
-                    while(y>-1):
-                        if iy >= math.ceil(diffY / 2):
-                            #we need to do the diffY/2 ones at this ix value
-                            for ix in range(math.ceil(diffX/2)):
-                                if x- ix > -1:
-                                    floorCells.append(Cell(-ix + x, iy))
-                        else:
-                            for iy in range(diffX):
-                                if x- ix > -1:
-                                    floorCells.append(Cell(-ix + x, iy))
-
-                        iy-=1
-
                     diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
 
                     iy = y -1
@@ -1312,21 +1280,6 @@ class line_follower(Node):
                         ix+=1
                             
                     #now make the smaller triangle
-                    diffY = -1 * math.floor(diffX * math.tan(biggerServo))
-
-                    ix = x+1
-                    while(ix<5):
-                        if ix < 5 -  math.ceil(diffX/2):
-                            for iy in range(math.ceil(diffY/2)):
-                                if y - iy > -1:
-                                    floorCells.append(Cell(ix, y - iy))
-                        else:
-                            for ix in range(diffX):
-                                if y - iy > -1:
-                                    floorCells.append(Cell(ix, y - iy))
-
-                        ix+=1
-
                     diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
 
                     ix = x+1
@@ -1362,22 +1315,6 @@ class line_follower(Node):
                         ix-=1
                             
                     #now make the smaller triangle
-                    diffY = -1 * math.floor(diffX * math.tan(biggerServo))
-
-                    ix = x - 1
-                    while ix > -1:
-                        if ix < math.ceil(diffX/2):
-                            #we need to do the diffY/2 ones at this ix value
-                            for iy in range(diffY):
-                                if y + iy < 6:
-                                    floorCells.append(Cell(ix, y + iy))
-                        else:
-                            for iy in range(math.ceil(diffY/2)):
-                                if y + iy < 6:
-                                    floorCells.append(Cell(ix, y + iy))
-
-                        ix-=1
-
                     diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
 
                     ix = x - 1
@@ -1418,21 +1355,6 @@ class line_follower(Node):
                         iy+=1
                             
                     #now make the smaller triangle
-                    diffX = math.floor(diffY * math.tan(biggerServo))
-
-                    iy = y+1
-                    while(iy < 6):
-                        if iy >= 6 - math.ceil(diffY / 2):
-                            for ix in range(diffX):
-                                if x - ix > -1:
-                                    floorCells.append(Cell(x - ix, iy))
-                        else:
-                            for ix in range(math.ceil(diffX / 2)):
-                                if x - ix > -1:
-                                    floorCells.append(Cell(x - ix, iy))
-
-                        iy+=1
-
                     diffX = math.ceil(diffY * math.tan(biggerServo))
 
                     iy = y+1
@@ -1469,22 +1391,6 @@ class line_follower(Node):
                         iy-=1
                             
                     #now make the smaller triangle
-                    diffY = math.floor(diffX * math.tan(lesserServo))
-
-                    iy = y -1
-                    while(y>-1):
-                        if iy >= math.ceil(diffY / 2):
-                            #we need to do the diffY/2 ones at this ix value
-                            for ix in range(math.ceil(diffX/2)):
-                                if x+ ix < 5:
-                                    floorCells.append(Cell(ix + x, iy))
-                        else:
-                            for iy in range(diffX):
-                                if x+ ix < 5:
-                                    floorCells.append(Cell(ix + x, iy))
-
-                        iy-=1
-
                     diffY = math.ceil(diffX * math.tan(lesserServo))
 
                     iy = y -1
@@ -1521,21 +1427,6 @@ class line_follower(Node):
                         ix+=1
                             
                     #now make the smaller triangle
-                    diffY = math.floor(diffX * math.tan(lesserServo))
-
-                    ix = x+1
-                    while(ix<5):
-                        if ix < 5 -  math.ceil(diffX/2):
-                            for iy in range(math.ceil(diffY/2)):
-                                if y + iy < 6:
-                                    floorCells.append(Cell(ix, y + iy))
-                        else:
-                            for ix in range(diffX):
-                                if y + iy < 6:
-                                    floorCells.append(Cell(ix, y + iy))
-
-                        ix+=1
-
                     diffY = math.ceil(diffX * math.tan(lesserServo))
 
                     ix = x+1
@@ -1585,36 +1476,14 @@ class line_follower(Node):
 
                         ix-=1
 
-                    diffY = math.floor(diffX * math.tan(lesserServo))
-
-                    ix = x - 1
-                    while ix > -1:
-                        if ix < math.ceil(diffX/2):
-                            for iy in range(diffY):
-                                if y - iy > -1:
-                                    floorCells.append(Cell(ix, y - iy))
-                        else:
-                            for iy in range(math.ceil(diffY/2)):
-                                if y - iy > -1:
-                                    floorCells.append(Cell(ix, y - iy))
-
-                        ix-=1
-
                     
 
                 
             
             #try to get the smallest cone while finding the INTERSECTION with radius cells (circle)
             ceCel = [c for c in cells if ((c in servoCells) and (c not in ceilCells))] 
-            flCel = [c for c in cells if ((c in servoCells) and (c not in floorCells))] 
-            
             cells.clear()
-            if ceCel:
-                cells.extend(ceCel)
-            else:
-                cells.extend(flCel)
-
-
+            cells.extend(ceCel)
 
         #now we have a pretty small set of cells which the opponent can be in
         #reset probabilities
