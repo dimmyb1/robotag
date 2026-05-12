@@ -3025,7 +3025,8 @@ class line_follower(Node):
 
         
         if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn:
-            self.get_logger().info("Set stateFollow to False in loop()")
+            if self.stateFollow:
+                self.get_logger().info("Set stateFollow to False in loop()")
             self.stateFollow = False
 
             #Stop sweep.
