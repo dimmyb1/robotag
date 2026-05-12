@@ -2135,6 +2135,10 @@ class line_follower(Node):
                     self.get_logger().info(f"Target Location In: {singleParents}")
 
         elif self.behaviourMode == 4:
+            #FOR DEBUGGING:
+            self.get_logger().info(f"DEBUG: SETTING CUR_DEST TO G, CUR_LOC IS {self.current_node.name}")
+            self.current_destination = 'G'
+            return
             # 4 - Avoidant
             self.calculateProbabilities()
 
