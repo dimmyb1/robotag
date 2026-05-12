@@ -3107,7 +3107,8 @@ class line_follower(Node):
                 self.stopMov()
 
                 self.retryAttempts +=1
-                if self.retryAttempts >=3:
+                if self.retryAttempts >=3 and self.retryPlan not in [-2,-3]:
+                    #don't keep turning 180s, do a finer grain search
                     targets = {0: 1, 2: 3, 1: 2, 3: 0}
                 else:
                     if self.retryPlan == -1:
