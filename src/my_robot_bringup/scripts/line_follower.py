@@ -1677,21 +1677,17 @@ class line_follower(Node):
 
     #dijkstra function written by ChatGPT-5.3 on 9/04/2026
     #in this conversation: https://chatgpt.com/share/69d7f982-5b6c-8330-bd3b-779f35e3c7ed 
+    #modified in using Claude Sonnet 4.3 on 13/05/2026
+    #in this conversation: https://claude.ai/share/c6df9c61-823e-40fc-8203-13f9eb785a6f 
+    #this is a scattered conversation so the message pertaining to this particular fix may be hard to find.
     def dijkstra(self, start_node, goal_char):
-        """
-        start_node: actual node object (e.g., self.A)
-        goal_char: target node name (e.g., 'H')
-        """
-
-        # Priority queue: (cost, node)
         pq = []
         heapq.heappush(pq, (0, start_node))
 
-        # Distance dictionary
         distances = {start_node.name: 0}
 
-        # Previous node tracker (for path reconstruction)
-        previous = {start_node.name: None}
+        # Now stores (previous_node_name, direction_id_taken_to_get_here)
+        previous = {start_node.name: (None, None)}
 
         visited = set()
 
@@ -1702,19 +1698,17 @@ class line_follower(Node):
                 continue
             visited.add(current_node.name)
 
-            # Goal check
             if current_node.name == goal_char:
                 break
 
-            # Explore neighbors (N, E, S, W)
             neighbors = [
-                (current_node.Nc, current_node.Times[0]),
-                (current_node.Ec, current_node.Times[1]),
-                (current_node.Sc, current_node.Times[2]),
-                (current_node.Wc, current_node.Times[3]),
+                (current_node.Nc, current_node.Times[0], 0),
+                (current_node.Ec, current_node.Times[1], 1),
+                (current_node.Sc, current_node.Times[2], 2),
+                (current_node.Wc, current_node.Times[3], 3),
             ]
 
-            for neighbor_char, cost in neighbors:
+            for neighbor_char, cost, direction_id in neighbors:
                 if neighbor_char is None:
                     continue
 
@@ -1724,30 +1718,30 @@ class line_follower(Node):
 
                 new_cost = current_cost + cost
 
-                if (neighbor_char not in distances or 
-                    new_cost < distances[neighbor_char]):
+                if (neighbor_char not in distances or
+                        new_cost < distances[neighbor_char]):
 
                     distances[neighbor_char] = new_cost
-                    previous[neighbor_char] = current_node.name
+                    previous[neighbor_char] = (current_node.name, direction_id)
                     heapq.heappush(pq, (new_cost, neighbor_node))
 
-        #Reconstruct path
-        path = []
+        # Reconstruct path as a list of direction IDs
+        if goal_char not in previous and goal_char != start_node.name:
+            return None, float('inf')
+
+        if goal_char == start_node.name:
+            return [], 0
+
+        directions = []
         current = goal_char
 
-        if current not in previous and current != start_node.name:
-            return None, float('inf')  # No path
+        while previous[current][0] is not None:
+            parent, direction_id = previous[current]
+            directions.append(direction_id)
+            current = parent
 
-        while current is not None:
-            path.append(current)
-            current = previous.get(current)
-
-        path.reverse()
-
-        #where path is a list of node names (chars)
-        #, cost - total cost of the path
-        #if no path exists, will return None, float('inf')
-        return path, distances.get(goal_char, float('inf'))
+        directions.reverse()
+        return directions, distances.get(goal_char, float('inf'))
 
     def generatePathFromNToN(self, n):
         #generate the shortest path from current_node to n
