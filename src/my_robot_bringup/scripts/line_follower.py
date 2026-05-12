@@ -2136,8 +2136,8 @@ class line_follower(Node):
 
         elif self.behaviourMode == 4:
             #FOR DEBUGGING:
-            self.get_logger().info(f"DEBUG: SETTING CUR_DEST TO G, CUR_LOC IS {self.current_node.name}")
-            self.current_destination = 'G'
+            self.get_logger().info(f"DEBUG: SETTING CUR_DEST TO WEST, CUR_LOC IS {self.current_node.name}")
+            self.current_destination = self.current_node.Wc
             return
             # 4 - Avoidant
             self.calculateProbabilities()
