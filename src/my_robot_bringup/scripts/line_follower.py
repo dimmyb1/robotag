@@ -1090,6 +1090,7 @@ class line_follower(Node):
         
     #Graph Functions
     def calculateProbabilities(self):
+        self.get_logger().info("entered calculateProbabilities function")
         #let's say radar stores the closest ultrasonic ping in euclidean metric in self.ultrasonic_distance
         #we get two readings: first ping entering reading (self.entry_angle)
         # second ping exiting reading (self.exit_angle)
@@ -2139,6 +2140,7 @@ class line_follower(Node):
 
 
     def planDestination(self):
+        self.get_logger().info("entered planDestination function")
         CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
         CONSIDER_NODES = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
         choice = -1
