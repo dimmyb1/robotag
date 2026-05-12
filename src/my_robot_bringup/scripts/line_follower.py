@@ -507,6 +507,7 @@ class line_follower(Node):
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
 
         elif(self.imu_turning):
+
             target_yaw = {0: 0, 1: 270, 2: 180, 3: 90}
             target = target_yaw[self.imu_target]
 
@@ -515,6 +516,7 @@ class line_follower(Node):
 
             if target < ANGLE_TOLERANCE:
                 if (360+target) - ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + ANGLE_TOLERANCE:
+                    self.get_logger().info(f"in update_motion: target < 4 deg, toDep: {self.toDepart}")
                     #we have completed our turn.
                     self.imu_turning = False
                     self.imu_target = -1
@@ -525,6 +527,7 @@ class line_follower(Node):
                         self.toDepart = False #consume
                         self.departureTime = self.now
                         self.stateFollow = True
+                        self.get_logger().info("stateFollow is true, depart is false")
             else:
                 if target - ANGLE_TOLERANCE <= self.yaw_deg <= target + ANGLE_TOLERANCE:
                     #we have completed our turn.
