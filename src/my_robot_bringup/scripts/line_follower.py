@@ -972,7 +972,8 @@ class line_follower(Node):
         #based on 'elapsed', is it likely that we ended up at curr_dest?
         #if not, look at the neighbouring edges for what may have been the real curr_dest
         #when deploying a hypothesis, we say, well, if we were at bcln (curr_node), then we ended up at bc (curr_dest) based on the closest time bct
-        
+        NEGLIGABLE = 0.15
+
         if(self.firstNode):
             self.get_logger().info("SKIPPING COS FIRST NODE IS TRUE")
             return
@@ -980,6 +981,11 @@ class line_follower(Node):
         elapsed = self.now - self.departureTime
         maxTime = edgeTime + self.TIME_VARIANCE
         minTime = edgeTime - self.TIME_VARIANCE
+
+        if elapsed < NEGLIGABLE * edgeTime:
+            self.get_logger().info("This intersection looks to be a misfire. Skipping UpdatePos.")
+            self.dontUpdate = True
+            return
 
         #1. merit hk
         #for all non-None, non-empty hypotheses hk,
@@ -1050,7 +1056,7 @@ class line_follower(Node):
             self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hx}")
 
         else:
-            self.get_logger().info("traversal had expected time")
+            self.get_logger().info(f"traversal had expected time of {elapsed}s")
 
         #3. enroll hx:
         #where hx is either [] or [...]
@@ -2543,10 +2549,10 @@ class line_follower(Node):
                     self.stopMov()
 
                 self.allowCrawl = False
-                self.grayEntryTime = self.now
                 self.stationaryStartTime = -1  # no longer stationary — gray found
                 self.get_logger().info("Intersection detected!")
                 self.stopMov()
+                self.grayEntryTime = self.now
                 self.stateFollow = False
                 
                 if self.resetBehaviour:
@@ -2586,7 +2592,7 @@ class line_follower(Node):
 
 
                     
-
+                #1. self-localise
                 if type(self.current_destination) == list:
                     
                     #Update last node + current node
@@ -2598,7 +2604,9 @@ class line_follower(Node):
 
                             #localise using old values
                             self.self_localise(self.current_node.Times[self.current_destination[0]])
-
+                            if self.dontUpdate:
+                                return
+                            
                             #last node
                             self.last_node = self.current_node
 
@@ -2622,6 +2630,9 @@ class line_follower(Node):
                             elif self.current_node.Wc == self.current_destination[0]:
                                 self.self_localise(self.current_node.Times[3])
 
+                            if self.dontUpdate:
+                                return
+                            
                             #last node
                             self.last_node = self.current_node
 
@@ -2646,6 +2657,8 @@ class line_follower(Node):
                     elif self.current_node.Wc == self.current_destination:
                         self.self_localise(self.current_node.Times[3])
 
+                    if self.dontUpdate:
+                        return
                     #update current_node and last_node
                     if not self.firstNode:
                         self.last_node = self.current_node
@@ -3025,8 +3038,8 @@ class line_follower(Node):
 
         
         if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn:
-            if self.stateFollow:
-                self.get_logger().info("Set stateFollow to False in loop()")
+            if self.stateFollow: 
+                self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}")
             self.stateFollow = False
 
             #Stop sweep.
