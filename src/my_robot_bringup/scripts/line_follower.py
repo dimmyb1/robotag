@@ -574,7 +574,8 @@ class line_follower(Node):
 
     def crawlForward(self):
         self.get_logger().info("STARTING CRAWLING FORWARD")
-        self.start_motion(linear=+0.25, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25
+        self.start_motion(linear=+0.15, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25, trying .15 cos .25 was still too much
+
     #---------------------
     # Searching for Line
     #---------------------
@@ -2627,13 +2628,14 @@ class line_follower(Node):
 
                         elif type(self.current_destination[0]) == str:
                             #localise using old values
-                            if self.current_node.Nc == self.current_destination[0]:
+
+                            if self.current_node.Nc == self.current_destination[0] and self.imu_turning == 0:
                                 self.self_localise(self.current_node.Times[0])
-                            elif self.current_node.Ec == self.current_destination[0]:
+                            elif self.current_node.Ec == self.current_destination[0] and self.imu_turning == 1:
                                 self.self_localise(self.current_node.Times[1])
-                            elif self.current_node.Sc == self.current_destination[0]:
+                            elif self.current_node.Sc == self.current_destination[0] and self.imu_turning == 2:
                                 self.self_localise(self.current_node.Times[2])
-                            elif self.current_node.Wc == self.current_destination[0]:
+                            elif self.current_node.Wc == self.current_destination[0] and self.imu_turning == 3:
                                 self.self_localise(self.current_node.Times[3])
 
                             if self.dontUpdate:
@@ -2655,13 +2657,13 @@ class line_follower(Node):
                 else : #not list
 
                     #localise using old values
-                    if self.current_node.Nc == self.current_destination:
+                    if self.current_node.Nc == self.current_destination and self.imu_turning == 0:
                         self.self_localise(self.current_node.Times[0])
-                    elif self.current_node.Ec == self.current_destination:
+                    elif self.current_node.Ec == self.current_destination and self.imu_turning == 1:
                         self.self_localise(self.current_node.Times[1])
-                    elif self.current_node.Sc == self.current_destination:
+                    elif self.current_node.Sc == self.current_destination and self.imu_turning == 2:
                         self.self_localise(self.current_node.Times[2])
-                    elif self.current_node.Wc == self.current_destination:
+                    elif self.current_node.Wc == self.current_destination and self.imu_turning == 3:
                         self.self_localise(self.current_node.Times[3])
 
                     if self.dontUpdate:
