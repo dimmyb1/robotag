@@ -109,7 +109,7 @@ class line_follower(Node):
         self.stationaryStartTime = -1
         self.allowCrawl = True #make sure we start at an intersection
         self.crawlingForwardBeforeIMUturn = False
-        self.crawlingBackwards = True
+        self.crawlingBackwards = False
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
@@ -574,7 +574,7 @@ class line_follower(Node):
 
     def crawlForward(self):
         self.get_logger().info("STARTING CRAWLING FORWARD")
-        self.start_motion(linear=+0.35, duration_ms=0) 
+        self.start_motion(linear=+0.25, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25
     #---------------------
     # Searching for Line
     #---------------------
