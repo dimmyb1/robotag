@@ -3148,7 +3148,7 @@ class line_follower(Node):
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards:
+        if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn:
             self.get_logger().info("Set stateFollow to False in loop()")
             self.stateFollow = False
 
