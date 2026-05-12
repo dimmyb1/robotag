@@ -103,6 +103,7 @@ class line_follower(Node):
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
         self.dontSense = False
+        self.dontUpdate = False
         self.firstNode = True
         #self.haventMovedYet = True
         self.stationaryStartTime = -1
@@ -2605,6 +2606,7 @@ class line_follower(Node):
                             #localise using old values
                             self.self_localise(self.current_node.Times[self.current_destination[0]])
                             if self.dontUpdate:
+                                self.dontUpdate = False #consume
                                 return
                             
                             #last node
@@ -2631,6 +2633,7 @@ class line_follower(Node):
                                 self.self_localise(self.current_node.Times[3])
 
                             if self.dontUpdate:
+                                self.dontUpdate = False #consume
                                 return
                             
                             #last node
@@ -2658,6 +2661,7 @@ class line_follower(Node):
                         self.self_localise(self.current_node.Times[3])
 
                     if self.dontUpdate:
+                        self.dontUpdate = False #consume
                         return
                     #update current_node and last_node
                     if not self.firstNode:
