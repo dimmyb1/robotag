@@ -447,15 +447,15 @@ class line_follower(Node):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 50])
+        upper_black = np.array([180, 255, 25])
         mask = cv2.inRange(hsv, lower_black, upper_black)
         return cv2.countNonZero(mask) #(int) num of black pixels in img
     
     def detect_gray(self, img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         # returns a mask of black pixels in the image
-        lower_gray = np.array([0, 0, 50])
-        upper_gray = np.array([180, 50, 200])
+        lower_gray = np.array([0, 0, 26])
+        upper_gray = np.array([180, 255, 64])
         mask = cv2.inRange(hsv, lower_gray, upper_gray)
         return cv2.countNonZero(mask) #(int) num of gray pixels in img
     
