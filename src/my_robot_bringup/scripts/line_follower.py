@@ -606,6 +606,7 @@ class line_follower(Node):
     def clearGray(self):
         self.get_logger().info("Called clearGray - aligning before crawling forward")
         self.stopMov()
+        self.stateFollow = False
         target_yaw = {0: 0, 1: 270, 2: 180, 3: 90}
         
         target = target_yaw[self.facing]
@@ -615,6 +616,7 @@ class line_follower(Node):
 
             if target < self.ANGLE_TOLERANCE:
                 if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                    self.get_logger().info("already aligned")
                     #already aligned
                     self.aligning = False
                     self.crawlForward()
@@ -629,6 +631,7 @@ class line_follower(Node):
             else:
                 if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
                     #already aligned
+                    self.get_logger().info("already aligned")
                     self.aligning = False
                     self.crawlForward()
                     self.crawlingForwardBeforeIMUturn = True
