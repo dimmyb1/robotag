@@ -517,22 +517,22 @@ class line_follower(Node):
             if target < 0:
                 target+=360
 
-                if target < self.ANGLE_TOLERANCE:
-                    if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
-                        #aligned
-                        self.aligning = False
-                        self.stopMov()
+            if target < self.ANGLE_TOLERANCE:
+                if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                    #aligned
+                    self.aligning = False
+                    self.stopMov()
                         
-                        self.crawlForward()
-                        self.crawlingForwardBeforeIMUturn = True
-                else:
-                    if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
-                        #aligned
-                        self.aligning = False
-                        self.stopMov()
+                    self.crawlForward()
+                    self.crawlingForwardBeforeIMUturn = True
+            else:
+                if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                    #aligned
+                    self.aligning = False
+                    self.stopMov()
 
-                        self.crawlForward()
-                        self.crawlingForwardBeforeIMUturn = True
+                    self.crawlForward()
+                    self.crawlingForwardBeforeIMUturn = True
 
         elif self.crawlingForwardBeforeIMUturn and (self.isGray[0] <= self.minPixels) and (self.isGray[1] <= self.minPixels) and (self.isGray[2] <= self.minPixels):
             #keep crawling forwards until we aren't seeing any gray anymore.
@@ -637,6 +637,7 @@ class line_follower(Node):
                 self.crawlForward()
                 self.crawlingForwardBeforeIMUturn = True
             else:
+                self.get_logger().info(f"yaw_deg: {self.yaw_deg}")
                 self.aligning = True
                 error = (target - self.yaw_deg) % 360.0
                 if error <= 180:
