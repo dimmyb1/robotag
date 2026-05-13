@@ -600,6 +600,7 @@ class line_follower(Node):
         self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
 
     def crawlForward(self):
+        self.stopMov()
         self.get_logger().info("STARTED CRAWLING FORWARD")
         self.start_motion(linear=+0.15, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25, trying .15 cos .25 was still too much
 
@@ -623,7 +624,7 @@ class line_follower(Node):
                 self.crawlingForwardBeforeIMUturn = True
             else:
                 self.aligning = True
-                error = (target_yaw - self.yaw_deg) % 360.0
+                error = (target - self.yaw_deg) % 360.0
                 if error <= 180:
                     self.turnLeft(0)   # increase yaw
                 else:
@@ -637,7 +638,7 @@ class line_follower(Node):
                 self.crawlingForwardBeforeIMUturn = True
             else:
                 self.aligning = True
-                error = (target_yaw - self.yaw_deg) % 360.0
+                error = (target - self.yaw_deg) % 360.0
                 if error <= 180:
                     self.turnLeft(0)   # increase yaw
                 else:
