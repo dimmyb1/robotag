@@ -81,6 +81,7 @@ class line_follower(Node):
         self.searchStep = 0
         self.yaw_deg = 0 #IMU
         self.STARTUP_TIME = -1
+        self.ANGLE_TOLERANCE = 4
 
         #junction turning vars
         self.stateFollow = True
@@ -110,6 +111,7 @@ class line_follower(Node):
         self.allowCrawl = True #make sure we start at an intersection
         self.crawlingForwardBeforeIMUturn = False
         self.crawlingBackwards = False
+        self.aligning = False
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
@@ -496,7 +498,6 @@ class line_follower(Node):
 
     def update_motion(self):
         STARTED_FACING = 0
-        ANGLE_TOLERANCE = 4
         
         #self.get_logger().info(f"Turning... yaw={self.yaw_deg:.1f}, target={self.imu_target}")
         if self.motion_active and self.now >= self.motion_end_time:
@@ -508,6 +509,28 @@ class line_follower(Node):
             if self.crawlingBackwards:
                 self.crawlingBackwards = False
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
+        elif self.aligning:
+            
+            target_yaw = {0: 0, 1: 270, 2: 180, 3: 90}
+            target = target_yaw[self.facing]
+
+            if target < 0:
+                target+=360
+
+                if target < self.ANGLE_TOLERANCE:
+                    if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                        #aligned
+                        self.stopMov()
+                        
+                        self.crawlForward()
+                        self.crawlingForwardBeforeIMUturn = True
+                else:
+                    if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                        #aligned
+                        self.stopMov()
+
+                        self.crawlForward()
+                        self.crawlingForwardBeforeIMUturn = True
 
         elif self.crawlingForwardBeforeIMUturn and (self.isGray[0] <= self.minPixels) and (self.isGray[1] <= self.minPixels) and (self.isGray[2] <= self.minPixels):
             #keep crawling forwards until we aren't seeing any gray anymore.
@@ -524,8 +547,8 @@ class line_follower(Node):
             if target < 0:
                 target+=360
 
-            if target < ANGLE_TOLERANCE:
-                if (360+target) - ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + ANGLE_TOLERANCE:
+            if target < self.ANGLE_TOLERANCE:
+                if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
                     self.get_logger().info(f"in update_motion: target < 4 deg, toDep: {self.toDepart}")
                     #we have completed our turn.
                     self.imu_turning = False
@@ -539,7 +562,7 @@ class line_follower(Node):
                         self.stateFollow = True
                         self.get_logger().info("stateFollow is true, depart is false")
             else:
-                if target - ANGLE_TOLERANCE <= self.yaw_deg <= target + ANGLE_TOLERANCE:
+                if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
                     #we have completed our turn.
                     self.imu_turning = False
                     self.imu_target = -1
@@ -578,6 +601,41 @@ class line_follower(Node):
         self.get_logger().info("STARTING CRAWLING FORWARD")
         self.start_motion(linear=+0.15, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25, trying .15 cos .25 was still too much
 
+    def clearGray(self):
+        self.stopMov()
+        target_yaw = {0: 0, 1: 270, 2: 180, 3: 90}
+        
+        target = target_yaw[self.facing]
+
+        if target < 0:
+            target+=360
+
+            if target < self.ANGLE_TOLERANCE:
+                if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                    #already aligned
+                    self.crawlForward()
+                    self.crawlingForwardBeforeIMUturn = True
+                else:
+                    self.aligning = True
+                    error = (target_yaw - self.yaw_deg) % 360.0
+                    if error <= 180:
+                        self.turnLeft(0)   # increase yaw
+                    else:
+                        self.turnRight(0)  # decrease yaw
+            else:
+                if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                    #already aligned
+                    self.crawlForward()
+                    self.crawlingForwardBeforeIMUturn = True
+                else:
+                    self.aligning = True
+                    error = (target_yaw - self.yaw_deg) % 360.0
+                    if error <= 180:
+                        self.turnLeft(0)   # increase yaw
+                    else:
+                        self.turnRight(0)  # decrease yaw
+ 
+        
     #---------------------
     # Searching for Line
     #---------------------
@@ -2803,8 +2861,7 @@ class line_follower(Node):
                     if self.behaviourMode!=1:
                         if abs(self.facing - self.imu_target) in [1,3]:
                             #90 degree turn (riskiest for losing line)
-                            self.crawlForward()
-                            self.crawlingForwardBeforeIMUturn = True
+                            self.clearGray()
                         else:
                             self.startTurnBasedOnIMU()
                     else:
@@ -2979,12 +3036,12 @@ class line_follower(Node):
         if (self.now > self.startPauseTime + self.PAUSE_TIME) and self.paused:
             self.paused = False #consume
 
-        if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense and self.current_destination == [] and not self.crawlingForwardBeforeIMUturn:
+        if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense and self.current_destination == [] and not self.crawlingForwardBeforeIMUturn and not self.aligning:
             self.dontSense = False #consume
             self.triggerSweep = True
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn:
+        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
@@ -3004,7 +3061,7 @@ class line_follower(Node):
             self.initial_reading_taken = True
         
         #specifically when retrying
-        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn:
+        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
             self.postRetry = False
             self.checkUltra()
 
@@ -3037,7 +3094,7 @@ class line_follower(Node):
         self.surveillCapture()
         self.publish_tag_status()
 
-        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) and not self.crawlingForwardBeforeIMUturn:
+        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
             pass
         elif not self.waitingForUltrasonic:
             #check for intersection, reset behaviour from tag, update location and destination and target tracking
@@ -3048,7 +3105,7 @@ class line_follower(Node):
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn:
+        if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning:
             if self.stateFollow: 
                 self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}")
             self.stateFollow = False
