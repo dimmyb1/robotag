@@ -1098,11 +1098,11 @@ class line_follower(Node):
                                     bc = d[t]
                             
                             if type(self.current_destination) == str:
-                                if d[t] != self.current_destination:
+                                if d[t] != self.current_destination and d[t] not in new_hk:
                                     new_hk.append(d[t])
                             elif self.current_destination:
                                 #must be a list of integers
-                                if t != self.current_destination[0]:
+                                if t != self.current_destination[0] and t not in new_hk:
                                     new_hk.append(d[t])
                                 
 
