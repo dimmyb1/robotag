@@ -1876,6 +1876,8 @@ class line_follower(Node):
         p = self.getNodesFromEdge(enemyE)
         #p is a list of chars: 'A', or 'B', etc - 'H'
         for n in p:
+            if n not in unsafeNodes:
+                unsafeNodes.append(n)
             thisNode = self.returnNode(n)
             #check all of its neighbour nodes and add them to the list
             if thisNode.Nc not in unsafeNodes:
@@ -2047,6 +2049,7 @@ class line_follower(Node):
         
         thisNode = self.returnNode(enemyNCHAR)
         #check all of its neighbour nodes and add them to the list
+        unsafeNodes.append(enemyNCHAR)
         if thisNode.Nc not in unsafeNodes:
             unsafeNodes.append(thisNode.Nc)
         if thisNode.Ec not in unsafeNodes:
