@@ -1089,8 +1089,14 @@ class line_follower(Node):
                                     bcln = hn.name
                                     bc = d[t]
                             
-                            if d[t] != self.current_destination:
-                                new_hk.append(d[t])
+                            if type(self.current_destination) == str:
+                                if d[t] != self.current_destination:
+                                    new_hk.append(d[t])
+                            elif self.current_destination:
+                                #must be a list of integers
+                                if t != self.current_destination[0]:
+                                    new_hk.append(d[t])
+                                
 
                 hk.clear()
                 hk.extend(new_hk)
@@ -1885,6 +1891,9 @@ class line_follower(Node):
         #safeNodes = allNodes - unsafeNodes
         safeNodes = [s for s in allNodes if s not in unsafeNodes]
 
+        self.get_logger().info(f"unsafeNodes: {unsafeNodes}")
+        self.get_logger().info(f"safeNodes: {safeNodes}")
+
         #are we safe? then just wait here until the situation changes.
         if self.current_node.name in safeNodes:
             return []
@@ -1968,6 +1977,8 @@ class line_follower(Node):
         #safeNodes = allNodes - unsafeNodes
         safeNodes = [s for s in allNodes if s not in unsafeNodes]
 
+        self.get_logger().info(f"unsafeNodes: {unsafeNodes}")
+        self.get_logger().info(f"safeNodes: {safeNodes}")
         #are we safe? then just wait here until the situation changes.
         if self.current_node.name in safeNodes:
             return []
@@ -2052,6 +2063,7 @@ class line_follower(Node):
         self.get_logger().info(f"safe nodes: {safeNodes}")
         #are we safe? then just wait here until the situation changes.
         if self.current_node.name in safeNodes:
+            self.get_logger().info("current node in safe nodes - returning []")
             return []
             #a wait before next check on the receiving side of this function
             #to check for an empty path
@@ -2062,12 +2074,16 @@ class line_follower(Node):
         
         
         if self.current_node.Nc in safeNodes:
+            self.get_logger().info(f"going north because it's safe")
             return [0]
         elif self.current_node.Ec in safeNodes:
+            self.get_logger().info(f"going east because it's safe")
             return [1]
         elif self.current_node.Sc in safeNodes:
+            self.get_logger().info(f"going south because it's safe")
             return [2]
         elif self.current_node.Wc in safeNodes:
+            self.get_logger().info(f"going west because it's safe")
             return [3]
         
         #at this point, if you have a safeNode neighbour, you've left for it.
@@ -2077,12 +2093,17 @@ class line_follower(Node):
 
         #as long as we are not going to THE enemy node, we might have a chance to survive.
         if self.current_node.Nc != enemyNCHAR:
+            self.get_logger().info(f"going north because it's not the worst option imaginable")
             return [0]
         elif self.current_node.Ec != enemyNCHAR:
+            self.get_logger().info(f"going east because it's not the worst option imaginable")
+            
             return [1]
         elif self.current_node.Sc != enemyNCHAR:
+            self.get_logger().info(f"going south because it's not the worst option imaginable")
             return [2]
         elif self.current_node.Wc != enemyNCHAR:
+            self.get_logger().info(f"going west because it's not the worst option imaginable")
             return [3]
             
 
@@ -2690,13 +2711,14 @@ class line_follower(Node):
                             #last node
                             self.last_node = self.current_node
 
-                            if self.current_destination[0] == 0:
+                            top = self.current_destination.pop()
+                            if top == 0:
                                 self.current_node = self.returnNode(self.current_node.Nc)
-                            elif self.current_destination[0] == 1:
+                            elif top == 1:
                                 self.current_node = self.returnNode(self.current_node.Ec)
-                            elif self.current_destination[0] == 2:
+                            elif top == 2:
                                 self.current_node = self.returnNode(self.current_node.Sc)
-                            elif self.current_destination[0] == 3:
+                            elif top == 3:
                                 self.current_node = self.returnNode(self.current_node.Wc)
 
                         elif type(self.current_destination[0]) == str:
@@ -2718,7 +2740,7 @@ class line_follower(Node):
                             #last node
                             self.last_node = self.current_node
 
-                            self.current_node = self.returnNode(self.current_destination[0])
+                            self.current_node = self.returnNode(self.current_destination.pop())
                     
                     else: #empty list
                     
@@ -2780,12 +2802,12 @@ class line_follower(Node):
                         if type(self.current_destination[0]) == int:
                             #if it is a single number from 0 to 3, then it is an immediate neighbour 
                             #e.g. path = [2] i.e. go south
-                            self.imu_target = self.current_destination.pop(0)
+                            self.imu_target = self.current_destination[0]
                             tx = {0: self.current_node.Nc, 1: self.current_node.Ec, 2: self.current_node.Sc, 3: self.current_node.Wc}
                             t = tx[self.imu_target]
 
                             #update sweeping setting
-                            if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
+                            if (self.current_node.name == 'A' and self.imu_target == 0) or (self.current_node.name == 'B' and self.imu_target == 0) or (self.current_node.name == 'C' and self.imu_target == 1) or (self.current_node.name == 'D' and self.imu_target == 3) or (self.current_node.name == 'E' and self.imu_target == 0) or (self.current_node.name == 'F' and self.imu_target == 0) or (self.current_node.name == 'F' and self.imu_target == 3) or (self.current_node.name == 'G' and self.imu_target == 1) or (self.current_node.name == 'G' and self.imu_target == 2) or (self.current_node.name == 'G' and self.imu_target == 3) :
                                 #when left first is better than right first
                                 self.skipZero = True
                             else:
@@ -2803,7 +2825,7 @@ class line_follower(Node):
 
                             #if it is a char from A to H, then it is an immediate neighbour 
                             #e.g. path = ['A', 'B'] 
-                            neigh_name = self.current_destination.pop(0)
+                            neigh_name = self.current_destination[0]
                             if self.current_node.Nc == neigh_name and self.destination_id in [-1, 0]:
                                 self.imu_target = 0
                             elif self.current_node.Ec == neigh_name and self.destination_id in [-1, 1]:
