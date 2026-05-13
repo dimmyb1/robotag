@@ -509,13 +509,6 @@ class line_follower(Node):
             if self.crawlingBackwards:
                 self.crawlingBackwards = False
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
-        
-            #keep crawling forwards until we aren't seeing any gray anymore.
-            if self.crawlingForwardBeforeIMUturn:
-                self.crawlingForwardBeforeIMUturn = False
-                self.get_logger().info("Finished crawling forwards. Now onto the IMU-based turn.")
-                self.startTurnBasedOnIMU()
-        
         elif self.aligning:
             
             target_yaw = {0: 0, 1: 270, 2: 180, 3: 90}
@@ -541,12 +534,12 @@ class line_follower(Node):
                         self.crawlForward()
                         self.crawlingForwardBeforeIMUturn = True
 
-        # elif self.crawlingForwardBeforeIMUturn and (self.isGray[0] <= self.minPixels) and (self.isGray[1] <= self.minPixels) and (self.isGray[2] <= self.minPixels):
-        #     #keep crawling forwards until we aren't seeing any gray anymore.
-        #     self.stopMov()
-        #     self.crawlingForwardBeforeIMUturn = False
-        #     self.get_logger().info("Finished crawling forwards. Now onto the IMU-based turn.")
-        #     self.startTurnBasedOnIMU()
+        elif self.crawlingForwardBeforeIMUturn and (self.isGray[0] <= self.minPixels) and (self.isGray[1] <= self.minPixels) and (self.isGray[2] <= self.minPixels):
+            #keep crawling forwards until we aren't seeing any gray anymore.
+            self.stopMov()
+            self.crawlingForwardBeforeIMUturn = False
+            self.get_logger().info("Finished crawling forwards. Now onto the IMU-based turn.")
+            self.startTurnBasedOnIMU()
             
         elif(self.imu_turning):
 
@@ -609,8 +602,8 @@ class line_follower(Node):
     def crawlForward(self):
         self.stopMov()
         self.get_logger().info("STARTED CRAWLING FORWARD")
-        #self.start_motion(linear=+0.15, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25, trying .15 cos .25 was still too much
-        self.start_motion(linear= 0.35, duration_ms=500)
+        self.start_motion(linear=+0.15, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25, trying .15 cos .25 was still too much
+
     def clearGray(self):
         self.get_logger().info("Called clearGray - aligning before crawling forward")
         self.stopMov()
