@@ -2281,6 +2281,9 @@ class line_follower(Node):
                             self.current_destination = self.generateSafePathFromEnemyNode(toK)
                             nfound=True
                             break #stop iterating
+                    
+                    if nfound:
+                        break
                 
                 #otherwise:
                 #no -> try the closest one (if greedy search, then we try closest one and try again)
