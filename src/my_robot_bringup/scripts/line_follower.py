@@ -2784,9 +2784,23 @@ class line_follower(Node):
                             tx = {0: self.current_node.Nc, 1: self.current_node.Ec, 2: self.current_node.Sc, 3: self.current_node.Wc}
                             t = tx[self.imu_target]
 
+                            #update sweeping setting
+                            if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
+                                #when left first is better than right first
+                                self.skipZero = True
+                            else:
+                                self.skipZero = False
+
 
 
                         elif type(self.current_destination[0]) == str:
+                            #update sweeping setting
+                            if (self.current_node.name == 'A' and self.current_destination[0] == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination[0] == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination[0] == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination[0] == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination[0] == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Wc) :
+                                #when left first is better than right first
+                                self.skipZero = True
+                            else:
+                                self.skipZero = False
+
                             #if it is a char from A to H, then it is an immediate neighbour 
                             #e.g. path = ['A', 'B'] 
                             neigh_name = self.current_destination.pop(0)
@@ -2801,25 +2815,34 @@ class line_follower(Node):
                             
                             t = neigh_name
 
-                    elif self.behaviourMode != 2:
-                        #then it is a char from A to H, and it is an immediate neighbour 
-                        #e.g. path = 'A'
-                        if self.current_node.Nc == self.current_destination and self.destination_id in [-1, 0]:
-                            self.imu_target = 0
-                        elif self.current_node.Ec == self.current_destination and self.destination_id in [-1, 1]:
-                            self.imu_target = 1
-                        elif self.current_node.Sc == self.current_destination and self.destination_id in [-1, 2]:
-                            self.imu_target = 2
-                        elif self.current_node.Wc == self.current_destination and self.destination_id in [-1, 3]:
-                            self.imu_target = 3
+                    else: #not a list, just a char
+
+                        if self.behaviourMode != 2: #if not random
+                            #then it is a char from A to H, and it is an immediate neighbour 
+                            #e.g. path = 'A'
+                            if self.current_node.Nc == self.current_destination and self.destination_id in [-1, 0]:
+                                self.imu_target = 0
+                            elif self.current_node.Ec == self.current_destination and self.destination_id in [-1, 1]:
+                                self.imu_target = 1
+                            elif self.current_node.Sc == self.current_destination and self.destination_id in [-1, 2]:
+                                self.imu_target = 2
+                            elif self.current_node.Wc == self.current_destination and self.destination_id in [-1, 3]:
+                                self.imu_target = 3
+                        #else:
+                            #BEHAVIOURMODE == 2 (RANDOM)
+                            #imu target was already set inside of planDestination
+                            #therefore we just need to set t
+
 
                         t = self.current_destination
 
-                    else:
-                        #BEHAVIOURMODE == 2 (RANDOM)
-                        #imu target was already set inside of planDestination
-                        #therefore we just need to set t
-                        t = self.current_destination
+                        #update sweep setting
+                        if (self.current_node.name == 'A' and self.current_destination == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination == self.G.Wc) :
+                            #when left first is better than right first
+                            self.skipZero = True
+                        else:
+                            self.skipZero = False
+
 
 
 
@@ -2882,18 +2905,14 @@ class line_follower(Node):
                         self.toDepart = False #consume
                         self.departureTime = self.now
 
-                    #update sweeping setting
-                    if (self.current_node.name == 'A' and self.current_destination[0] == 0) or (self.current_node.name == 'B' and self.current_destination[0] == 0) or (self.current_node.name == 'C' and self.current_destination[0] == 1) or (self.current_node.name == 'D' and self.current_destination[0] == 3) or (self.current_node.name == 'E' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 0) or (self.current_node.name == 'F' and self.current_destination[0] == 3) or (self.current_node.name == 'G' and self.current_destination[0] == 1) or (self.current_node.name == 'G' and self.current_destination[0] == 2) or (self.current_node.name == 'G' and self.current_destination[0] == 3) :
-                        #when left first is better than right first
-                        self.skipZero = True
-                    else:
-                        self.skipZero = False
 
                 else:
                    #empty destination
                     self.senseEntryTime = self.now
                     self.dontSense = True
                     self.stateFollow = False
+
+
 
                 self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
