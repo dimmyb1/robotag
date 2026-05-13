@@ -462,6 +462,14 @@ class line_follower(Node):
         lower_gray = np.array([0, 0, 26])
         upper_gray = np.array([180, 255, 64])
         mask = cv2.inRange(hsv, lower_gray, upper_gray)
+
+        #for debugging
+        gray_pixels = hsv[mask > 0]
+        # sort by V channel (brightness)
+        gray_pixels = gray_pixels[np.argsort(gray_pixels[:, 2])]
+        self.get_logger().info(f"GRAY: {gray_pixels[:20]}")   # darkest 20 detected pixels
+
+
         return cv2.countNonZero(mask) #(int) num of gray pixels in img
     
     def ir_L_callback(self, msg):
@@ -2653,7 +2661,7 @@ class line_follower(Node):
 
                 self.allowCrawl = False
                 self.stationaryStartTime = -1  # no longer stationary — gray found
-                self.get_logger().info("Intersection detected!")
+                self.get_logger().info(f"Intersection detected! Gray values: {self.isGray}; reminder minPixels is {self.minPixels}")
                 self.stopMov()
                 self.grayEntryTime = self.now
                 self.stateFollow = False
