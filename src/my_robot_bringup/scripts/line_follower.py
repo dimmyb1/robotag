@@ -3114,7 +3114,7 @@ class line_follower(Node):
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning:
+        if self.retryPlan != 0 or self.postRetry or self.paused or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning:
             if self.stateFollow: 
                 self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}, aligning: {self.aligning}")
             self.stateFollow = False
@@ -3125,6 +3125,8 @@ class line_follower(Node):
                 self.multiple = False
                 self.publish_sweep_command()
 
+        elif self.current_destination == []:
+            self.stateFollow = False
         elif(not self.firstNode and self.current_destination != []):
             self.stateFollow = True
             self.allowCrawl = False
