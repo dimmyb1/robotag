@@ -2721,6 +2721,9 @@ class line_follower(Node):
                             elif top == 3:
                                 self.current_node = self.returnNode(self.current_node.Wc)
 
+                            if not self.current_destination:
+                                self.current_destination = 'Z'
+
                         elif type(self.current_destination[0]) == str:
                             #localise using old values
 
@@ -2741,6 +2744,8 @@ class line_follower(Node):
                             self.last_node = self.current_node
 
                             self.current_node = self.returnNode(self.current_destination.pop())
+                            if not self.current_destination:
+                                self.current_destination = 'Z'
                     
                     else: #empty list
                     
