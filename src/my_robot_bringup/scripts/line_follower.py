@@ -2044,10 +2044,11 @@ class line_follower(Node):
         if thisNode.Wc not in unsafeNodes:
             unsafeNodes.append(thisNode.Wc)
 
+        self.get_logger().info(f"unsafe nodes: {unsafeNodes}")
         allNodes = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H']
         #safeNodes = allNodes - unsafeNodes
         safeNodes = [s for s in allNodes if s not in unsafeNodes]
-
+        self.get_logger().info(f"safe nodes: {safeNodes}")
         #are we safe? then just wait here until the situation changes.
         if self.current_node.name in safeNodes:
             return []
