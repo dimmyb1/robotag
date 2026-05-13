@@ -3112,7 +3112,7 @@ class line_follower(Node):
         
         if self.retryPlan != 0 or self.postRetry or self.paused or self.current_destination == [] or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning:
             if self.stateFollow: 
-                self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}")
+                self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}, aligning: {self.aligning}")
             self.stateFollow = False
 
             #Stop sweep.
