@@ -598,10 +598,11 @@ class line_follower(Node):
         self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
 
     def crawlForward(self):
-        self.get_logger().info("STARTING CRAWLING FORWARD")
+        self.get_logger().info("STARTED CRAWLING FORWARD")
         self.start_motion(linear=+0.15, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25, trying .15 cos .25 was still too much
 
     def clearGray(self):
+        self.get_logger().info("Called clearGray - aligning before crawling forward")
         self.stopMov()
         target_yaw = {0: 0, 1: 270, 2: 180, 3: 90}
         
