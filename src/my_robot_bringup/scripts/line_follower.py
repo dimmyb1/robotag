@@ -614,34 +614,34 @@ class line_follower(Node):
         if target < 0:
             target+=360
 
-            if target < self.ANGLE_TOLERANCE:
-                if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
-                    self.get_logger().info("already aligned")
-                    #already aligned
-                    self.aligning = False
-                    self.crawlForward()
-                    self.crawlingForwardBeforeIMUturn = True
-                else:
-                    self.aligning = True
-                    error = (target_yaw - self.yaw_deg) % 360.0
-                    if error <= 180:
-                        self.turnLeft(0)   # increase yaw
-                    else:
-                        self.turnRight(0)  # decrease yaw
+        if target < self.ANGLE_TOLERANCE:
+            if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                self.get_logger().info("already aligned")
+                #already aligned
+                self.aligning = False
+                self.crawlForward()
+                self.crawlingForwardBeforeIMUturn = True
             else:
-                if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
-                    #already aligned
-                    self.get_logger().info("already aligned")
-                    self.aligning = False
-                    self.crawlForward()
-                    self.crawlingForwardBeforeIMUturn = True
+                self.aligning = True
+                error = (target_yaw - self.yaw_deg) % 360.0
+                if error <= 180:
+                    self.turnLeft(0)   # increase yaw
                 else:
-                    self.aligning = True
-                    error = (target_yaw - self.yaw_deg) % 360.0
-                    if error <= 180:
-                        self.turnLeft(0)   # increase yaw
-                    else:
-                        self.turnRight(0)  # decrease yaw
+                    self.turnRight(0)  # decrease yaw
+        else:
+            if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
+                #already aligned
+                self.get_logger().info("already aligned")
+                self.aligning = False
+                self.crawlForward()
+                self.crawlingForwardBeforeIMUturn = True
+            else:
+                self.aligning = True
+                error = (target_yaw - self.yaw_deg) % 360.0
+                if error <= 180:
+                    self.turnLeft(0)   # increase yaw
+                else:
+                    self.turnRight(0)  # decrease yaw
  
         
     #---------------------
@@ -3102,7 +3102,7 @@ class line_follower(Node):
         self.surveillCapture()
         self.publish_tag_status()
 
-        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
+        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning:
             pass
         elif not self.waitingForUltrasonic:
             #check for intersection, reset behaviour from tag, update location and destination and target tracking
