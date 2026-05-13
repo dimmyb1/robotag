@@ -1317,7 +1317,7 @@ class line_follower(Node):
                     diffY = -1 * math.ceil(diffX * math.tan(lesserServo))
 
                     iy = y -1
-                    while(y>-1):
+                    while(iy>-1):
                         if iy >= math.ceil(diffY / 2):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
@@ -1334,7 +1334,7 @@ class line_follower(Node):
                     diffY = -1 * math.ceil(diffX * math.tan(biggerServo))
 
                     iy = y -1
-                    while(y>-1):
+                    while(iy>-1):
                         if iy >= math.ceil(diffY / 2):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
@@ -1464,7 +1464,7 @@ class line_follower(Node):
                     diffY = math.ceil(diffX * math.tan(biggerServo))
 
                     iy = y -1
-                    while(y>-1):
+                    while(iy>-1):
                         if iy >= math.ceil(diffY / 2):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
@@ -1481,7 +1481,7 @@ class line_follower(Node):
                     diffY = math.ceil(diffX * math.tan(lesserServo))
 
                     iy = y -1
-                    while(y>-1):
+                    while(iy>-1):
                         if iy >= math.ceil(diffY / 2):
                             #we need to do the diffY/2 ones at this ix value
                             for ix in range(math.ceil(diffX/2)):
