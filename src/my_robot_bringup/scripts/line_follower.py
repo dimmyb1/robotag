@@ -520,6 +520,7 @@ class line_follower(Node):
                 if target < self.ANGLE_TOLERANCE:
                     if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
                         #aligned
+                        self.aligning = False
                         self.stopMov()
                         
                         self.crawlForward()
@@ -527,6 +528,7 @@ class line_follower(Node):
                 else:
                     if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
                         #aligned
+                        self.aligning = False
                         self.stopMov()
 
                         self.crawlForward()
@@ -614,6 +616,7 @@ class line_follower(Node):
             if target < self.ANGLE_TOLERANCE:
                 if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
                     #already aligned
+                    self.aligning = False
                     self.crawlForward()
                     self.crawlingForwardBeforeIMUturn = True
                 else:
@@ -626,6 +629,7 @@ class line_follower(Node):
             else:
                 if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
                     #already aligned
+                    self.aligning = False
                     self.crawlForward()
                     self.crawlingForwardBeforeIMUturn = True
                 else:
