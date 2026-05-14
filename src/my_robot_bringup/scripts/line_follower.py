@@ -3051,6 +3051,11 @@ class line_follower(Node):
 
             self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {self.evading}")
 
+            #clear old values before going in to not propogate stale values.
+            self.entry_angle = float('inf')
+            self.exit_angle = float('inf')
+            self.ultrasonic_distance = float('inf')
+
 
 
     def checkUltra(self):
