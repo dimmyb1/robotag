@@ -449,26 +449,27 @@ class line_follower(Node):
     #Line Following Functions
     def detect_black(self, img):
         # Convert BGR (OpenCV default) to HSV
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
         # returns a mask of black pixels in the image
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 25])
+        upper_black = np.array([0, 0, 12])
         mask = cv2.inRange(hsv, lower_black, upper_black)
         return cv2.countNonZero(mask) #(int) num of black pixels in img
     
     def detect_gray(self, img):
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
         # returns a mask of black pixels in the image
-        lower_gray = np.array([0, 0, 26])
-        upper_gray = np.array([180, 255, 64])
+        #these are tuned for ultramarine blue
+        lower_gray = np.array([100, 200, 30])
+        upper_gray = np.array([130, 250, 130])
         mask = cv2.inRange(hsv, lower_gray, upper_gray)
 
         #for debugging
-        #gray_pixels = hsv[mask > 0]
+        gray_pixels = hsv[mask > 0]
         # sort by V channel (brightness)
-        #gray_pixels = gray_pixels[np.argsort(gray_pixels[:, 2])]
-        #self.get_logger().info(f"GRAY: {gray_pixels[:20]}")   # darkest 20 detected pixels
-        self.get_logger().info(f"HSV: {hsv.reshape(-1,3)}")
+        gray_pixels = gray_pixels[np.argsort(gray_pixels[:, 2])]
+        self.get_logger().info(f"GRAY: {gray_pixels[:20]}")   # darkest 20 detected pixels
+        #self.get_logger().info(f"HSV: {hsv.reshape(-1,3)}")
 
 
         return cv2.countNonZero(mask) #(int) num of gray pixels in img
