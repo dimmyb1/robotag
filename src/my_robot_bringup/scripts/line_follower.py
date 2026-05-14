@@ -465,10 +465,10 @@ class line_follower(Node):
         mask = cv2.inRange(hsv, lower_gray, upper_gray)
 
         #for debugging
-        gray_pixels = hsv[mask > 0]
+        #gray_pixels = hsv[mask > 0]
         # sort by V channel (brightness)
-        gray_pixels = gray_pixels[np.argsort(gray_pixels[:, 2])]
-        self.get_logger().info(f"GRAY: {gray_pixels[:20]}")   # darkest 20 detected pixels
+        #gray_pixels = gray_pixels[np.argsort(gray_pixels[:, 2])]
+        #self.get_logger().info(f"GRAY: {gray_pixels[:20]}")   # darkest 20 detected pixels
         #self.get_logger().info(f"HSV: {hsv.reshape(-1,3)}")
 
 
