@@ -2815,6 +2815,7 @@ class line_follower(Node):
                 elif not self.stepping:
                     #Update destination
                     self.planDestination()
+                    self.goAhead = False #consume
 
                 self.get_logger().info("exited planDestination function")
                 #COMMON
