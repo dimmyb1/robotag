@@ -112,6 +112,8 @@ class line_follower(Node):
         self.crawlingForwardBeforeIMUturn = False
         self.crawlingBackwards = False
         self.aligning = False
+        self.lookAround = False
+        self.goAhead = False
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
@@ -2649,24 +2651,32 @@ class line_follower(Node):
         #update current variables
          #do some check to ensure we aren't being triggered by the last gray section we saw
         #blocked if we are turning while currently at an intersection.
-        if (not self.toDepart and not self.imu_turning and self.grayEntryTime < self.now - self.GRAY_COOLDOWN):
+        if (not self.toDepart and not self.imu_turning and self.grayEntryTime < self.now - self.GRAY_COOLDOWN) or self.goAhead:
             #if gray detected:
             # or self.haventMovedYet
             if (self.isGray[0] > self.minPixels) or (self.isGray[1] > self.minPixels)  or (self.isGray[2] > self.minPixels):
+                self.get_logger().info(f"Intersection detected! Gray values: {self.isGray}; reminder minPixels is {self.minPixels}")
+                self.stopMov()
+                self.grayEntryTime = self.now
+                self.stateFollow = False
+                self.allowCrawl = False
+                self.stationaryStartTime = -1  # no longer stationary — gray found
+
                 # Stop crawling the moment gray comes back (checked on next tick via the
                 # if-branch above, but we also guard here in case the scan arrives mid-crawl).
                 # The motion_active flag means crawlBack is still running its short burst;
                 # if gray is now visible, cancel it.
                 if self.motion_active:
                     self.get_logger().info("Gray re-detected while crawling back — stopping.")
-                    self.stopMov()
 
-                self.allowCrawl = False
-                self.stationaryStartTime = -1  # no longer stationary — gray found
-                self.get_logger().info(f"Intersection detected! Gray values: {self.isGray}; reminder minPixels is {self.minPixels}")
-                self.stopMov()
-                self.grayEntryTime = self.now
-                self.stateFollow = False
+                if self.behaviourMode in [3,5] and not self.lookAround and not self.goAhead:
+                    self.lookAround = True
+                    return
+                
+
+                
+                
+                
                 
                 if self.resetBehaviour:
                     self.firstNode = True
@@ -3212,8 +3222,10 @@ class line_follower(Node):
             self.dontSense = False #consume
             self.triggerSweep = True
 
-        if self.behaviourMode in [3,5] and self.current_destination == []:
+        if self.behaviourMode in [3,5] and self.lookAround:
             self.triggerSweep = True
+            self.lookAround = False #consume
+        
 
         #Ultrasonic Sweep Modes
         if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
@@ -3293,20 +3305,21 @@ class line_follower(Node):
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.postRetry or self.paused or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning:
+        if self.retryPlan != 0 or self.postRetry or self.lookAround or self.paused or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning:
             if self.stateFollow: 
                 self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}, aligning: {self.aligning}")
             self.stateFollow = False
 
             #Stop sweep.
-            if (self.sweep or self.multiple) and not self.waitingForUltrasonic:
+            if (self.sweep or self.multiple) and not self.waitingForUltrasonic and not self.lookAround:
                 self.sweep = False
                 self.multiple = False
                 self.publish_sweep_command()
 
-        elif self.current_destination == []:
+        elif self.current_destination == [] and self.behaviourMode == 4:
             self.stateFollow = False
-        elif(not self.firstNode and self.current_destination != []):
+
+        elif not self.firstNode:
             self.stateFollow = True
             self.allowCrawl = False
         
