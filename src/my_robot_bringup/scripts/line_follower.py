@@ -260,17 +260,17 @@ class line_follower(Node):
             self.current_node = self.H
             self.get_logger().info("Detected robot: twix. Starting at Node H.")
             other_robot_name = 'twirl'
-            self.behaviourMode = 4
-            self.evading = True
+            self.behaviourMode = 3
+            self.evading = False
         elif robot_name == 'twirl':
             self.current_node = self.A
             self.get_logger().info("Detected robot: twirl. Starting at Node A.")
             other_robot_name = 'twix'
-            # self.behaviourMode = 1
-            # self.evading = False
-            # self.i_patrol = 0
-            self.behaviourMode = 2
+            self.behaviourMode = 1
             self.evading = True
+            self.i_patrol = 0
+            #self.behaviourMode = 2
+            #self.evading = True
         else:
             # Fallback in case you run it without a namespace
             self.current_node = self.A 
