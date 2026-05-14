@@ -114,6 +114,7 @@ class line_follower(Node):
         self.aligning = False
         self.lookAround = False
         self.goAhead = False
+        self.stepping = False
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
@@ -2669,14 +2670,6 @@ class line_follower(Node):
                 if self.motion_active:
                     self.get_logger().info("Gray re-detected while crawling back — stopping.")
 
-                if self.behaviourMode in [3,5] and not self.lookAround and not self.goAhead:
-                    self.lookAround = True
-                    return
-                
-
-                
-                
-                
                 
                 if self.resetBehaviour:
                     self.firstNode = True
@@ -2720,7 +2713,7 @@ class line_follower(Node):
                     
                     #Update last node + current node
                     #self.current_node = self.current_destination
-                    if(self.current_destination):
+                    if(self.current_destination) and not self.goAhead:
 
                         #current node
                         if type(self.current_destination[0]) == int:
@@ -2799,7 +2792,7 @@ class line_follower(Node):
 
                 #COMMON
 
-                if self.current_destination == []:
+                if self.current_destination == [] and self.behaviourMode == 4:
                     #when sensing cooldown expires, look again.
                     if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
                         self.stateFollow = False
@@ -2812,10 +2805,14 @@ class line_follower(Node):
                     
                     self.dontSense = False
 
+                elif self.behaviourMode in [3,5] and not self.lookAround and not self.goAhead:
+                    self.lookAround = True
+                    return
                     #if we got this far, we have directions to go somewhere
                     #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
                     #Check which one, if it is a list, we must iterate over it as it is a long path.
-                else:
+
+                elif not self.stepping:
                     #Update destination
                     self.planDestination()
 
@@ -3251,7 +3248,7 @@ class line_follower(Node):
         if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn and not self.aligning:
             self.postRetry = False
             self.checkUltra()
-            stepping = False
+            self.stepping = False
 
             if self.retryPlan != 0:
                 # Still can't plan — set up another retry turn
@@ -3260,11 +3257,22 @@ class line_follower(Node):
                 self.retryAttempts +=1
                 if self.retryAttempts >=3 and self.retryPlan not in [-2,-3]:
                     if self.behaviourMode in [3,5]:
-                        #proactive search
-                        self.takeStep()
-                        stepping = True
-                        self.imu_target = self.current_destination[0]
-                        self.toDepart = True
+
+                        if self.current_destination == [] or type(self.current_destination) == str:
+                            #if we've exhausted our plan or if we are still at our first node
+                            #proactive search
+                            self.takeStep()
+                            self.stepping = True
+                            self.imu_target = self.current_destination[0]
+                            self.toDepart = True
+
+                        elif self.current_destination:
+                            #if we have a plan, just keep following it, dont waste time searching here
+                            self.goAhead = True
+                            self.imu_target = self.current_destination[0]
+                            self.toDepart = True
+
+                        
                         self.retryAttempts = 0
                     else:
                         #passive
@@ -3281,14 +3289,18 @@ class line_follower(Node):
                         self.retryAttempts = 0
                         targets = {}
 
-                if not stepping:
+                if not self.stepping:
                     self.imu_target = targets.get(self.facing, -1)
                 
                 self.startTurnBasedOnIMU()
             
             else:
+                #checkUltra returned clear
                 self.retryAttempts = 0
                 self.allowCrawl = True
+
+                if self.behaviourMode in [3,5]:
+                    self.goAhead = True
 
         #check for tags and publish status
         self.surveillCapture()
