@@ -3266,15 +3266,16 @@ class line_follower(Node):
                             self.stepping = True
                             self.imu_target = self.current_destination[0]
                             self.toDepart = True
-
+                            self.get_logger().info(f"stepping to {self.imu_target}")
                         elif self.current_destination:
                             #if we have a plan, just keep following it, dont waste time searching here
                             self.goAhead = True
                             self.imu_target = self.current_destination[0]
                             self.toDepart = True
+                            self.get_logger().info("progressing with saved plan.")
 
-                        
                         self.retryAttempts = 0
+                        self.get_logger().info("Departing via 3,5 beh.")
                     else:
                         #passive
                         #don't keep turning 180s, do a finer grain search
@@ -3302,6 +3303,7 @@ class line_follower(Node):
 
                 if self.behaviourMode in [3,5]:
                     self.goAhead = True
+                    self.get_logger().info("going ahead and generating a new path based on latest findings.")
 
         #check for tags and publish status
         self.surveillCapture()
