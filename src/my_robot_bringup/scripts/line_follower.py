@@ -3119,10 +3119,10 @@ class line_follower(Node):
         elif c == 'C':
             if l in ['B', 'D']:
                 if l == 'B':
-                    ch = 3
+                    ch = 2
 
                 elif l == 'D':
-                    ch = 2
+                    ch = 3
 
                 self.current_destination = [ch]
             else:
