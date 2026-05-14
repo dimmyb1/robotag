@@ -3236,6 +3236,7 @@ class line_follower(Node):
         if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
             self.postRetry = False
             self.checkUltra()
+            stepping = False
 
             if self.retryPlan != 0:
                 # Still can't plan — set up another retry turn
@@ -3244,9 +3245,14 @@ class line_follower(Node):
                 self.retryAttempts +=1
                 if self.retryAttempts >=3 and self.retryPlan not in [-2,-3]:
                     if self.behaviourMode in [3,5]:
+                        #proactive search
                         self.takeStep()
-                    #don't keep turning 180s, do a finer grain search
-                    targets = {0: 1, 2: 3, 1: 2, 3: 0}
+                        stepping = True
+                        self.imu_target = self.current_destination[0]
+                    else:
+                        #passive
+                        #don't keep turning 180s, do a finer grain search
+                        targets = {0: 1, 2: 3, 1: 2, 3: 0}
                 else:
                     if self.retryPlan == -1:
                         targets = {0: 2, 2: 0, 1: 3, 3: 1}
@@ -3257,7 +3263,10 @@ class line_follower(Node):
                     else:
                         self.retryAttempts = 0
                         targets = {}
-                self.imu_target = targets.get(self.facing, -1)
+
+                if not stepping:
+                    self.imu_target = targets.get(self.facing, -1)
+                
                 self.startTurnBasedOnIMU()
             
             else:
