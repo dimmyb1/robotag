@@ -3212,6 +3212,9 @@ class line_follower(Node):
             self.dontSense = False #consume
             self.triggerSweep = True
 
+        if self.behaviourMode in [3,5] and self.current_destination == []:
+            self.triggerSweep = True
+
         #Ultrasonic Sweep Modes
         if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
             #trigger single sweep
@@ -3233,7 +3236,7 @@ class line_follower(Node):
             self.initial_reading_taken = True
         
         #specifically when retrying
-        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
+        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn and not self.aligning:
             self.postRetry = False
             self.checkUltra()
             stepping = False
@@ -3249,6 +3252,8 @@ class line_follower(Node):
                         self.takeStep()
                         stepping = True
                         self.imu_target = self.current_destination[0]
+                        self.toDepart = True
+                        self.retryAttempts = 0
                     else:
                         #passive
                         #don't keep turning 180s, do a finer grain search
