@@ -3093,7 +3093,101 @@ class line_follower(Node):
             
         #else, it's safe to continue
 
+    def takeStep(self):
+        c = self.current_node.name
+        l = self.last_node.name
+        if c == 'A':
+            self.current_destination = [1]
 
+        elif c == 'B':
+            if l in ['A', 'C', 'D']:
+                choice = random.randint(1,2)
+                if l == 'A':
+                    ch = {1: 1, 2: 2}
+
+                elif l == 'C':
+                    ch = {1: 3, 2: 2}
+
+                elif l == 'D':
+                    ch = {1: 1, 2: 3}
+
+                self.current_destination = [ch[choice]]
+            else:
+                choice = random.randint(1,3) #both inclusive
+                self.current_destination = [choice]
+
+        elif c == 'C':
+            if l in ['B', 'D']:
+                if l == 'B':
+                    ch = 3
+
+                elif l == 'D':
+                    ch = 2
+
+                self.current_destination = [ch]
+            else:
+                choice = random.randint(2,3) #both inclusive
+                self.current_destination = [choice]
+            
+        elif c == 'D':
+            if l in ['B', 'C', 'D']:
+                choice = random.randint(1,2)
+                if l == 'B':
+                    ch = {1: 0, 2: 2}
+
+                elif l == 'C':
+                    ch = {1: 3, 2: 2}
+
+                elif l == 'D':
+                    ch = {1: 0, 2: 3}
+
+                self.current_destination = [ch[choice]]
+            else:
+                choice = random.randint(1,3) #both inclusive
+                if choice == 1:
+                    choice = 0
+                
+                self.current_destination = [choice]
+            
+        elif c == 'E':
+            self.current_destination = [1]
+
+        elif c == 'F':
+            if l in ['G', 'E', 'D']:
+                choice = random.randint(1,2)
+                if l == 'G':
+                    ch = {1: 3, 2: 1}
+
+                elif l == 'E':
+                    ch = {1: 1, 2: 2}
+
+                elif l == 'D':
+                    ch = {1: 2, 2: 3}
+
+                self.current_destination = [ch[choice]]
+            else:
+                choice = random.randint(1,3) #both inclusive
+                
+                self.current_destination = [choice]
+        
+        elif c == 'G':
+            if l in ['F', 'H']:
+                if l == 'F':
+                    ch = 1
+
+                elif l == 'H':
+                    ch = 0
+
+                self.current_destination = [ch]
+            else:
+                choice = random.randint(0,1) #both inclusive
+                self.current_destination = [choice]
+
+        elif c == 'H':
+            self.current_destination = [3]
+            
+
+            
     
     def loop(self):
         STARTUP_WAIT = 7
@@ -3149,6 +3243,8 @@ class line_follower(Node):
 
                 self.retryAttempts +=1
                 if self.retryAttempts >=3 and self.retryPlan not in [-2,-3]:
+                    if self.behaviourMode in [3,5]:
+                        self.takeStep()
                     #don't keep turning 180s, do a finer grain search
                     targets = {0: 1, 2: 3, 1: 2, 3: 0}
                 else:
