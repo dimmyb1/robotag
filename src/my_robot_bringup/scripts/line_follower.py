@@ -3277,6 +3277,7 @@ class line_follower(Node):
                         elif self.current_destination:
                             #if we have a plan, just keep following it, dont waste time searching here
                             self.goAhead = True
+                            self.stepping = True #not actually stepping but it's a good check to use in updatePlan
                             self.destination_id = -1
                             self.imu_target = self.current_destination[0]
                             self.toDepart = True
