@@ -104,7 +104,7 @@ class line_follower(Node):
         self.senseEntryTime = -1
         self.SENSE_COOLDOWN = 6 #tried 5 but seemed low
         self.dontSense = False
-        self.dontUpdate = False
+        self.dontUpdate = False # for when an intersection misfire is detected
         self.firstNode = True
         #self.haventMovedYet = True
         self.stationaryStartTime = -1
@@ -112,6 +112,8 @@ class line_follower(Node):
         self.crawlingForwardBeforeIMUturn = False
         self.crawlingBackwards = False
         self.aligning = False
+
+        #beh modes 3 and 5
         self.lookAround = False
         self.goAhead = False
         self.stepping = False
@@ -3103,6 +3105,8 @@ class line_follower(Node):
                 self.retryPlan = -3
             
         #else, it's safe to continue
+        if self.behaviourMode in [3,5] and self.retryPlan == 0 and self.firstNode:
+            self.goAhead = True
 
     def takeStep(self):
         c = self.current_node.name
