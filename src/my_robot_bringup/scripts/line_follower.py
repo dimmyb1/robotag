@@ -354,8 +354,8 @@ class line_follower(Node):
         if self.initiated_tag:
             if not self.ack and not self.other_ack:
                 #deadlock: both trying to initiate. I will back down
-                #copying first case of else
-                if (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
+                #deterministic resolution, if i am twix, then im the one who needs to back down.
+                if (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and self.get_namespace().strip('/') == 'twix':
                     self.initiated_tag = False
                     self.tag = True
                     self.ack = True
@@ -3005,11 +3005,10 @@ class line_follower(Node):
         #check tag dry-run dated 8 may for full discussion
         
         #TAG
-        if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag:
+        if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag and not self.initiated_tag and not self.tag:
             self.initiated_tag = True
             self.get_logger().info("Initiating tag...")
-        else:
-            self.initiated_tag = False #don't let it keep going 
+        
 
         if self.doTag:
             self.doTag = False #consume command
