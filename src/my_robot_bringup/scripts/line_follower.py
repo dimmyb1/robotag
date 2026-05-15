@@ -165,7 +165,7 @@ class line_follower(Node):
         self.E_facing = 2
         self.last_node = 'Z' #for localisation, this is NODE, 'Z' is a placeholder for (re)starting
         self.current_destination = 'F'
-        self.destination_id = -1
+        self.destination_id = -1 #this is used when current_destination is a string or list of strings as an identifier for paths which may have the same start and end points but are different
         self.skipZero = False
         self.retryPlan = 0
         self.postRetry = False
@@ -2763,7 +2763,7 @@ class line_follower(Node):
                             if not self.current_destination:
                                 self.current_destination = 'Z'
                     
-                    else: #empty list
+                    elif not self.goAhead: #empty list
                     
                         #otherwise, do not update current_node as we are still where we were.
                         #populate our planned path if we don't already have a plan
@@ -2839,6 +2839,9 @@ class line_follower(Node):
                             else:
                                 self.skipZero = False
 
+                            if self.stepping:
+                                self.goAhead = False
+                                self.stepping = False
 
 
                         elif type(self.current_destination[0]) == str:
@@ -3263,13 +3266,14 @@ class line_follower(Node):
                             #if we've exhausted our plan or if we are still at our first node
                             #proactive search
                             self.takeStep()
+                            self.goAhead = True
                             self.stepping = True
-                            self.imu_target = self.current_destination[0]
-                            self.toDepart = True
-                            self.get_logger().info(f"stepping to {self.imu_target}")
+                            self.destination_id = -1
+                            self.get_logger().info(f"stepping to {self.current_destination[0]}")
                         elif self.current_destination:
                             #if we have a plan, just keep following it, dont waste time searching here
                             self.goAhead = True
+                            self.destination_id = -1
                             self.imu_target = self.current_destination[0]
                             self.toDepart = True
                             self.get_logger().info("progressing with saved plan.")
@@ -3294,7 +3298,7 @@ class line_follower(Node):
                 if not self.stepping:
                     self.imu_target = targets.get(self.facing, -1)
                 
-                self.startTurnBasedOnIMU()
+                    self.startTurnBasedOnIMU()
             
             else:
                 #checkUltra returned clear
