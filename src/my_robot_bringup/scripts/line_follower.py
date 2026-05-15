@@ -3105,7 +3105,7 @@ class line_follower(Node):
                 self.retryPlan = -3
             
         #else, it's safe to continue
-        if self.behaviourMode in [3,5] and self.retryPlan == 0 and self.firstNode:
+        if self.behaviourMode in [3,5] and self.retryPlan == 0:
             self.goAhead = True
 
     def takeStep(self):
