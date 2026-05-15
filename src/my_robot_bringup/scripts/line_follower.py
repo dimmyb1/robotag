@@ -117,6 +117,7 @@ class line_follower(Node):
         self.lookAround = False
         self.goAhead = False
         self.stepping = False
+        self.completeSequence = False
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
@@ -3105,8 +3106,9 @@ class line_follower(Node):
                 self.retryPlan = -3
             
         #else, it's safe to continue
-        if self.behaviourMode in [3,5] and self.retryPlan == 0:
+        if self.behaviourMode in [3,5] and self.retryPlan == 0 and self.completeSequence:
             self.goAhead = True
+            self.completeSequence = False
 
     def takeStep(self):
         c = self.current_node.name
@@ -3116,7 +3118,7 @@ class line_follower(Node):
         else:
             l = self.last_node.name
 
-            
+
         if c == 'A':
             self.current_destination = [1]
 
@@ -3236,6 +3238,7 @@ class line_follower(Node):
         if self.behaviourMode in [3,5] and self.lookAround:
             self.triggerSweep = True
             self.lookAround = False #consume
+            self.completeSequence = True
         
 
         #Ultrasonic Sweep Modes
@@ -3285,8 +3288,6 @@ class line_follower(Node):
                             self.goAhead = True
                             self.stepping = True #not actually stepping but it's a good check to use in updatePlan
                             self.destination_id = -1
-                            self.imu_target = self.current_destination[0]
-                            self.toDepart = True
                             self.get_logger().info("progressing with saved plan.")
 
                         self.retryAttempts = 0
