@@ -3110,10 +3110,13 @@ class line_follower(Node):
 
     def takeStep(self):
         c = self.current_node.name
-        if self.last_node == 'Z':
+        if type(self.last_node) == str:
             l = 'Z'
+            self.get_logger().info(f"LAST NODE IS: {self.last_node}")
         else:
             l = self.last_node.name
+
+            
         if c == 'A':
             self.current_destination = [1]
 
