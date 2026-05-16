@@ -3332,6 +3332,7 @@ class line_follower(Node):
         self.publish_tag_status()
 
         if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning or self.crawlBackBeforeIMUturn:
+            self.get_logger().info(f"retryPlan: {self.retryPlan}, paus: {self.paused}, dontS: {self.dontSense}, turn: {self.imu_turning}, initial_taken: {self.initial_reading_taken}, crawlF: {self.crawlingForwardBeforeIMUturn}, align: {self.aligning}, crawlBIMU: {self.crawlBackBeforeIMUturn}")
             pass
         elif not self.waitingForUltrasonic:
             #check for intersection, reset behaviour from tag, update location and destination and target tracking
