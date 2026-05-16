@@ -562,7 +562,7 @@ class line_follower(Node):
             self.stopMov()
             self.crawlingForwardBeforeIMUturn = False
             self.get_logger().info("Finished crawling forwards. Now going a tiny bit back.")
-            self.crawlBack()
+            self.joltBack()
             self.crawlBackBeforeIMUturn = True
             
         elif(self.imu_turning):
@@ -622,6 +622,9 @@ class line_follower(Node):
 
     def crawlBack(self):
         self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
+
+    def joltBack(self):
+        self.start_motion(linear=-0.35, duration_ms=700)
 
     def crawlForward(self):
         self.stopMov()
