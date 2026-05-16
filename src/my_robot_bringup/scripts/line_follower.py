@@ -3376,7 +3376,7 @@ class line_follower(Node):
             self.followLine()
 
             #Tag Sweep
-            if not self.sweep or not self.multiple:
+            if (not self.sweep or not self.multiple) and not self.safetyStop:
                 self.sweep = True
                 self.multiple = True
                 self.publish_sweep_command()
