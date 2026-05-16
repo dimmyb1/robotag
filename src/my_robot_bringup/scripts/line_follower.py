@@ -3286,17 +3286,16 @@ class line_follower(Node):
                             #if we've exhausted our plan or if we are still at our first node
                             #proactive search
                             self.takeStep()
-                            self.goAhead = True
-                            self.stepping = True
-                            self.destination_id = -1
                             self.get_logger().info(f"stepping to {self.current_destination[0]}")
                         elif self.current_destination:
                             #if we have a plan, just keep following it, dont waste time searching here
-                            self.goAhead = True
-                            self.stepping = True #not actually stepping but it's a good check to use in updatePlan
-                            self.destination_id = -1
+                            #will still set stepping to true, not actually stepping but it's a good check to use in updatePlan
                             self.get_logger().info("progressing with saved plan.")
 
+                        self.stepping = True
+                        self.goAhead = True
+                        self.destination_id = -1
+                        self.retryPlan = 0
                         self.retryAttempts = 0
                         self.get_logger().info("Departing via 3,5 beh.")
                     else:
