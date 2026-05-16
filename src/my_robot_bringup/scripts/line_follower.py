@@ -562,6 +562,7 @@ class line_follower(Node):
             self.stopMov()
             self.crawlingForwardBeforeIMUturn = False
             self.get_logger().info("Finished crawling forwards. Now going a tiny bit back.")
+            self.crawlBack()
             self.crawlBackBeforeIMUturn = True
             
         elif(self.imu_turning):
