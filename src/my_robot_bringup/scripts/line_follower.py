@@ -3341,7 +3341,8 @@ class line_follower(Node):
                 self.checkUltra()
 
             if self.retryPlan == 0:
-                self.get_logger().info(f"entering updatepos with goAhead: {self.goAhead}, step: {self.stepping}, completeSeq: {self.completeSequence}, lookAround: {self.lookAround}")
+                if self.behaviourMode == 3:
+                    self.get_logger().info(f"entering updatepos with goAhead: {self.goAhead}, step: {self.stepping}, completeSeq: {self.completeSequence}, lookAround: {self.lookAround}")
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
