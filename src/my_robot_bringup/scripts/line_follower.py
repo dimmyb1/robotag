@@ -2141,7 +2141,7 @@ class line_follower(Node):
 
 
     def planDestination(self):
-        self.get_logger().info("entered planDestination function")
+        self.get_logger().info(f"entered planDestination function with goAhead: {self.goAhead} and stepping: {self.stepping}")
         CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
         CONSIDER_NODES = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
         choice = -1
@@ -3340,6 +3340,7 @@ class line_follower(Node):
                 self.checkUltra()
 
             if self.retryPlan == 0:
+                self.get_logger().info(f"entering updatepos with goAhead: {self.goAhead}, step: {self.stepping}, completeSeq: {self.completeSequence}, lookAround: {self.lookAround}")
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
