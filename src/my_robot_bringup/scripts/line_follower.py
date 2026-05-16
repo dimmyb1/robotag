@@ -127,7 +127,7 @@ class line_follower(Node):
         self.startPauseTime = -1
         self.paused = False
         self.time_of_last_tag = -1
-        self.TAG_COOLDOWN = 6
+        self.TAG_COOLDOWN = 60 #6 seconds way too short. upping to 60 seconds.
         self.tag = False
         self.ack = False
         self.other_tag = False
