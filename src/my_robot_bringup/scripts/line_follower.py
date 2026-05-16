@@ -110,6 +110,7 @@ class line_follower(Node):
         self.stationaryStartTime = -1
         self.allowCrawl = True #make sure we start at an intersection
         self.crawlingForwardBeforeIMUturn = False
+        self.crawlBackBeforeIMUturn = False
         self.crawlingBackwards = False
         self.aligning = False
 
@@ -524,6 +525,12 @@ class line_follower(Node):
 
             if self.crawlingBackwards:
                 self.crawlingBackwards = False
+            if self.crawlBackBeforeIMUturn:
+                self.crawlBackBeforeIMUturn = False #consume
+                self.get_logger().info("finished going a tiny bit back, now starting IMU turn.")
+                self.startTurnBasedOnIMU()
+                
+
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
         elif self.aligning:
             
@@ -554,8 +561,8 @@ class line_follower(Node):
             #keep crawling forwards until we aren't seeing any gray anymore.
             self.stopMov()
             self.crawlingForwardBeforeIMUturn = False
-            self.get_logger().info("Finished crawling forwards. Now onto the IMU-based turn.")
-            self.startTurnBasedOnIMU()
+            self.get_logger().info("Finished crawling forwards. Now going a tiny bit back.")
+            self.crawlBackBeforeIMUturn = True
             
         elif(self.imu_turning):
 
@@ -3008,6 +3015,7 @@ class line_follower(Node):
         if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag and not self.initiated_tag and not self.tag:
             self.initiated_tag = True
             self.get_logger().info("Initiating tag...")
+            self.stopMov()
         
 
         if self.doTag:
@@ -3230,7 +3238,7 @@ class line_follower(Node):
         if (self.now > self.startPauseTime + self.PAUSE_TIME) and self.paused:
             self.paused = False #consume
 
-        if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense and self.current_destination == [] and not self.crawlingForwardBeforeIMUturn and not self.aligning:
+        if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense and self.current_destination == [] and not self.crawlingForwardBeforeIMUturn and not self.aligning and not self.crawlBackBeforeIMUturn:
             self.dontSense = False #consume
             self.triggerSweep = True
 
@@ -3241,7 +3249,7 @@ class line_follower(Node):
         
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning:
+        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning and not self.crawlBackBeforeIMUturn:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
@@ -3261,7 +3269,7 @@ class line_follower(Node):
             self.initial_reading_taken = True
         
         #specifically when retrying
-        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn and not self.aligning:
+        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn and not self.aligning and not self.crawlBackBeforeIMUturn:
             self.postRetry = False
             self.checkUltra()
             self.stepping = False
@@ -3324,7 +3332,7 @@ class line_follower(Node):
         self.surveillCapture()
         self.publish_tag_status()
 
-        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning:
+        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning or self.crawlBackBeforeIMUturn:
             pass
         elif not self.waitingForUltrasonic:
             #check for intersection, reset behaviour from tag, update location and destination and target tracking
@@ -3335,7 +3343,7 @@ class line_follower(Node):
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.postRetry or self.lookAround or self.paused or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning:
+        if self.retryPlan != 0 or self.postRetry or self.lookAround or self.paused or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning or self.crawlBackBeforeIMUturn:
             if self.stateFollow: 
                 self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}, aligning: {self.aligning}")
             self.stateFollow = False
