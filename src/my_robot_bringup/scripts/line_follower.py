@@ -769,7 +769,7 @@ class line_follower(Node):
 
             else:
                 #reverse and restart search
-                self.start_motion(linear=-0.25, duration_ms=self.realDelay)
+                self.start_motion(linear=-0.25, duration_ms=700) #was using realDelay, but its too small (150ms). changing to 700ms
                 self.searchStep = 0
                 self.searching = False
                 return
