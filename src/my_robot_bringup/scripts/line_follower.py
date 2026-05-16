@@ -82,6 +82,7 @@ class line_follower(Node):
         self.yaw_deg = 0 #IMU
         self.STARTUP_TIME = -1
         self.ANGLE_TOLERANCE = 4
+        self.safetyStop = False
 
         #junction turning vars
         self.stateFollow = True
@@ -3020,9 +3021,9 @@ class line_follower(Node):
             self.initiated_tag = True
             self.get_logger().info("Initiating tag...")
             self.stopMov()
-        
 
         if self.doTag:
+            self.safetyStop = False #unfreeze, the opponent has acknowledged us.
             self.doTag = False #consume command
             self.time_of_last_tag = self.now
 
@@ -3081,7 +3082,9 @@ class line_follower(Node):
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
 
-
+        if self.ultrasonic_distance < self.CAPTURE_MAX and not self.resetBehaviour:
+            self.stopMov()
+            self.safetyStop = True
 
     def checkUltra(self):
         self.retryPlan = 0
@@ -3349,7 +3352,7 @@ class line_follower(Node):
                 self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
 
         
-        if self.retryPlan != 0 or self.postRetry or self.lookAround or self.paused or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning or self.crawlBackBeforeIMUturn:
+        if self.retryPlan != 0 or self.postRetry or self.lookAround or self.paused or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning or self.crawlBackBeforeIMUturn or self.safetyStop:
             if self.stateFollow: 
                 self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}, aligning: {self.aligning}")
             self.stateFollow = False
