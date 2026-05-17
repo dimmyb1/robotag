@@ -354,7 +354,7 @@ class line_follower(Node):
             
         
         if self.initiated_tag:
-            if not self.ack and not self.other_ack:
+            if not self.ack and not self.other_ack and self.other_tag:
                 #deadlock: both trying to initiate. I will back down
                 #deterministic resolution, if i am twix, then im the one who needs to back down.
                 if (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and self.get_namespace().strip('/') == 'twix':
