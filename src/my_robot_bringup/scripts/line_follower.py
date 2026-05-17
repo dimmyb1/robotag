@@ -3349,7 +3349,7 @@ class line_follower(Node):
             pass
         elif not self.waitingForUltrasonic:
             #check for intersection, reset behaviour from tag, update location and destination and target tracking
-            if self.behaviourMode in [3,4,5]:
+            if self.behaviourMode in [3,4,5] and not self.stateFollow:
                 self.checkUltra()
 
             if self.retryPlan == 0:
