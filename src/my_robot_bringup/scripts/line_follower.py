@@ -865,14 +865,14 @@ class line_follower(Node):
     #-----------------------
     def getEdgesFromNode(self, fromNCHAR):
         #ONLY ACCEPTS CHARS
-        if fromNCHAR == 'A': return ["Pab1", "Pab2", "Paf1", "Pae1"]
-        if fromNCHAR == 'B': return ["Pab1", "Pab2", "Pbd1", "Pbc1"]
-        if fromNCHAR == 'C': return ["Pcd1", "Pcd2", "Pch1", "Pbc1"]
+        if fromNCHAR == 'A': return ["Pab2", "Pab1", "Paf1", "Pae1"]
+        if fromNCHAR == 'B': return ["Pab2", "Pbc1", "Pbd1", "Pab1"]
+        if fromNCHAR == 'C': return ["Pch1", "Pcd2", "Pcd1", "Pbc1"]
         if fromNCHAR == 'D': return ["Pcd1", "Pcd2", "Pdf1", "Pbd1"]
-        if fromNCHAR == 'E': return ["Peg1", "Peg2", "Pae1", "Pef1"]
-        if fromNCHAR == 'F': return ["Pef1", "Paf1", "Pfg1", "Pdf1"]
-        if fromNCHAR == 'G': return ["Peg1", "Peg2", "Pfg1", "Pgh1"]
-        if fromNCHAR == 'H': return ["Pch1", "Phh1", "Pgh1"]
+        if fromNCHAR == 'E': return ["Pae1", "Pef1", "Peg1", "Peg2"]
+        if fromNCHAR == 'F': return ["Paf1", "Pdf1", "Pfg1", "Pef1"]
+        if fromNCHAR == 'G': return ["Pfg1", "Pgh1", "Peg2", "Peg1"]
+        if fromNCHAR == 'H': return ["Pch1", "Phh1", "Phh1", "Pgh1"]
 
         else: 
             self.get_logger().info(f"From getEdgesFromNode ERR: Can't return nonexistent node's edges")
@@ -1866,11 +1866,25 @@ class line_follower(Node):
         min = 10000
         minPath = []
         for p,d in pathDistanceTuples:
-            if d < min:
+            if d < min: #d>0 for the edge case where we are at a parent node but 
                 min = d
                 minPath = p
 
+        if min == 0:
+            paths = self.getEdgesFromNode(e)
+            minPath = [p[e]]
+
+
+        # original
+        # min = 10000
+        # minPath = []
+        # for p,d in pathDistanceTuples:
+        #     if d < min:
+        #         min = d
+        #         minPath = p
+
         return minPath
+    
 
     
     def generateShortestPathFromNToListOption(self, listOfSingleParents):
@@ -2789,7 +2803,7 @@ class line_follower(Node):
                         #is it empty? => stay here and wait until our sensing cooldown has gone out.
                         self.dontSense = True
                         
-                else : #not list
+                elif not self.goAhead : #not list
 
                     #localise using old values
                     if self.current_node.Nc == self.current_destination and self.destination_id in [-1, 0]:
