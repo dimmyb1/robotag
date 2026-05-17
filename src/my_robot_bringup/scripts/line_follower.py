@@ -3123,6 +3123,8 @@ class line_follower(Node):
         if self.behaviourMode in [3,5] and self.retryPlan == 0 and self.completeSequence:
             self.goAhead = True
             self.completeSequence = False
+        elif self.stepping:
+            self.retryPlan = 0 # to bypass checks 
 
     def takeStep(self):
         c = self.current_node.name
