@@ -579,7 +579,7 @@ class line_follower(Node):
 
             if target < self.ANGLE_TOLERANCE:
                 if (360+target) - self.ANGLE_TOLERANCE <= self.yaw_deg or self.yaw_deg <= target + self.ANGLE_TOLERANCE:
-                    self.get_logger().info(f"in update_motion: target < 4 deg, toDep: {self.toDepart}")
+                    #self.get_logger().info(f"in update_motion: target < 4 deg, toDep: {self.toDepart}")
                     #we have completed our turn.
                     self.imu_turning = False
                     self.imu_target = -1
@@ -670,7 +670,7 @@ class line_follower(Node):
                 self.crawlForward()
                 self.crawlingForwardBeforeIMUturn = True
             else:
-                self.get_logger().info(f"yaw_deg: {self.yaw_deg}")
+                #self.get_logger().info(f"yaw_deg: {self.yaw_deg}")
                 self.aligning = True
                 error = (target - self.yaw_deg) % 360.0
                 if error <= 180:
