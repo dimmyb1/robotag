@@ -1875,7 +1875,7 @@ class line_follower(Node):
 
         if min == 0:
             paths = self.getEdgesFromNode(e)
-            minPath = [p[e]]
+            minPath = [paths.index(e)]
 
 
         # original
