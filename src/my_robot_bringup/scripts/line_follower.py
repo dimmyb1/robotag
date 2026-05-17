@@ -365,7 +365,7 @@ class line_follower(Node):
                     self.tag = True
                     self.ack = True
 
-            if self.ack and not self.other_ack:
+            if self.ack and not self.other_ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.initiated_tag = False
                 self.ack = False
                 self.doTag = True
@@ -376,7 +376,7 @@ class line_follower(Node):
             if self.other_tag and not self.tag and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.tag = True
                 self.ack = True
-            elif self.other_ack:
+            elif self.other_ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.ack = False
                 self.tag = False
                 self.doTag = True
