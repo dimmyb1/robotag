@@ -2751,6 +2751,7 @@ class line_follower(Node):
                                 self.current_node = self.returnNode(self.current_node.Sc)
                             elif top == 3:
                                 self.current_node = self.returnNode(self.current_node.Wc)
+                            
 
                             if not self.current_destination:
                                 self.current_destination = 'Z'
@@ -2803,7 +2804,10 @@ class line_follower(Node):
                     #update current_node and last_node
                     if not self.firstNode:
                         self.last_node = self.current_node
-                        self.current_node = self.returnNode(self.current_destination)   
+                        if self.current_destination != 'Z':
+                            self.current_node = self.returnNode(self.current_destination)
+                        else:
+                            self.get_logger().info("Could not update current_node to be current_destination, because cur_dest is 'Z'")
 
                 #COMMON
 
