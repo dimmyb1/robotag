@@ -1087,7 +1087,7 @@ class line_follower(Node):
         #where edge time is the average timing of the edge we took
         elapsed = self.now - self.departureTime
         maxTime = edgeTime + self.TIME_VARIANCE
-        minTime = edgeTime - self.TIME_VARIANCE
+        minTime = max(edgeTime - self.TIME_VARIANCE, 0)
 
         if elapsed < NEGLIGABLE * edgeTime:
             self.get_logger().info("This intersection looks to be a misfire. Skipping UpdatePos.")
