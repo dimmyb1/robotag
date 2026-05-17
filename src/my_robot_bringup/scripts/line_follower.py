@@ -188,7 +188,8 @@ class line_follower(Node):
         self.h3 = None
 
         #pursuit-evasion behaviour
-        self.behaviourMode = 0
+        self.behaviourMode = 0 #on start, what are you behaving as
+        self.otherMode = 0 #on tag, what do you change to
         self.patrolPath = ['A', 'F', 'G', 'E', 'F', 'D', 'C', 'H', 'H', 'G', 'E', 'A', 'B', 'C', 'D', 'B']
         self.i_patrol = 0
         self.opp_old_loc = -1
@@ -269,12 +270,14 @@ class line_follower(Node):
             self.get_logger().info("Detected robot: twix. Starting at Node H.")
             other_robot_name = 'twirl'
             self.behaviourMode = 3
+            self.otherMode = 1
             self.evading = False
         elif robot_name == 'twirl':
             self.current_node = self.A
             self.get_logger().info("Detected robot: twirl. Starting at Node A.")
             other_robot_name = 'twix'
             self.behaviourMode = 1
+            self.otherMode = 3
             self.evading = True
             self.i_patrol = 0
             #self.behaviourMode = 2
@@ -3049,12 +3052,9 @@ class line_follower(Node):
             self.time_of_last_tag = self.now
 
             #switch mode
-            if self.behaviourMode == 1:
-                self.behaviourMode = 4
-                
-            else:
-                self.behaviourMode = 1
-            
+            temp = self.behaviourMode
+            self.behaviourMode = self.otherMode
+            self.otherMode = temp
             
             if self.evading:
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
