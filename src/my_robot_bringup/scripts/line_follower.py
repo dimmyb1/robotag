@@ -586,6 +586,7 @@ class line_follower(Node):
                     if self.toDepart:
                         self.toDepart = False #consume
                         self.departureTime = self.now
+                        self.grayEntryTime = self.now #safety precaution
                         self.stateFollow = True
                         self.get_logger().info("stateFollow is true, depart is false")
             else:
@@ -599,6 +600,7 @@ class line_follower(Node):
                     if self.toDepart:
                         self.toDepart = False #consume
                         self.departureTime = self.now
+                        self.grayEntryTime = self.now #safety precaution
                         self.stateFollow = True
  
         if self.waitingForUltrasonic:
@@ -2651,6 +2653,7 @@ class line_follower(Node):
             if self.toDepart:
                 self.toDepart = False #consume
                 self.departureTime = self.now
+                self.grayEntryTime = self.now #precaution
                 self.stateFollow = True
 
         else:
@@ -3363,7 +3366,7 @@ class line_follower(Node):
                 self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}, aligning: {self.aligning}")
             self.stateFollow = False
 
-            #Stop sweep.
+            #Stop sweep. 
             if (self.sweep or self.multiple) and not self.waitingForUltrasonic and not self.lookAround:
                 self.sweep = False
                 self.multiple = False
