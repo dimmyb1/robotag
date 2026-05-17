@@ -627,7 +627,7 @@ class line_follower(Node):
         self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
 
     def joltBack(self):
-        self.start_motion(linear=-0.35, duration_ms=700)
+        self.start_motion(linear=-0.35, duration_ms=850)
 
     def crawlForward(self):
         self.stopMov()
