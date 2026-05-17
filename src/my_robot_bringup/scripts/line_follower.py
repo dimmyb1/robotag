@@ -3118,8 +3118,6 @@ class line_follower(Node):
                     self.current_node = self.returnNode(temp)
 
 
-            
-
             self.resetBehaviour = True
             self.initial_reading_taken = False
 
