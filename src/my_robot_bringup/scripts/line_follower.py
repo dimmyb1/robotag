@@ -2705,6 +2705,11 @@ class line_follower(Node):
                 if self.motion_active:
                     self.get_logger().info("Gray re-detected while crawling back — stopping.")
 
+                #BehMod 3 vars
+                self.lookAround = False
+                self.goAhead = False
+                self.stepping = False
+                self.completeSequence = False
                 
                 if self.resetBehaviour:
                     self.firstNode = True
@@ -3068,6 +3073,11 @@ class line_follower(Node):
                 self.dontSense = False
                 self.waitingForUltrasonic = False
                 self.allowCrawl = True
+
+                #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
+                if type(self.current_destination) == list:
+                    if self.current_destination:
+                        self.current_destination = [self.current_destination[0]]
             else:
                 #resolve destination
 
@@ -3083,12 +3093,32 @@ class line_follower(Node):
                     self.imu_target = 1
                     
                 self.startTurnBasedOnIMU()
-                self.current_destination = self.current_node.name
+                
+                if type(self.current_destination) == list: #int list
+                    if self.current_destination:
+                        self.current_destination = [self.current_destination[0]]
 
-            #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
-            if type(self.current_destination) == list:
-                if self.current_destination:
-                    self.current_destination = [self.current_destination[0]]
+                        temp = self.current_node.name
+                        
+                        if self.current_destination == 0:
+                            self.current_node = self.returnNode(self.current_node.Nc)
+                        elif self.current_destination == 1:
+                            self.current_node = self.returnNode(self.current_node.Ec)
+                        elif self.current_destination == 2:
+                            self.current_node = self.returnNode(self.current_node.Sc)
+                        elif self.current_destination == 3:
+                            self.current_node = self.returnNode(self.current_node.Wc)
+
+                        self.current_destination = temp
+
+                else: #char
+
+                    temp = self.current_destination
+                    self.current_destination = self.current_node.name
+                    self.current_node = self.returnNode(temp)
+
+
+            
 
             self.resetBehaviour = True
             self.initial_reading_taken = False
