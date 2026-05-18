@@ -2705,11 +2705,7 @@ class line_follower(Node):
                 if self.motion_active:
                     self.get_logger().info("Gray re-detected while crawling back — stopping.")
 
-                #BehMod 3 vars
-                self.lookAround = False
-                self.goAhead = False
-                self.stepping = False
-                self.completeSequence = False
+                
                 
                 if self.resetBehaviour:
                     self.firstNode = True
@@ -2723,6 +2719,12 @@ class line_follower(Node):
 
                     # a tag took place, and the behaviour variables need to be reset
                     
+                    #BehMod 3 vars
+                    self.lookAround = False
+                    self.goAhead = False
+                    self.stepping = False
+                    self.completeSequence = False
+
                     if self.behaviourMode == 1:
                         #patrol:
                         #we need to correct the direction we are facing to resume flow and update i_patrol
