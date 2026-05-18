@@ -2768,16 +2768,18 @@ class line_follower(Node):
                     if(self.current_destination) and not self.goAhead:
 
                         #current node
-                        if type(self.current_destination[0]) == int:
+                        #if type(self.current_destination[0]) == int:
 
-                            #localise using old values
-                            self.self_localise(self.current_node.Times[self.current_destination[0]])
-                            if self.dontUpdate:
-                                self.dontUpdate = False #consume
-                                return
+                        #localise using old values
+                        self.self_localise(self.current_node.Times[self.current_destination[0]])
+                        if self.dontUpdate:
+                            self.dontUpdate = False #consume
+                            return
                             
-                            #last node
-                            self.last_node = self.current_node
+                        #last node
+                        self.last_node = self.current_node
+
+                        if type(self.current_destination) == list:
 
                             top = self.current_destination.pop()
                             if top == 0:
@@ -2792,30 +2794,38 @@ class line_follower(Node):
 
                             if not self.current_destination:
                                 self.current_destination = 'Z'
+                                
+                        else: #self_loc updated cur_dest to be a char
+                             #update current_node and last_node
+                            if self.current_destination != 'Z':
+                                self.current_node = self.returnNode(self.current_destination)
+                            else:
+                                self.get_logger().info("Could not update current_node to be current_destination, because cur_dest is 'Z'")
 
-                        elif type(self.current_destination[0]) == str:
-                            self.get_logger().info("ENTERED OFF-LIMITS AREA: TYPE OF CUR_DEST IS A STRING LIST!")
-                            #localise using old values
 
-                            if self.current_node.Nc == self.current_destination[0] and self.destination_id in [-1, 0]:
-                                self.self_localise(self.current_node.Times[0])
-                            elif self.current_node.Ec == self.current_destination[0] and self.destination_id in [-1, 1]:
-                                self.self_localise(self.current_node.Times[1])
-                            elif self.current_node.Sc == self.current_destination[0] and self.destination_id in [-1, 2]:
-                                self.self_localise(self.current_node.Times[2])
-                            elif self.current_node.Wc == self.current_destination[0] and self.destination_id in [-1, 3]:
-                                self.self_localise(self.current_node.Times[3])
+                        # elif type(self.current_destination[0]) == str:
+                        #     self.get_logger().info("ENTERED OFF-LIMITS AREA: TYPE OF CUR_DEST IS A STRING LIST!")
+                        #     #localise using old values
 
-                            if self.dontUpdate:
-                                self.dontUpdate = False #consume
-                                return
+                        #     if self.current_node.Nc == self.current_destination[0] and self.destination_id in [-1, 0]:
+                        #         self.self_localise(self.current_node.Times[0])
+                        #     elif self.current_node.Ec == self.current_destination[0] and self.destination_id in [-1, 1]:
+                        #         self.self_localise(self.current_node.Times[1])
+                        #     elif self.current_node.Sc == self.current_destination[0] and self.destination_id in [-1, 2]:
+                        #         self.self_localise(self.current_node.Times[2])
+                        #     elif self.current_node.Wc == self.current_destination[0] and self.destination_id in [-1, 3]:
+                        #         self.self_localise(self.current_node.Times[3])
+
+                        #     if self.dontUpdate:
+                        #         self.dontUpdate = False #consume
+                        #         return
                             
-                            #last node
-                            self.last_node = self.current_node
+                        #     #last node
+                        #     self.last_node = self.current_node
 
-                            self.current_node = self.returnNode(self.current_destination.pop())
-                            if not self.current_destination:
-                                self.current_destination = 'Z'
+                        #     self.current_node = self.returnNode(self.current_destination.pop())
+                        #     if not self.current_destination:
+                        #         self.current_destination = 'Z'
                     
                     elif not self.goAhead: #empty list
                     
