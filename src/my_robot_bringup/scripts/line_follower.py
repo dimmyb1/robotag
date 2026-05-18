@@ -2784,6 +2784,7 @@ class line_follower(Node):
                                 self.current_destination = 'Z'
 
                         elif type(self.current_destination[0]) == str:
+                            self.get_logger().info("ENTERED OFF-LIMITS AREA: TYPE OF CUR_DEST IS A STRING LIST!")
                             #localise using old values
 
                             if self.current_node.Nc == self.current_destination[0] and self.destination_id in [-1, 0]:
@@ -3117,7 +3118,10 @@ class line_follower(Node):
 
                     temp = self.current_destination
                     self.current_destination = self.current_node.name
-                    self.current_node = self.returnNode(temp)
+                    if temp != 'Z':
+                        self.current_node = self.returnNode(temp)
+
+                    #otherwise, keep current node as it is.
 
 
             self.resetBehaviour = True
