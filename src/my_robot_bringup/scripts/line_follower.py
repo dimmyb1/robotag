@@ -136,7 +136,6 @@ class line_follower(Node):
         self.initiated_tag = False
         self.doTag = False
         self.movBackCosTag = False
-        self.tagJustHappened = False
 
         #ultrasonic sensor and servo vars
         self.entry_angle = float('inf')
@@ -436,10 +435,6 @@ class line_follower(Node):
 
     #Ultrasonic functions
     def ultrasonic_callback(self, msg):
-        if self.tagJustHappened:
-            if msg.data[2] != float('inf') and msg.data[2] >= self.CAPTURE_MAX:
-                self.tagJustHappened = False
-            return
         # Unpack the array based on the order you published it
         #ANGLES ARE IN RADIANS (but i can do math.degrees(v) to convert to normal degrees if i need to)
         self.entry_angle = msg.data[0]
@@ -3150,7 +3145,6 @@ class line_follower(Node):
             self.entry_angle = float('inf')
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
-            self.tagJustHappened = True
 
         if self.ultrasonic_distance < self.CAPTURE_MAX and not self.resetBehaviour and not self.movBackCosTag and not self.paused:
             self.stopMov()
