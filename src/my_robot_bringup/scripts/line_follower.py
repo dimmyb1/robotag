@@ -2794,7 +2794,7 @@ class line_follower(Node):
 
                             if not self.current_destination:
                                 self.current_destination = 'Z'
-                                
+
                         else: #self_loc updated cur_dest to be a char
                              #update current_node and last_node
                             if self.current_destination != 'Z':
@@ -2802,31 +2802,6 @@ class line_follower(Node):
                             else:
                                 self.get_logger().info("Could not update current_node to be current_destination, because cur_dest is 'Z'")
 
-
-                        # elif type(self.current_destination[0]) == str:
-                        #     self.get_logger().info("ENTERED OFF-LIMITS AREA: TYPE OF CUR_DEST IS A STRING LIST!")
-                        #     #localise using old values
-
-                        #     if self.current_node.Nc == self.current_destination[0] and self.destination_id in [-1, 0]:
-                        #         self.self_localise(self.current_node.Times[0])
-                        #     elif self.current_node.Ec == self.current_destination[0] and self.destination_id in [-1, 1]:
-                        #         self.self_localise(self.current_node.Times[1])
-                        #     elif self.current_node.Sc == self.current_destination[0] and self.destination_id in [-1, 2]:
-                        #         self.self_localise(self.current_node.Times[2])
-                        #     elif self.current_node.Wc == self.current_destination[0] and self.destination_id in [-1, 3]:
-                        #         self.self_localise(self.current_node.Times[3])
-
-                        #     if self.dontUpdate:
-                        #         self.dontUpdate = False #consume
-                        #         return
-                            
-                        #     #last node
-                        #     self.last_node = self.current_node
-
-                        #     self.current_node = self.returnNode(self.current_destination.pop())
-                        #     if not self.current_destination:
-                        #         self.current_destination = 'Z'
-                    
                     elif not self.goAhead: #empty list
                     
                         #otherwise, do not update current_node as we are still where we were.
@@ -2892,46 +2867,23 @@ class line_follower(Node):
 
                     if type(self.current_destination) == list:
 
-                        if type(self.current_destination[0]) == int:
-                            #if it is a single number from 0 to 3, then it is an immediate neighbour 
-                            #e.g. path = [2] i.e. go south
-                            self.imu_target = self.current_destination[0]
-                            tx = {0: self.current_node.Nc, 1: self.current_node.Ec, 2: self.current_node.Sc, 3: self.current_node.Wc}
-                            t = tx[self.imu_target]
+                        #if it is a single number from 0 to 3, then it is an immediate neighbour 
+                        #e.g. path = [2] i.e. go south
+                        self.imu_target = self.current_destination[0]
+                        tx = {0: self.current_node.Nc, 1: self.current_node.Ec, 2: self.current_node.Sc, 3: self.current_node.Wc}
+                        t = tx[self.imu_target]
 
-                            #update sweeping setting
-                            if (self.current_node.name == 'A' and self.imu_target == 0) or (self.current_node.name == 'B' and self.imu_target == 0) or (self.current_node.name == 'C' and self.imu_target == 1) or (self.current_node.name == 'D' and self.imu_target == 3) or (self.current_node.name == 'E' and self.imu_target == 0) or (self.current_node.name == 'F' and self.imu_target == 0) or (self.current_node.name == 'F' and self.imu_target == 3) or (self.current_node.name == 'G' and self.imu_target == 1) or (self.current_node.name == 'G' and self.imu_target == 2) or (self.current_node.name == 'G' and self.imu_target == 3) :
-                                #when left first is better than right first
-                                self.skipZero = True
-                            else:
-                                self.skipZero = False
+                        #update sweeping setting
+                        if (self.current_node.name == 'A' and self.imu_target == 0) or (self.current_node.name == 'B' and self.imu_target == 0) or (self.current_node.name == 'C' and self.imu_target == 1) or (self.current_node.name == 'D' and self.imu_target == 3) or (self.current_node.name == 'E' and self.imu_target == 0) or (self.current_node.name == 'F' and self.imu_target == 0) or (self.current_node.name == 'F' and self.imu_target == 3) or (self.current_node.name == 'G' and self.imu_target == 1) or (self.current_node.name == 'G' and self.imu_target == 2) or (self.current_node.name == 'G' and self.imu_target == 3) :
+                            #when left first is better than right first
+                            self.skipZero = True
+                        else:
+                            self.skipZero = False
 
-                            if self.stepping:
-                                self.goAhead = False
-                                self.stepping = False
-
-
-                        elif type(self.current_destination[0]) == str:
-                            #update sweeping setting
-                            if (self.current_node.name == 'A' and self.current_destination[0] == self.A.Nc) or (self.current_node.name == 'B' and self.current_destination[0] == self.B.Nc) or (self.current_node.name == 'C' and self.current_destination[0] == self.C.Ec) or (self.current_node.name == 'D' and self.current_destination[0] == self.D.Wc) or (self.current_node.name == 'E' and self.current_destination[0] == self.E.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Nc) or (self.current_node.name == 'F' and self.current_destination[0] == self.F.Wc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Ec) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Sc) or (self.current_node.name == 'G' and self.current_destination[0] == self.G.Wc) :
-                                #when left first is better than right first
-                                self.skipZero = True
-                            else:
-                                self.skipZero = False
-
-                            #if it is a char from A to H, then it is an immediate neighbour 
-                            #e.g. path = ['A', 'B'] 
-                            neigh_name = self.current_destination[0]
-                            if self.current_node.Nc == neigh_name and self.destination_id in [-1, 0]:
-                                self.imu_target = 0
-                            elif self.current_node.Ec == neigh_name and self.destination_id in [-1, 1]:
-                                self.imu_target = 1
-                            elif self.current_node.Sc == neigh_name and self.destination_id in [-1, 2]:
-                                self.imu_target = 2
-                            elif self.current_node.Wc == neigh_name and self.destination_id in [-1, 3]:
-                                self.imu_target = 3
                             
-                            t = neigh_name
+                        if self.stepping:
+                            self.goAhead = False
+                            self.stepping = False
 
                     else: #not a list, just a char
 
