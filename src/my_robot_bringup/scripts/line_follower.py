@@ -123,7 +123,7 @@ class line_follower(Node):
 
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max
-        self.CAPTURE_MAX = 0.115 #was (10cm, 0.1m), but was changed to 11.5cm to try to prevent any damage as the robots were bumping into each other
+        self.CAPTURE_MAX = 0.12 #was (10cm, 0.1m), but was changed to 11.5cm to try to prevent any damage as the robots were bumping into each other, #had to raise to 12 because in Pch1 when they face each other, that's the distance.
         self.PAUSE_TIME = 14 #was 6, but seemed low so changed to 7. 7 seems low, raising to 14 to avoid immediate tag-backs
         self.startPauseTime = -1
         self.paused = False
