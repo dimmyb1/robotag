@@ -135,6 +135,7 @@ class line_follower(Node):
         self.other_ack = False
         self.initiated_tag = False
         self.doTag = False
+        self.movBackCosTag = False
 
         #ultrasonic sensor and servo vars
         self.entry_angle = float('inf')
@@ -533,6 +534,9 @@ class line_follower(Node):
                 self.crawlBackBeforeIMUturn = False #consume
                 self.get_logger().info("finished going a tiny bit back, now starting IMU turn.")
                 self.startTurnBasedOnIMU()
+            if self.movBackCosTag:
+                self.movBackCosTag = False
+                self.startTurnBasedOnIMU()
                 
 
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
@@ -625,6 +629,9 @@ class line_follower(Node):
     #--------------------
     # Searching for Gray
     #--------------------
+
+    def clearTag(self): #move back to clear the opponent after a tag (we don't want to hit the opponent because one of us will get pushed off the line)
+        self.start_motion(linear=-0.35, duration_ms=1400) #starting with 1400
 
     def crawlBack(self):
         self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
@@ -3095,7 +3102,9 @@ class line_follower(Node):
                 elif self.facing == 3:
                     self.imu_target = 1
                     
-                self.startTurnBasedOnIMU()
+                self.movBackCosTag = True
+                self.clearTag()
+                #self.startTurnBasedOnIMU()
                 
                 if type(self.current_destination) == list: #int list
                     if self.current_destination:
