@@ -631,10 +631,10 @@ class line_follower(Node):
     #--------------------
 
     def clearTag(self): #move back to clear the opponent after a tag (we don't want to hit the opponent because one of us will get pushed off the line)
-        self.start_motion(linear=-0.35, duration_ms=1400) #starting with 1400
+        self.start_motion(linear=-0.35, duration_ms=1500) #starting with 1400, was a bit short, now doing 1500
 
     def frontClearTag(self): #move FORWARDS to clear the opponent after a tag (we don't want to hit the opponent because one of us will get pushed off the line)
-        self.start_motion(linear=0.35, duration_ms=1400) #starting with 1400
+        self.start_motion(linear=0.35, duration_ms=1500) #starting with 1400, was a bit short, now doing 1500
 
     def crawlBack(self):
         self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
