@@ -633,6 +633,9 @@ class line_follower(Node):
     def clearTag(self): #move back to clear the opponent after a tag (we don't want to hit the opponent because one of us will get pushed off the line)
         self.start_motion(linear=-0.35, duration_ms=1400) #starting with 1400
 
+    def frontClearTag(self): #move FORWARDS to clear the opponent after a tag (we don't want to hit the opponent because one of us will get pushed off the line)
+        self.start_motion(linear=0.35, duration_ms=1400) #starting with 1400
+
     def crawlBack(self):
         self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
 
@@ -3091,20 +3094,25 @@ class line_follower(Node):
             else:
                 #resolve destination
 
-                #is path blocked? - it probably is, so let's assume as much.
-                #turn 180 and go back to where you were
-                if self.facing == 0:
-                    self.imu_target = 2
-                elif self.facing == 2:
-                    self.imu_target = 0
-                elif self.facing == 1:
-                    self.imu_target = 3
-                elif self.facing == 3:
-                    self.imu_target = 1
-                    
-                self.movBackCosTag = True
-                self.clearTag()
-                #self.startTurnBasedOnIMU()
+                if self.ultrasonic_distance < self.CAPTURE_MAX:
+                    #is path blocked? 
+                    #turn 180 and go back to where you were
+                    if self.facing == 0:
+                        self.imu_target = 2
+                    elif self.facing == 2:
+                        self.imu_target = 0
+                    elif self.facing == 1:
+                        self.imu_target = 3
+                    elif self.facing == 3:
+                        self.imu_target = 1
+                        
+                    self.movBackCosTag = True
+                    self.clearTag()
+                
+                else:
+                    self.imu_target = self.facing
+                    self.movBackCosTag = True
+                    self.frontClearTag()
                 
                 if type(self.current_destination) == list: #int list
                     if self.current_destination:
