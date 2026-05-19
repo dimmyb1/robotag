@@ -139,7 +139,6 @@ class line_follower(Node):
         self.initiated_tag = False
         self.doTag = False
         self.movBackCosTag = False
-        self.movThenPause = False
 
         #ultrasonic sensor and servo vars
         self.entry_angle = float('inf')
@@ -547,12 +546,6 @@ class line_follower(Node):
                 self.movBackCosTag = False
                 self.startTurnBasedOnIMU()
 
-            if self.movThenPause:
-                self.startPauseTime = self.now
-                self.paused = True
-                self.movThenPause = False
-
-                
 
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
         elif self.aligning:
@@ -3061,14 +3054,14 @@ class line_follower(Node):
                 self.get_logger().info("I NEED TO CLEAR, THEN PAUSE FOR 75 SECONDS.")
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
                 self.stateFollow = False
-
-                if self.ultrasonic_distance <= self.CAPTURE_MAX:
-                    #is other robot in front of me?
-                    self.movThenPause = True
-                    self.clearTag()
+                self.startPauseTime = self.now
+                self.paused = True
                 
+                if self.ultrasonic_distance <= self.CAPTURE_MAX:
+                    #is other robot in front of me? move backwards
+                    self.clearTag()
                 else:
-                    self.movThenPause = True
+                    #move forwards
                     self.frontClearTag()
 
                 #unblock line following
@@ -3145,7 +3138,7 @@ class line_follower(Node):
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
 
-        if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.movThenPause or self.paused):
+        if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused):
             self.stopMov()
             self.safetyStop = True
         elif self.ultrasonic_distance > self.CAPTURE_MAX and self.safetyStop:
