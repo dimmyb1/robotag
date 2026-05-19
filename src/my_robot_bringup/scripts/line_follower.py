@@ -35,7 +35,7 @@ import heapq #for dijkstra
 #TAG_COOLDOWN - measurable, partly tunable
 
 class Noden():
-    def __init__(self, nc, ec, sc, wc, n, t):
+    def __init__(self, nc, ec, sc, wc, n, t, s):
         #dir_c -> where dir can be N, E, S, W and c just means 'char' so you would have 'A', 'B' .. etc 'A' - 'H' representing the node name
         self.Nc = nc
         self.Ec = ec
@@ -47,6 +47,7 @@ class Noden():
 
         #.Times -> [1.0, 23.0, 14.5, 16.8]  where Times[0] -> North transition time cost = 1.0
         self.Times = t
+        self.SDs = s
 
      
 class Cell():
@@ -157,14 +158,15 @@ class line_follower(Node):
         self.minPixels = 20
 
         # Graph
-        self.A = Noden('B', 'B', 'F', 'E', 'A', [78, 11, 61, 140])
-        self.B = Noden('A', 'C', 'D', 'A', 'B', [106, 14, 29, 11])
-        self.C = Noden('H', 'D', 'D', 'B', 'C', [155, 49, 10, 15])
-        self.D = Noden('C', 'C', 'F', 'B', 'D',  [13,  59, 40, 46])
-        self.E = Noden('A', 'F', 'G', 'G', 'E',  [128, 12, 49, 90])
-        self.F = Noden('A', 'D', 'G', 'E', 'F',  [111, 41, 10, 34])
-        self.G = Noden('F', 'H', 'E', 'E', 'G',   [9,  12, 109,34])
-        self.H = Noden('C', 'H', 'H', 'G', 'H',  [130, 85, 89, 14])
+        #   id = Noden( Nc,  Ec,  Sc,  Wc, name,       Times        ,        SDs      )
+        self.A = Noden('B', 'B', 'F', 'E', 'A', [ 78,  11,  61, 140], [29,  7, 31, 66])
+        self.B = Noden('A', 'C', 'D', 'A', 'B', [106,  14,  29,  11], [59,  7, 12, 16])
+        self.C = Noden('H', 'D', 'D', 'B', 'C', [155,  49,  10,  15], [53, 22,  8,  7])
+        self.D = Noden('C', 'C', 'F', 'B', 'D', [ 13,  59,  40,  46], [ 6, 29,  5, 11])
+        self.E = Noden('A', 'F', 'G', 'G', 'E', [128,  12,  49,  90], [74,  7, 87, 73])
+        self.F = Noden('A', 'D', 'G', 'E', 'F', [111,  41,  10,  34], [30, 34,  8, 10])
+        self.G = Noden('F', 'H', 'E', 'E', 'G', [  9,  12, 109,  34], [ 6,  5, 54, 34])
+        self.H = Noden('C', 'H', 'H', 'G', 'H', [130,  85,  89,  14], [58, 34, 87,  7])
 
         self.myNodes = [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]
 
