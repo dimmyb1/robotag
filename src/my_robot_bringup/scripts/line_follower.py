@@ -3138,6 +3138,8 @@ class line_follower(Node):
         if self.ultrasonic_distance <= self.CAPTURE_MAX and not self.resetBehaviour and not self.movBackCosTag and not self.movThenPause and not self.paused:
             self.stopMov()
             self.safetyStop = True
+        elif self.ultrasonic_distance > self.CAPTURE_MAX and self.safetyStop:
+            self.safetyStop = False
 
     def checkUltra(self):
         self.retryPlan = 0
