@@ -3136,7 +3136,7 @@ class line_follower(Node):
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
 
-        if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.resetBehaviour or self.movBackCosTag or self.movThenPause or self.paused):
+        if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.movThenPause or self.paused):
             self.stopMov()
             self.safetyStop = True
         elif self.ultrasonic_distance > self.CAPTURE_MAX and self.safetyStop:
