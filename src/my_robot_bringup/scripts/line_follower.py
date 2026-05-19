@@ -138,6 +138,7 @@ class line_follower(Node):
         self.initiated_tag = False
         self.doTag = False
         self.movBackCosTag = False
+        self.movThenPause = False
 
         #ultrasonic sensor and servo vars
         self.entry_angle = float('inf')
@@ -530,15 +531,25 @@ class line_follower(Node):
             self.publisher.publish(self.cmd)
             self.motion_active = False
 
+            #Intersection-related
             if self.crawlingBackwards:
                 self.crawlingBackwards = False
+                
             if self.crawlBackBeforeIMUturn:
                 self.crawlBackBeforeIMUturn = False #consume
                 self.get_logger().info("finished going a tiny bit back, now starting IMU turn.")
                 self.startTurnBasedOnIMU()
+
+            #Tag-related
             if self.movBackCosTag:
                 self.movBackCosTag = False
                 self.startTurnBasedOnIMU()
+
+            if self.movThenPause:
+                self.startPauseTime = self.now
+                self.paused = True
+                self.movThenPause = False
+
                 
 
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
@@ -632,11 +643,13 @@ class line_follower(Node):
     # Searching for Gray
     #--------------------
 
+    #duration of clearTag B/F need to be considered as half of the full distance as both robots will move. Therefore 1500/2 = 750
     def clearTag(self): #move back to clear the opponent after a tag (we don't want to hit the opponent because one of us will get pushed off the line)
-        self.start_motion(linear=-0.35, duration_ms=1500) #starting with 1400, was a bit short, now doing 1500
+        self.start_motion(linear=-0.35, duration_ms=750) #starting with 1400, was a bit short, now doing 1500 - 1500 was good but too strong individually
 
     def frontClearTag(self): #move FORWARDS to clear the opponent after a tag (we don't want to hit the opponent because one of us will get pushed off the line)
-        self.start_motion(linear=0.35, duration_ms=1500) #starting with 1400, was a bit short, now doing 1500
+        self.start_motion(linear=0.35, duration_ms=750) #starting with 1400, was a bit short, now doing 1500 - 1500 was good but too strong individually
+
 
     def crawlBack(self):
         self.start_motion(linear=-0.35, duration_ms=300) #3000ms was too much, 750ms was too much, 300ms was too little, tried 500ms, went down to 300 again and raised pwr
@@ -3038,8 +3051,15 @@ class line_follower(Node):
             if self.evading:
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
                 self.stateFollow = False
-                self.startPauseTime = self.now
-                self.paused = True
+
+                if self.ultrasonic_distance < self.CAPTURE_MAX:
+                    #is other robot in front of me?
+                    self.movThenPause = True
+                    self.clearTag()
+                
+                else:
+                    self.movThenPause = True
+                    self.frontClearTag()
 
                 #unblock line following
                 self.retryPlan = 0
