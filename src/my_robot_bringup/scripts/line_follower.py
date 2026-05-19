@@ -91,7 +91,7 @@ class line_follower(Node):
         self.imu_turning = False
         self.imu_target = -1
         self.grayEntryTime = -1
-        self.GRAY_COOLDOWN = 10.1
+        self.GRAY_COOLDOWN = 10.1 #DOC V
         #   tried 8, but 8 seems too high for the lengths of the shortest edges
         #   but 5 is too high when turning, so maybe we can make this variable with turning time
         #   instead, i blocked intersection detection completely when imu_turning at an intersection
