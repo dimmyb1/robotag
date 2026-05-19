@@ -2788,7 +2788,7 @@ class line_follower(Node):
                         #if type(self.current_destination[0]) == int:
 
                         #localise using old values
-                        self.self_localise(self.current_node.Times[self.current_destination[0]])
+                        self.self_localise(self.current_node.Times[self.current_destination[0]], self.current_node.SDs[self.current_destination[0]])
                         if self.dontUpdate:
                             self.dontUpdate = False #consume
                             return
@@ -2830,13 +2830,13 @@ class line_follower(Node):
 
                     #localise using old values
                     if self.current_node.Nc == self.current_destination and self.destination_id in [-1, 0]:
-                        self.self_localise(self.current_node.Times[0])
+                        self.self_localise(self.current_node.Times[0], self.current_node.SDs[0])
                     elif self.current_node.Ec == self.current_destination and self.destination_id in [-1, 1]:
-                        self.self_localise(self.current_node.Times[1])
+                        self.self_localise(self.current_node.Times[1], self.current_node.SDs[1])
                     elif self.current_node.Sc == self.current_destination and self.destination_id in [-1, 2]:
-                        self.self_localise(self.current_node.Times[2])
+                        self.self_localise(self.current_node.Times[2], self.current_node.SDs[2])
                     elif self.current_node.Wc == self.current_destination and self.destination_id in [-1, 3]:
-                        self.self_localise(self.current_node.Times[3])
+                        self.self_localise(self.current_node.Times[3], self.current_node.SDs[3])
 
                     if self.dontUpdate:
                         self.dontUpdate = False #consume
