@@ -1102,7 +1102,7 @@ class line_follower(Node):
             self.get_logger().warning(f"adjusting destination based on non-existent behaviour value failed.")
         
 
-    def self_localise(self, edgeTime):
+    def self_localise(self, edgeTime, sd):
         #IMPORTANT NOTE FOR FUTURE SELF:
         #self_localise uses STALE VALUES
         #we were at curr_node, we wanted to go to curr_dest, we should be at curr_dest, we took 'elapsed' amount of time to get to the next intersection
@@ -1116,8 +1116,10 @@ class line_follower(Node):
             return
         #where edge time is the average timing of the edge we took
         elapsed = self.now - self.departureTime
-        maxTime = edgeTime + self.TIME_VARIANCE
-        minTime = max(edgeTime - self.TIME_VARIANCE, 0)
+
+        # 0 <= elapsed < 1sd
+        maxTime = edgeTime + sd
+        minTime = max(edgeTime - sd, 0)
 
         if elapsed < NEGLIGABLE * edgeTime:
             self.get_logger().info("This intersection looks to be a misfire. Skipping UpdatePos.")
@@ -1183,6 +1185,11 @@ class line_follower(Node):
             elif minTime < self.current_node.Times[3] < maxTime:
                 hx.append(self.current_node.Wc)
 
+            #keep our current node if we're within 2sd
+            if max(elapsed - (2*sd), 0) <= edgeTime < elapsed + (2*sd):
+                hx.append(self.current_node.name)
+                #this allows our node to fight for the likeliest node in the first step.
+
             #if not, we either got turned around, or we just struggled / found it easy to get here
             #in case we got turned around copy the node we left from:
 
@@ -1224,7 +1231,7 @@ class line_follower(Node):
                 #there's quite a bit of commotion and noise, h2 and h3 are either both [...], or one of them is [...]
                 #this makes it hard to tell how trustworthy h1 is, so lets let h1 graduate but keep note of h2 and h3
 
-                if bc != None:
+                if bc != None and bc!= self.current_destination:
                     #update using the best candidate from h1
                     self.current_node = self.returnNode(bcln)
                     self.current_destination = bc
