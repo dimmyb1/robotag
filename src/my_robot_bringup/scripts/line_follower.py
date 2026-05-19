@@ -534,7 +534,7 @@ class line_follower(Node):
             #Intersection-related
             if self.crawlingBackwards:
                 self.crawlingBackwards = False
-                
+
             if self.crawlBackBeforeIMUturn:
                 self.crawlBackBeforeIMUturn = False #consume
                 self.get_logger().info("finished going a tiny bit back, now starting IMU turn.")
@@ -3033,7 +3033,7 @@ class line_follower(Node):
         #check tag dry-run dated 8 may for full discussion
         
         #TAG
-        if self.ultrasonic_distance < self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag and not self.initiated_tag and not self.tag:
+        if self.ultrasonic_distance <= self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag and not self.initiated_tag and not self.tag:
             self.initiated_tag = True
             self.get_logger().info("Initiating tag...")
             self.stopMov()
@@ -3052,7 +3052,7 @@ class line_follower(Node):
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
                 self.stateFollow = False
 
-                if self.ultrasonic_distance < self.CAPTURE_MAX:
+                if self.ultrasonic_distance <= self.CAPTURE_MAX:
                     #is other robot in front of me?
                     self.movThenPause = True
                     self.clearTag()
@@ -3075,7 +3075,7 @@ class line_follower(Node):
             else:
                 #resolve destination
 
-                if self.ultrasonic_distance < self.CAPTURE_MAX:
+                if self.ultrasonic_distance <= self.CAPTURE_MAX:
                     #is path blocked? 
                     #turn 180 and go back to where you were
                     if self.facing == 0:
@@ -3135,7 +3135,7 @@ class line_follower(Node):
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
 
-        if self.ultrasonic_distance < self.CAPTURE_MAX and not self.resetBehaviour and not self.movBackCosTag and not self.paused:
+        if self.ultrasonic_distance <= self.CAPTURE_MAX and not self.resetBehaviour and not self.movBackCosTag and not self.movThenPause and not self.paused:
             self.stopMov()
             self.safetyStop = True
 
