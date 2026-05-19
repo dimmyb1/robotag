@@ -1154,7 +1154,7 @@ class line_follower(Node):
                                     new_hk.append(d[t])
                             elif self.current_destination:
                                 #must be a list of integers
-                                if t != self.current_destination[0] and t not in new_hk:
+                                if t != self.current_destination[0] and d[t] not in new_hk:
                                     new_hk.append(d[t])
                                 
 
