@@ -2191,11 +2191,75 @@ class line_follower(Node):
         self.get_logger().info(f"ERR: GenerateSafePathFromEnemyNode has failed. No path generated. Are all paths blocked?")
         return [] 
 
+    def greedyProcess(self, CONSIDER_EDGES):
+        #find top CONSIDER_EDGES (int) max valued edge-probabilities
+        topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
+        #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
+
+                
+        parentsDict = {
+            'A' : 0,
+            'B' : 0,
+            'C' : 0,
+            'D' : 0,
+            'E' : 0,
+            'F' : 0,
+            'G' : 0,
+            'H' : 0
+        }
+
+        for k,v in topProb:
+            parentsList = self.getNodesFromEdge(k)
+
+            for p in parentsList:
+                #p is a char: 'A', or 'B', etc - 'H'
+                parentsDict[p] +=1
+
+        #dont allow yourself to pathfind to where you're currently standing
+        parentsDict[self.current_node.name] = 0
+
+        #now we have the most common parent
+        #find central node
+        nfound = False
+                
+        #go backwards from CONSIDER_EDGES-1 (don't count yourself) to 2
+        for cert in range(CONSIDER_EDGES-1, 1, -1): 
+            #until you find the max valued parent node
+            #if you found, do nfound yes
+
+            for toK,v in parentsDict.items():
+            #is there a node?
+                if v == cert:
+                    #yes -> generatepathfromNtoN
+                    self.get_logger().info(f"Target Location: {toK}")
+                    self.current_destination = self.generatePathFromNToN(toK)
+                    nfound=True
+                    break #stop iterating
+                
+        #otherwise:
+        #no -> try the closest one (if greedy search, then we try closest one and try again)
+        #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
+        if not nfound:
+            #so parentsDict only continas values of 0 or 1, so
+            #just traverse parentsDict for the non-0, ==1 parents
+            singleParents = [k for k,v in parentsDict.items() if v==1]
+            #singleParents contains a list of chars e.g. 'A' - 'H'
+
+            #and then just find the closest next node and generate path towards it
+            self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
+            self.get_logger().info(f"Target Location In: {singleParents}")
 
     def planDestination(self):
         self.get_logger().info(f"entered planDestination function with goAhead: {self.goAhead} and stepping: {self.stepping}")
-        CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
-        CONSIDER_EDGES = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
+        EDGE_U_CERTAINTY = 0.65
+        EDGE_L_CERTAINTY = 0.5
+        NODE_U_CERTAINTY = 0.3
+        NODE_L_CERTAINTY = 0.1
+
+        CONSIDER_EDGES_EL = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
+        CONSIDER_EDGES_NU = 4
+        CONSIDER_EDGES_NL = 8
+
         choice = -1
         
         #define some preference algorithm.
@@ -2249,77 +2313,28 @@ class line_follower(Node):
                     maxV = v
                     maxK = k
 
-            if maxV < 0.1:
+            if(maxV >= EDGE_U_CERTAINTY):
+                self.get_logger().info(f"Target location: {maxK}")
+                #then we want to generate a path from our current node to that edge (maxK)
+                self.current_destination = self.generatePathFromNToE(maxK)
+
+            elif maxV >= EDGE_L_CERTAINTY:
+                self.greedyProcess(CONSIDER_EDGES_EL)
+            
+            elif maxV >= NODE_U_CERTAINTY:
+                self.greedyProcess(CONSIDER_EDGES_NU)
+
+            elif maxV >= NODE_L_CERTAINTY:
+                self.greedyProcess(CONSIDER_EDGES_NL)
+
+            else:
                 #the probability distribution is essentially random and equal
                 self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
                 targets = {0: 1, 2: 3, 1: 2, 3: 0}
                 self.imu_target = targets[self.facing]
                 self.startTurnBasedOnIMU()
                 return
-
-            
-
-            if(maxV >= CERTAINTY):
-                self.get_logger().info(f"Target location: {maxK}")
-                #then we want to generate a path from our current node to that edge (maxK)
-                self.current_destination = self.generatePathFromNToE(maxK)
-            else:
-                #find top CONSIDER_EDGES (int) max valued edge-probabilities
-                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
-                #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
-
                 
-                parentsDict = {
-                    'A' : 0,
-                    'B' : 0,
-                    'C' : 0,
-                    'D' : 0,
-                    'E' : 0,
-                    'F' : 0,
-                    'G' : 0,
-                    'H' : 0
-                }
-
-                for k,v in topProb:
-                    parentsList = self.getNodesFromEdge(k)
-
-                    for p in parentsList:
-                        #p is a char: 'A', or 'B', etc - 'H'
-                        parentsDict[p] +=1
-
-                #dont allow yourself to pathfind to where you're currently standing
-                parentsDict[self.current_node.name] = 0
-
-                #now we have the most common parent
-                #find central node
-                nfound = False
-                
-                #go backwards from CONSIDER_EDGES-1 (don't count yourself) to 2
-                for cert in range(CONSIDER_EDGES-1, 1, -1): 
-                    #until you find the max valued parent node
-                    #if you found, do nfound yes
-
-                    for toK,v in parentsDict.items():
-                    #is there a node?
-                        if v == cert:
-                            #yes -> generatepathfromNtoN
-                            self.get_logger().info(f"Target Location: {toK}")
-                            self.current_destination = self.generatePathFromNToN(toK)
-                            nfound=True
-                            break #stop iterating
-                
-                #otherwise:
-                #no -> try the closest one (if greedy search, then we try closest one and try again)
-                #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
-                if not nfound:
-                    #so parentsDict only continas values of 0 or 1, so
-                    #just traverse parentsDict for the non-0, ==1 parents
-                    singleParents = [k for k,v in parentsDict.items() if v==1]
-                    #singleParents contains a list of chars e.g. 'A' - 'H'
-
-                    #and then just find the closest next node and generate path towards it
-                    self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
-                    self.get_logger().info(f"Target Location In: {singleParents}")
 
         elif self.behaviourMode == 4:
             #FOR DEBUGGING:
@@ -2339,7 +2354,13 @@ class line_follower(Node):
                     maxV = v
                     maxK = k
 
-            
+            if maxV < 0.1:
+                #the probability distribution is essentially random and equal
+                self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
+                targets = {0: 1, 2: 3, 1: 2, 3: 0}
+                self.imu_target = targets[self.facing]
+                self.startTurnBasedOnIMU()
+                return
 
             if(maxV >= CERTAINTY):
                 #then we want to generate a path from our current node to that edge (maxK)
@@ -2427,7 +2448,13 @@ class line_follower(Node):
                     maxV = v
                     maxK = k
 
-            
+            if maxV < 0.1:
+                #the probability distribution is essentially random and equal
+                self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
+                targets = {0: 1, 2: 3, 1: 2, 3: 0}
+                self.imu_target = targets[self.facing]
+                self.startTurnBasedOnIMU()
+                return
 
             if(maxV >= CERTAINTY):
                 
