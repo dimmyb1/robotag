@@ -822,7 +822,6 @@ class line_follower(Node):
         
     #Graph Functions
     def calculateProbabilities(self):
-        self.get_logger().info("entered calculateProbabilities function")
         #let's say radar stores the closest ultrasonic ping in euclidean metric in self.ultrasonic_distance
         #we get two readings: first ping entering reading (self.entry_angle)
         # second ping exiting reading (self.exit_angle)
@@ -1404,16 +1403,12 @@ class line_follower(Node):
 
         self.get_logger().info(f"maxV edge: {maxK} with {maxV}. CERTAINTY is {CERTAINTY}")
             
+        #find top CONSIDER_NODES (int) max valued edge-probabilities
+        topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:8]
+        #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
 
-        if(maxV >= CERTAINTY):
-            self.get_logger().info(f"Target Location: {maxK}")
-        else:
-            #find top CONSIDER_NODES (int) max valued edge-probabilities
-            topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:8]
-            #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
-
-            self.get_logger().info(f"CONSIDER is {CONSIDER_NODES}")
-            self.get_logger().info(f"sortedProb is: {topProb}")
+        self.get_logger().info(f"CONSIDER is {CONSIDER_NODES}")
+        self.get_logger().info(f"sortedProb is: {topProb}")
             
         
         
