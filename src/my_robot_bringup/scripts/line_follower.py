@@ -125,13 +125,14 @@ class line_follower(Node):
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max DOC V
         self.CAPTURE_MAX = 0.12 #was (10cm, 0.1m), but was changed to 11.5cm to try to prevent any damage as the robots were bumping into each other, #had to raise to 12 because in Pch1 when they face each other, that's the distance.
-        self.PAUSE_TIME = 75 #was 6, but seemed low so changed to 7. 7 seems low, raising to 14 to avoid immediate tag-backs #14 is too low because we've extended the number of things that happens on tag. raising to 35. 
+        self.PAUSE_TIME = 95 #was 6, but seemed low so changed to 7. 7 seems low, raising to 14 to avoid immediate tag-backs #14 is too low because we've extended the number of things that happens on tag. raising to 35. 
         #   35 was also quite low, it was enough for the opponent to finish turning 180, but that's it, therefore i'll add another 20 seconds to allow the opp to manouvre.
         #   55 still wasn't enough, adding another 20 seconds.
+        #   75 is perfectly timed for the other robot finish moving, but i think it would be safer if there's a few more seconds gap, adding 20 more
         self.startPauseTime = -1
         self.paused = False
         self.time_of_last_tag = -1
-        self.TAG_COOLDOWN = 60 #6 seconds way too short. upping to 60 seconds.
+        self.TAG_COOLDOWN = 100 #6 seconds way too short. upping to 60 seconds.letting it be a bit more than pause_time
         self.tag = False
         self.ack = False
         self.other_tag = False
