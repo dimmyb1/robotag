@@ -2310,6 +2310,222 @@ class line_follower(Node):
             self.current_destination = self.generateSafePathFromListOfEnemyNodes(singleParents)
             self.get_logger().info(f"Target Location in: {singleParents}")
 
+    def interceptiveProcess(self, CONSIDER_EDGES):
+        #find top CONSIDER_EDGES (int) max valued edge-probabilities
+        topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
+        #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
+
+                
+        parentsDict = {
+            'A' : 0,
+            'B' : 0,
+            'C' : 0,
+            'D' : 0,
+            'E' : 0,
+            'F' : 0,
+            'G' : 0,
+            'H' : 0
+        }
+
+        for k,v in topProb:
+            parentsList = self.getNodesFromEdge(k)
+
+            for p in parentsList:
+                #p is a char: 'A', or 'B', etc - 'H'
+                parentsDict[p] +=1
+
+        #dont allow yourself to pathfind to where you're currently standing
+        parentsDict[self.current_node.name] = 0
+
+        #now we have the most common parent
+        #find central node
+        nfound = False
+        for toK,v in parentsDict.items():
+            #is there a node?
+            if v == CONSIDER_EDGES:
+                #yes -> generatepathfromNtoN
+                #try interceptive:
+                #is O =N? or =E?
+                if type(self.opp_old_loc) == str:
+                    #O=E
+                    po = self.getNodesFromEdge(self.opp_old_loc)
+                    if toK in po:
+
+                        #see which of the node's edges this is e.g. North
+                        #and then flip it to get our new direction e.g. South
+                        #then current_destination is the node.Sc node!
+
+                        po.remove(toK)
+                        #po[0] is other parent
+                        #so we want all the edges which connect toK and po[0]
+                        #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
+
+                        pc = self.returnNode(toK)
+                        if pc.Nc == po[0]:
+                            self.current_destination = self.generatePathFromNToN(pc.Sc)
+                        elif pc.Ec == po[0]:
+                            self.current_destination = self.generatePathFromNToN(pc.Wc)
+                        elif pc.Sc == po[0]:
+                            self.current_destination = self.generatePathFromNToN(pc.Nc)
+                        elif pc.Wc == po[0]:
+                            self.current_destination = self.generatePathFromNToN(pc.Ec)
+
+                        self.get_logger().info(f"Target Location: {toK}")
+                        nfound = True
+                        break
+                    else:
+
+                        #greedy
+                        self.current_destination = self.generatePathFromNToN(toK)
+                        self.get_logger().info(f"Target Location: {toK}")
+                        break
+                                
+                else:
+                    #O=N, C=N
+                    eo = self.getEdgesFromNode(self.opp_old_loc)
+                    ec = self.getEdgesFromNode(toK)
+
+                    be_greedy = True
+                    for e in eo:
+                        for ec1 in ec:
+                            if e == ec1 and not nfound:
+                                be_greedy = False
+                                #take the first edge we find <BIAS> / <OPTIMISATION>
+                                #and follow it to the next node
+
+                                self.get_logger().info(f"Target Location: {toK}")
+                                po = self.returnNode(self.opp_old_loc)
+                                if po.Nc == toK:
+                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
+                                elif po.Ec == toK:
+                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Ec)
+                                elif po.Sc == toK:
+                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Sc)
+                                elif po.Wc == toK:
+                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Wc)
+
+                                nfound=True
+                                break #stop iterating
+                                        
+
+                    if be_greedy:
+                        #greedy
+                        self.current_destination = self.generatePathFromNToN(toK)
+                        self.get_logger().info(f"Target Location: {toK}")
+                        nfound=True
+                        break #stop iterating
+
+
+                #greedy
+                self.current_destination = self.generatePathFromNToN(toK)
+                self.get_logger().info(f"Target Location: {toK}")
+                nfound=True
+                break #stop iterating
+                
+        #if not nfound:
+        if not nfound:
+            #go backwards from CONSIDER_EDGES to 2
+            for cert in range(CONSIDER_EDGES-1, 1, -1):
+                #until you find the max valued parent node
+                #if you found, do nfound yes
+
+                for toK,v in parentsDict.items():
+                #is there a node?
+                    if v == cert:
+                        #yes -> generatepathfromNtoN
+                        #try interceptive:
+                        #is O =N? or =E?
+                        if type(self.opp_old_loc) == str:
+                            #O=E
+                            po = self.getNodesFromEdge(self.opp_old_loc)
+                            if toK in po:
+
+                                #see which of the node's edges this is e.g. North
+                                #and then flip it to get our new direction e.g. South
+                                #then current_destination is the node.Sc node!
+
+                                po.remove(toK)
+                                #po[0] is other parent
+                                #so we want all the edges which connect toK and po[0]
+                                #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
+                                self.get_logger().info(f"Target Location: {toK}")
+                                pc = self.returnNode(toK)
+                                if pc.Nc == po[0]:
+                                    self.current_destination = self.generatePathFromNToN(pc.Sc)
+                                elif pc.Ec == po[0]:
+                                    self.current_destination = self.generatePathFromNToN(pc.Wc)
+                                elif pc.Sc == po[0]:
+                                    self.current_destination = self.generatePathFromNToN(pc.Nc)
+                                elif pc.Wc == po[0]:
+                                    self.current_destination = self.generatePathFromNToN(pc.Ec)
+
+                                nfound = True
+                                break
+                            else:
+
+                                #greedy
+                                self.current_destination = self.generatePathFromNToN(toK)
+                                self.get_logger().info(f"Target Location: {toK}")
+                                break
+                                        
+                        else:
+                            #O=N, C=N
+                            eo = self.getEdgesFromNode(self.opp_old_loc)
+                            ec = self.getEdgesFromNode(toK)
+                            self.get_logger().info(f"Target Location: {toK}")
+
+                            be_greedy = True
+                            for e in eo:
+                                for ec1 in ec:
+                                    if e == ec1 and not nfound:
+                                        be_greedy = False
+                                        #take the first edge we find <BIAS> / <OPTIMISATION>
+                                        #and follow it to the next node
+
+
+                                        po = self.returnNode(self.opp_old_loc)
+                                        if po.Nc == toK:
+                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
+                                        elif po.Ec == toK:
+                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Ec)
+                                        elif po.Sc == toK:
+                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Sc)
+                                        elif po.Wc == toK:
+                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Wc)
+
+                                        nfound=True
+                                        break #stop iterating
+                                                
+
+                            if be_greedy:
+                                #greedy
+                                self.current_destination = self.generatePathFromNToN(toK)
+                                self.get_logger().info(f"Target Location: {toK}")
+                                nfound=True
+                                break #stop iterating
+
+
+                        #greedy
+                        self.current_destination = self.generatePathFromNToN(toK)
+                        self.get_logger().info(f"Target Location: {toK}")
+                        nfound=True
+                        break #stop iterating
+                
+        #otherwise:
+        #no -> try the closest one (if greedy search, then we try closest one and try again)
+        #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
+        if not nfound:
+            #so parentsDict only continas values of 0 or 1, so
+            #just traverse parentsDict for the non-0, ==1 parents
+            singleParents = [k for k,v in parentsDict.items() if v==1]
+            #singleParents contains a list of chars e.g. 'A' - 'H'
+
+            #and then just find the closest next node and generate path towards it
+            self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
+            self.get_logger().info(f"Target Location in: {singleParents}")
+
+
+
     def planDestination(self):
         self.get_logger().info(f"entered planDestination function with goAhead: {self.goAhead} and stepping: {self.stepping}")
         EDGE_U_CERTAINTY = 0.65
@@ -2441,7 +2657,6 @@ class line_follower(Node):
             
         elif self.behaviourMode == 5:
             # 5 - Interceptive
-            be_greedy = False
             self.calculateProbabilities()
             
 
@@ -2467,8 +2682,10 @@ class line_follower(Node):
                 self.imu_target = targets[self.facing]
                 self.startTurnBasedOnIMU()
                 return
+            
 
-            if(maxV >= CERTAINTY):
+            be_greedy = False
+            if(maxV >= EDGE_U_CERTAINTY):
                 
                 #opponent is at an edge
                 #so C=E
@@ -2515,219 +2732,23 @@ class line_follower(Node):
                         self.current_destination = self.generatePathFromNToE(maxK)
                         self.get_logger().info(f"Target Location: {maxK}")
 
+            elif maxV >= EDGE_L_CERTAINTY:
+                self.interceptiveProcess(CONSIDER_EDGES_EL)
+            
+            elif maxV >= NODE_U_CERTAINTY:
+                self.interceptiveProcess(CONSIDER_EDGES_NU)
+
+            elif maxV >= NODE_L_CERTAINTY:
+                self.interceptiveProcess(CONSIDER_EDGES_NL)
+
             else:
-                #find top CONSIDER_EDGES (int) max valued edge-probabilities
-                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
-                #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
-
+                #the probability distribution is essentially random and equal
+                self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
+                targets = {0: 1, 2: 3, 1: 2, 3: 0}
+                self.imu_target = targets[self.facing]
+                self.startTurnBasedOnIMU()
+                return
                 
-                parentsDict = {
-                    'A' : 0,
-                    'B' : 0,
-                    'C' : 0,
-                    'D' : 0,
-                    'E' : 0,
-                    'F' : 0,
-                    'G' : 0,
-                    'H' : 0
-                }
-
-                for k,v in topProb:
-                    parentsList = self.getNodesFromEdge(k)
-
-                    for p in parentsList:
-                        #p is a char: 'A', or 'B', etc - 'H'
-                        parentsDict[p] +=1
-
-                #dont allow yourself to pathfind to where you're currently standing
-                parentsDict[self.current_node.name] = 0
-
-                #now we have the most common parent
-                #find central node
-                nfound = False
-                for toK,v in parentsDict.items():
-                    #is there a node?
-                    if v == CONSIDER_EDGES:
-                        #yes -> generatepathfromNtoN
-                        #try interceptive:
-                        #is O =N? or =E?
-                        if type(self.opp_old_loc) == str:
-                            #O=E
-                            po = self.getNodesFromEdge(self.opp_old_loc)
-                            if toK in po:
-
-                                #see which of the node's edges this is e.g. North
-                                #and then flip it to get our new direction e.g. South
-                                #then current_destination is the node.Sc node!
-
-                                po.remove(toK)
-                                #po[0] is other parent
-                                #so we want all the edges which connect toK and po[0]
-                                #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
-
-                                pc = self.returnNode(toK)
-                                if pc.Nc == po[0]:
-                                    self.current_destination = self.generatePathFromNToN(pc.Sc)
-                                elif pc.Ec == po[0]:
-                                    self.current_destination = self.generatePathFromNToN(pc.Wc)
-                                elif pc.Sc == po[0]:
-                                    self.current_destination = self.generatePathFromNToN(pc.Nc)
-                                elif pc.Wc == po[0]:
-                                    self.current_destination = self.generatePathFromNToN(pc.Ec)
-
-                                self.get_logger().info(f"Target Location: {toK}")
-                                nfound = True
-                                break
-                            else:
-
-                                #greedy
-                                self.current_destination = self.generatePathFromNToN(toK)
-                                self.get_logger().info(f"Target Location: {toK}")
-                                break
-                                
-                        else:
-                            #O=N, C=N
-                            eo = self.getEdgesFromNode(self.opp_old_loc)
-                            ec = self.getEdgesFromNode(toK)
-
-                            be_greedy = True
-                            for e in eo:
-                                for ec1 in ec:
-                                    if e == ec1 and not nfound:
-                                        be_greedy = False
-                                        #take the first edge we find <BIAS> / <OPTIMISATION>
-                                        #and follow it to the next node
-
-                                        self.get_logger().info(f"Target Location: {toK}")
-                                        po = self.returnNode(self.opp_old_loc)
-                                        if po.Nc == toK:
-                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
-                                        elif po.Ec == toK:
-                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Ec)
-                                        elif po.Sc == toK:
-                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Sc)
-                                        elif po.Wc == toK:
-                                            self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Wc)
-
-                                        nfound=True
-                                        break #stop iterating
-                                        
-
-                            if be_greedy:
-                                #greedy
-                                self.current_destination = self.generatePathFromNToN(toK)
-                                self.get_logger().info(f"Target Location: {toK}")
-                                nfound=True
-                                break #stop iterating
-
-
-                        #greedy
-                        self.current_destination = self.generatePathFromNToN(toK)
-                        self.get_logger().info(f"Target Location: {toK}")
-                        nfound=True
-                        break #stop iterating
-                
-                #if not nfound:
-                if not nfound:
-                    #go backwards from CONSIDER_EDGES to 2
-                    for cert in range(CONSIDER_EDGES-1, 1, -1):
-                        #until you find the max valued parent node
-                        #if you found, do nfound yes
-
-                        for toK,v in parentsDict.items():
-                        #is there a node?
-                            if v == cert:
-                                #yes -> generatepathfromNtoN
-                                #try interceptive:
-                                #is O =N? or =E?
-                                if type(self.opp_old_loc) == str:
-                                    #O=E
-                                    po = self.getNodesFromEdge(self.opp_old_loc)
-                                    if toK in po:
-
-                                        #see which of the node's edges this is e.g. North
-                                        #and then flip it to get our new direction e.g. South
-                                        #then current_destination is the node.Sc node!
-
-                                        po.remove(toK)
-                                        #po[0] is other parent
-                                        #so we want all the edges which connect toK and po[0]
-                                        #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
-                                        self.get_logger().info(f"Target Location: {toK}")
-                                        pc = self.returnNode(toK)
-                                        if pc.Nc == po[0]:
-                                            self.current_destination = self.generatePathFromNToN(pc.Sc)
-                                        elif pc.Ec == po[0]:
-                                            self.current_destination = self.generatePathFromNToN(pc.Wc)
-                                        elif pc.Sc == po[0]:
-                                            self.current_destination = self.generatePathFromNToN(pc.Nc)
-                                        elif pc.Wc == po[0]:
-                                            self.current_destination = self.generatePathFromNToN(pc.Ec)
-
-                                        nfound = True
-                                        break
-                                    else:
-
-                                        #greedy
-                                        self.current_destination = self.generatePathFromNToN(toK)
-                                        self.get_logger().info(f"Target Location: {toK}")
-                                        break
-                                        
-                                else:
-                                    #O=N, C=N
-                                    eo = self.getEdgesFromNode(self.opp_old_loc)
-                                    ec = self.getEdgesFromNode(toK)
-                                    self.get_logger().info(f"Target Location: {toK}")
-
-                                    be_greedy = True
-                                    for e in eo:
-                                        for ec1 in ec:
-                                            if e == ec1 and not nfound:
-                                                be_greedy = False
-                                                #take the first edge we find <BIAS> / <OPTIMISATION>
-                                                #and follow it to the next node
-
-
-                                                po = self.returnNode(self.opp_old_loc)
-                                                if po.Nc == toK:
-                                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
-                                                elif po.Ec == toK:
-                                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Ec)
-                                                elif po.Sc == toK:
-                                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Sc)
-                                                elif po.Wc == toK:
-                                                    self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Wc)
-
-                                                nfound=True
-                                                break #stop iterating
-                                                
-
-                                    if be_greedy:
-                                        #greedy
-                                        self.current_destination = self.generatePathFromNToN(toK)
-                                        self.get_logger().info(f"Target Location: {toK}")
-                                        nfound=True
-                                        break #stop iterating
-
-
-                                #greedy
-                                self.current_destination = self.generatePathFromNToN(toK)
-                                self.get_logger().info(f"Target Location: {toK}")
-                                nfound=True
-                                break #stop iterating
-                
-                #otherwise:
-                #no -> try the closest one (if greedy search, then we try closest one and try again)
-                #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
-                if not nfound:
-                    #so parentsDict only continas values of 0 or 1, so
-                    #just traverse parentsDict for the non-0, ==1 parents
-                    singleParents = [k for k,v in parentsDict.items() if v==1]
-                    #singleParents contains a list of chars e.g. 'A' - 'H'
-
-                    #and then just find the closest next node and generate path towards it
-                    self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
-                    self.get_logger().info(f"Target Location in: {singleParents}")
         #else:
             # 0 - not set (no behaviour)
             
