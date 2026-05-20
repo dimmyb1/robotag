@@ -23,6 +23,11 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  scripts/tuning_tracking.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 
 ament_package()
