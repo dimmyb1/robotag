@@ -2608,9 +2608,7 @@ class line_follower(Node):
             else:
                 #the probability distribution is essentially random and equal
                 self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
-                targets = {0: 1, 2: 3, 1: 2, 3: 0}
-                self.imu_target = targets[self.facing]
-                self.startTurnBasedOnIMU()
+                self.retryPlan = -2
                 return
                 
 
@@ -2650,9 +2648,7 @@ class line_follower(Node):
             else:
                 #the probability distribution is essentially random and equal
                 self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
-                targets = {0: 1, 2: 3, 1: 2, 3: 0}
-                self.imu_target = targets[self.facing]
-                self.startTurnBasedOnIMU()
+                self.retryPlan = -2
                 return
                 
             
@@ -2737,9 +2733,7 @@ class line_follower(Node):
             else:
                 #the probability distribution is essentially random and equal
                 self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
-                targets = {0: 1, 2: 3, 1: 2, 3: 0}
-                self.imu_target = targets[self.facing]
-                self.startTurnBasedOnIMU()
+                self.retryPlan = -2
                 return
                 
         #else:
