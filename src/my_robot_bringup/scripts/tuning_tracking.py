@@ -411,12 +411,8 @@ class line_follower(Node):
         self.entry_angle = msg.data[0]
         self.exit_angle = msg.data[1]
         self.ultrasonic_distance = msg.data[2]
-
-        if  self.waitingForUltrasonic:
-            self.waitingForUltrasonic = False
-            #self.locateTarget = False
         
-        self.get_logger().info(f"Received Object Data -> Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.ultrasonic_distance:.2f}")
+        self.get_logger().info(f"SUB: Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.ultrasonic_distance:.2f}")
 
     def publish_sweep_command(self):
         payload = {
@@ -1349,6 +1345,7 @@ class line_follower(Node):
         if self.ultrasonic_distance != float('inf'):
             self.updatePos()
         if self.senseEntryTime + self.SENSE_COOLDOWN < self.now:
+            self.senseEntryTime = self.now
             self.sweep = True
             self.multiple = False
             self.publish_sweep_command()
