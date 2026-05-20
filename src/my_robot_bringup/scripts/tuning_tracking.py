@@ -354,7 +354,41 @@ class line_follower(Node):
 
         self.timer = self.create_timer(0.05, self.loop)
 
-    
+    #ESP callback
+    def tag_callback(self, msg):
+        #Handshaking
+        data = json.loads(msg.data)
+        self.other_tag = data.get("tag", False)
+        self.other_ack = data.get("ack", False)
+            
+        
+        if self.initiated_tag:
+            if not self.ack and not self.other_ack and self.other_tag:
+                #deadlock: both trying to initiate. I will back down
+                #deterministic resolution, if i am twix, then im the one who needs to back down.
+                if (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and self.get_namespace().strip('/') == 'twix':
+                    self.initiated_tag = False
+                    self.tag = True
+                    self.ack = True
+
+            if self.ack and not self.other_ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
+                self.initiated_tag = False
+                self.ack = False
+                self.doTag = True
+            elif self.other_ack:
+                self.tag = False
+                self.ack = True
+        else:
+            if self.other_tag and not self.tag and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
+                self.tag = True
+                self.ack = True
+            elif self.other_ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
+                self.ack = False
+                self.tag = False
+                self.doTag = True
+
+        # Optional: Print to the terminal so you can see it working
+        # self.get_logger().info(f"{self.other_robot} has the tag: {self.opponent_has_tag}")
 
     def publish_tag_status(self):
         payload = {
@@ -411,8 +445,12 @@ class line_follower(Node):
         self.entry_angle = msg.data[0]
         self.exit_angle = msg.data[1]
         self.ultrasonic_distance = msg.data[2]
+
+        if  self.waitingForUltrasonic:
+            self.waitingForUltrasonic = False
+            #self.locateTarget = False
         
-        self.get_logger().info(f"SUB: Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.ultrasonic_distance:.2f}")
+        self.get_logger().info(f"Received Object Data -> Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.ultrasonic_distance:.2f}")
 
     def publish_sweep_command(self):
         payload = {
@@ -424,6 +462,53 @@ class line_follower(Node):
         msg.data = json.dumps(payload)
         self.sweep_pub.publish(msg)
         self.get_logger().info(f"SWEEP PUBLISHED: sweep={self.sweep}, multiple={self.multiple}")
+
+    #Line Following Functions
+    def detect_black(self, img):
+        # Convert BGR (OpenCV default) to HSV
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        # returns a mask of black pixels in the image
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([0, 0, 12])
+        mask = cv2.inRange(hsv, lower_black, upper_black)
+        return cv2.countNonZero(mask) #(int) num of black pixels in img
+    
+    def detect_gray(self, img):
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        # returns a mask of black pixels in the image
+        #these are tuned for ultramarine blue
+        lower_gray = np.array([100, 200, 30])
+        upper_gray = np.array([130, 250, 130])
+        mask = cv2.inRange(hsv, lower_gray, upper_gray)
+
+        #for debugging
+        #gray_pixels = hsv[mask > 0]
+        # sort by V channel (brightness)
+        #gray_pixels = gray_pixels[np.argsort(gray_pixels[:, 2])]
+        #self.get_logger().info(f"GRAY: {gray_pixels[:20]}")   # darkest 20 detected pixels
+        #self.get_logger().info(f"HSV: {hsv.reshape(-1,3)}")
+
+
+        return cv2.countNonZero(mask) #(int) num of gray pixels in img
+    
+    def ir_L_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        self.colours[0] = self.detect_black(img)
+        self.isGray[0] = self.detect_gray(img)
+
+    def ir_M_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        self.colours[1] = self.detect_black(img)
+        self.isGray[1] = self.detect_gray(img)
+
+    def ir_R_callback(self, msg):
+        h, w = msg.height, msg.width
+        img = np.frombuffer(msg.data, np.uint8).reshape(h, w, 3)
+        self.colours[2] = self.detect_black(img)
+        self.isGray[2] = self.detect_gray(img)
+
 
    
 
@@ -1346,10 +1431,16 @@ class line_follower(Node):
             self.updatePos()
         if self.senseEntryTime + self.SENSE_COOLDOWN < self.now:
             self.senseEntryTime = self.now
+
+            
+            self.ultrasonic_distance = float('inf')
+            self.exit_angle = float('inf')
+            self.entry_angle = float('inf')
+
+
             self.sweep = True
             self.multiple = False
             self.publish_sweep_command()
-            self.ultrasonic_distance = float('inf')
 
 
         
