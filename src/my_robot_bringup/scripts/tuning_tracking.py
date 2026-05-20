@@ -1344,7 +1344,7 @@ class line_follower(Node):
         self.now = time.time()
         if self.ultrasonic_distance != float('inf'):
             self.updatePos()
-        if self.senseEntryTime + self.SENSE_COOLDOWN < self.now:
+        if self.senseEntryTime + self.SENSE_COOLDOWN > self.now:
             self.senseEntryTime = self.now
             self.sweep = True
             self.multiple = False
