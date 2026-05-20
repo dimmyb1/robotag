@@ -2311,6 +2311,7 @@ class line_follower(Node):
             self.get_logger().info(f"Target Location in: {singleParents}")
 
     def interceptiveProcess(self, CONSIDER_EDGES):
+        be_greedy = False
         #find top CONSIDER_EDGES (int) max valued edge-probabilities
         topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
         #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
@@ -2675,15 +2676,7 @@ class line_follower(Node):
                     maxV = v
                     maxK = k
 
-            if maxV < 0.1:
-                #the probability distribution is essentially random and equal
-                self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
-                targets = {0: 1, 2: 3, 1: 2, 3: 0}
-                self.imu_target = targets[self.facing]
-                self.startTurnBasedOnIMU()
-                return
             
-
             be_greedy = False
             if(maxV >= EDGE_U_CERTAINTY):
                 
