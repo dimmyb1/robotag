@@ -3079,8 +3079,6 @@ class line_follower(Node):
             else:
                 #resolve destination
                 self.get_logger().info("I NEED TO CLEAR, THEN TURN 180 OR GO STRAIGHT.")
-                self.allowCrawl = False
-                
                 if self.ultrasonic_distance <= self.CAPTURE_MAX:
                     #is path blocked? 
                     #turn 180 and go back to where you were
@@ -3290,162 +3288,12 @@ class line_follower(Node):
             
     
     def loop(self):
-        STARTUP_WAIT = 7
-        
-        #updates
-        self.now = time.time() #so that all time variables are up-to-date
-
-        #Wait for everything to settle
-        if self.STARTUP_TIME == -1:
-            self.STARTUP_TIME = self.now
-        
-        if self.now < self.STARTUP_TIME + STARTUP_WAIT:
-            return
-
-        self.update_motion() #check for end of turn
-
-        #check cooldowns
-        if (self.now > self.startPauseTime + self.PAUSE_TIME) and self.paused:
-            self.paused = False #consume
-
-        if (self.now > self.senseEntryTime + self.SENSE_COOLDOWN) and self.dontSense and self.current_destination == [] and not self.crawlingForwardBeforeIMUturn and not self.aligning and not self.crawlBackBeforeIMUturn:
-            self.dontSense = False #consume
-            self.triggerSweep = True
-
-        if self.behaviourMode in [3,5] and self.lookAround:
-            self.triggerSweep = True
-            self.lookAround = False #consume
-            self.completeSequence = True
-        
-
-        #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning and not self.crawlBackBeforeIMUturn:
-            #trigger single sweep
-            self.sweep = True
-            self.multiple = False
-            self.waitingForUltrasonic = True
-            #clear old values before going in to not propogate stale values.
-            self.entry_angle = float('inf')
-            self.exit_angle = float('inf')
-            self.ultrasonic_distance = float('inf')
-            self.publish_sweep_command()
-
-            if self.retryPlan != 0 or self.triggerSweep:
-                self.postRetry = True
-
-            #consume
-            self.retryPlan = 0
-            self.triggerSweep = False
-            self.initial_reading_taken = True
-        
-        #specifically when retrying
-        if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn and not self.aligning and not self.crawlBackBeforeIMUturn:
-            self.postRetry = False
-            self.checkUltra()
-            self.stepping = False
-
-            if self.retryPlan != 0:
-                # Still can't plan — set up another retry turn
-                self.stopMov()
-
-                self.retryAttempts +=1
-                if self.retryAttempts >=3 and self.retryPlan not in [-2,-3]:
-                    if self.behaviourMode in [3,5]:
-
-                        if self.current_destination == [] or type(self.current_destination) == str:
-                            #if we've exhausted our plan or if we are still at our first node
-                            #proactive search
-                            self.takeStep()
-                            self.get_logger().info(f"stepping to {self.current_destination[0]}")
-                        elif self.current_destination:
-                            #if we have a plan, just keep following it, dont waste time searching here
-                            #will still set stepping to true, not actually stepping but it's a good check to use in updatePlan
-                            self.get_logger().info("progressing with saved plan.")
-
-                        self.stepping = True
-                        self.goAhead = True
-                        self.destination_id = -1
-                        self.retryPlan = 0
-                        self.retryAttempts = 0
-                        self.get_logger().info("Departing via 3,5 beh.")
-                    else:
-                        #passive
-                        #don't keep turning 180s, do a finer grain search
-                        targets = {0: 1, 2: 3, 1: 2, 3: 0}
-                else:
-                    if self.retryPlan == -1:
-                        targets = {0: 2, 2: 0, 1: 3, 3: 1}
-                    elif self.retryPlan == -2:
-                        targets = {0: 1, 2: 3, 1: 2, 3: 0}
-                    elif self.retryPlan == -3:
-                        targets = {0: 3, 2: 1, 1: 0, 3: 2}
-                    else:
-                        self.retryAttempts = 0
-                        targets = {}
-
-                if not self.stepping:
-                    self.imu_target = targets.get(self.facing, -1)
-                
-                    self.startTurnBasedOnIMU()
-            
-            else:
-                #checkUltra returned clear
-                self.retryAttempts = 0
-                self.allowCrawl = True
-
-                if self.behaviourMode in [3,5]:
-                    self.goAhead = True
-                    self.get_logger().info("going ahead and generating a new path based on latest findings.")
-
-        #check for tags and publish status
-        self.surveillCapture()
-        self.publish_tag_status()
-
-        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning or self.crawlBackBeforeIMUturn:
-            #self.get_logger().info(f"retryPlan: {self.retryPlan}, paus: {self.paused}, dontS: {self.dontSense}, turn: {self.imu_turning}, initial_taken: {self.initial_reading_taken}, crawlF: {self.crawlingForwardBeforeIMUturn}, align: {self.aligning}, crawlBIMU: {self.crawlBackBeforeIMUturn}")
-            pass
-        elif not self.waitingForUltrasonic:
-            #check for intersection, reset behaviour from tag, update location and destination and target tracking
-            if self.behaviourMode in [3,4,5] and not self.stateFollow:
-                self.checkUltra()
-
-            if self.retryPlan == 0:
-                #if self.behaviourMode == 3:
-                #    self.get_logger().info(f"entering updatepos with goAhead: {self.goAhead}, step: {self.stepping}, completeSeq: {self.completeSequence}, lookAround: {self.lookAround}")
-                self.updatePos() #gated by self.imu_turning and by GRAY_COOLDOWN
+        self.handleSweep()
+        self.sweep = True
+        self.multiple = True
+        self.publish_sweep_command()
 
         
-        if self.retryPlan != 0 or self.postRetry or self.lookAround or self.paused or self.imu_turning or self.dontSense or self.waitingForUltrasonic or self.crawlingBackwards or self.crawlingForwardBeforeIMUturn or self.aligning or self.crawlBackBeforeIMUturn or self.safetyStop or self.movBackCosTag:
-            if self.stateFollow: 
-                self.get_logger().info(f"Set stateFollow to False in loop(). retryPlan: {self.retryPlan}, postRetry: {self.postRetry}, paused: {self.paused}, imu_turn: {self.imu_turning}, dontSense: {self.dontSense}, wait: {self.waitingForUltrasonic}, crawlBack: {self.crawlingBackwards}, crawlForward: {self.crawlingForwardBeforeIMUturn}, aligning: {self.aligning}")
-            self.stateFollow = False
-
-            #Stop sweep. 
-            if (self.sweep or self.multiple) and not self.waitingForUltrasonic and not self.lookAround:
-                self.sweep = False
-                self.multiple = False
-                self.publish_sweep_command()
-
-        elif self.current_destination == [] and self.behaviourMode == 4:
-            self.stateFollow = False
-
-        elif not self.firstNode:
-            self.stateFollow = True
-            self.allowCrawl = False
-        
-
-        if self.stateFollow:
-            #simple line following
-            self.followLine()
-
-            #Tag Sweep
-            if (not self.sweep or not self.multiple) and not self.safetyStop:
-                self.sweep = True
-                self.multiple = True
-                self.publish_sweep_command()
-
-        #self.get_logger().info(f"dontSense: {self.dontSense}, imu_turning: {self.imu_turning}, wait: {self.waitingForUltrasonic}, yaw_deg: {self.yaw_deg}")
-
 def main():
     rclpy.init()
     node = line_follower()
