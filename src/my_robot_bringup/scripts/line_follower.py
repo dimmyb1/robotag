@@ -2249,6 +2249,67 @@ class line_follower(Node):
             self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
             self.get_logger().info(f"Target Location In: {singleParents}")
 
+    def avoidantProcess(self, CONSIDER_EDGES):
+        #find top CONSIDER_EDGES (int) max valued edge-probabilities
+        topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
+        #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
+
+                
+        parentsDict = {
+            'A' : 0,
+            'B' : 0,
+            'C' : 0,
+            'D' : 0,
+            'E' : 0,
+            'F' : 0,
+            'G' : 0,
+            'H' : 0
+        }
+
+        for k,v in topProb:
+            parentsList = self.getNodesFromEdge(k)
+
+            for p in parentsList:
+                #p is a char: 'A', or 'B', etc - 'H'
+                parentsDict[p] +=1
+
+        #dont allow yourself to pathfind to where you're currently standing
+        parentsDict[self.current_node.name] = 0
+
+        #now we have the most common parent
+        #find central node
+        nfound = False
+                
+        #go backwards from CONSIDER_EDGES to 2
+        for cert in range(CONSIDER_EDGES-1, 1, -1):
+            #until you find the max valued parent node
+            #if you found, do nfound yes
+
+            for toK,v in parentsDict.items():
+            #is there a node?
+                if v == cert:
+                    #yes -> generatepathfromNtoN
+                    self.get_logger().info(f"Target Location: {toK}")
+                    self.current_destination = self.generateSafePathFromEnemyNode(toK)
+                    nfound=True
+                    break #stop iterating
+                    
+            if nfound:
+                break
+                
+        #otherwise:
+        #no -> try the closest one (if greedy search, then we try closest one and try again)
+        #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
+        if not nfound:
+            #so parentsDict only continas values of 0 or 1, so
+            #just traverse parentsDict for the non-0, ==1 parents
+            singleParents = [k for k,v in parentsDict.items() if v==1]
+            #singleParents contains a list of chars e.g. 'A' - 'H'
+
+            #and then just find the closest next node and generate path towards it
+            self.current_destination = self.generateSafePathFromListOfEnemyNodes(singleParents)
+            self.get_logger().info(f"Target Location in: {singleParents}")
+
     def planDestination(self):
         self.get_logger().info(f"entered planDestination function with goAhead: {self.goAhead} and stepping: {self.stepping}")
         EDGE_U_CERTAINTY = 0.65
@@ -2354,78 +2415,29 @@ class line_follower(Node):
                     maxV = v
                     maxK = k
 
-            if maxV < 0.1:
+            
+            if(maxV >= EDGE_U_CERTAINTY):
+                #then we want to generate a path from our current node to that edge (maxK)
+                self.current_destination = self.generateSafePathFromEnemyEdge(maxK)
+                self.get_logger().info(f"Target Location: {maxK}")
+
+            elif maxV >= EDGE_L_CERTAINTY:
+                self.avoidantProcess(CONSIDER_EDGES_EL)
+            
+            elif maxV >= NODE_U_CERTAINTY:
+                self.avoidantProcess(CONSIDER_EDGES_NU)
+
+            elif maxV >= NODE_L_CERTAINTY:
+                self.avoidantProcess(CONSIDER_EDGES_NL)
+
+            else:
                 #the probability distribution is essentially random and equal
                 self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
                 targets = {0: 1, 2: 3, 1: 2, 3: 0}
                 self.imu_target = targets[self.facing]
                 self.startTurnBasedOnIMU()
                 return
-
-            if(maxV >= CERTAINTY):
-                #then we want to generate a path from our current node to that edge (maxK)
-                self.current_destination = self.generateSafePathFromEnemyEdge(maxK)
-                self.get_logger().info(f"Target Location: {maxK}")
-            else:
-                #find top CONSIDER_EDGES (int) max valued edge-probabilities
-                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
-                #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
-
                 
-                parentsDict = {
-                    'A' : 0,
-                    'B' : 0,
-                    'C' : 0,
-                    'D' : 0,
-                    'E' : 0,
-                    'F' : 0,
-                    'G' : 0,
-                    'H' : 0
-                }
-
-                for k,v in topProb:
-                    parentsList = self.getNodesFromEdge(k)
-
-                    for p in parentsList:
-                        #p is a char: 'A', or 'B', etc - 'H'
-                        parentsDict[p] +=1
-
-                #dont allow yourself to pathfind to where you're currently standing
-                parentsDict[self.current_node.name] = 0
-
-                #now we have the most common parent
-                #find central node
-                nfound = False
-                
-                #go backwards from CONSIDER_EDGES to 2
-                for cert in range(CONSIDER_EDGES-1, 1, -1):
-                    #until you find the max valued parent node
-                    #if you found, do nfound yes
-
-                    for toK,v in parentsDict.items():
-                    #is there a node?
-                        if v == cert:
-                            #yes -> generatepathfromNtoN
-                            self.get_logger().info(f"Target Location: {toK}")
-                            self.current_destination = self.generateSafePathFromEnemyNode(toK)
-                            nfound=True
-                            break #stop iterating
-                    
-                    if nfound:
-                        break
-                
-                #otherwise:
-                #no -> try the closest one (if greedy search, then we try closest one and try again)
-                #                          (if avoidant search, then we assume the worst-case (closest) but avoid the top few)
-                if not nfound:
-                    #so parentsDict only continas values of 0 or 1, so
-                    #just traverse parentsDict for the non-0, ==1 parents
-                    singleParents = [k for k,v in parentsDict.items() if v==1]
-                    #singleParents contains a list of chars e.g. 'A' - 'H'
-
-                    #and then just find the closest next node and generate path towards it
-                    self.current_destination = self.generateSafePathFromListOfEnemyNodes(singleParents)
-                    self.get_logger().info(f"Target Location in: {singleParents}")
             
         elif self.behaviourMode == 5:
             # 5 - Interceptive
