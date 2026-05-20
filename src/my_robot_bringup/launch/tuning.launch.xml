@@ -36,15 +36,7 @@
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twix -x -0.5699 -y 2.6250 -z 0.0420 -Y 3.14159" />
         
-        <node pkg="my_robot_bringup"
-          exec="tuning_tracking.py"
-          name="line_follower"
-          output="screen"/>
-
-        <node pkg="my_robot_bringup"
-          exec="ultrasonic_sweep.py"
-          name="sweeping_ultrasonic_node"
-          output="screen"/>
+        
     </group>
 
 
@@ -76,7 +68,15 @@
         <node pkg="ros_gz_sim" exec="create" 
               args="-topic robot_description -name twirl -x 0.6345 -y 3.4810 -z 0.0420 -Y 3.14159" />
 
-        
+        <node pkg="my_robot_bringup"
+          exec="tuning_tracking.py"
+          name="line_follower"
+          output="screen"/>
+
+        <node pkg="my_robot_bringup"
+          exec="ultrasonic_sweep.py"
+          name="sweeping_ultrasonic_node"
+          output="screen"/>
     </group>
 
     <node pkg="ros_gz_bridge" exec="parameter_bridge">
