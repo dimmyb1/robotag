@@ -144,7 +144,7 @@ class line_follower(Node):
         #ultrasonic sensor and servo vars
         self.entry_angle = float('inf')
         self.exit_angle = float('inf')
-        self.ultrasonic_distance = 100.0
+        self.ultrasonic_distance = float('inf')
         self.sweep = False
         self.multiple = False
         self.locateTarget = False
@@ -1342,7 +1342,7 @@ class line_follower(Node):
 
     def loop(self):
         self.now = time.time()
-        if self.ultrasonic_distance != float('inf'):
+        if self.ultrasonic_distance != float('inf') and self.entry_angle != float('inf'):
             self.updatePos()
         if self.senseEntryTime + self.SENSE_COOLDOWN > self.now:
             self.senseEntryTime = self.now
