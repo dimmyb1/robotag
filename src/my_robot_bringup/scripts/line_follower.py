@@ -25,7 +25,7 @@ import heapq #for dijkstra
 #PERSISTENCE - tunable
 #CONTAMINATION - tunable
 #CERTAINTY - tunable
-#CONSIDER_NODES - tunable, partly measurable
+#CONSIDER_EDGES - tunable, partly measurable
 #GRAY_COOLDOWN - measurable
 #SENSE_COOLDOWN - measurable, partly tunable
 #TURN_TIME - measurable
@@ -2195,7 +2195,7 @@ class line_follower(Node):
     def planDestination(self):
         self.get_logger().info(f"entered planDestination function with goAhead: {self.goAhead} and stepping: {self.stepping}")
         CERTAINTY = 0.6 #threshold for us to definitely assume taht the opponent is at a particular location
-        CONSIDER_NODES = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
+        CONSIDER_EDGES = 3 #if CERTAINTY threshold is not met, how many of the top probability nodes should we consider?
         choice = -1
         
         #define some preference algorithm.
@@ -2249,6 +2249,14 @@ class line_follower(Node):
                     maxV = v
                     maxK = k
 
+            if maxV < 0.1:
+                #the probability distribution is essentially random and equal
+                self.get_logger().info("maxV < 0.1 - not good enough to plan a destination.")
+                targets = {0: 1, 2: 3, 1: 2, 3: 0}
+                self.imu_target = targets[self.facing]
+                self.startTurnBasedOnIMU()
+                return
+
             
 
             if(maxV >= CERTAINTY):
@@ -2256,8 +2264,8 @@ class line_follower(Node):
                 #then we want to generate a path from our current node to that edge (maxK)
                 self.current_destination = self.generatePathFromNToE(maxK)
             else:
-                #find top CONSIDER_NODES (int) max valued edge-probabilities
-                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
+                #find top CONSIDER_EDGES (int) max valued edge-probabilities
+                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
                 #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
 
                 
@@ -2286,8 +2294,8 @@ class line_follower(Node):
                 #find central node
                 nfound = False
                 
-                #go backwards from CONSIDER_NODES-1 (don't count yourself) to 2
-                for cert in range(CONSIDER_NODES-1, 1, -1): 
+                #go backwards from CONSIDER_EDGES-1 (don't count yourself) to 2
+                for cert in range(CONSIDER_EDGES-1, 1, -1): 
                     #until you find the max valued parent node
                     #if you found, do nfound yes
 
@@ -2338,8 +2346,8 @@ class line_follower(Node):
                 self.current_destination = self.generateSafePathFromEnemyEdge(maxK)
                 self.get_logger().info(f"Target Location: {maxK}")
             else:
-                #find top CONSIDER_NODES (int) max valued edge-probabilities
-                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
+                #find top CONSIDER_EDGES (int) max valued edge-probabilities
+                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
                 #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
 
                 
@@ -2368,8 +2376,8 @@ class line_follower(Node):
                 #find central node
                 nfound = False
                 
-                #go backwards from CONSIDER_NODES to 2
-                for cert in range(CONSIDER_NODES-1, 1, -1):
+                #go backwards from CONSIDER_EDGES to 2
+                for cert in range(CONSIDER_EDGES-1, 1, -1):
                     #until you find the max valued parent node
                     #if you found, do nfound yes
 
@@ -2469,8 +2477,8 @@ class line_follower(Node):
                         self.get_logger().info(f"Target Location: {maxK}")
 
             else:
-                #find top CONSIDER_NODES (int) max valued edge-probabilities
-                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_NODES]
+                #find top CONSIDER_EDGES (int) max valued edge-probabilities
+                topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
                 #returns smth like [('Pbd1', 0.56), ('Pbc1', 0.33), ('Pcd2', 0.10)]
 
                 
@@ -2500,7 +2508,7 @@ class line_follower(Node):
                 nfound = False
                 for toK,v in parentsDict.items():
                     #is there a node?
-                    if v == CONSIDER_NODES:
+                    if v == CONSIDER_EDGES:
                         #yes -> generatepathfromNtoN
                         #try interceptive:
                         #is O =N? or =E?
@@ -2582,8 +2590,8 @@ class line_follower(Node):
                 
                 #if not nfound:
                 if not nfound:
-                    #go backwards from CONSIDER_NODES to 2
-                    for cert in range(CONSIDER_NODES-1, 1, -1):
+                    #go backwards from CONSIDER_EDGES to 2
+                    for cert in range(CONSIDER_EDGES-1, 1, -1):
                         #until you find the max valued parent node
                         #if you found, do nfound yes
 
