@@ -159,14 +159,14 @@ class line_follower(Node):
 
         # Graph
         #   id = Noden( Nc,  Ec,  Sc,  Wc, name,       Times        ,        SDs      )
-        self.A = Noden('B', 'B', 'F', 'E', 'A', [ 78,  11,  61, 140], [29,  7, 31, 66])
-        self.B = Noden('A', 'C', 'D', 'A', 'B', [106,  14,  29,  11], [59,  7, 12, 16])
-        self.C = Noden('H', 'D', 'D', 'B', 'C', [155,  49,  10,  15], [53, 22,  8,  7])
-        self.D = Noden('C', 'C', 'F', 'B', 'D', [ 13,  59,  40,  46], [ 6, 29,  5, 11])
-        self.E = Noden('A', 'F', 'G', 'G', 'E', [128,  12,  49,  90], [74,  7, 87, 73])
-        self.F = Noden('A', 'D', 'G', 'E', 'F', [111,  41,  10,  34], [30, 34,  8, 10])
-        self.G = Noden('F', 'H', 'E', 'E', 'G', [  9,  12, 109,  34], [ 6,  5, 54, 34])
-        self.H = Noden('C', 'H', 'H', 'G', 'H', [130,  85,  89,  14], [58, 34, 87,  7])
+        self.A = Noden('B', 'B', 'F', 'E', 'A', [112,  22,  83, 249], [29,  7, 31, 66])
+        self.B = Noden('A', 'C', 'D', 'A', 'B', [170,  20,  49,  24], [59,  7, 12, 16])
+        self.C = Noden('H', 'D', 'D', 'B', 'C', [219,  91,  18,  20], [53, 22,  8,  7])
+        self.D = Noden('C', 'C', 'F', 'B', 'D', [ 14,  77,  48,  58], [ 6, 29,  5, 11])
+        self.E = Noden('A', 'F', 'G', 'G', 'E', [230,  20, 115, 202], [74,  7, 87, 73])
+        self.F = Noden('A', 'D', 'G', 'E', 'F', [ 96,  64,  17,  33], [30, 34,  8, 10])
+        self.G = Noden('F', 'H', 'E', 'E', 'G', [ 16,  17, 182,  78], [ 6,  5, 54, 34])
+        self.H = Noden('C', 'H', 'H', 'G', 'H', [206, 122, 158,  20], [58, 34, 87,  7])
 
         self.myNodes = [self.A, self.B, self.C, self.D, self.E, self.F, self.G, self.H]
 
