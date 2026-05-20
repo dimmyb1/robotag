@@ -844,8 +844,6 @@ class line_follower(Node):
             self.searching = False
             self.elapsed = 0
 
-            
-
         elif self.minPixels < L:
             self.turnLeft(self.realDelay)
 
@@ -862,6 +860,11 @@ class line_follower(Node):
 
         else:
             self.search()
+
+    
+    #-----------------------
+    # Node Helper Functions
+    #-----------------------
 
     def returnNode(self, c):
         if c == 'A':
@@ -883,10 +886,7 @@ class line_follower(Node):
         else:
             self.get_logger().info(f"Can't return nonexistent char-node value for {c}. returning None")
             return None
-        
-    #-----------------------
-    # Node Helper Functions
-    #-----------------------
+    
     def getEdgesFromNode(self, fromNCHAR):
         #ONLY ACCEPTS CHARS
         if fromNCHAR == 'A': return ["Pab2", "Pab1", "Paf1", "Pae1"]
@@ -3080,7 +3080,7 @@ class line_follower(Node):
                 #resolve destination
                 self.get_logger().info("I NEED TO CLEAR, THEN TURN 180 OR GO STRAIGHT.")
                 self.allowCrawl = False
-                
+
                 if self.ultrasonic_distance <= self.CAPTURE_MAX:
                     #is path blocked? 
                     #turn 180 and go back to where you were
