@@ -2875,7 +2875,7 @@ class line_follower(Node):
                             else:
                                 self.get_logger().info("Could not update current_node to be current_destination, because cur_dest is 'Z'")
 
-                    elif not self.goAhead: #empty list
+                    elif not self.goAhead and self.behaviourMode == 4: #empty list
                     
                         #otherwise, do not update current_node as we are still where we were.
                         #populate our planned path if we don't already have a plan
@@ -2912,6 +2912,8 @@ class line_follower(Node):
                     if self.senseEntryTime < self.now - self.SENSE_COOLDOWN:
                         self.stateFollow = False
                         self.planDestination()
+                        if self.retryPlan != 0:
+                            return
                     else:
                         #cooldown has not expired yet. stay stopped and wait
                         self.stateFollow = False
@@ -2922,6 +2924,8 @@ class line_follower(Node):
 
                 elif self.behaviourMode in [3,5] and not self.lookAround and not self.goAhead:
                     self.lookAround = True
+                    if self.current_destination == 'Z':
+                        self.current_destination = []
                     return
                     #if we got this far, we have directions to go somewhere
                     #self.current_destination has been set to either 1 directional number OR a LIST of directional numbers. 
@@ -2931,6 +2935,8 @@ class line_follower(Node):
                     #Update destination
                     self.planDestination()
                     self.goAhead = False #consume
+                    if self.retryPlan!=0:
+                        return
 
                 self.get_logger().info("exited planDestination function")
                 #COMMON
