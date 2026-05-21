@@ -82,7 +82,7 @@
         return toReturn
       
     #Graph Functions
-    def calculateProbabilities(Po, x, y, cells):
+    def calculateProbabilities(Po, PERSISTENCE, CONTAMINATION, cells):
         #let's say radar stores the closest ultrasonic ping in euclidean metric in ultrasonic_distance
         #we get two readings: first ping entering reading (entry_angle)
         # second ping exiting reading (exit_angle)
@@ -90,8 +90,6 @@
         #and servo was the angle at which we go tthe reading, +- the known margin of error
         #and that BOXMEAS is the l / w of the boxes in the grid in euclidean metric
         BOXMEAS = 0.4
-        PERSISTENCE = 0.7
-        CONTAMINATION = 0.3
         
         #now we have a pretty small set of cells which the opponent can be in
         #reset probabilities
@@ -287,16 +285,166 @@
 
 
     
-    x = 3
-    y = 1
-    Po = calculateProbabilities(Po, x, y, [Cell(3,3), Cell(3,4)])
-    print("at D:", sorted(Po.items(), key=lambda x: x[1], reverse=True))
-    Po = calculateProbabilities(Po, x, y, [Cell(2,3), Cell(2,4)])
-    print("at Pbd1:", sorted(Po.items(), key=lambda x: x[1], reverse=True))
-    Po = calculateProbabilities(Po, x, y, [Cell(2,4)])
-    print("at B:", sorted(Po.items(), key=lambda x: x[1], reverse=True))
-    Po = calculateProbabilities(Po, x, y, [Cell(1,5), Cell(2,5)])
-    print("at Pab2:", sorted(Po.items(), key=lambda x: x[1], reverse=True))
+    #must sum to 1
+    PERSISTENCE = 0.6
+    CONTAMINATION = 0.4
+
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(0,1), Cell(0,0)])
+    print("Peg2, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(1,3)])
+    print("Paf1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(3,3), Cell(3,4), Cell(4,3), Cell(4,4)])
+    print("Pcd2, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(3,0), Cell(4,0)])
+    print("Phh1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+
+
+    Po = {
+            "Pab1": 0.0625,
+            "Pab2": 0.0625,
+            "Paf1": 0.0625,
+            "Pae1": 0.0625,
+            "Pef1": 0.0625,
+            "Peg1": 0.0625,
+            "Peg2": 0.0625,
+            "Pgh1": 0.0625,
+            "Phh1": 0.0625,
+            "Pfg1": 0.0625,
+            "Pdf1": 0.0625,
+            "Pbd1": 0.0625,
+            "Pbc1": 0.0625,
+            "Pcd1": 0.0625,
+            "Pcd2": 0.0625,
+            "Pch1": 0.0625
+        }
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(2,4)])
+    print("B, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(2,4)])
+    print("Pch1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(3,3), Cell(2,3)])
+    print("Pch1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(2,4)])
+    print("Pch1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
 
 
 
+    Po = {
+            "Pab1": 0.0625,
+            "Pab2": 0.0625,
+            "Paf1": 0.0625,
+            "Pae1": 0.0625,
+            "Pef1": 0.0625,
+            "Peg1": 0.0625,
+            "Peg2": 0.0625,
+            "Pgh1": 0.0625,
+            "Phh1": 0.0625,
+            "Pfg1": 0.0625,
+            "Pdf1": 0.0625,
+            "Pbd1": 0.0625,
+            "Pbc1": 0.0625,
+            "Pcd1": 0.0625,
+            "Pcd2": 0.0625,
+            "Pch1": 0.0625
+        }
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(1,1)])
+    print("Peg1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(1,0), Cell(2,0), Cell(2,1)])
+    print("Peg2, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(0,2), Cell(0,1)])
+    print("Peg2, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(1,2), Cell(2,2)])
+    print("Pef1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+
+    Po = {
+            "Pab1": 0.0625,
+            "Pab2": 0.0625,
+            "Paf1": 0.0625,
+            "Pae1": 0.0625,
+            "Pef1": 0.0625,
+            "Peg1": 0.0625,
+            "Peg2": 0.0625,
+            "Pgh1": 0.0625,
+            "Phh1": 0.0625,
+            "Pfg1": 0.0625,
+            "Pdf1": 0.0625,
+            "Pbd1": 0.0625,
+            "Pbc1": 0.0625,
+            "Pcd1": 0.0625,
+            "Pcd2": 0.0625,
+            "Pch1": 0.0625
+        }
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(1,0), Cell(2,0), Cell(2,1)])
+    print("Peg2, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(0,2), Cell(0,1)])
+    print("Peg2, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(1,2), Cell(2,2)])
+    print("Pef1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(2,1), Cell(3,1)])
+    print("Pgh1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+
+
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(3,3), Cell(3,4)])
+    # print("D, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(2,3), Cell(2,4)])
+    # print("Pbd1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(2,4)])
+    # print("B, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(1,5), Cell(2,5)])
+    # print("Pab2, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+
+
+    # Po = {
+    #         "Pab1": 0.0625,
+    #         "Pab2": 0.0625,
+    #         "Paf1": 0.0625,
+    #         "Pae1": 0.0625,
+    #         "Pef1": 0.0625,
+    #         "Peg1": 0.0625,
+    #         "Peg2": 0.0625,
+    #         "Pgh1": 0.0625,
+    #         "Phh1": 0.0625,
+    #         "Pfg1": 0.0625,
+    #         "Pdf1": 0.0625,
+    #         "Pbd1": 0.0625,
+    #         "Pbc1": 0.0625,
+    #         "Pcd1": 0.0625,
+    #         "Pcd2": 0.0625,
+    #         "Pch1": 0.0625
+    #     }
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(3,4)])
+    # print("C, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(3,5), Cell(4,5)])
+    # print("Pch1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(4,3)])
+    # print("Pch1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(3,2), Cell(4,2)])
+    # print("Pch1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+
+
+
+    # Po = {
+    #         "Pab1": 0.0625,
+    #         "Pab2": 0.0625,
+    #         "Paf1": 0.0625,
+    #         "Pae1": 0.0625,
+    #         "Pef1": 0.0625,
+    #         "Peg1": 0.0625,
+    #         "Peg2": 0.0625,
+    #         "Pgh1": 0.0625,
+    #         "Phh1": 0.0625,
+    #         "Pfg1": 0.0625,
+    #         "Pdf1": 0.0625,
+    #         "Pbd1": 0.0625,
+    #         "Pbc1": 0.0625,
+    #         "Pcd1": 0.0625,
+    #         "Pcd2": 0.0625,
+    #         "Pch1": 0.0625
+    #     }
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(2,1)])
+    # print("G, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(1,1)])
+    # print("Peg1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(0,2), Cell(1,2)])
+    # print("E, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
+    # Po = calculateProbabilities(Po, PERSISTENCE, CONTAMINATION,[Cell(2,1), Cell(2,2)])
+    # print("Pfg1, ", [(k, round(v, 4)) for k, v in sorted(Po.items(), key=lambda x: x[1], reverse=True)][:4])
