@@ -544,6 +544,7 @@ class line_follower(Node):
 
             #Tag-related
             if self.movBackCosTag:
+                self.initial_reading_taken = False
                 self.movBackCosTag = False
                 self.startTurnBasedOnIMU()
 
@@ -619,7 +620,7 @@ class line_follower(Node):
                         self.grayEntryTime = self.now #safety precaution
                         self.stateFollow = True
  
-        if self.waitingForUltrasonic:
+        if self.waitingForUltrasonic and not self.movBackCosTag:
             self.stopMov()
 
     def stopMov(self) :
@@ -2655,8 +2656,6 @@ class line_follower(Node):
         elif self.behaviourMode == 5:
             # 5 - Interceptive
             self.calculateProbabilities()
-            
-
             #interceptive takes the straight path
             #taking targets past loc, Curr loc, and assumes straight to future loc
 
@@ -3168,13 +3167,13 @@ class line_follower(Node):
 
                         temp = self.current_node.name
                         
-                        if self.current_destination == 0:
+                        if self.current_destination[0] == 0:
                             self.current_node = self.returnNode(self.current_node.Nc)
-                        elif self.current_destination == 1:
+                        elif self.current_destination[0] == 1:
                             self.current_node = self.returnNode(self.current_node.Ec)
-                        elif self.current_destination == 2:
+                        elif self.current_destination[0] == 2:
                             self.current_node = self.returnNode(self.current_node.Sc)
-                        elif self.current_destination == 3:
+                        elif self.current_destination[0] == 3:
                             self.current_node = self.returnNode(self.current_node.Wc)
 
                         self.current_destination = temp
@@ -3190,7 +3189,6 @@ class line_follower(Node):
 
 
             self.resetBehaviour = True
-            self.initial_reading_taken = False
 
             #flip status
             self.evading = not self.evading
@@ -3380,7 +3378,7 @@ class line_follower(Node):
         
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning and not self.crawlBackBeforeIMUturn:
+        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning and not self.crawlBackBeforeIMUturn and not self.movBackCosTag:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
