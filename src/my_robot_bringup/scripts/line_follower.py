@@ -544,7 +544,7 @@ class line_follower(Node):
 
             #Tag-related
             if self.movBackCosTag:
-                self.initial_reading_taken = False
+                self.toDepart = True
                 self.movBackCosTag = False
                 self.startTurnBasedOnIMU()
 
@@ -2798,7 +2798,7 @@ class line_follower(Node):
 
                     #reset localisation
                     self.last_node = 'Z'
-
+                    self.initial_reading_taken = False
                     # a tag took place, and the behaviour variables need to be reset
                     
                     #BehMod 3 vars
@@ -3460,7 +3460,7 @@ class line_follower(Node):
         self.surveillCapture()
         self.publish_tag_status()
 
-        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning or self.crawlBackBeforeIMUturn:
+        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning or self.crawlBackBeforeIMUturn or self.movBackCosTag:
             #self.get_logger().info(f"retryPlan: {self.retryPlan}, paus: {self.paused}, dontS: {self.dontSense}, turn: {self.imu_turning}, initial_taken: {self.initial_reading_taken}, crawlF: {self.crawlingForwardBeforeIMUturn}, align: {self.aligning}, crawlBIMU: {self.crawlBackBeforeIMUturn}")
             pass
         elif not self.waitingForUltrasonic:
