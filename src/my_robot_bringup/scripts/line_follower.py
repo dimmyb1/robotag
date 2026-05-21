@@ -1254,9 +1254,9 @@ class line_follower(Node):
         # the order doesnt make a difference, main thing is that we have the angle, wwe'll just take min or max of the two values.
         #and servo was the angle at which we go tthe reading, +- the known margin of error
         #and that BOXMEAS is the l / w of the boxes in the grid in euclidean metric
-        BOXMEAS = 0.4
-        PERSISTENCE = 0.7
-        CONTAMINATION = 0.3
+        BOXMEAS = 0.4 #in metres
+        PERSISTENCE = 0.6
+        CONTAMINATION = 0.4
         
         #and let's say we have estimated our current coordinates to be x and y
         #if we know our current node, we know our current coordinates.
