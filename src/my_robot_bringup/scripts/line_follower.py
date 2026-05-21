@@ -275,7 +275,7 @@ class line_follower(Node):
             self.current_node = self.H
             self.get_logger().info("Detected robot: twix. Starting at Node H.")
             other_robot_name = 'twirl'
-            self.behaviourMode = 3
+            self.behaviourMode = 5
             self.otherMode = 1
             self.evading = False
         elif robot_name == 'twirl':
@@ -283,8 +283,8 @@ class line_follower(Node):
             self.get_logger().info("Detected robot: twirl. Starting at Node A.")
             other_robot_name = 'twix'
             self.behaviourMode = 1
-            self.otherMode = 3
-            self.evading = True
+            self.otherMode = 5
+            self.evading = False
             self.i_patrol = 0
             #self.behaviourMode = 2
             #self.evading = True
