@@ -1817,8 +1817,9 @@ class line_follower(Node):
     #in this conversation: https://claude.ai/share/c6df9c61-823e-40fc-8203-13f9eb785a6f 
     #this is a scattered conversation so the message pertaining to this particular fix may be hard to find.
     def dijkstra(self, start_node, goal_char):
+        counter = 0
         pq = []
-        heapq.heappush(pq, (0, start_node))
+        heapq.heappush(pq, (0, counter, start_node))
 
         distances = {start_node.name: 0}
 
@@ -1828,7 +1829,7 @@ class line_follower(Node):
         visited = set()
 
         while pq:
-            current_cost, current_node = heapq.heappop(pq)
+            current_cost, _, current_node = heapq.heappop(pq)
 
             if current_node.name in visited:
                 continue
@@ -1859,7 +1860,8 @@ class line_follower(Node):
 
                     distances[neighbor_char] = new_cost
                     previous[neighbor_char] = (current_node.name, direction_id)
-                    heapq.heappush(pq, (new_cost, neighbor_node))
+                    heapq.heappush(pq, (new_cost, counter, neighbor_node))
+                    counter += 1
 
         # Reconstruct path as a list of direction IDs
         if goal_char not in previous and goal_char != start_node.name:
