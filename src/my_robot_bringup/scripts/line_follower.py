@@ -122,24 +122,34 @@ class line_follower(Node):
         self.stepping = False
         self.completeSequence = False
 
+
+
         #tag vars + esp comms
         #look for the paper dated 8 may for a discussion on the tuning of capture_max DOC V
         self.CAPTURE_MAX = 0.12 #was (10cm, 0.1m), but was changed to 11.5cm to try to prevent any damage as the robots were bumping into each other, #had to raise to 12 because in Pch1 when they face each other, that's the distance.
+        
         self.PAUSE_TIME = 95 #was 6, but seemed low so changed to 7. 7 seems low, raising to 14 to avoid immediate tag-backs #14 is too low because we've extended the number of things that happens on tag. raising to 35. 
         #   35 was also quite low, it was enough for the opponent to finish turning 180, but that's it, therefore i'll add another 20 seconds to allow the opp to manouvre.
         #   55 still wasn't enough, adding another 20 seconds.
         #   75 is perfectly timed for the other robot finish moving, but i think it would be safer if there's a few more seconds gap, adding 20 more
         self.startPauseTime = -1
         self.paused = False
+
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 100 #6 seconds way too short. upping to 60 seconds.letting it be a bit more than pause_time
+
         self.tag = False
         self.ack = False
         self.other_tag = False
         self.other_ack = False
         self.initiated_tag = False
         self.doTag = False
+
         self.movBackCosTag = False
+        self.checkFirst = False
+        self.postTagCheck = False
+
+
 
         #ultrasonic sensor and servo vars
         self.entry_angle = float('inf')
@@ -386,6 +396,7 @@ class line_follower(Node):
                 self.ack = False
                 self.tag = False
                 self.doTag = True
+                self.checkFirst = True
 
         # Optional: Print to the terminal so you can see it working
         # self.get_logger().info(f"{self.other_robot} has the tag: {self.opponent_has_tag}")
@@ -3103,23 +3114,11 @@ class line_follower(Node):
             self.get_logger().info("Initiating tag...")
             self.stopMov()
 
-        if self.doTag:
-            self.safetyStop = False #unfreeze, the opponent has acknowledged us.
-            self.doTag = False #consume command
-            self.time_of_last_tag = self.now
-
-            #switch mode
-            temp = self.behaviourMode
-            self.behaviourMode = self.otherMode
-            self.otherMode = temp
+        #specifically when we got tagged (not the initiator) and had to check where the opponent was
+        if not self.waitingForUltrasonic and self.postTagCheck:
+            self.postTagCheck = False #consume
             
-            if self.evading:
-                self.get_logger().info("I NEED TO CLEAR, THEN PAUSE FOR 75 SECONDS.")
-                #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
-                self.stateFollow = False
-                self.startPauseTime = self.now
-                self.paused = True
-                
+            if self.paused:
                 if self.ultrasonic_distance <= self.CAPTURE_MAX:
                     #is other robot in front of me? move backwards
                     self.clearTag()
@@ -3127,22 +3126,7 @@ class line_follower(Node):
                     #move forwards
                     self.frontClearTag()
 
-                #unblock line following
-                self.retryPlan = 0
-                self.postRetry = False
-                self.dontSense = False
-                self.waitingForUltrasonic = False
-                self.allowCrawl = False
-
-                #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
-                if type(self.current_destination) == list:
-                    if self.current_destination:
-                        self.current_destination = [self.current_destination[0]]
             else:
-                #resolve destination
-                self.get_logger().info("I NEED TO CLEAR, THEN TURN 180 OR GO STRAIGHT.")
-                self.allowCrawl = False
-
                 if self.ultrasonic_distance <= self.CAPTURE_MAX:
                     #is path blocked? 
                     #turn 180 and go back to where you were
@@ -3162,6 +3146,69 @@ class line_follower(Node):
                     self.imu_target = self.facing
                     self.movBackCosTag = True
                     self.frontClearTag()
+
+
+        if self.doTag:
+            self.safetyStop = False #unfreeze, the opponent has acknowledged us.
+            self.doTag = False #consume command
+            self.time_of_last_tag = self.now
+
+            #switch mode
+            temp = self.behaviourMode
+            self.behaviourMode = self.otherMode
+            self.otherMode = temp
+            
+            if self.evading:
+                self.get_logger().info("I NEED TO CLEAR, THEN PAUSE FOR 75 SECONDS.")
+                #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
+                self.stateFollow = False
+                self.startPauseTime = self.now
+                self.paused = True
+                
+                if not self.checkFirst:
+                    if self.ultrasonic_distance <= self.CAPTURE_MAX:
+                        #is other robot in front of me? move backwards
+                        self.clearTag()
+                    else:
+                        #move forwards
+                        self.frontClearTag()
+
+                #unblock line following
+                self.retryPlan = 0
+                self.postRetry = False
+                self.dontSense = False
+                self.waitingForUltrasonic = False
+                self.allowCrawl = False
+
+                #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
+                if type(self.current_destination) == list:
+                    if self.current_destination:
+                        self.current_destination = [self.current_destination[0]]
+            else:
+                #resolve destination
+                self.get_logger().info("I NEED TO CLEAR, THEN TURN 180 OR GO STRAIGHT.")
+                self.allowCrawl = False
+
+                if not self.checkFirst:
+                    if self.ultrasonic_distance <= self.CAPTURE_MAX:
+                        #is path blocked? 
+                        #turn 180 and go back to where you were
+                        if self.facing == 0:
+                            self.imu_target = 2
+                        elif self.facing == 2:
+                            self.imu_target = 0
+                        elif self.facing == 1:
+                            self.imu_target = 3
+                        elif self.facing == 3:
+                            self.imu_target = 1
+                            
+                        self.movBackCosTag = True
+                        self.clearTag()
+                    
+                    else:
+                        self.imu_target = self.facing
+                        self.movBackCosTag = True
+                        self.frontClearTag()
                 
                 if type(self.current_destination) == list: #int list
                     if self.current_destination:
@@ -3380,7 +3427,7 @@ class line_follower(Node):
         
 
         #Ultrasonic Sweep Modes
-        if (self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning and not self.crawlBackBeforeIMUturn and not self.movBackCosTag:
+        if (self.checkFirst or self.triggerSweep or self.retryPlan != 0 or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken)) and not self.waitingForUltrasonic and not self.imu_turning and not self.crawlingForwardBeforeIMUturn  and not self.aligning and not self.crawlBackBeforeIMUturn and not self.movBackCosTag:
             #trigger single sweep
             self.sweep = True
             self.multiple = False
@@ -3394,10 +3441,15 @@ class line_follower(Node):
             if self.retryPlan != 0 or self.triggerSweep:
                 self.postRetry = True
 
+            if self.checkFirst:
+                self.postTagCheck = True
+
             #consume
             self.retryPlan = 0
             self.triggerSweep = False
             self.initial_reading_taken = True
+            self.checkFirst = False
+
         
         #specifically when retrying
         if self.postRetry and not self.imu_turning and not self.waitingForUltrasonic and not self.crawlingForwardBeforeIMUturn and not self.aligning and not self.crawlBackBeforeIMUturn:
@@ -3457,6 +3509,7 @@ class line_follower(Node):
                 if self.behaviourMode in [3,5]:
                     self.goAhead = True
                     self.get_logger().info("going ahead and generating a new path based on latest findings.")
+
 
         #check for tags and publish status
         self.surveillCapture()
