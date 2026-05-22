@@ -3077,7 +3077,7 @@ class line_follower(Node):
 
                 self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
 
-            elif(self.allowCrawl): 
+            elif(self.allowCrawl and not self.resetBehaviour): 
                 #no IR detection
                 #self.get_logger().warning(f"Not detecting gray, cannot enter intersection.")
                 # --- Crawl-back recovery ---
