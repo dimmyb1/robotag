@@ -3536,7 +3536,7 @@ class line_follower(Node):
             self.stateFollow = False
 
             #Stop sweep. 
-            if (self.sweep or self.multiple) and not self.waitingForUltrasonic and not self.lookAround:
+            if (self.sweep or self.multiple) and not self.waitingForUltrasonic and not self.lookAround and not self.safetyStop:
                 self.sweep = False
                 self.multiple = False
                 self.publish_sweep_command()
