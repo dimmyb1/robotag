@@ -3148,6 +3148,7 @@ class line_follower(Node):
 
 
         if self.doTag:
+            self.stopMov()
             self.safetyStop = False #unfreeze, the opponent has acknowledged us.
             self.doTag = False #consume command
             self.time_of_last_tag = self.now
@@ -3247,6 +3248,11 @@ class line_follower(Node):
             self.entry_angle = float('inf')
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
+
+            #clear any triggers for further movement which could confuse us.
+            self.aligning = False
+            self.crawlBackBeforeIMUturn = False
+            self.crawlingForwardBeforeIMUturn = False
 
         if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused or self.crawlingBackwards or self.resetBehaviour):
             if not self.safetyStop:
