@@ -3132,7 +3132,7 @@ class line_follower(Node):
                 self.postRetry = False
                 self.dontSense = False
                 self.waitingForUltrasonic = False
-                self.allowCrawl = True
+                self.allowCrawl = False
 
                 #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
                 if type(self.current_destination) == list:
