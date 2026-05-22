@@ -3173,13 +3173,6 @@ class line_follower(Node):
                         #move forwards
                         self.frontClearTag()
 
-                #unblock line following
-                self.retryPlan = 0
-                self.postRetry = False
-                self.dontSense = False
-                self.waitingForUltrasonic = False
-                self.allowCrawl = False
-
                 #otherwise just keep following the line to your intended destination to resolve your location, then restart process from there.
                 if type(self.current_destination) == list:
                     if self.current_destination:
@@ -3187,7 +3180,6 @@ class line_follower(Node):
             else:
                 #resolve destination
                 self.get_logger().info("I NEED TO CLEAR, THEN TURN 180 OR GO STRAIGHT.")
-                self.allowCrawl = False
 
                 if not self.checkFirst:
                     if self.ultrasonic_distance <= self.CAPTURE_MAX:
@@ -3253,6 +3245,18 @@ class line_follower(Node):
             self.aligning = False
             self.crawlBackBeforeIMUturn = False
             self.crawlingForwardBeforeIMUturn = False
+
+            #unblock line following
+            self.retryPlan = 0
+            self.postRetry = False
+            self.dontSense = False
+            self.waitingForUltrasonic = False
+            self.allowCrawl = False
+
+            #clearing behMode 3,5 vars
+            self.goAhead = False
+            self.stepping = False
+            self.completeSequence = False
 
         if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused or self.crawlingBackwards or self.resetBehaviour):
             if not self.safetyStop:
