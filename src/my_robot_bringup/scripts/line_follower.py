@@ -3248,7 +3248,7 @@ class line_follower(Node):
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
 
-        if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused or self.crawlingBackwards):
+        if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused or self.crawlingBackwards or self.resetBehaviour):
             if not self.safetyStop:
                 self.get_logger().info("SAFETY STOP.")
             self.stopMov()
@@ -3555,6 +3555,13 @@ class line_follower(Node):
 
             #Tag Sweep
             if (not self.sweep or not self.multiple) and not self.safetyStop:
+                self.sweep = True
+                self.multiple = True
+                self.publish_sweep_command()
+
+        if self.safetyStop:
+            #Tag Sweep to eventually clear safetyStop
+            if (not self.sweep or not self.multiple):
                 self.sweep = True
                 self.multiple = True
                 self.publish_sweep_command()
