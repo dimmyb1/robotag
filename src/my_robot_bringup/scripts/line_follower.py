@@ -616,7 +616,6 @@ class line_follower(Node):
                         self.departureTime = self.now
                         self.grayEntryTime = self.now #safety precaution
                         self.stateFollow = True
-                        self.get_logger().info("stateFollow is true, depart is false")
             else:
                 if target - self.ANGLE_TOLERANCE <= self.yaw_deg <= target + self.ANGLE_TOLERANCE:
                     #we have completed our turn.
@@ -2799,8 +2798,8 @@ class line_follower(Node):
                 # if gray is now visible, cancel it.
                 if self.motion_active:
                     self.get_logger().info("Gray re-detected while crawling back — stopping.")
+                    self.crawlingBackwards = False
 
-                
                 
                 if self.resetBehaviour:
                     self.firstNode = True
@@ -3250,6 +3249,8 @@ class line_follower(Node):
             self.ultrasonic_distance = float('inf')
 
         if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused or self.crawlingBackwards):
+            if not self.safetyStop:
+                self.get_logger().info("SAFETY STOP.")
             self.stopMov()
             self.safetyStop = True
         elif self.ultrasonic_distance > self.CAPTURE_MAX and self.safetyStop:
@@ -3515,7 +3516,7 @@ class line_follower(Node):
         self.surveillCapture()
         self.publish_tag_status()
 
-        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning or self.crawlBackBeforeIMUturn or self.movBackCosTag:
+        if self.retryPlan != 0 or self.paused or self.dontSense or self.imu_turning or (self.behaviourMode in [3,4,5] and not self.initial_reading_taken) or self.crawlingForwardBeforeIMUturn  or self.aligning or self.crawlBackBeforeIMUturn or self.movBackCosTag or self.crawlingBackwards:
             #self.get_logger().info(f"retryPlan: {self.retryPlan}, paus: {self.paused}, dontS: {self.dontSense}, turn: {self.imu_turning}, initial_taken: {self.initial_reading_taken}, crawlF: {self.crawlingForwardBeforeIMUturn}, align: {self.aligning}, crawlBIMU: {self.crawlBackBeforeIMUturn}")
             pass
         elif not self.waitingForUltrasonic:
