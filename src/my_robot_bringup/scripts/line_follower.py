@@ -3147,9 +3147,32 @@ class line_follower(Node):
 
 
         if self.doTag:
-            self.get_logger().info("doing Tag")
             self.stopMov()
+            #clear any triggers for further movement which could confuse us.
+            self.aligning = False
+            self.crawlBackBeforeIMUturn = False
+            self.crawlingForwardBeforeIMUturn = False
+            self.imu_turning = False
+            self.imu_target = -1
+            self.toDepart = False
+            self.crawlingBackwards = False
+            self.motion_active = False
             self.safetyStop = False #unfreeze, the opponent has acknowledged us.
+
+            #unblock line following
+            self.retryPlan = 0
+            self.postRetry = False
+            self.dontSense = False
+            self.waitingForUltrasonic = False
+            self.allowCrawl = False
+
+            #clearing behMode 3,5 vars
+            self.goAhead = False
+            self.stepping = False
+            self.completeSequence = False
+
+
+            self.get_logger().info("doing Tag")
             self.doTag = False #consume command
             self.time_of_last_tag = self.now
 
@@ -3240,29 +3263,6 @@ class line_follower(Node):
             self.entry_angle = float('inf')
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
-
-            #clear any triggers for further movement which could confuse us.
-            self.aligning = False
-            self.crawlBackBeforeIMUturn = False
-            self.crawlingForwardBeforeIMUturn = False
-            self.imu_turning = False
-            self.imu_target = -1
-            self.toDepart = False
-            self.crawlingBackwards = False
-            self.motion_active = False
-            self.safetyStop = False
-
-            #unblock line following
-            self.retryPlan = 0
-            self.postRetry = False
-            self.dontSense = False
-            self.waitingForUltrasonic = False
-            self.allowCrawl = False
-
-            #clearing behMode 3,5 vars
-            self.goAhead = False
-            self.stepping = False
-            self.completeSequence = False
 
         if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused or self.crawlingBackwards or self.resetBehaviour):
             if not self.safetyStop:
