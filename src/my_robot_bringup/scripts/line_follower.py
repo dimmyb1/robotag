@@ -380,7 +380,7 @@ class line_follower(Node):
                     self.tag = True
                     self.ack = True
 
-            if self.ack and not self.other_ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
+            elif self.ack and not self.other_ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.initiated_tag = False
                 self.ack = False
                 self.doTag = True
@@ -3147,6 +3147,7 @@ class line_follower(Node):
 
 
         if self.doTag:
+            self.get_logger().info("doing Tag")
             self.stopMov()
             self.safetyStop = False #unfreeze, the opponent has acknowledged us.
             self.doTag = False #consume command
@@ -3244,6 +3245,12 @@ class line_follower(Node):
             self.aligning = False
             self.crawlBackBeforeIMUturn = False
             self.crawlingForwardBeforeIMUturn = False
+            self.imu_turning = False
+            self.imu_target = -1
+            self.toDepart = False
+            self.crawlingBackwards = False
+            self.motion_active = False
+            self.safetyStop = False
 
             #unblock line following
             self.retryPlan = 0
