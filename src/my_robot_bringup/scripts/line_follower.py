@@ -3129,7 +3129,7 @@ class line_follower(Node):
         #check tag dry-run dated 8 may for full discussion
 
         #time out initiated tag
-        if self.initiated_tag and self.now < self.started_initiating_tag + self.INITIATE_TIMEOUT:
+        if self.initiated_tag and self.now > self.started_initiating_tag + self.INITIATE_TIMEOUT:
             self.initiated_tag = False
             self.tag = False
             self.ack = False
