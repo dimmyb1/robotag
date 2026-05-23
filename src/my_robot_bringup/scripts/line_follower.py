@@ -1934,18 +1934,18 @@ class line_follower(Node):
     def generateShortestPathFromNToListOption(self, listOfSingleParents):
         #generate the shortest path from N to one of the nodes of the edge.
         #listOfSingleParents is a list of char node names
-
+        min = 10000
+        minPath = []
         pathDistanceTuples = []
         for p in listOfSingleParents:
             path, dist = self.dijkstra(self.current_node, p)
             pathDistanceTuples.append((path,dist))
 
-        min = 10000
-        minPath = []
-        for p,d in pathDistanceTuples:
-            if d < min:
-                min = d
-                minPath = p
+            if dist < min:
+                min = dist
+                minPath = path
+                if self.behaviourMode == 5:
+                    self.opp_old_loc = self.returnNode(p)
 
         return minPath
 
@@ -2245,6 +2245,8 @@ class line_follower(Node):
                 if v == cert:
                     #yes -> generatepathfromNtoN
                     self.get_logger().info(f"Target Location: {toK} :Q ")
+                    if self.behaviourMode == 5:
+                        self.opp_old_loc = toK
                     self.current_destination = self.generatePathFromNToN(toK)
                     nfound=True
                     break #stop iterating
@@ -2324,6 +2326,8 @@ class line_follower(Node):
             self.get_logger().info(f"Target Location in: {singleParents} :Q ")
 
     def interceptiveProcess(self, CONSIDER_EDGES):
+        #remember: if opp_old_loc is str, then it's an edge e.g. 'Peg1', otherwise its a Noden
+
         be_greedy = False
         #find top CONSIDER_EDGES (int) max valued edge-probabilities
         topProb = sorted(self.P.items(), key=lambda x: x[1], reverse=True)[:CONSIDER_EDGES]
@@ -2357,6 +2361,7 @@ class line_follower(Node):
         for toK,v in parentsDict.items():
             #is there a node?
             if v == CONSIDER_EDGES:
+                self.opp_old_loc = toK
                 #yes -> generatepathfromNtoN
                 #try interceptive:
                 #is O =N? or =E?
@@ -2435,11 +2440,11 @@ class line_follower(Node):
                         break #stop iterating
 
 
-                #greedy
-                self.current_destination = self.generatePathFromNToN(toK)
-                self.get_logger().info(f"Target Location: {toK} :Q ")
-                nfound=True
-                break #stop iterating
+                # #greedy
+                # self.current_destination = self.generatePathFromNToN(toK)
+                # self.get_logger().info(f"Target Location: {toK} :Q ")
+                # nfound=True
+                # break #stop iterating
                 
         #if not nfound:
         if not nfound:
@@ -2524,11 +2529,11 @@ class line_follower(Node):
                                 break #stop iterating
 
 
-                        #greedy
-                        self.current_destination = self.generatePathFromNToN(toK)
-                        self.get_logger().info(f"Target Location: {toK} :Q ")
-                        nfound=True
-                        break #stop iterating
+                        # #greedy
+                        # self.current_destination = self.generatePathFromNToN(toK)
+                        # self.get_logger().info(f"Target Location: {toK} :Q ")
+                        # nfound=True
+                        # break #stop iterating
                 
         #otherwise:
         #no -> try the closest one (if greedy search, then we try closest one and try again)
@@ -2541,7 +2546,7 @@ class line_follower(Node):
 
             #and then just find the closest next node and generate path towards it
             self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
-            self.get_logger().info(f"Target Location in: {singleParents} :Q ")
+            self.get_logger().info(f"Target Location in: {singleParents} :Q ") 
 
 
 
@@ -2611,6 +2616,8 @@ class line_follower(Node):
 
             if(maxV >= EDGE_U_CERTAINTY):
                 self.get_logger().info(f"Target location: {maxK} :Q ")
+                if self.behaviourMode == 5:
+                    self.opp_old_loc = maxK
                 #then we want to generate a path from our current node to that edge (maxK)
                 self.current_destination = self.generatePathFromNToE(maxK)
 
