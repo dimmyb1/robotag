@@ -2361,7 +2361,7 @@ class line_follower(Node):
                 #try interceptive:
                 #is O =N? or =E?
                 if type(self.opp_old_loc) == str:
-                    #O=E
+                    #O=E, C=N
                     po = self.getNodesFromEdge(self.opp_old_loc)
                     if toK in po:
 
@@ -2370,6 +2370,9 @@ class line_follower(Node):
                         #then current_destination is the node.Sc node!
 
                         po.remove(toK)
+                        if not po:
+                            #for H
+                            po.append(toK)
                         #po[0] is other parent
                         #so we want all the edges which connect toK and po[0]
                         #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
@@ -2383,6 +2386,8 @@ class line_follower(Node):
                             self.current_destination = self.generatePathFromNToN(pc.Nc)
                         elif pc.Wc == po[0]:
                             self.current_destination = self.generatePathFromNToN(pc.Ec)
+                        else:
+                            self.get_logger().info("interceptiveProcess O=E, C=E, could not locate path O.")
 
                         self.get_logger().info(f"Target Location: {toK} :Q ")
                         nfound = True
@@ -2408,7 +2413,7 @@ class line_follower(Node):
                                 #and follow it to the next node
 
                                 self.get_logger().info(f"Target Location: {toK} :Q ")
-                                po = self.returnNode(self.opp_old_loc)
+                                po = self.opp_old_loc
                                 if po.Nc == toK:
                                     self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
                                 elif po.Ec == toK:
@@ -2497,7 +2502,7 @@ class line_follower(Node):
                                         #and follow it to the next node
 
 
-                                        po = self.returnNode(self.opp_old_loc)
+                                        po = self.opp_old_loc
                                         if po.Nc == toK:
                                             self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
                                         elif po.Ec == toK:
@@ -2703,7 +2708,11 @@ class line_follower(Node):
                         for n in par_c:
                             if no == n:
                                 #we found a common parent
-                                par_c.remove(n)
+                                par_c.remove(n) #we dont want the common parent because opponent has already been there, we want the other parent (par_c[0])
+
+                                if not par_c:
+                                    #in case of Phh1:
+                                    par_c.append(n)
                                 self.get_logger().info(f"Target Location: {par_c[0]} :Q ")
                                 self.current_destination = self.generatePathFromNToE(par_c[0])
                                 be_greedy = False
