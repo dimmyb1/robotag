@@ -2732,6 +2732,9 @@ class line_follower(Node):
                     if maxK in self.getEdgesFromNode(self.opp_old_loc):
                         d = self.getNodesFromEdge(maxK)
                         d.remove(self.opp_old_loc)
+                        if not d:
+                            #protect against Phh1
+                            d.append(self.opp_old_loc)
                         self.current_destination = self.generatePathFromNtoN(d[0])
                         self.get_logger().info(f"Target Location: {d[0]} :Q ")
                         
