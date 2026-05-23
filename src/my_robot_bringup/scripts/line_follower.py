@@ -137,6 +137,8 @@ class line_follower(Node):
 
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 100 #6 seconds way too short. upping to 60 seconds.letting it be a bit more than pause_time
+        self.started_initiating_tag = -1
+        self.INITIATE_TIMEOUT = 5 #short time out for initiating tag
 
         self.tag = False
         self.ack = False
@@ -3125,11 +3127,16 @@ class line_follower(Node):
         #ultrasonic is probably measuring in metres (m)
         #~10cm is the maximum distance for capture in tight spaces of the map
         #check tag dry-run dated 8 may for full discussion
+
+        #time out initiated tag
+        if self.initiated_tag and self.now < self.started_initiating_tag + self.INITIATE_TIMEOUT:
+            self.initiated_tag = False
         
         #TAG
         if self.ultrasonic_distance <= self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag and not self.initiated_tag and not self.tag:
             self.initiated_tag = True
             self.get_logger().info("Initiating tag... :Q ")
+            self.started_initiating_tag = self.now
             self.stopMov()
 
         #specifically when we got tagged (not the initiator) and had to check where the opponent was
