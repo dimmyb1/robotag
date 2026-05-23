@@ -281,27 +281,26 @@ class line_follower(Node):
         # 3 - Greedy
         # 4 - Avoidant
         # 5 - Interceptive
+        self.get_logger().info("Patrol VS Patrol :Q ")
         if robot_name == 'twix':
             self.current_node = self.H
-            self.get_logger().info("Detected robot: twix. Starting at Node H.")
+            self.get_logger().info("Detected robot: twix. Starting at Node H. Pursuing :Q ")
             other_robot_name = 'twirl'
-            self.behaviourMode = 5
+            self.behaviourMode = 1
             self.otherMode = 1
             self.evading = False
         elif robot_name == 'twirl':
             self.current_node = self.A
-            self.get_logger().info("Detected robot: twirl. Starting at Node A.")
+            self.get_logger().info("Q: Detected robot: twirl. Starting at Node A. Evading :Q ")
             other_robot_name = 'twix'
             self.behaviourMode = 1
-            self.otherMode = 5
+            self.otherMode = 1
             self.evading = True
             self.i_patrol = 0
-            #self.behaviourMode = 2
-            #self.evading = True
         else:
             # Fallback in case you run it without a namespace
             self.current_node = self.A 
-            self.get_logger().info(f"Unknown robot name '{robot_name}', defaulting to Node A.")
+            self.get_logger().info(f"Unknown robot name '{robot_name}', defaulting to Node A. :Q ")
 
 
         self.ir_L_sub = self.create_subscription(
@@ -461,7 +460,7 @@ class line_follower(Node):
             self.waitingForUltrasonic = False
             #self.locateTarget = False
         
-        self.get_logger().info(f"Received Object Data -> Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.ultrasonic_distance:.2f}")
+        self.get_logger().info(f"Sub: Entry: {self.entry_angle:.2f}, Exit: {self.exit_angle:.2f}, Dist: {self.ultrasonic_distance:.2f}")
 
     def publish_sweep_command(self):
         payload = {
@@ -1208,7 +1207,7 @@ class line_follower(Node):
                 if x == self.current_destination:
                     hx.remove(x)
             #otherwise if we just deviated slightly, the rest of the map should match up, so either way let's check the next edge we take:
-            self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hx}")
+            self.get_logger().info(f"SELF_LOC: Timing was off, created hypothesis {hx} :Q ")
 
         else:
             self.get_logger().info(f"traversal had expected time of {elapsed}s")
@@ -1226,7 +1225,7 @@ class line_follower(Node):
         else:
             self.get_logger().info("cannot enroll hx, my h1-3 are full.")
 
-        self.get_logger().info(f"h1: {self.h1}, h2: {self.h2}, h3: {self.h3}")
+        self.get_logger().info(f"h1: {self.h1}, h2: {self.h2}, h3: {self.h3} :Q ")
 
         #4. graduate
         if self.h3 != None:
@@ -1241,7 +1240,7 @@ class line_follower(Node):
                     self.current_node = self.returnNode(bcln)
                     self.current_destination = bc
                     self.destination_id = -1
-                    self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_destination}")
+                    self.get_logger().info(f"SELF_LOC: Confirmed hypothesis and updating curr. loc. to {self.current_destination} :Q ")
                     self.adjustDestBasedOnBeh()
                 else:
                     self.get_logger().info(f"SELF_LOC: tried to graduate hypothesis but best candidate was Nonetype.")
@@ -2244,7 +2243,7 @@ class line_follower(Node):
             #is there a node?
                 if v == cert:
                     #yes -> generatepathfromNtoN
-                    self.get_logger().info(f"Target Location: {toK}")
+                    self.get_logger().info(f"Target Location: {toK} :Q ")
                     self.current_destination = self.generatePathFromNToN(toK)
                     nfound=True
                     break #stop iterating
@@ -2260,7 +2259,7 @@ class line_follower(Node):
 
             #and then just find the closest next node and generate path towards it
             self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
-            self.get_logger().info(f"Target Location In: {singleParents}")
+            self.get_logger().info(f"Target Location In: {singleParents} :Q ")
 
     def avoidantProcess(self, CONSIDER_EDGES):
         #find top CONSIDER_EDGES (int) max valued edge-probabilities
@@ -2302,7 +2301,7 @@ class line_follower(Node):
             #is there a node?
                 if v == cert:
                     #yes -> generatepathfromNtoN
-                    self.get_logger().info(f"Target Location: {toK}")
+                    self.get_logger().info(f"Target Location: {toK} :Q ")
                     self.current_destination = self.generateSafePathFromEnemyNode(toK)
                     nfound=True
                     break #stop iterating
@@ -2321,7 +2320,7 @@ class line_follower(Node):
 
             #and then just find the closest next node and generate path towards it
             self.current_destination = self.generateSafePathFromListOfEnemyNodes(singleParents)
-            self.get_logger().info(f"Target Location in: {singleParents}")
+            self.get_logger().info(f"Target Location in: {singleParents} :Q ")
 
     def interceptiveProcess(self, CONSIDER_EDGES):
         be_greedy = False
@@ -2384,14 +2383,14 @@ class line_follower(Node):
                         elif pc.Wc == po[0]:
                             self.current_destination = self.generatePathFromNToN(pc.Ec)
 
-                        self.get_logger().info(f"Target Location: {toK}")
+                        self.get_logger().info(f"Target Location: {toK} :Q ")
                         nfound = True
                         break
                     else:
 
                         #greedy
                         self.current_destination = self.generatePathFromNToN(toK)
-                        self.get_logger().info(f"Target Location: {toK}")
+                        self.get_logger().info(f"Target Location: {toK} :Q ")
                         break
                                 
                 else:
@@ -2407,7 +2406,7 @@ class line_follower(Node):
                                 #take the first edge we find <BIAS> / <OPTIMISATION>
                                 #and follow it to the next node
 
-                                self.get_logger().info(f"Target Location: {toK}")
+                                self.get_logger().info(f"Target Location: {toK} :Q ")
                                 po = self.returnNode(self.opp_old_loc)
                                 if po.Nc == toK:
                                     self.current_destination = self.generatePathFromNToN(self.returnNode(toK).Nc)
@@ -2425,14 +2424,14 @@ class line_follower(Node):
                     if be_greedy:
                         #greedy
                         self.current_destination = self.generatePathFromNToN(toK)
-                        self.get_logger().info(f"Target Location: {toK}")
+                        self.get_logger().info(f"Target Location: {toK} :Q ")
                         nfound=True
                         break #stop iterating
 
 
                 #greedy
                 self.current_destination = self.generatePathFromNToN(toK)
-                self.get_logger().info(f"Target Location: {toK}")
+                self.get_logger().info(f"Target Location: {toK} :Q ")
                 nfound=True
                 break #stop iterating
                 
@@ -2462,7 +2461,7 @@ class line_follower(Node):
                                 #po[0] is other parent
                                 #so we want all the edges which connect toK and po[0]
                                 #but technically we will just take the first one in the list <PARAMETER> / <OPTIMISATION> / <ASSUMPTION>
-                                self.get_logger().info(f"Target Location: {toK}")
+                                self.get_logger().info(f"Target Location: {toK} :Q ")
                                 pc = self.returnNode(toK)
                                 if pc.Nc == po[0]:
                                     self.current_destination = self.generatePathFromNToN(pc.Sc)
@@ -2479,14 +2478,14 @@ class line_follower(Node):
 
                                 #greedy
                                 self.current_destination = self.generatePathFromNToN(toK)
-                                self.get_logger().info(f"Target Location: {toK}")
+                                self.get_logger().info(f"Target Location: {toK} :Q ")
                                 break
                                         
                         else:
                             #O=N, C=N
                             eo = self.getEdgesFromNode(self.opp_old_loc)
                             ec = self.getEdgesFromNode(toK)
-                            self.get_logger().info(f"Target Location: {toK}")
+                            self.get_logger().info(f"Target Location: {toK} :Q ")
 
                             be_greedy = True
                             for e in eo:
@@ -2514,14 +2513,14 @@ class line_follower(Node):
                             if be_greedy:
                                 #greedy
                                 self.current_destination = self.generatePathFromNToN(toK)
-                                self.get_logger().info(f"Target Location: {toK}")
+                                self.get_logger().info(f"Target Location: {toK} :Q ")
                                 nfound=True
                                 break #stop iterating
 
 
                         #greedy
                         self.current_destination = self.generatePathFromNToN(toK)
-                        self.get_logger().info(f"Target Location: {toK}")
+                        self.get_logger().info(f"Target Location: {toK} :Q ")
                         nfound=True
                         break #stop iterating
                 
@@ -2536,7 +2535,7 @@ class line_follower(Node):
 
             #and then just find the closest next node and generate path towards it
             self.current_destination = self.generateShortestPathFromNToListOption(singleParents)
-            self.get_logger().info(f"Target Location in: {singleParents}")
+            self.get_logger().info(f"Target Location in: {singleParents} :Q ")
 
 
 
@@ -2588,7 +2587,7 @@ class line_follower(Node):
             else:
                 self.get_logger().info(f"Bad random number generated, no such choice value as {choice}")
                 
-            self.get_logger().info(f"Generated direction {choice}")
+            self.get_logger().info(f"Generated direction {choice} :Q ")
             self.imu_target = choice
             self.destination_id = choice
 
@@ -2605,7 +2604,7 @@ class line_follower(Node):
                     maxK = k
 
             if(maxV >= EDGE_U_CERTAINTY):
-                self.get_logger().info(f"Target location: {maxK}")
+                self.get_logger().info(f"Target location: {maxK} :Q ")
                 #then we want to generate a path from our current node to that edge (maxK)
                 self.current_destination = self.generatePathFromNToE(maxK)
 
@@ -2647,7 +2646,7 @@ class line_follower(Node):
             if(maxV >= EDGE_U_CERTAINTY):
                 #then we want to generate a path from our current node to that edge (maxK)
                 self.current_destination = self.generateSafePathFromEnemyEdge(maxK)
-                self.get_logger().info(f"Target Location: {maxK}")
+                self.get_logger().info(f"Target Location: {maxK} :Q ")
 
             elif maxV >= EDGE_L_CERTAINTY:
                 self.avoidantProcess(CONSIDER_EDGES_EL)
@@ -2704,7 +2703,7 @@ class line_follower(Node):
                             if no == n:
                                 #we found a common parent
                                 par_c.remove(n)
-                                self.get_logger().info(f"Target Location: {par_c[0]}")
+                                self.get_logger().info(f"Target Location: {par_c[0]} :Q ")
                                 self.current_destination = self.generatePathFromNToE(par_c[0])
                                 be_greedy = False
                                 break
@@ -2712,7 +2711,7 @@ class line_follower(Node):
                     if(be_greedy):
                         #then we want to generate a path from our current node to that edge (max K)
                         self.current_destination = self.generatePathFromNToE(maxK)
-                        self.get_logger().info(f"Target Location: {maxK}")
+                        self.get_logger().info(f"Target Location: {maxK} :Q ")
 
                     
                 else:
@@ -2724,13 +2723,13 @@ class line_follower(Node):
                         d = self.getNodesFromEdge(maxK)
                         d.remove(self.opp_old_loc)
                         self.current_destination = self.generatePathFromNtoN(d[0])
-                        self.get_logger().info(f"Target Location: {d[0]}")
+                        self.get_logger().info(f"Target Location: {d[0]} :Q ")
                         
                     else:
                         #greedy:
                         #then we want to generate a path from our current node to that edge (max K)
                         self.current_destination = self.generatePathFromNToE(maxK)
-                        self.get_logger().info(f"Target Location: {maxK}")
+                        self.get_logger().info(f"Target Location: {maxK} :Q ")
 
             elif maxV >= EDGE_L_CERTAINTY:
                 self.interceptiveProcess(CONSIDER_EDGES_EL)
@@ -3074,7 +3073,7 @@ class line_follower(Node):
 
 
 
-                self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination}")
+                self.get_logger().info(f"Current Location:{self.current_node.name}; Current Destination: {self.current_destination} :Q ")
 
             elif(self.allowCrawl and not self.resetBehaviour): 
                 #no IR detection
@@ -3110,7 +3109,7 @@ class line_follower(Node):
         #TAG
         if self.ultrasonic_distance <= self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag and not self.initiated_tag and not self.tag:
             self.initiated_tag = True
-            self.get_logger().info("Initiating tag...")
+            self.get_logger().info("Initiating tag... :Q ")
             self.stopMov()
 
         #specifically when we got tagged (not the initiator) and had to check where the opponent was
@@ -3234,7 +3233,7 @@ class line_follower(Node):
             #flip status
             self.evading = not self.evading
 
-            self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {self.evading}")
+            self.get_logger().info(f"TAG! New Mode: {self.behaviourMode}; Ev?: {self.evading} :Q ")
 
             #clear old values before going in to not propogate stale values.
             self.entry_angle = float('inf')
