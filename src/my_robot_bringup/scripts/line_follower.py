@@ -666,7 +666,7 @@ class line_follower(Node):
     def crawlForward(self):
         self.stopMov()
         self.get_logger().info("STARTED CRAWLING FORWARD")
-        self.start_motion(linear=+0.15, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25, trying .15 cos .25 was still too much
+        self.start_motion(linear=+0.25, duration_ms=0) #linear: .35 was too aggressive, would overshoot, so trying .25, trying .15 cos .25 was still too much, .15 doesnt move, too low - raising to .25
 
     def clearGray(self):
         self.get_logger().info("Called clearGray - aligning before crawling forward")
