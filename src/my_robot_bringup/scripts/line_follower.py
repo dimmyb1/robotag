@@ -150,6 +150,7 @@ class line_follower(Node):
         self.movBackCosTag = False
         self.checkFirst = False
         self.postTagCheck = False
+        self.dontStopBabe = False
 
 
 
@@ -561,6 +562,8 @@ class line_follower(Node):
                 self.movBackCosTag = False
                 self.startTurnBasedOnIMU()
 
+            if self.dontStopBabe:
+                self.dontStopBabe = False
 
             #self.get_logger().info(f"stopped moving because time expired. imu_turning: {self.imu_turning}, complete_turn: {self.completeTurn}, motion_active: {self.motion_active}")
         elif self.aligning:
@@ -3154,9 +3157,11 @@ class line_follower(Node):
                 if self.ultrasonic_distance <= self.CAPTURE_MAX:
                     #is other robot in front of me? move backwards
                     self.clearTag()
+                    self.dontStopBabe = True
                 else:
                     #move forwards
                     self.frontClearTag()
+                    self.dontStopBabe = True
 
             else:
                 if self.ultrasonic_distance <= self.CAPTURE_MAX:
@@ -3216,7 +3221,7 @@ class line_follower(Node):
             self.otherMode = temp
             
             if self.evading:
-                self.get_logger().info("I NEED TO CLEAR, THEN PAUSE FOR 75 SECONDS.")
+                self.get_logger().info("I NEED TO CLEAR, THEN PAUSE FOR 95 SECONDS.")
                 #pause new pursuer to give the evader some time to put some distance between them and avoid collisions.
                 self.stateFollow = False
                 self.startPauseTime = self.now
@@ -3298,7 +3303,7 @@ class line_follower(Node):
             self.exit_angle = float('inf')
             self.ultrasonic_distance = float('inf')
 
-        if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused or self.crawlingBackwards) and not (self.resetBehaviour and self.movBackCosTag):
+        if self.ultrasonic_distance <= self.CAPTURE_MAX and not (self.imu_turning or self.movBackCosTag or self.paused or self.crawlingBackwards) and not (self.resetBehaviour and (self.movBackCosTag or self.dontStopBabe)):
             if not self.safetyStop:
                 self.get_logger().info("SAFETY STOP.")
             self.stopMov()
