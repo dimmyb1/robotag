@@ -1075,26 +1075,27 @@ class line_follower(Node):
             #patrol
             self.destination_id = -1
             if self.facing == 0:
-                self.current_destination = self.current_node.Nc
-            elif self.facing == 1:
-                self.current_destination = self.current_node.Ec
-            elif self.facing == 2:
-                self.current_destination = self.current_node.Sc
-            elif self.facing == 3:
-                self.current_destination = self.current_node.Wc
+                nextDest = self.returnNode(self.current_destination).Nc
+            elif self.facing==1:
+                nextDest = self.returnNode(self.current_destination).Ec
+            elif self.facing==2:
+                nextDest = self.returnNode(self.current_destination).Sc
+            elif self.facing==3:
+                nextDest = self.returnNode(self.current_destination).Wc
+
 
             #i_patrol points to the NEXT index (destination index)
-            i1 = self.patrolPath.index(self.current_node.name)
-            i2 = self.patrolPath.index(self.current_node.name, i1 +1)
+            i1 = self.patrolPath.index(self.current_destination)
+            i2 = self.patrolPath.index(self.current_destination, i1 +1)
             try:
-                if self.patrolPath[i1+1] == self.current_destination:
+                if self.patrolPath[i1+1] == nextDest:
                     self.i_patrol = i1+1
-                elif self.patrolPath[i2+1] == self.current_destination:
+                elif self.patrolPath[i2+1] == nextDest:
                     self.i_patrol = i2+1
             except IndexError:
-                if self.patrolPath[i1+1] == self.current_destination:
+                if self.patrolPath[i1+1] == nextDest:
                     self.i_patrol = i1+1
-                elif self.patrolPath[0] == self.current_destination:
+                elif self.patrolPath[0] == nextDest:
                     self.i_patrol = 0
 
         elif self.behaviourMode == 2:
