@@ -3137,6 +3137,7 @@ class line_follower(Node):
             self.other_tag = False
             self.other_ack = False
             self.checkFirst = False
+            self.started_initiating_tag = self.now
         
         #TAG
         if self.ultrasonic_distance <= self.CAPTURE_MAX and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and not self.doTag and not self.initiated_tag and not self.tag:
