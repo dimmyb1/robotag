@@ -284,12 +284,12 @@ class line_follower(Node):
         # 3 - Greedy
         # 4 - Avoidant
         # 5 - Interceptive
-        self.get_logger().info("Greedy VS Patrol :Q ")
+        self.get_logger().info("Patrol VS Patrol :Q ")
         if robot_name == 'twix':
             self.current_node = self.H
             self.get_logger().info("Detected robot: twix. Starting at Node H. Pursuing :Q ")
             other_robot_name = 'twirl'
-            self.behaviourMode = 3
+            self.behaviourMode = 1
             self.otherMode = 1
             self.evading = False
             self.i_patrol = 7
@@ -298,7 +298,7 @@ class line_follower(Node):
             self.get_logger().info("Q: Detected robot: twirl. Starting at Node A. Evading :Q ")
             other_robot_name = 'twix'
             self.behaviourMode = 1
-            self.otherMode = 3
+            self.otherMode = 1
             self.evading = True
             self.i_patrol = 0
         else:
