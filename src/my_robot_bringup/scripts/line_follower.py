@@ -381,7 +381,7 @@ class line_follower(Node):
                 #deterministic resolution, if i am twix, then im the one who needs to back down.
                 if (self.now > self.time_of_last_tag + self.TAG_COOLDOWN) and self.get_namespace().strip('/') == 'twix':
                     self.initiated_tag = False
-                    self.tag = True
+                    self.tag = False
                     self.ack = True
 
             elif self.ack and not self.other_ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
@@ -392,8 +392,7 @@ class line_follower(Node):
                 self.tag = False
                 self.ack = True
         else:
-            if self.other_tag and not self.tag and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
-                self.tag = True
+            if self.other_tag and not self.ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.ack = True
             elif self.other_ack and (self.now > self.time_of_last_tag + self.TAG_COOLDOWN):
                 self.ack = False
