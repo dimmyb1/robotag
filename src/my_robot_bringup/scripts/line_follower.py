@@ -138,7 +138,7 @@ class line_follower(Node):
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 100 #6 seconds way too short. upping to 60 seconds.letting it be a bit more than pause_time
         self.started_initiating_tag = -1
-        self.INITIATE_TIMEOUT = 5 #short time out for initiating tag
+        self.INITIATE_TIMEOUT = 0.3 #based on esp-now latency
 
         self.tag = False
         self.ack = False
