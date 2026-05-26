@@ -138,7 +138,7 @@ class line_follower(Node):
         self.time_of_last_tag = -1
         self.TAG_COOLDOWN = 100 #6 seconds way too short. upping to 60 seconds.letting it be a bit more than pause_time
         self.started_initiating_tag = -1
-        self.INITIATE_TIMEOUT = 0.3 #based on esp-now latency
+        self.INITIATE_TIMEOUT = 5 #based on esp-now latency 0.3 is too short for simulation so it's been raised to 5.
 
         self.tag = False
         self.ack = False
@@ -284,22 +284,22 @@ class line_follower(Node):
         # 3 - Greedy
         # 4 - Avoidant
         # 5 - Interceptive
-        self.get_logger().info("Patrol VS Patrol :Q ")
+        self.get_logger().info("Patrol VS Random :Q ")
         if robot_name == 'twix':
             self.current_node = self.H
-            self.get_logger().info("Detected robot: twix. Starting at Node H. Pursuing :Q ")
+            self.get_logger().info("Detected robot: twix. Starting at Node H. Evading :Q ")
             other_robot_name = 'twirl'
-            self.behaviourMode = 1
+            self.behaviourMode = 2
             self.otherMode = 1
-            self.evading = False
+            self.evading = True
             self.i_patrol = 7
         elif robot_name == 'twirl':
             self.current_node = self.A
-            self.get_logger().info("Q: Detected robot: twirl. Starting at Node A. Evading :Q ")
+            self.get_logger().info("Q: Detected robot: twirl. Starting at Node A. Pursuing :Q ")
             other_robot_name = 'twix'
             self.behaviourMode = 1
-            self.otherMode = 1
-            self.evading = True
+            self.otherMode = 2
+            self.evading = False
             self.i_patrol = 0
         else:
             # Fallback in case you run it without a namespace
