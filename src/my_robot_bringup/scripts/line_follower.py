@@ -84,6 +84,7 @@ class line_follower(Node):
         self.STARTUP_TIME = -1
         self.ANGLE_TOLERANCE = 4
         self.safetyStop = False
+        self.reversing = False
 
         #junction turning vars
         self.stateFollow = True
@@ -284,22 +285,22 @@ class line_follower(Node):
         # 3 - Greedy
         # 4 - Avoidant
         # 5 - Interceptive
-        self.get_logger().info("Interception VS Avoidant :Q ")
+        self.get_logger().info("Interception VS Patrol :Q ")
         if robot_name == 'twix':
             self.current_node = self.H
-            self.get_logger().info("Detected robot: twix. Starting at Node H. Evading :Q ")
+            self.get_logger().info("Detected robot: twix. Starting at Node H. Pursuing :Q ")
             other_robot_name = 'twirl'
-            self.behaviourMode = 4
-            self.otherMode = 5
-            self.evading = True
+            self.behaviourMode = 5
+            self.otherMode = 1
+            self.evading = False
             self.i_patrol = 7
         elif robot_name == 'twirl':
             self.current_node = self.A
-            self.get_logger().info("Q: Detected robot: twirl. Starting at Node A. Pursuing :Q ")
+            self.get_logger().info("Q: Detected robot: twirl. Starting at Node A. Evading :Q ")
             other_robot_name = 'twix'
-            self.behaviourMode = 5
-            self.otherMode = 4
-            self.evading = False
+            self.behaviourMode = 1
+            self.otherMode = 5
+            self.evading = True
             self.i_patrol = 0
         else:
             # Fallback in case you run it without a namespace
@@ -546,6 +547,9 @@ class line_follower(Node):
             self.publisher.publish(self.cmd)
             self.motion_active = False
 
+            #Line-following related
+            if self.reversing:
+                self.reversing = False
             #Intersection-related
             if self.crawlingBackwards:
                 self.crawlingBackwards = False
@@ -772,7 +776,7 @@ class line_follower(Node):
 
     def search(self):
         #start condition
-        if not self.searching:
+        if not self.searching and not self.reversing:
             self.elapsed = 0
             self.found = False
             self.searchLeft = False
@@ -811,7 +815,8 @@ class line_follower(Node):
 
             else:
                 #reverse and restart search
-                self.start_motion(linear=-0.25, duration_ms=700) #was using realDelay, but its too small (150ms). changing to 700ms
+                self.start_motion(linear=0.3, duration_ms=700) #was using realDelay, but its too small (150ms). changing to 700ms
+                self.reversing = True
                 self.searchStep = 0
                 self.searching = False
                 return
