@@ -2411,7 +2411,7 @@ class line_follower(Node):
                                 
                 else:
                     #O=N, C=N
-                    eo = self.getEdgesFromNode(self.opp_old_loc)
+                    eo = self.getEdgesFromNode(self.opp_old_loc.name)
                     ec = self.getEdgesFromNode(toK)
 
                     be_greedy = True
@@ -2499,7 +2499,7 @@ class line_follower(Node):
                                         
                         else:
                             #O=N, C=N
-                            eo = self.getEdgesFromNode(self.opp_old_loc)
+                            eo = self.getEdgesFromNode(self.opp_old_loc.name)
                             ec = self.getEdgesFromNode(toK)
                             self.get_logger().info(f"Target Location: {toK} :Q ")
 
@@ -2741,7 +2741,7 @@ class line_follower(Node):
                     #O=N, C=E
 
                     #is C connected to O?
-                    if maxK in self.getEdgesFromNode(self.opp_old_loc):
+                    if maxK in self.getEdgesFromNode(self.opp_old_loc.name):
                         d = self.getNodesFromEdge(maxK)
                         d.remove(self.opp_old_loc)
                         if not d:
