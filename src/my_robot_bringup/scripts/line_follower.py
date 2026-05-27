@@ -2800,6 +2800,13 @@ class line_follower(Node):
             else:
                 self.turnRight(0)
 
+            if abs(self.facing - self.imu_target) ==2:
+                #180 turn, add 40s
+                self.grayEntryTime += 40
+            else:
+                #90 turn, add 25s
+                self.grayEntryTime += 25
+
             
     def updatePos(self):
         #update current variables
