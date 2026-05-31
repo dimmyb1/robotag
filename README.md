@@ -23,4 +23,4 @@ Additional diagram to help explain the cone creation segment of calculateProbabi
 The hardware architecture this project is modelled on:
 
 
-![Alt text](./diagramsAndTables/hardwareOverview.pdf)
+![link to diagramsAndTables/hardwareOverview.pdf](./diagramsAndTables/hardwareOverview.pdf)
