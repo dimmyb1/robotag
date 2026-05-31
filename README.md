@@ -16,7 +16,7 @@ ROS2 Jazzy Jalisco, Gazebo Harmonic v8
 Additional diagram to help explain the cone creation segment of calculateProbabilities():
 
 
-![Alt text](./diagramsAndTables/south-cone.png)
+![link to diagramsAndTables/south-cone.png](./diagramsAndTables/south-cone.png)
 
 
 
