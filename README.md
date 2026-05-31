@@ -17,3 +17,10 @@ Additional diagram to help explain the cone creation segment of calculateProbabi
 
 
 ![Alt text](./diagramsAndTables/south-cone.png)
+
+
+
+The hardware architecture this project is modelled on:
+
+
+![Alt text](./diagramsAndTables/hardwareOverview.pdf)
